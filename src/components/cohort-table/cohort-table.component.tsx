@@ -8,6 +8,7 @@ import {
   TableBody,
   TableCell,
 } from "carbon-components-react";
+import EmptyData from "../empty-data/empty-data.component";
 
 interface CohortTableProps {
   patients: fhir.Patient[];
@@ -35,7 +36,6 @@ const headers = [
 export const CohortTable = ({ patients }: CohortTableProps) => {
   return (
     <div>
-      CohortTable
       <DataTable rows={[]} headers={headers}>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
           <Table {...getTableProps()}>
@@ -60,6 +60,7 @@ export const CohortTable = ({ patients }: CohortTableProps) => {
           </Table>
         )}
       </DataTable>
+      <EmptyData displayText="data" />
     </div>
   );
 };

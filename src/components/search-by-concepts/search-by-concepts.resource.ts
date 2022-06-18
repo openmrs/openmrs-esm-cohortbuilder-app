@@ -1,35 +1,9 @@
-import { openmrsFetch, fhir } from "@openmrs/esm-framework";
+import { openmrsFetch } from "@openmrs/esm-framework";
 
 /**
- * This is a somewhat silly resource function. It searches for a patient
- * using the REST API, and then immediately gets the data using the FHIR
- * API for the first patient found. OpenMRS API endpoints are generally
- * hit using `openmrsFetch`. For FHIR endpoints we use the FHIR API
- * object.
- *
- * See the `fhir` object API docs: https://github.com/openmrs/openmrs-esm-core/blob/master/packages/framework/esm-api/docs/API.md#fhir
- * See the docs for the underlying fhir.js Client object: https://github.com/FHIR/fhir.js#api
- * See the OpenMRS FHIR Module docs: https://wiki.openmrs.org/display/projects/OpenMRS+FHIR+Module
- * See the OpenMRS REST API docs: https://rest.openmrs.org/#openmrs-rest-api
- *
- * @param query A patient name or ID
- * @returns The first matching patient
+ * @param query conceptName
+ * @returns Concepts
  */
-export async function getPatient(query) {
-  const searchResult = await openmrsFetch(
-    `/ws/rest/v1/patient?q=${query}&limit=1`,
-    {
-      method: "GET",
-    }
-  );
-  return (
-    await fhir.read<fhir.Patient>({
-      type: "Patient",
-      patient: searchResult.data.results[0].uuid,
-    })
-  ).data;
-}
-
 export async function getConcepts(conceptName: String) {
   const searchResult = await openmrsFetch(
     `/ws/rest/v1/concept?v=full&q=${conceptName}`,
@@ -38,10 +12,55 @@ export async function getConcepts(conceptName: String) {
     }
   );
 
-  return (
-    await fhir.read<fhir.ConceptMap>({
-      type: "Patient",
-      patient: searchResult.data.results[0].uuid,
-    })
-  ).data;
+  let allConcepts = [];
+  if (searchResult.data.results.length > 0) {
+    allConcepts = searchResult.data.results.map((concept) => {
+      const description = concept.descriptions.filter((des) =>
+        des.locale == "en" ? des.description : ""
+      );
+      const conceptData = {
+        uuid: concept.uuid,
+        units: concept.units || "",
+        answers: concept.answers,
+        hl7Abbrev: concept.datatype.hl7Abbreviation,
+        name: concept.name.name,
+        description:
+          description.length > 0
+            ? description[0].description
+            : "no description available",
+        datatype: concept.datatype,
+      };
+      return conceptData;
+    });
+  }
+
+  return allConcepts;
 }
+
+const addToHistory = (description, patients, parameters) => {
+  // console.log(description, patients, parameters);
+};
+
+export const search = (queryDetails, description = "") => {
+  openmrsFetch("/ws/rest/v1/reportingrest/adhocquery?v=full", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: queryDetails.query,
+  }).then((response) => {
+    response
+      .json()
+      .then((data) => {
+        if (data.error) {
+          return data.error;
+        } else {
+          data.searchDescription = description || queryDetails.label;
+          data.query = queryDetails.query;
+        }
+        if (JSON.stringify(data.rows) === JSON.stringify([])) {
+          addToHistory(description, data.rows, queryDetails.query);
+        }
+        return data;
+      })
+      .catch((error) => error);
+  });
+};

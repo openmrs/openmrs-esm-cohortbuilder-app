@@ -8,6 +8,7 @@ import {
   TableBody,
   TableCell,
 } from "carbon-components-react";
+import EmptyData from "../empty-data/empty-data.component";
 
 const headers = [
   {
@@ -35,7 +36,7 @@ const headers = [
 export const SearchHistory = () => {
   return (
     <div>
-      SearchHistory
+      <h5>Search History</h5>
       <DataTable rows={[]} headers={headers}>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
           <Table {...getTableProps()}>
@@ -60,6 +61,7 @@ export const SearchHistory = () => {
           </Table>
         )}
       </DataTable>
+      <EmptyData displayText="history" />
     </div>
   );
 };

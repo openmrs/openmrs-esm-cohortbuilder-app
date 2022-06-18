@@ -1,0 +1,25 @@
+.search {
+    max-height: 400px;
+    overflow: scroll;
+    position: absolute;
+    z-index: 2;
+    width: 85%;
+    background: #f0eeee;
+}
+
+.column {
+ padding-top: 1.5rem;
+}
+
+.dateRange {
+  padding-bottom: 1rem;
+ }
+ 
+ .buttonSet {
+   justify-content: end;
+ }
+
+ .text {
+   padding-top: 1.5rem;
+ }
+ 

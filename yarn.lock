@@ -1674,7 +1674,7 @@
     fhir.js "0.0.22"
     lodash-es "^4.17.21"
 
-"@openmrs/esm-app-shell@^3.3.2-pre.62":
+"@openmrs/esm-app-shell@^3.3.2-pre.64":
   version "3.3.2-pre.1211"
   resolved "https://registry.npmjs.org/@openmrs/esm-app-shell/-/esm-app-shell-3.3.2-pre.1211.tgz"
   integrity sha512-+B+p6fjROvmFEIQsR3DjlA7YcYvMbyDnXgTCE0r0uOxHiEpOTCY8LXr1wIdgehEP+mE9yii6LVVo5MwzO1NM/A==
@@ -1761,6 +1761,13 @@
     uuid "^8.3.2"
     workbox-window "^6.1.5"
 
+"@openmrs/esm-patient-common-lib@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@openmrs/esm-patient-common-lib/-/esm-patient-common-lib-3.1.0.tgz#eb9ee915dff3b10e549247f53c83a9c52ae509c8"
+  integrity sha512-A52dVekPaVCRCBG6EkJx5Qj82PRHXKHXq0u7qVSIPBMY0hh80eSquGSooMxWq5emSjV5t2aC1eqExjvfQocFsQ==
+  dependencies:
+    lodash-es "^4.17.15"
+
 "@openmrs/esm-react-utils@^3.3.2-pre.1211":
   version "3.3.2-pre.1211"
   resolved "https://registry.npmjs.org/@openmrs/esm-react-utils/-/esm-react-utils-3.3.2-pre.1211.tgz"
@@ -1793,7 +1800,7 @@
   dependencies:
     semver "^7.3.2"
 
-"@openmrs/webpack-config@^3.3.2-pre.62":
+"@openmrs/webpack-config@^3.3.2-pre.64":
   version "3.3.2-pre.1211"
   resolved "https://registry.npmjs.org/@openmrs/webpack-config/-/webpack-config-3.3.2-pre.1211.tgz"
   integrity sha512-f5C55FzvoLH/ExbhzDPERvvHu/BfwpcmbjPT9CZUf9c8JTjOrEofJa1W8hXo/ql0z6M9zUcxGgz6U2K9bFFzpQ==
@@ -7072,6 +7079,11 @@ mkdirp@^1.0.3:
   resolved "https://registry.npmjs.org/mkdirp/-/mkdirp-1.0.4.tgz"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
+moment@^2.29.3:
+  version "2.29.3"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.3.tgz#edd47411c322413999f7a5940d526de183c031f3"
+  integrity sha512-c6YRvhEo//6T2Jz/vVtYzqBzwvPT95JBQ+smCytzf7c50oMZRsR/a4w88aD34I+/QVSfnoAnSBFPJHItlOMJVw==
+
 mri@^1.1.5:
   version "1.2.0"
   resolved "https://registry.npmjs.org/mri/-/mri-1.2.0.tgz"
@@ -7306,13 +7318,13 @@ opener@^1.5.2:
   integrity sha512-ur5UIdyw5Y7yEj9wLzhqXiy6GZ3Mwx0yGI+5sMn2r0N0v3cKJvUmFH5yPP+WXh9e0xfyzyJX95D8l088DNFj7A==
 
 openmrs@next:
-  version "3.3.2-pre.62"
-  resolved "https://registry.npmjs.org/openmrs/-/openmrs-3.3.2-pre.62.tgz"
-  integrity sha512-dUUKp6GgbbPx3tZntAaWZ7mWIWAfpk/cODg4l/Mzub3vXVrycwkGhKpV5LWKgu4RywZleiSBiB19qufzMRA0uw==
+  version "3.3.2-pre.64"
+  resolved "https://registry.npmjs.org/openmrs/-/openmrs-3.3.2-pre.64.tgz"
+  integrity sha512-iJviFC8cPYV2LsvVyWys+G4ugP7k5A54cDgDnhrjse4Lj5XFMf9e+GGyD6LMVq/hwJEBywKgFNngFl8P4t5TNw==
   dependencies:
     "@babel/preset-typescript" "^7.16.7"
-    "@openmrs/esm-app-shell" "^3.3.2-pre.62"
-    "@openmrs/webpack-config" "^3.3.2-pre.62"
+    "@openmrs/esm-app-shell" "^3.3.2-pre.64"
+    "@openmrs/webpack-config" "^3.3.2-pre.64"
     "@types/react" "^16.9.46"
     "@types/systemjs" "^6.1.0"
     autoprefixer "^10.4.2"

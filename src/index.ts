@@ -10,6 +10,8 @@ const importTranslation = require.context(
 const backendDependencies = {
   fhir2: "^1.2.0",
   "webservices.rest": "^2.2.0",
+  reportingrest: "^1.0.0",
+  reporting: "^1.0.0",
 };
 
 function setupOpenMRS() {
