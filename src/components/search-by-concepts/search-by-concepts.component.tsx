@@ -43,6 +43,8 @@ export const SearchByConcepts: React.FC = () => {
   const [searchResults, setSearchResults] = useState<Concept[]>([]);
   const [concept, setConcept] = useState<Concept>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [lastDays, setLastDays] = useState(0);
+  const [lastMonths, setLastMonths] = useState(0);
   const [isSearchResultsEmpty, setIsSearchResultsEmpty] = useState(false);
   const [observations, setObservations] = useState({
     timeModifier: "ANY",
@@ -68,6 +70,14 @@ export const SearchByConcepts: React.FC = () => {
     }
   };
 
+  const handleLastDaysAndMonths = () => {
+    const onOrAfter = moment()
+      .subtract(lastDays, "days")
+      .subtract(lastMonths, "months")
+      .format("DD-MM-YYYY");
+    setObservations({ ...observations, onOrAfter });
+  };
+
   const handleDates = (dates: Date[]) => {
     setObservations({
       ...observations,
@@ -82,6 +92,7 @@ export const SearchByConcepts: React.FC = () => {
   };
 
   const handleSubmit = () => {
+    handleLastDaysAndMonths();
     const types = {
       CWE: "codedObsSearchAdvanced",
       NM: "numericObsSearchAdvanced",
@@ -186,6 +197,7 @@ export const SearchByConcepts: React.FC = () => {
                 min={0}
                 size="sm"
                 value={0}
+                onChange={(e) => setLastMonths(e.imaginaryTarget.value)}
               />
               <p style={{ paddingRight: 20, paddingLeft: 20 }}>months</p>
             </div>
@@ -196,6 +208,7 @@ export const SearchByConcepts: React.FC = () => {
                 min={0}
                 size="sm"
                 value={0}
+                onChange={(e) => setLastDays(e.imaginaryTarget.value)}
               />
               <p style={{ paddingRight: 20, paddingLeft: 20 }}>and/or days</p>
             </div>
