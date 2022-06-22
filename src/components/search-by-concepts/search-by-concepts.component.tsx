@@ -13,8 +13,7 @@ import {
   InlineNotification,
 } from "carbon-components-react";
 import { getConcepts, search } from "./search-by-concepts.resource";
-import { JSONHelper } from "./jsonHelper";
-import { queryDescriptionBuilder } from "./helpers";
+import { composeJson, queryDescriptionBuilder } from "./helpers";
 import styles from "./search-by-concepts.style.css";
 import moment from "moment";
 import { getGlobalStore } from "@openmrs/esm-framework";
@@ -40,6 +39,16 @@ interface Notification {
   title: string;
 }
 
+interface Observation {
+  timeModifier: string;
+  question: string;
+  operator1: string;
+  modifier: string;
+  onOrBefore: string;
+  onOrAfter: string;
+  value1: string;
+}
+
 const observationOptions = [
   {
     id: "option-0",
@@ -50,6 +59,72 @@ const observationOptions = [
     id: "option-1",
     label: "Patients who do not have these observations",
     value: "NO",
+  },
+];
+
+const whichObservation = [
+  {
+    id: "option-0",
+    label: "Any",
+    value: "ANY",
+  },
+  {
+    id: "option-1",
+    label: "None",
+    value: "NO",
+  },
+  {
+    id: "option-2",
+    label: "Earliest",
+    value: "FIRST",
+  },
+  {
+    id: "option-3",
+    label: "Most Recent",
+    value: "LAST",
+  },
+  {
+    id: "option-4",
+    label: "Lowest",
+    value: "MIN",
+  },
+  {
+    id: "option-5",
+    label: "Highest",
+    value: "MAX",
+  },
+  {
+    id: "option-6",
+    label: "Average",
+    value: "AVG",
+  },
+];
+
+const operators = [
+  {
+    id: "option-0",
+    label: "<",
+    value: "LESS_THAN",
+  },
+  {
+    id: "option-1",
+    label: "<=",
+    value: "LESS_EQUAL",
+  },
+  {
+    id: "option-2",
+    label: "=",
+    value: "EQUAL",
+  },
+  {
+    id: "option-3",
+    label: ">=",
+    value: "GREATER_EQUAL",
+  },
+  {
+    id: "option-4",
+    label: ">",
+    value: "GREATER_THAN",
   },
 ];
 
@@ -64,15 +139,15 @@ export const SearchByConcepts: React.FC = () => {
   const [lastDays, setLastDays] = useState(0);
   const [lastMonths, setLastMonths] = useState(0);
   const [isSearchResultsEmpty, setIsSearchResultsEmpty] = useState(false);
-  const [observations, setObservations] = useState({
+  const [observations, setObservations] = useState<Observation>({
     timeModifier: "ANY",
     question: "",
     operator1: "LESS_THAN",
     modifier: "",
     onOrBefore: "",
     onOrAfter: "",
+    value1: "",
   });
-  const jsonHelper = new JSONHelper();
 
   useEffect(() => {
     notificationStore.subscribe((store) => {
@@ -117,6 +192,18 @@ export const SearchByConcepts: React.FC = () => {
     setSearchResults([]);
   };
 
+  const handleReset = () => {
+    setObservations({
+      timeModifier: "ANY",
+      question: "",
+      operator1: "LESS_THAN",
+      modifier: "",
+      onOrBefore: "",
+      onOrAfter: "",
+      value1: "",
+    });
+  };
+
   const handleSubmit = async () => {
     setIsLoading(true);
     handleLastDaysAndMonths();
@@ -150,8 +237,7 @@ export const SearchByConcepts: React.FC = () => {
         : "";
     });
 
-    const searchData = jsonHelper.composeJson(params);
-
+    const searchData = composeJson(params);
     const description = queryDescriptionBuilder(observations, name);
     await search(searchData, description);
     setIsLoading(false);
@@ -205,23 +291,85 @@ export const SearchByConcepts: React.FC = () => {
             <p className={styles.text}>There are no search items</p>
           )}
         </Column>
-        <Column className={styles.column} sm={2} md={{ span: 4 }}>
-          <Dropdown
-            id="timeModifier"
-            onChange={(data) =>
-              setObservations({
-                ...observations,
-                timeModifier: data.selectedItem.value,
-              })
-            }
-            initialSelectedItem={observationOptions[0]}
-            items={observationOptions}
-            label=""
-          />
-        </Column>
+        {concept?.hl7Abbrev === "NM" ? (
+          <>
+            <Column className={styles.column} sm={2} md={{ span: 6 }}>
+              <div style={{ display: "flex" }}>
+                <div className={styles.mulitipleInputs}>
+                  <p style={{ paddingRight: 20 }}>What observations </p>
+                  <Dropdown
+                    id="timeModifier"
+                    onChange={(data) =>
+                      setObservations({
+                        ...observations,
+                        timeModifier: data.selectedItem.value,
+                      })
+                    }
+                    initialSelectedItem={whichObservation[0]}
+                    items={whichObservation}
+                    label=""
+                  />
+                </div>
+              </div>
+            </Column>
+            <Column className={styles.column}>
+              <div style={{ display: "flex" }}>
+                <div className={styles.mulitipleInputs}>
+                  <p style={{ paddingRight: 20 }}>What values </p>
+                  <Dropdown
+                    style={{ width: 300, paddingRight: 30 }}
+                    id="operator1"
+                    onChange={(data) =>
+                      setObservations({
+                        ...observations,
+                        operator1: data.selectedItem.value,
+                      })
+                    }
+                    initialSelectedItem={operators[0]}
+                    items={operators}
+                    label="What values"
+                  />
+                </div>
+                <div className={styles.mulitipleInputs}>
+                  <p
+                    style={{ paddingRight: 20 }}
+                  >{`Enter a value in ${concept.units}`}</p>
+                  <NumberInput
+                    id="operator-value"
+                    invalidText="Number is not valid"
+                    min={0}
+                    size="sm"
+                    value={0}
+                    onChange={(e) =>
+                      setObservations({
+                        ...observations,
+                        value1: e.imaginaryTarget.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+            </Column>
+          </>
+        ) : (
+          <Column className={styles.column} sm={2} md={{ span: 4 }}>
+            <Dropdown
+              id="timeModifier"
+              onChange={(data) =>
+                setObservations({
+                  ...observations,
+                  timeModifier: data.selectedItem.value,
+                })
+              }
+              initialSelectedItem={observationOptions[0]}
+              items={observationOptions}
+              label=""
+            />
+          </Column>
+        )}
         <Column className={styles.column}>
           <div style={{ display: "flex" }}>
-            <div style={{ display: "flex", alignItems: "center" }}>
+            <div className={styles.mulitipleInputs}>
               <p style={{ paddingRight: 20 }}>Within the last </p>
               <NumberInput
                 id="last-months"
@@ -233,7 +381,7 @@ export const SearchByConcepts: React.FC = () => {
               />
               <p style={{ paddingRight: 20, paddingLeft: 20 }}>months</p>
             </div>
-            <div style={{ display: "flex", alignItems: "center" }}>
+            <div className={styles.mulitipleInputs}>
               <NumberInput
                 id="last-days"
                 invalidText="Number is not valid"
@@ -273,7 +421,9 @@ export const SearchByConcepts: React.FC = () => {
             <Button kind="primary" onClick={handleSubmit}>
               {isLoading ? <InlineLoading description="Loading" /> : "Search"}
             </Button>
-            <Button kind="secondary">Reset</Button>
+            <Button kind="secondary" onClick={handleReset}>
+              Reset
+            </Button>
           </ButtonSet>
           {notification && (
             <InlineNotification

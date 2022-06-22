@@ -38,7 +38,7 @@ const tabs: TabItem[] = [
     component: <SearchByConcepts />,
   },
   {
-    name: "Saved",
+    name: "Saved Definitions",
     component: <SearchByConcepts />,
   },
 ];
