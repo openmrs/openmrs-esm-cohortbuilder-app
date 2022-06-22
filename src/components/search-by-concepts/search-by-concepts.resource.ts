@@ -1,4 +1,6 @@
-import { openmrsFetch } from "@openmrs/esm-framework";
+import { openmrsFetch, getGlobalStore } from "@openmrs/esm-framework";
+
+const patientsStore = getGlobalStore("patients");
 
 /**
  * @param query conceptName
@@ -37,8 +39,9 @@ export async function getConcepts(conceptName: String) {
   return allConcepts;
 }
 
-const addToHistory = (description, patients, parameters) => {
-  // console.log(description, patients, parameters);
+const addToHistory = (description, patients: [], parameters) => {
+  const newHistory = [{ description, patients, parameters }];
+  window.sessionStorage.setItem("openmrsHistory", JSON.stringify(newHistory));
 };
 
 export const search = (queryDetails, description = "") => {
@@ -46,21 +49,17 @@ export const search = (queryDetails, description = "") => {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: queryDetails.query,
-  }).then((response) => {
-    response
-      .json()
-      .then((data) => {
-        if (data.error) {
-          return data.error;
-        } else {
-          data.searchDescription = description || queryDetails.label;
-          data.query = queryDetails.query;
-        }
-        if (JSON.stringify(data.rows) === JSON.stringify([])) {
-          addToHistory(description, data.rows, queryDetails.query);
-        }
-        return data;
-      })
-      .catch((error) => error);
-  });
+  })
+    .then((response) => {
+      const { data } = response;
+      if (data.error) {
+        return data.error;
+      } else {
+        data.searchDescription = description || queryDetails.label;
+        data.query = queryDetails.query;
+        patientsStore.setState({ patients: data.rows });
+        addToHistory(description, data.rows, queryDetails.query);
+      }
+    })
+    .catch((error) => error);
 };

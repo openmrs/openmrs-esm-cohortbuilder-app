@@ -1,4 +1,4 @@
-import { getAsyncLifecycle } from "@openmrs/esm-framework";
+import { getAsyncLifecycle, createGlobalStore } from "@openmrs/esm-framework";
 
 const importTranslation = require.context(
   "../translations",
@@ -6,6 +6,10 @@ const importTranslation = require.context(
   /.json$/,
   "lazy"
 );
+
+createGlobalStore("patients", {
+  patients: [],
+});
 
 const backendDependencies = {
   fhir2: "^1.2.0",

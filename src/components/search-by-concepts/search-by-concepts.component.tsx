@@ -71,11 +71,13 @@ export const SearchByConcepts: React.FC = () => {
   };
 
   const handleLastDaysAndMonths = () => {
-    const onOrAfter = moment()
-      .subtract(lastDays, "days")
-      .subtract(lastMonths, "months")
-      .format("DD-MM-YYYY");
-    setObservations({ ...observations, onOrAfter });
+    if (lastDays && lastMonths) {
+      const onOrAfter = moment()
+        .subtract(lastDays, "days")
+        .subtract(lastMonths, "months")
+        .format("DD-MM-YYYY");
+      setObservations({ ...observations, onOrAfter });
+    }
   };
 
   const handleDates = (dates: Date[]) => {
@@ -153,6 +155,10 @@ export const SearchByConcepts: React.FC = () => {
                     kind="ghost"
                     onClick={() => {
                       setConcept(concept);
+                      setObservations({
+                        ...observations,
+                        question: concept.uuid,
+                      });
                       setSearchResults([]);
                     }}
                   >

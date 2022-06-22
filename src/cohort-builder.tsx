@@ -8,7 +8,7 @@ const CohortBuilder: React.FC = () => {
   return (
     <div className={`omrs-main-content ${styles.container}`}>
       <NavigationTabs />
-      <CohortTable patients={[]} />
+      <CohortTable />
       <SearchHistory />
     </div>
   );

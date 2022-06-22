@@ -40,14 +40,6 @@ const tabs: TabItem[] = [
     name: "Saved",
     component: <SearchByConcepts />,
   },
-  {
-    name: "Search History",
-    component: <SearchByConcepts />,
-  },
-  {
-    name: "Cohort Results",
-    component: <SearchByConcepts />,
-  },
 ];
 
 export const NavigationTabs: React.FC = () => {

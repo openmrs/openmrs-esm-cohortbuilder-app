@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   DataTable,
   Table,
@@ -9,19 +9,20 @@ import {
   TableCell,
 } from "carbon-components-react";
 import EmptyData from "../empty-data/empty-data.component";
-
-interface CohortTableProps {
-  patients: fhir.Patient[];
-}
+import { getGlobalStore } from "@openmrs/esm-framework";
 
 const headers = [
   {
-    key: "id",
+    key: "patientId",
     header: "OpenMRS ID",
   },
   {
-    key: "name",
-    header: "Name",
+    key: "firstname",
+    header: "First Name",
+  },
+  {
+    key: "lastname",
+    header: "Last Name",
   },
   {
     key: "age",
@@ -33,10 +34,23 @@ const headers = [
   },
 ];
 
-export const CohortTable = ({ patients }: CohortTableProps) => {
+const patientsStore = getGlobalStore("patients");
+
+export const CohortTable = () => {
+  const [tableData, setTableData] = useState([]);
+
+  useEffect(() => {
+    patientsStore.subscribe((patients) => {
+      patients.patients.map(
+        (patient) => (patient.id = patient.patientId.toString())
+      );
+      setTableData(patients.patients);
+    });
+  }, []);
+
   return (
     <div>
-      <DataTable rows={[]} headers={headers}>
+      <DataTable rows={tableData} headers={headers}>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
           <Table {...getTableProps()}>
             <TableHead>
@@ -49,10 +63,10 @@ export const CohortTable = ({ patients }: CohortTableProps) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.map((row) => (
-                <TableRow {...getRowProps({ row })}>
-                  {row.cells.map((cell) => (
-                    <TableCell key={cell.id}>{cell.value}</TableCell>
+              {rows.map((row, index) => (
+                <TableRow {...getRowProps({ row })} key={index}>
+                  {row.cells.map((cell, index) => (
+                    <TableCell key={index}>{cell.value}</TableCell>
                   ))}
                 </TableRow>
               ))}
@@ -60,7 +74,7 @@ export const CohortTable = ({ patients }: CohortTableProps) => {
           </Table>
         )}
       </DataTable>
-      <EmptyData displayText="data" />
+      {!tableData.length && <EmptyData displayText="data" />}
     </div>
   );
 };
