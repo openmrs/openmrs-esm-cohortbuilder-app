@@ -15,11 +15,12 @@ export async function getConcepts(conceptName: String) {
     }
   );
 
-  let allConcepts = [];
+  let concepts = [];
   if (searchResult.data.results.length > 0) {
-    allConcepts = searchResult.data.results.map((concept) => {
-      const description = concept.descriptions.filter((des) =>
-        des.locale == "en" ? des.description : ""
+    concepts = searchResult.data.results.map((concept) => {
+      const description = concept.descriptions.filter(
+        (description: { locale: string; description: string }) =>
+          description.locale == "en" ? description.description : ""
       );
       const conceptData = {
         uuid: concept.uuid,
@@ -37,15 +38,23 @@ export async function getConcepts(conceptName: String) {
     });
   }
 
-  return allConcepts;
+  return concepts;
 }
 
-const addToHistory = (description, patients: [], parameters) => {
+const addToHistory = (
+  description: string,
+  patients: fhir.Patient[],
+  parameters: []
+) => {
   const newHistory = [{ description, patients, parameters }];
   window.sessionStorage.setItem("openmrsHistory", JSON.stringify(newHistory));
 };
 
-export const search = async (queryDetails, description = "") => {
+/**
+ * @param queryDetails query details
+ * @param description query description
+ */
+export const search = async (queryDetails, description: string) => {
   await openmrsFetch("/ws/rest/v1/reportingrest/adhocquery?v=full", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -57,7 +66,6 @@ export const search = async (queryDetails, description = "") => {
         notificationStore.setState({
           notification: { kind: "error", title: data.error },
         });
-        return data.error;
       } else {
         data.searchDescription = description || queryDetails.label;
         data.query = queryDetails.query;
@@ -65,7 +73,7 @@ export const search = async (queryDetails, description = "") => {
         notificationStore.setState({
           notification: {
             kind: "success",
-            title: `Search completed with ${data.rows.length} results`,
+            title: `Search completed with ${data.rows.length} result(s)`,
           },
         });
         addToHistory(description, data.rows, queryDetails.query);

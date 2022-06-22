@@ -58,7 +58,7 @@ export const isNullValues = (fieldValues) => {
   return fieldValues === "all" || !fieldValues ? true : false;
 };
 
-export const getDefinitionLibraryKey = (field, value) => {
+export const getDefinitionLibraryKey = (field: string, value: string) => {
   let definitionLibraryKey = "reporting.library.cohortDefinition.builtIn";
   switch (field) {
     case "gender":

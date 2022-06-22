@@ -174,7 +174,7 @@ export const SearchByConcepts: React.FC = () => {
       const onOrAfter = moment()
         .subtract(lastDays, "days")
         .subtract(lastMonths, "months")
-        .format("DD-MM-YYYY");
+        .format();
       setObservations({ ...observations, onOrAfter });
     }
   };
@@ -182,8 +182,8 @@ export const SearchByConcepts: React.FC = () => {
   const handleDates = (dates: Date[]) => {
     setObservations({
       ...observations,
-      onOrBefore: moment(dates[0]).format("DD-MM-YYYY"),
-      onOrAfter: moment(dates[1]).format("DD-MM-YYYY"),
+      onOrBefore: moment(dates[0]).format(),
+      onOrAfter: moment(dates[1]).format(),
     });
   };
 
