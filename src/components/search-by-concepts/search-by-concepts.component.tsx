@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ButtonSet,
   Button,
@@ -9,12 +9,15 @@ import {
   Search,
   CodeSnippetSkeleton,
   NumberInput,
+  InlineLoading,
+  InlineNotification,
 } from "carbon-components-react";
 import { getConcepts, search } from "./search-by-concepts.resource";
 import { JSONHelper } from "./jsonHelper";
 import { queryDescriptionBuilder } from "./helpers";
 import styles from "./search-by-concepts.style.css";
 import moment from "moment";
+import { getGlobalStore } from "@openmrs/esm-framework";
 
 interface Concept {
   uuid: string;
@@ -24,6 +27,17 @@ interface Concept {
   name: string;
   description: string;
   datatype: any;
+}
+
+interface Notification {
+  kind:
+    | "error"
+    | "info"
+    | "info-square"
+    | "success"
+    | "warning"
+    | "warning-alt";
+  title: string;
 }
 
 const observationOptions = [
@@ -39,16 +53,20 @@ const observationOptions = [
   },
 ];
 
+const notificationStore = getGlobalStore("notification");
+
 export const SearchByConcepts: React.FC = () => {
   const [searchResults, setSearchResults] = useState<Concept[]>([]);
+  const [notification, setNotification] = useState<Notification>(null);
   const [concept, setConcept] = useState<Concept>(null);
+  const [isSearching, setIsSearching] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [lastDays, setLastDays] = useState(0);
   const [lastMonths, setLastMonths] = useState(0);
   const [isSearchResultsEmpty, setIsSearchResultsEmpty] = useState(false);
   const [observations, setObservations] = useState({
     timeModifier: "ANY",
-    question: concept?.uuid,
+    question: "",
     operator1: "LESS_THAN",
     modifier: "",
     onOrBefore: "",
@@ -56,16 +74,22 @@ export const SearchByConcepts: React.FC = () => {
   });
   const jsonHelper = new JSONHelper();
 
+  useEffect(() => {
+    notificationStore.subscribe((store) => {
+      setNotification(store.notification);
+    });
+  }, []);
+
   const onSearch = (search: string) => {
     if (search.length > 2) {
       setConcept(null);
       setSearchResults([]);
-      setIsLoading(true);
+      setIsSearching(true);
       getConcepts(search).then((results: Concept[]) => {
         results.length
           ? setSearchResults(results)
           : setIsSearchResultsEmpty(true);
-        setIsLoading(false);
+        setIsSearching(false);
       });
     }
   };
@@ -93,7 +117,8 @@ export const SearchByConcepts: React.FC = () => {
     setSearchResults([]);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    setIsLoading(true);
     handleLastDaysAndMonths();
     const types = {
       CWE: "codedObsSearchAdvanced",
@@ -128,7 +153,8 @@ export const SearchByConcepts: React.FC = () => {
     const searchData = jsonHelper.composeJson(params);
 
     const description = queryDescriptionBuilder(observations, name);
-    search(searchData, description);
+    await search(searchData, description);
+    setIsLoading(false);
   };
 
   return (
@@ -146,7 +172,7 @@ export const SearchByConcepts: React.FC = () => {
             size="lg"
           />
           <div className={styles.search}>
-            {isLoading ? (
+            {isSearching ? (
               <CodeSnippetSkeleton type="multi" />
             ) : (
               searchResults.map((concept: Concept) => (
@@ -245,10 +271,17 @@ export const SearchByConcepts: React.FC = () => {
         <Column sm={2} md={{ span: 4, offset: 4 }} className={styles.column}>
           <ButtonSet className={styles.buttonSet}>
             <Button kind="primary" onClick={handleSubmit}>
-              Search
+              {isLoading ? <InlineLoading description="Loading" /> : "Search"}
             </Button>
             <Button kind="secondary">Reset</Button>
           </ButtonSet>
+          {notification && (
+            <InlineNotification
+              className={styles.notification}
+              kind={notification.kind}
+              title={notification.title}
+            />
+          )}
         </Column>
       </div>
     </div>

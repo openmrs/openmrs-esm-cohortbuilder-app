@@ -9,7 +9,7 @@ export interface EmptyDataProps {
 
 const EmptyData: React.FC<EmptyDataProps> = (props) => {
   return (
-    <Tile light className={styles.tile}>
+    <Tile className={styles.tile}>
       <EmptyDataIllustration />
       <p className={styles.content}>
         There are no {props.displayText.toLowerCase()} to display

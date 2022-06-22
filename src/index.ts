@@ -9,6 +9,7 @@ const importTranslation = require.context(
 
 createGlobalStore("patients", {
   patients: [],
+  notification: {},
 });
 
 const backendDependencies = {

@@ -40,11 +40,11 @@ export const CohortTable = () => {
   const [tableData, setTableData] = useState([]);
 
   useEffect(() => {
-    patientsStore.subscribe((patients) => {
-      patients.patients.map(
+    patientsStore.subscribe((store) => {
+      store.patients.map(
         (patient) => (patient.id = patient.patientId.toString())
       );
-      setTableData(patients.patients);
+      setTableData(store.patients);
     });
   }, []);
 

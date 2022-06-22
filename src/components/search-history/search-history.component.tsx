@@ -7,8 +7,10 @@ import {
   TableHeader,
   TableBody,
   TableCell,
+  Button,
 } from "carbon-components-react";
 import EmptyData from "../empty-data/empty-data.component";
+import styles from "./search-history.style.css";
 
 const headers = [
   {
@@ -36,7 +38,10 @@ const headers = [
 export const SearchHistory = () => {
   return (
     <div>
-      <h5>Search History</h5>
+      <div className={styles.header}>
+        <h5>Search History</h5>
+        <Button kind="danger--tertiary">Clear Search History</Button>
+      </div>
       <DataTable rows={[]} headers={headers}>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
           <Table {...getTableProps()}>
