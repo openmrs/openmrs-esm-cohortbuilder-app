@@ -129,6 +129,7 @@ const operators = [
 ];
 
 const notificationStore = getGlobalStore("notification");
+const patientsStore = getGlobalStore("patients");
 
 export const SearchByConcepts: React.FC = () => {
   const [searchResults, setSearchResults] = useState<Concept[]>([]);
@@ -193,6 +194,8 @@ export const SearchByConcepts: React.FC = () => {
   };
 
   const handleReset = () => {
+    patientsStore.setState({ patients: [] });
+    setConcept(null);
     setLastDays(0);
     setLastMonths(0);
     setObservations({
