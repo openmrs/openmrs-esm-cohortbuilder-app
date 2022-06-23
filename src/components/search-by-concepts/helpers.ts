@@ -10,6 +10,7 @@ interface Column {
   key: string;
   type?: string;
 }
+
 export const composeJson = (searchParameters) => {
   const query: Query = {
     type: "org.openmrs.module.reporting.dataset.definition.PatientDataSetDefinition",
@@ -117,13 +118,13 @@ export const addColumnsToDisplay = () => {
     },
   ];
 
-  const colValues = columns.map((aColumn: Column) => {
+  const columnValues = columns.map((aColumn: Column) => {
     aColumn.type =
       "org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition";
     aColumn.key = `reporting.library.patientDataDefinition.builtIn.${aColumn.key}`;
     return aColumn;
   });
-  return colValues;
+  return columnValues;
 };
 
 export const formatDate = (dateString: string) => {

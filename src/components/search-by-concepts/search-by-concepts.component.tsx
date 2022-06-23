@@ -297,7 +297,7 @@ export const SearchByConcepts: React.FC = () => {
           <>
             <Column className={styles.column} sm={2} md={{ span: 6 }}>
               <div style={{ display: "flex" }}>
-                <div className={styles.mulitipleInputs}>
+                <div className={styles.multipleInputs}>
                   <p style={{ paddingRight: 20 }}>What observations </p>
                   <Dropdown
                     id="timeModifier"
@@ -309,7 +309,7 @@ export const SearchByConcepts: React.FC = () => {
                     }
                     initialSelectedItem={whichObservation[0]}
                     items={whichObservation}
-                    style={{ width: 300 }}
+                    className={styles.timeModifier}
                     label=""
                   />
                 </div>
@@ -317,7 +317,7 @@ export const SearchByConcepts: React.FC = () => {
             </Column>
             <Column className={styles.column}>
               <div style={{ display: "flex" }}>
-                <div className={styles.mulitipleInputs}>
+                <div className={styles.multipleInputs}>
                   <p style={{ paddingRight: 20 }}>What values </p>
                   <Dropdown
                     style={{ width: 300, paddingRight: 30 }}
@@ -333,7 +333,7 @@ export const SearchByConcepts: React.FC = () => {
                     label="What values"
                   />
                 </div>
-                <div className={styles.mulitipleInputs}>
+                <div className={styles.multipleInputs}>
                   <p
                     style={{ paddingRight: 20 }}
                   >{`Enter a value in ${concept.units}`}</p>
@@ -372,7 +372,7 @@ export const SearchByConcepts: React.FC = () => {
         )}
         <Column className={styles.column}>
           <div style={{ display: "flex" }}>
-            <div className={styles.mulitipleInputs}>
+            <div className={styles.multipleInputs}>
               <p style={{ paddingRight: 20 }}>Within the last </p>
               <NumberInput
                 id="last-months"
@@ -382,9 +382,9 @@ export const SearchByConcepts: React.FC = () => {
                 value={lastMonths}
                 onChange={(event) => setLastMonths(event.imaginaryTarget.value)}
               />
-              <p style={{ paddingRight: 20, paddingLeft: 20 }}>months</p>
+              <p className={styles.lastTime}>months</p>
             </div>
-            <div className={styles.mulitipleInputs}>
+            <div className={styles.multipleInputs}>
               <NumberInput
                 id="last-days"
                 invalidText="Number is not valid"
@@ -393,7 +393,7 @@ export const SearchByConcepts: React.FC = () => {
                 value={lastDays}
                 onChange={(event) => setLastDays(event.imaginaryTarget.value)}
               />
-              <p style={{ paddingRight: 20, paddingLeft: 20 }}>and/or days</p>
+              <p className={styles.lastTime}>and/or days</p>
             </div>
           </div>
         </Column>
