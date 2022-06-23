@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableBody,
   TableCell,
+  Pagination,
 } from "carbon-components-react";
 import EmptyData from "../empty-data/empty-data.component";
 import { getGlobalStore } from "@openmrs/esm-framework";
@@ -36,8 +37,20 @@ const headers = [
 
 const patientsStore = getGlobalStore("patients");
 
+interface PaginationData {
+  page: number;
+  pageSize: number;
+}
+
 export const CohortTable = () => {
   const [tableData, setTableData] = useState([]);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const handlePagination = ({ page, pageSize }: PaginationData) => {
+    setPage(page);
+    setPageSize(pageSize);
+  };
 
   useEffect(() => {
     patientsStore.subscribe((store) => {
@@ -63,17 +76,33 @@ export const CohortTable = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.map((row, index) => (
-                <TableRow {...getRowProps({ row })} key={index}>
-                  {row.cells.map((cell, index) => (
-                    <TableCell key={index}>{cell.value}</TableCell>
-                  ))}
-                </TableRow>
-              ))}
+              {rows
+                .slice((page - 1) * pageSize)
+                .slice(0, pageSize)
+                .map((row, index) => (
+                  <TableRow {...getRowProps({ row })} key={index}>
+                    {row.cells.map((cell, index) => (
+                      <TableCell key={index}>{cell.value}</TableCell>
+                    ))}
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         )}
       </DataTable>
+      {tableData.length > 0 && (
+        <Pagination
+          backwardText="Previous page"
+          forwardText="Next page"
+          itemsPerPageText="Items per page:"
+          onChange={handlePagination}
+          page={1}
+          pageSize={10}
+          pageSizes={[10, 20, 30, 40, 50]}
+          size="md"
+          totalItems={tableData.length}
+        />
+      )}
       {!tableData.length && <EmptyData displayText="data" />}
     </div>
   );

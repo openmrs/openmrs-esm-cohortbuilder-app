@@ -53,9 +53,9 @@ export const composeJson = (searchParameters) => {
 
 export const isNullValues = (fieldValues) => {
   if (Array.isArray(fieldValues) && fieldValues.length >= 1) {
-    return !fieldValues[0].value ? true : false;
+    return !fieldValues[0].value;
   }
-  return fieldValues === "all" || !fieldValues ? true : false;
+  return fieldValues === "all" || !fieldValues;
 };
 
 export const getDefinitionLibraryKey = (field: string, value: string) => {

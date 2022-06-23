@@ -3,8 +3,12 @@
     overflow: scroll;
     position: absolute;
     z-index: 2;
-    width: 85%;
+    width: 91%;
     background: #f0eeee;
+}
+
+.concept {
+  font-weight: bold;
 }
 
 .column {

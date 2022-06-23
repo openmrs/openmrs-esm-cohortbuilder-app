@@ -1,8 +1,4 @@
-import {
-  getAsyncLifecycle,
-  createGlobalStore,
-  fhir,
-} from "@openmrs/esm-framework";
+import { getAsyncLifecycle, createGlobalStore } from "@openmrs/esm-framework";
 
 const importTranslation = require.context(
   "../translations",
@@ -11,7 +7,7 @@ const importTranslation = require.context(
   "lazy"
 );
 
-createGlobalStore("patients", {
+createGlobalStore("store", {
   patients: <fhir.Patient>[],
   notification: {},
 });

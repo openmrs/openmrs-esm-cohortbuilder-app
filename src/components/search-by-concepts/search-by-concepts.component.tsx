@@ -193,6 +193,8 @@ export const SearchByConcepts: React.FC = () => {
   };
 
   const handleReset = () => {
+    setLastDays(0);
+    setLastMonths(0);
     setObservations({
       timeModifier: "ANY",
       question: "",
@@ -284,7 +286,7 @@ export const SearchByConcepts: React.FC = () => {
           {concept && (
             <p className={styles.text}>
               Patients with observations whose answer is{" "}
-              <span style={{ fontWeight: "bold" }}>{concept.name}</span>
+              <span className={styles.concept}>{concept.name}</span>
             </p>
           )}
           {isSearchResultsEmpty && (
@@ -307,6 +309,7 @@ export const SearchByConcepts: React.FC = () => {
                     }
                     initialSelectedItem={whichObservation[0]}
                     items={whichObservation}
+                    style={{ width: 300 }}
                     label=""
                   />
                 </div>
@@ -340,10 +343,10 @@ export const SearchByConcepts: React.FC = () => {
                     min={0}
                     size="sm"
                     value={0}
-                    onChange={(e) =>
+                    onChange={(event) =>
                       setObservations({
                         ...observations,
-                        value1: e.imaginaryTarget.value,
+                        value1: event.imaginaryTarget.value,
                       })
                     }
                   />
@@ -376,8 +379,8 @@ export const SearchByConcepts: React.FC = () => {
                 invalidText="Number is not valid"
                 min={0}
                 size="sm"
-                value={0}
-                onChange={(e) => setLastMonths(e.imaginaryTarget.value)}
+                value={lastMonths}
+                onChange={(event) => setLastMonths(event.imaginaryTarget.value)}
               />
               <p style={{ paddingRight: 20, paddingLeft: 20 }}>months</p>
             </div>
@@ -387,8 +390,8 @@ export const SearchByConcepts: React.FC = () => {
                 invalidText="Number is not valid"
                 min={0}
                 size="sm"
-                value={0}
-                onChange={(e) => setLastDays(e.imaginaryTarget.value)}
+                value={lastDays}
+                onChange={(event) => setLastDays(event.imaginaryTarget.value)}
               />
               <p style={{ paddingRight: 20, paddingLeft: 20 }}>and/or days</p>
             </div>
