@@ -1,8 +1,15 @@
 interface Query {
   type: string;
   columns: Column[];
-  rowFilters: any;
-  customRowFilterCombination: any;
+  rowFilters: RowFilters[];
+  customRowFilterCombination: string;
+}
+
+interface RowFilters {
+  key?: string;
+  parameterValues?: {};
+  livingStatus?: string;
+  type?: string;
 }
 
 interface Column {

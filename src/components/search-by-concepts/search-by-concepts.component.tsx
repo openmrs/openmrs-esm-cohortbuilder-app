@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+
+import { getGlobalStore } from "@openmrs/esm-framework";
 import {
   ButtonSet,
   Button,
@@ -12,11 +14,11 @@ import {
   InlineLoading,
   InlineNotification,
 } from "carbon-components-react";
-import { getConcepts, search } from "./search-by-concepts.resource";
-import { composeJson, queryDescriptionBuilder } from "./helpers";
-import styles from "./search-by-concepts.style.css";
 import moment from "moment";
-import { getGlobalStore } from "@openmrs/esm-framework";
+
+import { composeJson, queryDescriptionBuilder } from "./helpers";
+import { getConcepts, search } from "./search-by-concepts.resource";
+import styles from "./search-by-concepts.style.css";
 
 interface Concept {
   uuid: string;
@@ -25,7 +27,7 @@ interface Concept {
   hl7Abbrev: string;
   name: string;
   description: string;
-  datatype: any;
+  datatype: string;
 }
 
 interface Notification {

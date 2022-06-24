@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+
+import { getGlobalStore } from "@openmrs/esm-framework";
 import {
   DataTable,
   Table,
@@ -9,8 +11,8 @@ import {
   TableCell,
   Pagination,
 } from "carbon-components-react";
+
 import EmptyData from "../empty-data/empty-data.component";
-import { getGlobalStore } from "@openmrs/esm-framework";
 
 const headers = [
   {

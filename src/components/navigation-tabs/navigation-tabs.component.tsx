@@ -1,5 +1,7 @@
 import React from "react";
+
 import { Tabs, Tab } from "carbon-components-react";
+
 import { SearchByConcepts } from "../search-by-concepts/search-by-concepts.component";
 import "./navigation-tabs.style.css";
 

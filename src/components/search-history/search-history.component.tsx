@@ -1,4 +1,5 @@
 import React from "react";
+
 import {
   DataTable,
   Table,
@@ -9,6 +10,7 @@ import {
   TableCell,
   Button,
 } from "carbon-components-react";
+
 import EmptyData from "../empty-data/empty-data.component";
 import styles from "./search-history.style.css";
 

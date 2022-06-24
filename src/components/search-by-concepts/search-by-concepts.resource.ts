@@ -4,8 +4,8 @@ const patientsStore = getGlobalStore("patients");
 const notificationStore = getGlobalStore("notification");
 
 /**
- * @param query conceptName
  * @returns Concepts
+ * @param conceptName
  */
 export async function getConcepts(conceptName: String) {
   const searchResult = await openmrsFetch(
