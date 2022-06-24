@@ -226,42 +226,6 @@ export const SearchByConcepts: React.FC = () => {
       <div>
         <Column className={styles.column}>
           <SearchConcept setConcept={setConcept} concept={concept} />
-          {/*<Search*/}
-          {/*  closeButtonLabelText="Clear search"*/}
-          {/*  id="concept-search"*/}
-          {/*  labelText="Search Concepts"*/}
-          {/*  placeholder="Search Concepts"*/}
-          {/*  onChange={handleWithDebounce}*/}
-          {/*  onClear={onSearchClear}*/}
-          {/*  size="lg"*/}
-          {/*  value={searchText}*/}
-          {/*/>*/}
-          {/*<div className={styles.search}>*/}
-          {/*  {isSearching ? (*/}
-          {/*    <CodeSnippetSkeleton type="multi" />*/}
-          {/*  ) : (*/}
-          {/*    searchResults.map((concept: Concept) => (*/}
-          {/*      <div key={concept.uuid}>*/}
-          {/*        <Button*/}
-          {/*          kind="ghost"*/}
-          {/*          onClick={() => handleConceptClick(concept)}*/}
-          {/*        >*/}
-          {/*          {concept.name}*/}
-          {/*        </Button>*/}
-          {/*        <br />*/}
-          {/*      </div>*/}
-          {/*    ))*/}
-          {/*  )}*/}
-          {/*</div>*/}
-          {/*{concept && (*/}
-          {/*  <p className={styles.text}>*/}
-          {/*    Patients with observations whose answer is{" "}*/}
-          {/*    <span className={styles.concept}>{concept.name}</span>*/}
-          {/*  </p>*/}
-          {/*)}*/}
-          {/*{isSearchResultsEmpty && (*/}
-          {/*  <p className={styles.text}>There are no search items</p>*/}
-          {/*)}*/}
         </Column>
         {concept?.hl7Abbrev === "NM" ? (
           <>
