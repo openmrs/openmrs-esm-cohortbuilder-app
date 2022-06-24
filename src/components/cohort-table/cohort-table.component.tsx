@@ -92,7 +92,7 @@ export const CohortTable = () => {
           </Table>
         )}
       </DataTable>
-      {tableData.length > 0 && (
+      {tableData.length > 10 && (
         <Pagination
           backwardText="Previous page"
           forwardText="Next page"

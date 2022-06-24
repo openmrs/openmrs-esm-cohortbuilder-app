@@ -1,7 +1,8 @@
 {
   "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint", "import"],
+  "plugins": ["@typescript-eslint", "import", "unused-imports"],
   "rules": {
+    "unused-imports/no-unused-imports": "error",
     "import/order":[
       "error",
       {

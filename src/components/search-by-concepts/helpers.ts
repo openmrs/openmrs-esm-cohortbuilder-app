@@ -134,6 +134,15 @@ export const addColumnsToDisplay = () => {
   return columnValues;
 };
 
+export const addToHistory = (
+  description: string,
+  patients: fhir.Patient[],
+  parameters: []
+) => {
+  const newHistory = [{ description, patients, parameters }];
+  window.sessionStorage.setItem("openmrsHistory", JSON.stringify(newHistory));
+};
+
 export const formatDate = (dateString: string) => {
   const date = new Date(dateString);
   const day = date.getDate();

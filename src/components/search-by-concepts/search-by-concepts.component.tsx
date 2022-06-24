@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { getGlobalStore } from "@openmrs/esm-framework";
 import {
@@ -8,8 +8,6 @@ import {
   DatePickerInput,
   Column,
   Dropdown,
-  Search,
-  CodeSnippetSkeleton,
   NumberInput,
   InlineLoading,
   InlineNotification,
@@ -17,8 +15,9 @@ import {
 import moment from "moment";
 
 import { composeJson, queryDescriptionBuilder } from "./helpers";
-import { getConcepts, search } from "./search-by-concepts.resource";
+import { search } from "./search-by-concepts.resource";
 import styles from "./search-by-concepts.style.css";
+import { SearchConcept } from "./search-concept/search-concept.component";
 
 interface Concept {
   uuid: string;
@@ -130,18 +129,14 @@ const operators = [
   },
 ];
 
-const notificationStore = getGlobalStore("notification");
 const patientsStore = getGlobalStore("patients");
 
 export const SearchByConcepts: React.FC = () => {
-  const [searchResults, setSearchResults] = useState<Concept[]>([]);
   const [notification, setNotification] = useState<Notification>(null);
   const [concept, setConcept] = useState<Concept>(null);
-  const [isSearching, setIsSearching] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [lastDays, setLastDays] = useState(0);
   const [lastMonths, setLastMonths] = useState(0);
-  const [isSearchResultsEmpty, setIsSearchResultsEmpty] = useState(false);
   const [observations, setObservations] = useState<Observation>({
     timeModifier: "ANY",
     question: "",
@@ -151,26 +146,6 @@ export const SearchByConcepts: React.FC = () => {
     onOrAfter: "",
     value1: "",
   });
-
-  useEffect(() => {
-    notificationStore.subscribe((store) => {
-      setNotification(store.notification);
-    });
-  }, []);
-
-  const onSearch = (search: string) => {
-    if (search.length > 2) {
-      setConcept(null);
-      setSearchResults([]);
-      setIsSearching(true);
-      getConcepts(search).then((results: Concept[]) => {
-        results.length
-          ? setSearchResults(results)
-          : setIsSearchResultsEmpty(true);
-        setIsSearching(false);
-      });
-    }
-  };
 
   const handleLastDaysAndMonths = () => {
     if (lastDays && lastMonths) {
@@ -188,11 +163,6 @@ export const SearchByConcepts: React.FC = () => {
       onOrBefore: moment(dates[0]).format(),
       onOrAfter: moment(dates[1]).format(),
     });
-  };
-
-  const onSearchClear = () => {
-    setIsSearchResultsEmpty(false);
-    setSearchResults([]);
   };
 
   const handleReset = () => {
@@ -226,7 +196,7 @@ export const SearchByConcepts: React.FC = () => {
     const { hl7Abbrev, name } = concept;
     const dataType = types[hl7Abbrev];
     const params = { [dataType]: [] };
-
+    setObservations({ ...observations, question: concept.uuid });
     Object.keys(observations).forEach((key) => {
       observations[key] !== ""
         ? params[dataType].push({
@@ -255,48 +225,43 @@ export const SearchByConcepts: React.FC = () => {
       <h5>Search By Concepts</h5>
       <div>
         <Column className={styles.column}>
-          <Search
-            closeButtonLabelText="Clear search"
-            id="concept-search"
-            labelText="Search Concepts"
-            placeholder="Search Concepts"
-            onChange={(e) => onSearch(e.target.value)}
-            onClear={onSearchClear}
-            size="lg"
-          />
-          <div className={styles.search}>
-            {isSearching ? (
-              <CodeSnippetSkeleton type="multi" />
-            ) : (
-              searchResults.map((concept: Concept) => (
-                <div key={concept.uuid}>
-                  <Button
-                    kind="ghost"
-                    onClick={() => {
-                      setConcept(concept);
-                      setObservations({
-                        ...observations,
-                        question: concept.uuid,
-                      });
-                      setSearchResults([]);
-                    }}
-                  >
-                    {concept.name}
-                  </Button>
-                  <br />
-                </div>
-              ))
-            )}
-          </div>
-          {concept && (
-            <p className={styles.text}>
-              Patients with observations whose answer is{" "}
-              <span className={styles.concept}>{concept.name}</span>
-            </p>
-          )}
-          {isSearchResultsEmpty && (
-            <p className={styles.text}>There are no search items</p>
-          )}
+          <SearchConcept setConcept={setConcept} concept={concept} />
+          {/*<Search*/}
+          {/*  closeButtonLabelText="Clear search"*/}
+          {/*  id="concept-search"*/}
+          {/*  labelText="Search Concepts"*/}
+          {/*  placeholder="Search Concepts"*/}
+          {/*  onChange={handleWithDebounce}*/}
+          {/*  onClear={onSearchClear}*/}
+          {/*  size="lg"*/}
+          {/*  value={searchText}*/}
+          {/*/>*/}
+          {/*<div className={styles.search}>*/}
+          {/*  {isSearching ? (*/}
+          {/*    <CodeSnippetSkeleton type="multi" />*/}
+          {/*  ) : (*/}
+          {/*    searchResults.map((concept: Concept) => (*/}
+          {/*      <div key={concept.uuid}>*/}
+          {/*        <Button*/}
+          {/*          kind="ghost"*/}
+          {/*          onClick={() => handleConceptClick(concept)}*/}
+          {/*        >*/}
+          {/*          {concept.name}*/}
+          {/*        </Button>*/}
+          {/*        <br />*/}
+          {/*      </div>*/}
+          {/*    ))*/}
+          {/*  )}*/}
+          {/*</div>*/}
+          {/*{concept && (*/}
+          {/*  <p className={styles.text}>*/}
+          {/*    Patients with observations whose answer is{" "}*/}
+          {/*    <span className={styles.concept}>{concept.name}</span>*/}
+          {/*  </p>*/}
+          {/*)}*/}
+          {/*{isSearchResultsEmpty && (*/}
+          {/*  <p className={styles.text}>There are no search items</p>*/}
+          {/*)}*/}
         </Column>
         {concept?.hl7Abbrev === "NM" ? (
           <>
