@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
-import { getGlobalStore } from "@openmrs/esm-framework";
 import {
   DataTable,
   Table,
@@ -12,7 +11,9 @@ import {
   Pagination,
 } from "carbon-components-react";
 
+import { Patient } from "../../types/types";
 import EmptyData from "../empty-data/empty-data.component";
+import styles from "./cohort-results-table.scss";
 
 const headers = [
   {
@@ -37,15 +38,18 @@ const headers = [
   },
 ];
 
-const patientsStore = getGlobalStore("patients");
-
 interface PaginationData {
   page: number;
   pageSize: number;
 }
 
-export const CohortTable = () => {
-  const [tableData, setTableData] = useState([]);
+interface CohortResultsTableProps {
+  patients: Patient[];
+}
+
+export const CohortResultsTable: React.FC<CohortResultsTableProps> = ({
+  patients,
+}) => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -54,18 +58,10 @@ export const CohortTable = () => {
     setPageSize(pageSize);
   };
 
-  useEffect(() => {
-    patientsStore.subscribe((store) => {
-      store.patients.map(
-        (patient) => (patient.id = patient.patientId.toString())
-      );
-      setTableData(store.patients);
-    });
-  }, []);
-
   return (
-    <div>
-      <DataTable rows={tableData} headers={headers}>
+    <div className={styles.container}>
+      <p className={styles.heading}>Search Results</p>
+      <DataTable rows={patients} headers={headers}>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
           <Table {...getTableProps()}>
             <TableHead>
@@ -92,7 +88,7 @@ export const CohortTable = () => {
           </Table>
         )}
       </DataTable>
-      {tableData.length > 10 && (
+      {patients.length > 10 && (
         <Pagination
           backwardText="Previous page"
           forwardText="Next page"
@@ -102,10 +98,10 @@ export const CohortTable = () => {
           pageSize={10}
           pageSizes={[10, 20, 30, 40, 50]}
           size="md"
-          totalItems={tableData.length}
+          totalItems={patients.length}
         />
       )}
-      {!tableData.length && <EmptyData displayText="data" />}
+      {!patients.length && <EmptyData displayText="data" />}
     </div>
   );
 };

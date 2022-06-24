@@ -12,7 +12,7 @@ import {
 } from "carbon-components-react";
 
 import EmptyData from "../empty-data/empty-data.component";
-import styles from "./search-history.style.css";
+import styles from "./search-history.style.scss";
 
 const headers = [
   {
@@ -39,9 +39,9 @@ const headers = [
 
 export const SearchHistory = () => {
   return (
-    <div>
+    <div className={styles.container}>
       <div className={styles.header}>
-        <h5>Search History</h5>
+        <p className={styles.heading}>Search History</p>
         <Button kind="danger--tertiary">Clear Search History</Button>
       </div>
       <DataTable rows={[]} headers={headers}>

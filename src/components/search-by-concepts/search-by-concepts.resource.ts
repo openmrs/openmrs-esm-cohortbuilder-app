@@ -1,6 +1,6 @@
 import { openmrsFetch, getGlobalStore } from "@openmrs/esm-framework";
 
-import { addToHistory } from "./helpers";
+import { addToHistory } from "../../cohort-builder.utils";
 
 const patientsStore = getGlobalStore("patients");
 const notificationStore = getGlobalStore("notification");

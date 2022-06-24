@@ -1,22 +1,20 @@
-import React, { useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 
-import { getGlobalStore } from "@openmrs/esm-framework";
 import {
-  ButtonSet,
-  Button,
   DatePicker,
   DatePickerInput,
   Column,
   Dropdown,
   NumberInput,
-  InlineLoading,
-  InlineNotification,
 } from "carbon-components-react";
 import moment from "moment";
 
-import { composeJson, queryDescriptionBuilder } from "./helpers";
-import { search } from "./search-by-concepts.resource";
-import styles from "./search-by-concepts.style.css";
+import {
+  composeJson,
+  queryDescriptionBuilder,
+} from "../../cohort-builder.utils";
+import { SearchParams } from "../../types/types";
+import styles from "./search-by-concepts.style.scss";
 import { SearchConcept } from "./search-concept/search-concept.component";
 
 interface Concept {
@@ -27,17 +25,6 @@ interface Concept {
   name: string;
   description: string;
   datatype: string;
-}
-
-interface Notification {
-  kind:
-    | "error"
-    | "info"
-    | "info-square"
-    | "success"
-    | "warning"
-    | "warning-alt";
-  title: string;
 }
 
 interface Observation {
@@ -129,104 +116,121 @@ const operators = [
   },
 ];
 
-const patientsStore = getGlobalStore("patients");
+interface SearchByConceptsProps {
+  setQueryDescription: Dispatch<SetStateAction<String>>;
+  setSearchParams: Dispatch<SetStateAction<SearchParams>>;
+  resetInputs: boolean;
+}
 
-export const SearchByConcepts: React.FC = () => {
-  const [notification, setNotification] = useState<Notification>(null);
+const types = {
+  CWE: "codedObsSearchAdvanced",
+  NM: "numericObsSearchAdvanced",
+  DT: "dateObsSearchAdvanced",
+  ST: "dateObsSearchAdvanced",
+  TS: "textObsSearchAdvanced",
+  ZZ: "codedObsSearchAdvanced",
+  BIT: "codedObsSearchAdvanced",
+};
+
+export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
+  setQueryDescription,
+  setSearchParams,
+  resetInputs,
+}) => {
   const [concept, setConcept] = useState<Concept>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [lastDays, setLastDays] = useState(0);
   const [lastMonths, setLastMonths] = useState(0);
-  const [observations, setObservations] = useState<Observation>({
-    timeModifier: "ANY",
-    question: "",
-    operator1: "LESS_THAN",
-    modifier: "",
-    onOrBefore: "",
-    onOrAfter: "",
-    value1: "",
-  });
+  const [operatorValue, setOperatorValue] = useState(0);
+  const [operator, setOperator] = useState("LESS_THAN");
+  const [timeModifier, setTimeModifier] = useState("ANY");
+  const [onOrAfter, setOnOrAfter] = useState("");
+  const [onOrBefore, setOnOrBefore] = useState("");
+
+  useEffect(() => {
+    if (concept) {
+      handleInputValues();
+    }
+  }, [
+    concept,
+    lastDays,
+    lastMonths,
+    onOrAfter,
+    onOrBefore,
+    operator,
+    operatorValue,
+    timeModifier,
+  ]);
+
+  useEffect(() => {
+    if (resetInputs) {
+      handleResetInputs();
+    }
+  }, [resetInputs]);
 
   const handleLastDaysAndMonths = () => {
-    if (lastDays && lastMonths) {
+    if (lastDays > 0 || lastMonths > 0) {
       const onOrAfter = moment()
         .subtract(lastDays, "days")
         .subtract(lastMonths, "months")
         .format();
-      setObservations({ ...observations, onOrAfter });
+      setOnOrBefore(onOrAfter);
     }
   };
 
   const handleDates = (dates: Date[]) => {
-    setObservations({
-      ...observations,
-      onOrBefore: moment(dates[0]).format(),
-      onOrAfter: moment(dates[1]).format(),
-    });
+    setOnOrAfter(moment(dates[0]).format());
+    setOnOrBefore(moment(dates[1]).format());
   };
 
-  const handleReset = () => {
-    patientsStore.setState({ patients: [] });
+  const handleResetInputs = () => {
     setConcept(null);
     setLastDays(0);
+    setOnOrAfter("");
+    setOnOrBefore("");
     setLastMonths(0);
-    setObservations({
-      timeModifier: "ANY",
-      question: "",
-      operator1: "LESS_THAN",
-      modifier: "",
-      onOrBefore: "",
-      onOrAfter: "",
-      value1: "",
-    });
+    setOperatorValue(0);
+    setOperator("LESS_THAN");
+    setTimeModifier("ANY");
   };
 
-  const handleSubmit = async () => {
-    setIsLoading(true);
+  const handleInputValues = () => {
     handleLastDaysAndMonths();
-    const types = {
-      CWE: "codedObsSearchAdvanced",
-      NM: "numericObsSearchAdvanced",
-      DT: "dateObsSearchAdvanced",
-      ST: "dateObsSearchAdvanced",
-      TS: "textObsSearchAdvanced",
-      ZZ: "codedObsSearchAdvanced",
-      BIT: "codedObsSearchAdvanced",
+    const observations: Observation = {
+      modifier: "",
+      onOrAfter: onOrAfter,
+      onOrBefore: onOrBefore,
+      operator1: operator,
+      question: concept.uuid,
+      timeModifier: timeModifier,
+      value1: operatorValue > 0 ? operatorValue.toString() : "",
     };
-    const { hl7Abbrev, name } = concept;
-    const dataType = types[hl7Abbrev];
+    const dataType = types[concept.hl7Abbrev];
     const params = { [dataType]: [] };
-    setObservations({ ...observations, question: concept.uuid });
     Object.keys(observations).forEach((key) => {
       observations[key] !== ""
         ? params[dataType].push({
             name:
               key === "modifier"
-                ? ["CWE", "TS"].includes(hl7Abbrev)
+                ? ["CWE", "TS"].includes(concept.hl7Abbrev)
                   ? "values"
                   : "value1"
                 : key,
             value:
-              key === "modifier" && ["CWE", "TS"].includes(hl7Abbrev)
+              key === "modifier" && ["CWE", "TS"].includes(concept.hl7Abbrev)
                 ? [observations[key]]
                 : observations[key],
           })
         : "";
     });
-
-    const searchData = composeJson(params);
-    const description = queryDescriptionBuilder(observations, name);
-    await search(searchData, description);
-    setIsLoading(false);
+    setSearchParams(composeJson(params));
+    setQueryDescription(queryDescriptionBuilder(observations, concept.name));
   };
 
   return (
-    <div>
-      <h5>Search By Concepts</h5>
+    <div className={styles.container}>
+      <p className={styles.heading}>Search By Concepts</p>
       <div>
-        <Column className={styles.column}>
-          <SearchConcept setConcept={setConcept} concept={concept} />
-        </Column>
+        <SearchConcept setConcept={setConcept} concept={concept} />
         {concept?.hl7Abbrev === "NM" ? (
           <>
             <Column className={styles.column} sm={2} md={{ span: 6 }}>
@@ -236,10 +240,7 @@ export const SearchByConcepts: React.FC = () => {
                   <Dropdown
                     id="timeModifier"
                     onChange={(data) =>
-                      setObservations({
-                        ...observations,
-                        timeModifier: data.selectedItem.value,
-                      })
+                      setTimeModifier(data.selectedItem.value)
                     }
                     initialSelectedItem={whichObservation[0]}
                     items={whichObservation}
@@ -254,14 +255,9 @@ export const SearchByConcepts: React.FC = () => {
                 <div className={styles.multipleInputs}>
                   <p style={{ paddingRight: 20 }}>What values </p>
                   <Dropdown
-                    style={{ width: 300, paddingRight: 30 }}
+                    className={styles.dropdown}
                     id="operator1"
-                    onChange={(data) =>
-                      setObservations({
-                        ...observations,
-                        operator1: data.selectedItem.value,
-                      })
-                    }
+                    onChange={(data) => setOperator(data.selectedItem.value)}
                     initialSelectedItem={operators[0]}
                     items={operators}
                     label="What values"
@@ -278,10 +274,7 @@ export const SearchByConcepts: React.FC = () => {
                     size="sm"
                     value={0}
                     onChange={(event) =>
-                      setObservations({
-                        ...observations,
-                        value1: event.imaginaryTarget.value,
-                      })
+                      setOperatorValue(event.imaginaryTarget.value)
                     }
                   />
                 </div>
@@ -292,12 +285,7 @@ export const SearchByConcepts: React.FC = () => {
           <Column className={styles.column} sm={2} md={{ span: 4 }}>
             <Dropdown
               id="timeModifier"
-              onChange={(data) =>
-                setObservations({
-                  ...observations,
-                  timeModifier: data.selectedItem.value,
-                })
-              }
+              onChange={(data) => setTimeModifier(data.selectedItem.value)}
               initialSelectedItem={observationOptions[0]}
               items={observationOptions}
               label=""
@@ -352,23 +340,6 @@ export const SearchByConcepts: React.FC = () => {
               size="md"
             />
           </DatePicker>
-        </Column>
-        <Column sm={2} md={{ span: 4, offset: 4 }} className={styles.column}>
-          <ButtonSet className={styles.buttonSet}>
-            <Button kind="primary" onClick={handleSubmit}>
-              {isLoading ? <InlineLoading description="Loading" /> : "Search"}
-            </Button>
-            <Button kind="secondary" onClick={handleReset}>
-              Reset
-            </Button>
-          </ButtonSet>
-          {notification && (
-            <InlineNotification
-              className={styles.notification}
-              kind={notification.kind}
-              title={notification.title}
-            />
-          )}
         </Column>
       </div>
     </div>

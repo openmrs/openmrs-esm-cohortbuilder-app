@@ -1,0 +1,12 @@
+@import 'carbon-components/scss/globals/scss/typography.scss';
+
+.container {
+  background: white;
+  padding: 1rem;
+}
+
+.heading {
+  @include carbon--type-style('productive-heading-02');
+  margin-bottom: 1rem;
+}
+

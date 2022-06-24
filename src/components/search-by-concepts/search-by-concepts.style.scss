@@ -1,5 +1,8 @@
-.concept {
-  font-weight: bold;
+@import 'carbon-components/scss/globals/scss/typography.scss';
+
+.heading {
+  @include carbon--type-style('productive-heading-02');
+  margin-bottom: 1rem;
 }
 
 .column {
@@ -18,15 +21,6 @@
  padding-top: 1.5rem;
 }
 
-.notification {
-  position: fixed;
-  left: 50%;
-  bottom: 20px;
-  transform: translate(-50%, -50%);
-  margin: 0 auto;
-  z-index: 1;
-}
-
 .multipleInputs {
  display: flex;
  align-items: center;
@@ -41,3 +35,7 @@
   padding-right: 2rem;
 }
 
+.dropdown {
+  width: 30rem;
+  padding-right: 3rem;
+}

@@ -46,10 +46,11 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({
       } else {
         setIsSearchResultsEmpty(true);
       }
+      setIsSearching(false);
     } catch (error) {
       setSearchError(error.toString());
+      setIsSearching(false);
     }
-    setIsSearching(false);
   };
 
   const debounceFn = _debounce(onSearch, 500);

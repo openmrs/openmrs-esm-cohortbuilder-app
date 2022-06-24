@@ -1,22 +1,4 @@
-interface Query {
-  type: string;
-  columns: Column[];
-  rowFilters: RowFilters[];
-  customRowFilterCombination: string;
-}
-
-interface RowFilters {
-  key?: string;
-  parameterValues?: {};
-  livingStatus?: string;
-  type?: string;
-}
-
-interface Column {
-  name: string;
-  key: string;
-  type?: string;
-}
+import { Column, Query } from "./types/types";
 
 export const composeJson = (searchParameters) => {
   const query: Query = {
@@ -137,7 +119,7 @@ export const addColumnsToDisplay = () => {
 export const addToHistory = (
   description: string,
   patients: fhir.Patient[],
-  parameters: []
+  parameters: {}
 ) => {
   const newHistory = [{ description, patients, parameters }];
   window.sessionStorage.setItem("openmrsHistory", JSON.stringify(newHistory));
