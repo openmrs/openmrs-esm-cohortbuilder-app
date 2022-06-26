@@ -1,25 +1,39 @@
-import { openmrsFetch } from "@openmrs/esm-framework";
+import { FetchResponse, openmrsFetch } from "@openmrs/esm-framework";
+
+import { Concept, DataType } from "../../../types/types";
+
+interface ConceptResponse {
+  uuid: string;
+  descriptions: Description[];
+  units: string;
+  answers: string[];
+  datatype: DataType;
+  name: { name: string };
+}
+
+interface Description {
+  locale: string;
+  description: string;
+}
 
 /**
  * @returns Concepts
  * @param conceptName
  */
 export async function getConcepts(conceptName: String) {
-  const searchResult = await openmrsFetch(
-    `/ws/rest/v1/concept?v=full&q=${conceptName}`,
-    {
+  const searchResult: FetchResponse<{ results: ConceptResponse[] }> =
+    await openmrsFetch(`/ws/rest/v1/concept?v=full&q=${conceptName}`, {
       method: "GET",
-    }
-  );
+    });
 
-  let concepts = [];
+  let concepts: Concept[] = [];
   if (searchResult.data.results.length > 0) {
     concepts = searchResult.data.results.map((concept) => {
       const description = concept.descriptions.filter(
-        (description: { locale: string; description: string }) =>
+        (description: Description) =>
           description.locale == "en" ? description.description : ""
       );
-      const conceptData = {
+      const conceptData: Concept = {
         uuid: concept.uuid,
         units: concept.units || "",
         answers: concept.answers,

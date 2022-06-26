@@ -10,6 +10,7 @@ import {
   TableCell,
   Button,
 } from "carbon-components-react";
+import { useTranslation } from "react-i18next";
 
 import EmptyData from "../empty-data/empty-data.component";
 import styles from "./search-history.style.scss";
@@ -38,11 +39,15 @@ const headers = [
 ];
 
 export const SearchHistory = () => {
+  const { t } = useTranslation();
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <p className={styles.heading}>Search History</p>
-        <Button kind="danger--tertiary">Clear Search History</Button>
+        <p className={styles.heading}>{t("searchHistory", "Search History")}</p>
+        <Button kind="danger--tertiary">
+          {t("clearHistory", "Clear Search History")}
+        </Button>
       </div>
       <DataTable rows={[]} headers={headers}>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (

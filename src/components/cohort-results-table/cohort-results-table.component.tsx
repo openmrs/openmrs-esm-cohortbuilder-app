@@ -10,6 +10,7 @@ import {
   TableCell,
   Pagination,
 } from "carbon-components-react";
+import { useTranslation } from "react-i18next";
 
 import { Patient } from "../../types/types";
 import EmptyData from "../empty-data/empty-data.component";
@@ -52,6 +53,7 @@ export const CohortResultsTable: React.FC<CohortResultsTableProps> = ({
 }) => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const { t } = useTranslation();
 
   const handlePagination = ({ page, pageSize }: PaginationData) => {
     setPage(page);
@@ -60,7 +62,7 @@ export const CohortResultsTable: React.FC<CohortResultsTableProps> = ({
 
   return (
     <div className={styles.container}>
-      <p className={styles.heading}>Search Results</p>
+      <p className={styles.heading}>{t("searchResults", "Search Results")}</p>
       <DataTable rows={patients} headers={headers}>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
           <Table {...getTableProps()}>

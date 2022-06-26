@@ -8,18 +8,9 @@ import {
 } from "carbon-components-react";
 import _debounce from "lodash/debounce";
 
+import { Concept } from "../../../types/types";
 import { getConcepts } from "./search-concept.resource";
 import styles from "./search-concept.style.css";
-
-interface Concept {
-  uuid: string;
-  units: string;
-  answers: string[];
-  hl7Abbrev: string;
-  name: string;
-  description: string;
-  datatype: string;
-}
 
 interface SearchConceptProps {
   concept: Concept;
@@ -109,7 +100,7 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({
         {isSearchResultsEmpty && (
           <p className={styles.text}>There are no search items</p>
         )}
-        {searchError && <span>Something went wrong! {searchError}</span>}
+        {searchError && <span>{searchError}</span>}
       </Column>
     </div>
   );

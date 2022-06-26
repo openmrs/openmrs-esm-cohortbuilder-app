@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
 import { InlineNotification, Tab, Tabs } from "carbon-components-react";
+import { useTranslation } from "react-i18next";
 
 import { search } from "./cohort-builder.resource";
 import styles from "./cohort-builder.scss";
@@ -28,6 +29,7 @@ interface Notification {
 }
 
 const CohortBuilder: React.FC = () => {
+  const { t } = useTranslation();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [resetInputs, setResetInputs] = useState(false);
@@ -39,7 +41,7 @@ const CohortBuilder: React.FC = () => {
 
   const tabs: TabItem[] = [
     {
-      name: "Concepts",
+      name: t("concept", "Concept"),
       component: (
         <SearchByConcepts
           resetInputs={resetInputs}
@@ -49,19 +51,19 @@ const CohortBuilder: React.FC = () => {
       ),
     },
     {
-      name: "Demographics",
+      name: t("demographics", "Demographics"),
       component: <span></span>,
     },
     {
-      name: "Encounters",
+      name: t("encounters", "Encounters"),
       component: <span></span>,
     },
     {
-      name: "Enrollments",
+      name: t("enrollments", "Enrollments"),
       component: <span></span>,
     },
     {
-      name: "Drug Order",
+      name: t("drugOrder", "Drug Order"),
       component: <span></span>,
     },
     {
@@ -69,11 +71,11 @@ const CohortBuilder: React.FC = () => {
       component: <span></span>,
     },
     {
-      name: "Composition",
+      name: t("composition", "Composition"),
       component: <span></span>,
     },
     {
-      name: "Saved Definitions",
+      name: t("savedDefinitions", "Saved Definitions"),
       component: <span></span>,
     },
   ];
@@ -88,15 +90,17 @@ const CohortBuilder: React.FC = () => {
     setPatients([]);
     setIsLoading(true);
     try {
-      const { data } = await search(searchParams);
-      await data.rows.map(
+      const {
+        data: { rows },
+      } = await search(searchParams);
+      rows.map(
         (patient: Patient) => (patient.id = patient.patientId.toString())
       );
-      setPatients(data.rows);
-      addToHistory(queryDescription, data.rows, searchParams.query);
+      setPatients(rows);
+      addToHistory(queryDescription, rows, searchParams.query);
       setNotification({
         kind: "success",
-        title: `Search is completed with ${patients.length} result(s)`,
+        title: `Search is completed with ${rows.length} result(s)`,
       });
       setIsLoading(false);
     } catch (e) {

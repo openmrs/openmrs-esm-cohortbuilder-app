@@ -30,3 +30,20 @@ export interface Patient {
   age: string;
   gender: string;
 }
+
+export interface Concept {
+  uuid: string;
+  units: string;
+  answers: string[];
+  hl7Abbrev: string;
+  name: string;
+  description: string;
+  datatype: DataType;
+}
+
+export interface DataType {
+  uuid: string;
+  hl7Abbreviation: string;
+  description: string;
+  name: string;
+}

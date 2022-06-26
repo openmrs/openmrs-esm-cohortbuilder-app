@@ -13,19 +13,9 @@ import {
   composeJson,
   queryDescriptionBuilder,
 } from "../../cohort-builder.utils";
-import { SearchParams } from "../../types/types";
+import { Concept, SearchParams } from "../../types/types";
 import styles from "./search-by-concepts.style.scss";
 import { SearchConcept } from "./search-concept/search-concept.component";
-
-interface Concept {
-  uuid: string;
-  units: string;
-  answers: string[];
-  hl7Abbrev: string;
-  name: string;
-  description: string;
-  datatype: string;
-}
 
 interface Observation {
   timeModifier: string;

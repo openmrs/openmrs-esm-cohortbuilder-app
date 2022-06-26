@@ -1,4 +1,15 @@
 {
-  "casualGreeting": "hey",
-  "formalGreeting": "hello"
+  "searchResults": "Search Results",
+  "searchHistory": "Search History",
+  "clearHistory": "Clear Search History",
+  "concept": "Concepts",
+  "demographics": "Demographics",
+  "encounters": "Encounters",
+  "enrollments": "Enrollments",
+  "drugOrder": "Drug Order",
+  "composition":  "Composition",
+  "savedDefinitions": "Saved Definitions",
+  "reset": "Reset",
+  "search": "Search",
+  "loading": "Loading"
 }
