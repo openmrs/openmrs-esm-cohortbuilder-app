@@ -11,5 +11,10 @@
   "savedDefinitions": "Saved Definitions",
   "reset": "Reset",
   "search": "Search",
-  "loading": "Loading"
+  "loading": "Loading",
+  "dateRange": "Date Range",
+  "searchByConcepts": "Search By Concepts",
+  "whatObservations": "What observations",
+  "whatValues": "What values",
+  "lastDays": "and / or days"
 }

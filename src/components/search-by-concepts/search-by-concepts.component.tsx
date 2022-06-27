@@ -8,14 +8,15 @@ import {
   NumberInput,
 } from "carbon-components-react";
 import moment from "moment";
+import { useTranslation } from "react-i18next";
 
 import {
   composeJson,
   queryDescriptionBuilder,
 } from "../../cohort-builder.utils";
 import { Concept, SearchParams } from "../../types/types";
+import { SearchConcept } from "../search-concept/search-concept.component";
 import styles from "./search-by-concepts.style.scss";
-import { SearchConcept } from "./search-concept/search-concept.component";
 
 interface Observation {
   timeModifier: string;
@@ -127,6 +128,7 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
   setSearchParams,
   resetInputs,
 }) => {
+  const { t } = useTranslation();
   const [concept, setConcept] = useState<Concept>(null);
   const [lastDays, setLastDays] = useState(0);
   const [lastMonths, setLastMonths] = useState(0);
@@ -218,7 +220,9 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
 
   return (
     <div className={styles.container}>
-      <p className={styles.heading}>Search By Concepts</p>
+      <p className={styles.heading}>
+        {t("searchByConcepts", "Search By Concepts")}
+      </p>
       <div>
         <SearchConcept setConcept={setConcept} concept={concept} />
         {concept?.hl7Abbrev === "NM" ? (
@@ -226,7 +230,9 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
             <Column className={styles.column} sm={2} md={{ span: 6 }}>
               <div style={{ display: "flex" }}>
                 <div className={styles.multipleInputs}>
-                  <p style={{ paddingRight: 20 }}>What observations </p>
+                  <p style={{ paddingRight: 20 }}>
+                    {t("whatObservations", "What observations")}
+                  </p>
                   <Dropdown
                     id="timeModifier"
                     onChange={(data) =>
@@ -243,7 +249,9 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
             <Column className={styles.column}>
               <div style={{ display: "flex" }}>
                 <div className={styles.multipleInputs}>
-                  <p style={{ paddingRight: 20 }}>What values </p>
+                  <p style={{ paddingRight: 20 }}>
+                    {t("whatValues", "What values")}{" "}
+                  </p>
                   <Dropdown
                     className={styles.dropdown}
                     id="operator1"
@@ -285,7 +293,7 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
         <Column className={styles.column}>
           <div style={{ display: "flex" }}>
             <div className={styles.multipleInputs}>
-              <p style={{ paddingRight: 20 }}>Within the last </p>
+              <p style={{ paddingRight: 20 }}>{t("Within the last")} </p>
               <NumberInput
                 id="last-months"
                 invalidText="Number is not valid"
@@ -305,12 +313,14 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
                 value={lastDays}
                 onChange={(event) => setLastDays(event.imaginaryTarget.value)}
               />
-              <p className={styles.lastTime}>and/or days</p>
+              <p className={styles.lastTime}>
+                {t("lastDays", "and / or days")}
+              </p>
             </div>
           </div>
         </Column>
         <Column className={styles.column}>
-          <p className={styles.dateRange}>Date Range :</p>
+          <p className={styles.dateRange}>{t("dateRange", "Date Range")} :</p>
           <DatePicker
             datePickerType="range"
             dateFormat="d-m-Y"

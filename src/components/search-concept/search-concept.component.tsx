@@ -8,7 +8,7 @@ import {
 } from "carbon-components-react";
 import _debounce from "lodash/debounce";
 
-import { Concept } from "../../../types/types";
+import { Concept } from "../../types/types";
 import { getConcepts } from "./search-concept.resource";
 import styles from "./search-concept.style.css";
 
