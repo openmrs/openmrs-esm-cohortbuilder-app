@@ -7,6 +7,7 @@ import {
   CodeSnippetSkeleton,
 } from "carbon-components-react";
 import _debounce from "lodash/debounce";
+import { useTranslation } from "react-i18next";
 
 import { Concept } from "../../types/types";
 import { getConcepts } from "./search-concept.resource";
@@ -21,6 +22,7 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({
   concept,
   setConcept,
 }) => {
+  const { t } = useTranslation();
   const [searchResults, setSearchResults] = useState<Concept[]>([]);
   const [searchText, setSearchText] = useState("");
   const [searchError, setSearchError] = useState("");
@@ -65,10 +67,10 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({
     <div>
       <Column className={styles.column}>
         <Search
-          closeButtonLabelText="Clear search"
+          closeButtonLabelText={t("clearSearch", "Clear search")}
           id="concept-search"
-          labelText="Search Concepts"
-          placeholder="Search Concepts"
+          labelText={t("searchConcepts", "Search Concepts")}
+          placeholder={t("searchConcepts", "Search Concepts")}
           onChange={handleWithDebounce}
           onClear={onSearchClear}
           size="lg"
@@ -93,12 +95,14 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({
         </div>
         {concept && (
           <p className={styles.text}>
-            Patients with observations whose answer is{" "}
+            {t("whoseAnswer", "Patients with observations whose answer is ")}
             <span className={styles.concept}>{concept.name}</span>
           </p>
         )}
         {isSearchResultsEmpty && (
-          <p className={styles.text}>There are no search items</p>
+          <p className={styles.text}>
+            {t("noSearchItems", "There are no search items")}
+          </p>
         )}
         {searchError && <span>{searchError}</span>}
       </Column>

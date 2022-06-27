@@ -92,9 +92,9 @@ export const CohortResultsTable: React.FC<CohortResultsTableProps> = ({
       </DataTable>
       {patients.length > 10 && (
         <Pagination
-          backwardText="Previous page"
-          forwardText="Next page"
-          itemsPerPageText="Items per page:"
+          backwardText={t("previousPage", "Previous page")}
+          forwardText={t("nextPage", "Next page")}
+          itemsPerPageText={t("itemsPerPage:", "Items per page:")}
           onChange={handlePagination}
           page={1}
           pageSize={10}

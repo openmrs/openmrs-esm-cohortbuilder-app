@@ -16,5 +16,12 @@
   "searchByConcepts": "Search By Concepts",
   "whatObservations": "What observations",
   "whatValues": "What values",
-  "lastDays": "and / or days"
+  "lastDays": "and / or days",
+  "previousPage": "Previous page",
+  "nextPage": "Next page",
+  "itemsPerPage:": "Items per page:",
+  "clearSearch": "Clear search",
+  "searchConcepts": "Search Concepts",
+  "noSearchItems": "There are no search items",
+  "whoseAnswer": "Patients with observations whose answer is "
 }
