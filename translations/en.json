@@ -43,5 +43,7 @@
   "recent": "Most Recent",
   "lowest": "Lowest",
   "highest": "Highest",
-  "average": "Average"
+  "average": "Average",
+  "withinTheLast": "Within the last",
+  "valueIn": "Enter a value in "
 }

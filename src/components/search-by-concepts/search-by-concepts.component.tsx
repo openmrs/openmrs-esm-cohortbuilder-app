@@ -252,8 +252,8 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
             <Column className={styles.column}>
               <div style={{ display: "flex" }}>
                 <div className={styles.multipleInputs}>
-                  <p style={{ paddingRight: 20 }}>
-                    {t("whatValues", "What values")}{" "}
+                  <p className={styles.value}>
+                    {t("whatValues", "What values")}
                   </p>
                   <Dropdown
                     className={styles.dropdown}
@@ -265,9 +265,9 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
                   />
                 </div>
                 <div className={styles.multipleInputs}>
-                  <p
-                    style={{ paddingRight: 20 }}
-                  >{`Enter a value in ${concept.units}`}</p>
+                  <p className={styles.value}>
+                    {t("valueIn", "Enter a value in ")} {concept.units}
+                  </p>
                   <NumberInput
                     id="operator-value"
                     invalidText={t("numberIsNotValid", "Number is not valid")}
@@ -296,7 +296,9 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
         <Column className={styles.column}>
           <div style={{ display: "flex" }}>
             <div className={styles.multipleInputs}>
-              <p style={{ paddingRight: 20 }}>{t("Within the last")} </p>
+              <p style={{ paddingRight: 20 }}>
+                {t("withinTheLast", "Within the last")}{" "}
+              </p>
               <NumberInput
                 id="last-months"
                 invalidText={t("numberIsNotValid", "Number is not valid")}
