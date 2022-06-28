@@ -7,7 +7,7 @@ import {
   Dropdown,
   NumberInput,
 } from "carbon-components-react";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -161,7 +161,7 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
 
   const handleLastDaysAndMonths = () => {
     if (lastDays > 0 || lastMonths > 0) {
-      const onOrAfter = moment()
+      const onOrAfter = dayjs()
         .subtract(lastDays, "days")
         .subtract(lastMonths, "months")
         .format();
@@ -170,8 +170,8 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
   };
 
   const handleDates = (dates: Date[]) => {
-    setOnOrAfter(moment(dates[0]).format());
-    setOnOrBefore(moment(dates[1]).format());
+    setOnOrAfter(dayjs(dates[0]).format());
+    setOnOrBefore(dayjs(dates[1]).format());
   };
 
   const handleResetInputs = () => {
