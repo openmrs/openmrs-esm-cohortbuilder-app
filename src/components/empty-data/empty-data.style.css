@@ -1,0 +1,15 @@
+.action {
+  margin-bottom: $spacing-03;
+}
+
+.content {
+  @include carbon--type-style("productive-heading-01");
+  color: $text-02;
+  margin-top: $spacing-05;
+  margin-bottom: $spacing-03;
+}
+
+.tile {
+  text-align: center;
+  border: 1px solid $ui-03;
+}

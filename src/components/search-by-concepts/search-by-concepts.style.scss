@@ -1,0 +1,45 @@
+@import 'carbon-components/scss/globals/scss/typography.scss';
+
+.heading {
+  @include carbon--type-style('productive-heading-02');
+  margin-bottom: 1rem;
+}
+
+.column {
+ padding-top: 1.5rem;
+}
+
+.dateRange {
+  padding-bottom: 1rem;
+ }
+
+.buttonSet {
+ justify-content: end;
+}
+
+.text {
+ padding-top: 1.5rem;
+}
+
+.multipleInputs {
+ display: flex;
+ align-items: center;
+}
+
+.timeModifier {
+  width: 300px;
+}
+
+.lastTime {
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+.dropdown {
+  width: 30rem;
+  padding-right: 3rem;
+}
+
+.value {
+  padding-right: 2rem;
+}

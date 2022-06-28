@@ -1,4 +1,27 @@
 {
   "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint", "import", "unused-imports"],
+  "rules": {
+    "unused-imports/no-unused-imports": "error",
+    "import/order":[
+      "error",
+      {
+        "groups": ["builtin", "external", "internal"],
+        "pathGroups":[{
+          "pattern": "react",
+          "group": "external",
+          "position": "before"
+        }],
+        "pathGroupsExcludedImportTypes": ["react"],
+        "newlines-between": "always",
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive":true
+        }
+      }
+    ],
+    "@typescript-eslint/no-explicit-any":  "error",
+    "@typescript-eslint/no-unused-vars":  "error"
+  },
   "extends": ["ts-react-important-stuff", "plugin:prettier/recommended"]
 }

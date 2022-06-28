@@ -1,0 +1,11 @@
+@import 'carbon-components/css/carbon-components.css';
+@import '~@openmrs/esm-styleguide/src/vars';
+
+.container {
+  padding: 1.5rem;
+  background: $ui-01;
+}
+
+div.bx--tab-content {
+  padding: 0 !important;
+}
