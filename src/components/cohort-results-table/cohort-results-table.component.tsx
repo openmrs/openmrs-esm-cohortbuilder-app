@@ -18,16 +18,12 @@ import styles from "./cohort-results-table.scss";
 
 const headers = [
   {
-    key: "patientId",
+    key: "id",
     header: "OpenMRS ID",
   },
   {
-    key: "firstname",
-    header: "First Name",
-  },
-  {
-    key: "lastname",
-    header: "Last Name",
+    key: "name",
+    header: "Name",
   },
   {
     key: "age",

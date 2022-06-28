@@ -24,11 +24,12 @@ export interface Column {
 
 export interface Patient {
   id: string;
-  patientId: string;
-  firstname: string;
-  lastname: string;
+  name: string;
   age: string;
   gender: string;
+  firstname?: string;
+  lastname?: string;
+  patientId?: string;
 }
 
 export interface Concept {

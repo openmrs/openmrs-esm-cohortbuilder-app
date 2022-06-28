@@ -1,4 +1,4 @@
-import { Column, Query } from "./types/types";
+import { Column, Patient, Query } from "./types/types";
 
 export const composeJson = (searchParameters) => {
   const query: Query = {
@@ -118,7 +118,7 @@ export const addColumnsToDisplay = () => {
 
 export const addToHistory = (
   description: string,
-  patients: fhir.Patient[],
+  patients: Patient[],
   parameters: {}
 ) => {
   const newHistory = [{ description, patients, parameters }];

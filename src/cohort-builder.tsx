@@ -93,9 +93,10 @@ const CohortBuilder: React.FC = () => {
       const {
         data: { rows },
       } = await search(searchParams);
-      rows.map(
-        (patient: Patient) => (patient.id = patient.patientId.toString())
-      );
+      rows.map((patient: Patient) => {
+        patient.id = patient.patientId.toString();
+        patient.name = `${patient.firstname} ${patient.lastname}`;
+      });
       setPatients(rows);
       addToHistory(queryDescription, rows, searchParams.query);
       setNotification({
@@ -104,7 +105,7 @@ const CohortBuilder: React.FC = () => {
       });
       setIsLoading(false);
     } catch (e) {
-      setNotification({ kind: "error", title: "Something went wrong!" });
+      setNotification({ kind: "error", title: e.toString() });
       setIsLoading(false);
     }
   };
