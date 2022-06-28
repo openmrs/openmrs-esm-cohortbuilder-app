@@ -18,67 +18,6 @@ import { Concept, SearchParams } from "../../types/types";
 import { SearchConcept } from "../search-concept/search-concept.component";
 import styles from "./search-by-concepts.style.scss";
 
-interface Observation {
-  timeModifier: string;
-  question: string;
-  operator1: string;
-  modifier: string;
-  onOrBefore: string;
-  onOrAfter: string;
-  value1: string;
-}
-
-const observationOptions = [
-  {
-    id: "option-0",
-    label: "Patients who have these observations",
-    value: "ANY",
-  },
-  {
-    id: "option-1",
-    label: "Patients who do not have these observations",
-    value: "NO",
-  },
-];
-
-const whichObservation = [
-  {
-    id: "option-0",
-    label: "Any",
-    value: "ANY",
-  },
-  {
-    id: "option-1",
-    label: "None",
-    value: "NO",
-  },
-  {
-    id: "option-2",
-    label: "Earliest",
-    value: "FIRST",
-  },
-  {
-    id: "option-3",
-    label: "Most Recent",
-    value: "LAST",
-  },
-  {
-    id: "option-4",
-    label: "Lowest",
-    value: "MIN",
-  },
-  {
-    id: "option-5",
-    label: "Highest",
-    value: "MAX",
-  },
-  {
-    id: "option-6",
-    label: "Average",
-    value: "AVG",
-  },
-];
-
 const operators = [
   {
     id: "option-0",
@@ -106,6 +45,16 @@ const operators = [
     value: "GREATER_THAN",
   },
 ];
+
+interface Observation {
+  timeModifier: string;
+  question: string;
+  operator1: string;
+  modifier: string;
+  onOrBefore: string;
+  onOrAfter: string;
+  value1: string;
+}
 
 interface SearchByConceptsProps {
   setQueryDescription: Dispatch<SetStateAction<String>>;
@@ -137,6 +86,60 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
   const [timeModifier, setTimeModifier] = useState("ANY");
   const [onOrAfter, setOnOrAfter] = useState("");
   const [onOrBefore, setOnOrBefore] = useState("");
+
+  const observationOptions = [
+    {
+      id: "option-0",
+      label: t("haveObservations", "Patients who have these observations"),
+      value: "ANY",
+    },
+    {
+      id: "option-1",
+      label: t(
+        "haveNoObservations",
+        "Patients who do not have these observations"
+      ),
+      value: "NO",
+    },
+  ];
+
+  const whichObservation = [
+    {
+      id: "option-0",
+      label: t("any", "Any"),
+      value: "ANY",
+    },
+    {
+      id: "option-1",
+      label: t("none", "None"),
+      value: "NO",
+    },
+    {
+      id: "option-2",
+      label: t("earliest", "Earliest"),
+      value: "FIRST",
+    },
+    {
+      id: "option-3",
+      label: t("recent", "Most Recent"),
+      value: "LAST",
+    },
+    {
+      id: "option-4",
+      label: t("lowest", "Lowest"),
+      value: "MIN",
+    },
+    {
+      id: "option-5",
+      label: t("highest", "Highest"),
+      value: "MAX",
+    },
+    {
+      id: "option-6",
+      label: t("average", "Average"),
+      value: "AVG",
+    },
+  ];
 
   useEffect(() => {
     if (concept) {
@@ -267,7 +270,7 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
                   >{`Enter a value in ${concept.units}`}</p>
                   <NumberInput
                     id="operator-value"
-                    invalidText="Number is not valid"
+                    invalidText={t("numberIsNotValid", "Number is not valid")}
                     min={0}
                     size="sm"
                     value={0}
@@ -296,7 +299,7 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
               <p style={{ paddingRight: 20 }}>{t("Within the last")} </p>
               <NumberInput
                 id="last-months"
-                invalidText="Number is not valid"
+                invalidText={t("numberIsNotValid", "Number is not valid")}
                 min={0}
                 size="sm"
                 value={lastMonths}
@@ -307,7 +310,7 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
             <div className={styles.multipleInputs}>
               <NumberInput
                 id="last-days"
-                invalidText="Number is not valid"
+                invalidText={t("numberIsNotValid", "Number is not valid")}
                 min={0}
                 size="sm"
                 value={lastDays}
@@ -329,13 +332,13 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
           >
             <DatePickerInput
               id="date-picker-input-id-start"
-              labelText="Start date"
+              labelText={t("startDate", "Start date")}
               placeholder="DD-MM-YYYY"
               size="md"
             />
             <DatePickerInput
               id="date-picker-input-id-finish"
-              labelText="End date"
+              labelText={t("endDate", "End date")}
               placeholder="DD-MM-YYYY"
               size="md"
             />

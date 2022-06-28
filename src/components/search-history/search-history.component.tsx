@@ -15,31 +15,31 @@ import { useTranslation } from "react-i18next";
 import EmptyData from "../empty-data/empty-data.component";
 import styles from "./search-history.style.scss";
 
-const headers = [
-  {
-    key: "id",
-    header: "#",
-  },
-  {
-    key: "query",
-    header: "Query",
-  },
-  {
-    key: "results",
-    header: "Results",
-  },
-  {
-    key: "query-definition",
-    header: "Query Definition Options",
-  },
-  {
-    key: "cohort-definition",
-    header: "Cohort Definition Options",
-  },
-];
-
 export const SearchHistory = () => {
   const { t } = useTranslation();
+
+  const headers = [
+    {
+      key: "id",
+      header: "#",
+    },
+    {
+      key: "query",
+      header: t("query", "Query"),
+    },
+    {
+      key: "results",
+      header: t("results", "Results"),
+    },
+    {
+      key: "query-definition",
+      header: t("query-definition", "Query Definition Options"),
+    },
+    {
+      key: "cohort-definition",
+      header: t("cohort-definition", "Cohort Definition Options"),
+    },
+  ];
 
   return (
     <div className={styles.container}>

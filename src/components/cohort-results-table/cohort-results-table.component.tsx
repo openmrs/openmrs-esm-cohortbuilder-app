@@ -16,25 +16,6 @@ import { Patient } from "../../types/types";
 import EmptyData from "../empty-data/empty-data.component";
 import styles from "./cohort-results-table.scss";
 
-const headers = [
-  {
-    key: "id",
-    header: "OpenMRS ID",
-  },
-  {
-    key: "name",
-    header: "Name",
-  },
-  {
-    key: "age",
-    header: "Age",
-  },
-  {
-    key: "gender",
-    header: "Gender",
-  },
-];
-
 interface PaginationData {
   page: number;
   pageSize: number;
@@ -50,6 +31,25 @@ export const CohortResultsTable: React.FC<CohortResultsTableProps> = ({
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const { t } = useTranslation();
+
+  const headers = [
+    {
+      key: "id",
+      header: t("openmrsId", "OpenMRS ID"),
+    },
+    {
+      key: "name",
+      header: t("name", "Name"),
+    },
+    {
+      key: "age",
+      header: t("age", "Age"),
+    },
+    {
+      key: "gender",
+      header: t("gender", "Gender"),
+    },
+  ];
 
   const handlePagination = ({ page, pageSize }: PaginationData) => {
     setPage(page);
