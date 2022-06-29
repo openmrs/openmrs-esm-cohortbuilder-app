@@ -121,7 +121,16 @@ export const addToHistory = (
   patients: Patient[],
   parameters: {}
 ) => {
-  const newHistory = [{ description, patients, parameters }];
+  const oldHistory = JSON.parse(
+    window.sessionStorage.getItem("openmrsHistory")
+  );
+  let newHistory = [];
+
+  if (oldHistory) {
+    newHistory = [...oldHistory, { description, patients, parameters }];
+  } else {
+    newHistory = [{ description, patients, parameters }];
+  }
   window.sessionStorage.setItem("openmrsHistory", JSON.stringify(newHistory));
 };
 

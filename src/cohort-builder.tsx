@@ -33,6 +33,7 @@ const CohortBuilder: React.FC = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [resetInputs, setResetInputs] = useState(false);
+  const [isHistoryUpdated, setIsHistoryUpdated] = useState(true);
   const [notification, setNotification] = useState<Notification>(null);
   const [searchParams, setSearchParams] = useState<SearchParams>({
     query: null,
@@ -104,8 +105,9 @@ const CohortBuilder: React.FC = () => {
         title: `Search is completed with ${rows.length} result(s)`,
       });
       setIsLoading(false);
-    } catch (e) {
-      setNotification({ kind: "error", title: e.toString() });
+      setIsHistoryUpdated(true);
+    } catch (error) {
+      setNotification({ kind: "error", title: error.toString() });
       setIsLoading(false);
     }
   };
@@ -131,7 +133,10 @@ const CohortBuilder: React.FC = () => {
         />
       )}
       <CohortResultsTable patients={patients} />
-      <SearchHistory />
+      <SearchHistory
+        isHistoryUpdated={isHistoryUpdated}
+        setIsHistoryUpdated={setIsHistoryUpdated}
+      />
     </div>
   );
 };

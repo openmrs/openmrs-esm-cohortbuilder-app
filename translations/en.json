@@ -33,8 +33,6 @@
   "endDate": "End date",
   "query": "Query",
   "results": "Results",
-  "queryDefinitionOptions": "Query Definition Options",
-  "cohortDefinitionOptions": "Cohort Definition Options",
   "haveObservations": "Patients who have these observations",
   "haveNoObservations": "Patients who do not have these observations",
   "any": "Any",
