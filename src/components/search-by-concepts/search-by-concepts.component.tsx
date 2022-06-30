@@ -286,6 +286,7 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
           <Column className={styles.column} sm={2} md={{ span: 4 }}>
             <Dropdown
               id="timeModifier"
+              data-testid="timeModifier"
               onChange={(data) => setTimeModifier(data.selectedItem.value)}
               initialSelectedItem={observationOptions[0]}
               items={observationOptions}
@@ -301,6 +302,7 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
               </p>
               <NumberInput
                 id="last-months"
+                data-testid="last-months"
                 invalidText={t("numberIsNotValid", "Number is not valid")}
                 min={0}
                 size="sm"
@@ -312,6 +314,7 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
             <div className={styles.multipleInputs}>
               <NumberInput
                 id="last-days"
+                data-testid="last-days"
                 invalidText={t("numberIsNotValid", "Number is not valid")}
                 min={0}
                 size="sm"
