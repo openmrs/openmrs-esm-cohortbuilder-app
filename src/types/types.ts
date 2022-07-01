@@ -7,6 +7,8 @@ export interface Query {
   columns: Column[];
   rowFilters: RowFilters[];
   customRowFilterCombination: string;
+  name?: string;
+  description?: string;
 }
 
 export interface RowFilters {

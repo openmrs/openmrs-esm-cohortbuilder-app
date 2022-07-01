@@ -22,7 +22,7 @@ import { useTranslation } from "react-i18next";
 
 import { Cohort, Patient, SearchHistoryItem } from "../../types/types";
 import EmptyData from "../empty-data/empty-data.component";
-import { createCohort } from "./search-history.resources";
+import { createCohort, createQuery } from "./search-history.resources";
 import styles from "./search-history.style.scss";
 import { downloadCSV, getSearchHistory } from "./search-history.utils";
 
@@ -46,12 +46,14 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
   const [searchResults, setSearchResults] = useState<SearchHistoryItem[]>([]);
   const [selectedSearchItemId, setSelectedSearchItemId] = useState(0);
   const [cohortName, setCohortName] = useState("");
+  const [queryName, setQueryName] = useState("");
   const [isDeleteHistoryModalVisible, setIsDeleteHistoryModalVisible] =
     useState(false);
   const [isDeleteCohortModalVisible, setIsDeleteCohortModalVisible] =
     useState(false);
   const [isSaveCohortModalVisible, setIsSaveCohortModalVisible] =
     useState(false);
+  const [isSaveQueryModalVisible, setIsSaveQueryModalVisible] = useState(false);
 
   useEffect(() => {
     if (isHistoryUpdated) {
@@ -142,6 +144,28 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
     }
   };
 
+  const saveQuery = async () => {
+    try {
+      const { parameters } = searchResults[selectedSearchItemId];
+      parameters.name = queryName;
+      await createQuery(parameters);
+      setIsSaveQueryModalVisible(false);
+      showNotification({
+        title: t("queryCreateSuccess", "Success"),
+        kind: "success",
+        critical: true,
+        description: "Successfully saved the query",
+      });
+    } catch (error) {
+      showNotification({
+        title: t("queryDeleteError", "Error saving the query"),
+        kind: "error",
+        critical: true,
+        description: error?.message,
+      });
+    }
+  };
+
   const handleOption = async (searchResultId: number, option: Option) => {
     setSelectedSearchItemId(searchResultId);
     switch (option) {
@@ -149,6 +173,7 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
         setIsSaveCohortModalVisible(true);
         break;
       case Option.SAVE_QUERY:
+        setIsSaveQueryModalVisible(true);
         break;
       case Option.DOWNLOAD:
         const { patients, description } = searchResults[searchResultId];
@@ -164,12 +189,14 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
     <div className={styles.container}>
       <div className={styles.header}>
         <p className={styles.heading}>{t("searchHistory", "Search History")}</p>
-        <Button
-          kind="danger--tertiary"
-          onClick={() => setIsDeleteHistoryModalVisible(true)}
-        >
-          {t("clearHistory", "Clear Search History")}
-        </Button>
+        {searchResults.length > 0 && (
+          <Button
+            kind="danger--tertiary"
+            onClick={() => setIsDeleteHistoryModalVisible(true)}
+          >
+            {t("clearHistory", "Clear Search History")}
+          </Button>
+        )}
       </div>
       <DataTable rows={searchResults} headers={headers}>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
@@ -257,6 +284,30 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
         </ModalBody>
         <ModalFooter
           onRequestSubmit={saveCohort}
+          primaryButtonText="Confirm"
+          secondaryButtonText="Cancel"
+        />
+      </ComposedModal>
+      <ComposedModal
+        size={"xs"}
+        open={isSaveQueryModalVisible}
+        onClose={() => setIsSaveQueryModalVisible(false)}
+      >
+        <ModalHeader>
+          <p>Save Query</p>
+        </ModalHeader>
+        <ModalBody hasForm>
+          <TextInput
+            data-modal-primary-focus
+            required
+            labelText="Enter a name for the query"
+            id="cohort-name"
+            onChange={(e) => setQueryName(e.target.value)}
+            value={queryName}
+          />
+        </ModalBody>
+        <ModalFooter
+          onRequestSubmit={saveQuery}
           primaryButtonText="Confirm"
           secondaryButtonText="Cancel"
         />
