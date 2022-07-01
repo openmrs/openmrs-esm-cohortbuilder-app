@@ -1,33 +1,20 @@
-import { openmrsFetch } from "@openmrs/esm-framework";
+import { FetchResponse, openmrsFetch } from "@openmrs/esm-framework";
 
-export interface Cohort {
-  display: string;
-  name: string;
-  description: string;
-  memberIds: number[];
-}
+import { Cohort } from "../../types/types";
 
 /**
  * @returns Concepts
  * @param cohort
  */
 export async function createCohort(cohort: Cohort) {
-  const searchResult = await openmrsFetch("/ws/rest/v1/cohort", {
-    method: "POST",
-    body: cohort,
-  });
+  const savedCohort: FetchResponse<Cohort> = await openmrsFetch(
+    "/ws/rest/v1/cohort",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: cohort,
+    }
+  );
 
-  return searchResult;
-}
-
-/**
- * @returns Concepts
- * @param cohortId
- */
-export async function deleteCohort(cohortId: string) {
-  const searchResult = await openmrsFetch(`/ws/rest/v1/cohort/${cohortId}`, {
-    method: "DELETE",
-  });
-
-  return searchResult;
+  return savedCohort.data;
 }

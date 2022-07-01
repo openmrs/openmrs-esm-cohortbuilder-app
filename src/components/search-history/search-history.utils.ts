@@ -1,12 +1,13 @@
+import { SearchHistoryItem } from "../../types/types";
+
 export const getSearchHistory = () => {
   const history = JSON.parse(window.sessionStorage.getItem("openmrsHistory"));
-  let searchHistory = [];
+  let searchHistory: SearchHistoryItem[] = [];
   history?.map((historyItem, index) =>
     searchHistory.push({
-      id: index + 1,
-      description: historyItem.description,
+      ...historyItem,
+      id: (index + 1).toString(),
       results: historyItem.patients.length,
-      parameters: historyItem.parameters,
     })
   );
   return searchHistory;

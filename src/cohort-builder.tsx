@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
-import { InlineNotification, Tab, Tabs } from "carbon-components-react";
+import { showNotification } from "@openmrs/esm-framework";
+import { Tab, Tabs } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
 import { search } from "./cohort-builder.resource";
@@ -17,24 +18,12 @@ interface TabItem {
   component: JSX.Element;
 }
 
-interface Notification {
-  kind:
-    | "error"
-    | "info"
-    | "info-square"
-    | "success"
-    | "warning"
-    | "warning-alt";
-  title: string;
-}
-
 const CohortBuilder: React.FC = () => {
   const { t } = useTranslation();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [resetInputs, setResetInputs] = useState(false);
   const [isHistoryUpdated, setIsHistoryUpdated] = useState(true);
-  const [notification, setNotification] = useState<Notification>(null);
   const [searchParams, setSearchParams] = useState<SearchParams>({
     query: null,
   });
@@ -83,7 +72,6 @@ const CohortBuilder: React.FC = () => {
 
   const handleReset = () => {
     setPatients([]);
-    setNotification(null);
     setResetInputs(true);
   };
 
@@ -100,14 +88,21 @@ const CohortBuilder: React.FC = () => {
       });
       setPatients(rows);
       addToHistory(queryDescription, rows, searchParams.query);
-      setNotification({
+      showNotification({
+        title: t("success", "Success!"),
         kind: "success",
-        title: `Search is completed with ${rows.length} result(s)`,
+        critical: true,
+        description: `Search is completed with ${rows.length} result(s)`,
       });
       setIsLoading(false);
       setIsHistoryUpdated(true);
     } catch (error) {
-      setNotification({ kind: "error", title: error.toString() });
+      showNotification({
+        title: t("error", "Error"),
+        kind: "error",
+        critical: true,
+        description: error?.message,
+      });
       setIsLoading(false);
     }
   };
@@ -126,12 +121,6 @@ const CohortBuilder: React.FC = () => {
         handleSubmit={handleSubmit}
         isLoading={isLoading}
       />
-      {notification && (
-        <InlineNotification
-          kind={notification.kind}
-          title={notification.title}
-        />
-      )}
       <CohortResultsTable patients={patients} />
       <SearchHistory
         isHistoryUpdated={isHistoryUpdated}

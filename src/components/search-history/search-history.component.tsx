@@ -1,5 +1,6 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 
+import { showNotification } from "@openmrs/esm-framework";
 import {
   DataTable,
   Table,
@@ -14,10 +15,14 @@ import {
   ComposedModal,
   ModalHeader,
   ModalFooter,
+  ModalBody,
+  TextInput,
 } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
+import { Cohort, Patient, SearchHistoryItem } from "../../types/types";
 import EmptyData from "../empty-data/empty-data.component";
+import { createCohort } from "./search-history.resources";
 import styles from "./search-history.style.scss";
 import { getSearchHistory } from "./search-history.utils";
 
@@ -26,13 +31,24 @@ interface SearchHistoryProps {
   setIsHistoryUpdated: Dispatch<SetStateAction<boolean>>;
 }
 
+enum Option {
+  SAVE_COHORT,
+  SAVE_QUERY,
+  DOWNLOAD,
+  DELETE,
+}
+
 export const SearchHistory: React.FC<SearchHistoryProps> = ({
   isHistoryUpdated,
   setIsHistoryUpdated,
 }) => {
   const { t } = useTranslation();
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState<SearchHistoryItem[]>([]);
+  const [selectedSearchItemId, setSelectedSearchItemId] = useState(0);
+  const [cohortName, setCohortName] = useState("");
   const [isDeleteHistoryModalVisible, setIsDeleteHistoryModalVisible] =
+    useState(false);
+  const [isDeleteCohortModalVisible, setIsDeleteCohortModalVisible] =
     useState(false);
   const [isSaveCohortModalVisible, setIsSaveCohortModalVisible] =
     useState(false);
@@ -65,7 +81,82 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
     setIsDeleteHistoryModalVisible(false);
   };
 
-  const saveCohort = () => {};
+  const saveCohort = async () => {
+    const cohortMembers: number[] = [];
+    const { patients, description } = searchResults[selectedSearchItemId];
+    patients.forEach((patient: Patient) =>
+      cohortMembers.push(parseInt(patient.id))
+    );
+    let cohort: Cohort = {
+      display: cohortName,
+      memberIds: cohortMembers,
+      description: description,
+      name: cohortName,
+    };
+
+    try {
+      await createCohort(cohort);
+      setCohortName("");
+      setIsSaveCohortModalVisible(false);
+      showNotification({
+        title: t("cohortCreateSuccess", "Successfully created the cohort"),
+        kind: "success",
+        critical: true,
+        description: "Successfully created the cohort",
+      });
+    } catch (error) {
+      showNotification({
+        title: t("cohortCreateError", "Error creating the cohort"),
+        kind: "error",
+        critical: true,
+        description: error?.message,
+      });
+    }
+  };
+
+  const handleDeleteSearchItem = async () => {
+    try {
+      const updatedSearchResults = [...searchResults].splice(
+        selectedSearchItemId,
+        1
+      );
+      setSearchResults(updatedSearchResults);
+      window.sessionStorage.setItem(
+        "openmrsHistory",
+        JSON.stringify(updatedSearchResults)
+      );
+      setIsDeleteCohortModalVisible(false);
+      showNotification({
+        title: t("cohortCreateSuccess", "Success"),
+        kind: "success",
+        critical: true,
+        description: "Successfully deleted the search item",
+      });
+    } catch (error) {
+      showNotification({
+        title: t("cohortDeleteError", "Error deleting the search item"),
+        kind: "error",
+        critical: true,
+        description: error?.message,
+      });
+    }
+  };
+
+  const handleOption = (searchResultId: number, option: Option) => {
+    setSelectedSearchItemId(searchResultId);
+    switch (option) {
+      case Option.SAVE_COHORT:
+        setIsSaveCohortModalVisible(true);
+        break;
+      case Option.SAVE_QUERY:
+        break;
+      case Option.DOWNLOAD:
+        break;
+      case Option.DELETE:
+        setIsDeleteCohortModalVisible(true);
+        break;
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -101,11 +192,26 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
                     <OverflowMenu ariaLabel="overflow-menu" size="md">
                       <OverflowMenuItem
                         itemText="Save Cohort"
-                        onClick={() => setIsSaveCohortModalVisible(true)}
+                        onClick={() =>
+                          handleOption(row.id - 1, Option.SAVE_COHORT)
+                        }
                       />
-                      <OverflowMenuItem itemText="Save Query" />
-                      <OverflowMenuItem itemText="Download" />
-                      <OverflowMenuItem itemText="Delete" />
+                      <OverflowMenuItem
+                        itemText="Save Query"
+                        onClick={() =>
+                          handleOption(row.id - 1, Option.SAVE_QUERY)
+                        }
+                      />
+                      <OverflowMenuItem
+                        itemText="Download"
+                        onClick={() =>
+                          handleOption(row.id - 1, Option.DOWNLOAD)
+                        }
+                      />
+                      <OverflowMenuItem
+                        itemText="Delete"
+                        onClick={() => handleOption(row.id - 1, Option.DELETE)}
+                      />
                     </OverflowMenu>
                   </TableCell>
                 </TableRow>
@@ -137,9 +243,33 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
         <ModalHeader>
           <p>Save Cohort</p>
         </ModalHeader>
+        <ModalBody hasForm>
+          <TextInput
+            data-modal-primary-focus
+            required
+            labelText="Enter a name for the cohort"
+            id="cohort-name"
+            onChange={(e) => setCohortName(e.target.value)}
+            value={cohortName}
+          />
+        </ModalBody>
         <ModalFooter
           onRequestSubmit={saveCohort}
           primaryButtonText="Confirm"
+          secondaryButtonText="Cancel"
+        />
+      </ComposedModal>
+      <ComposedModal
+        size={"xs"}
+        open={isDeleteCohortModalVisible}
+        onClose={() => setIsDeleteCohortModalVisible(false)}
+      >
+        <ModalHeader>
+          <p>{`Are you sure you want to delete cohort?`}</p>
+        </ModalHeader>
+        <ModalFooter
+          onRequestSubmit={handleDeleteSearchItem}
+          primaryButtonText="Delete"
           secondaryButtonText="Cancel"
         />
       </ComposedModal>

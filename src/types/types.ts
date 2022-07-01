@@ -48,3 +48,20 @@ export interface DataType {
   description: string;
   name: string;
 }
+
+export interface Cohort {
+  uuid?: string;
+  display: string;
+  name: string;
+  description: string;
+  memberIds: number[];
+}
+
+export interface SearchHistoryItem {
+  id: string;
+  parameters?: Query;
+  results: string;
+  description: string;
+  patients: Patient[];
+  cohort?: Cohort;
+}
