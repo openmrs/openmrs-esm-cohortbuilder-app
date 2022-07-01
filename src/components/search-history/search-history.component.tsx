@@ -2,20 +2,20 @@ import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 import { showNotification } from "@openmrs/esm-framework";
 import {
-  DataTable,
-  Table,
-  TableHead,
-  TableRow,
-  TableHeader,
-  TableBody,
-  TableCell,
   Button,
+  ComposedModal,
+  DataTable,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   OverflowMenu,
   OverflowMenuItem,
-  ComposedModal,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
   TextInput,
 } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
@@ -24,7 +24,7 @@ import { Cohort, Patient, SearchHistoryItem } from "../../types/types";
 import EmptyData from "../empty-data/empty-data.component";
 import { createCohort } from "./search-history.resources";
 import styles from "./search-history.style.scss";
-import { getSearchHistory } from "./search-history.utils";
+import { downloadCSV, getSearchHistory } from "./search-history.utils";
 
 interface SearchHistoryProps {
   isHistoryUpdated: boolean;
@@ -142,7 +142,7 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
     }
   };
 
-  const handleOption = (searchResultId: number, option: Option) => {
+  const handleOption = async (searchResultId: number, option: Option) => {
     setSelectedSearchItemId(searchResultId);
     switch (option) {
       case Option.SAVE_COHORT:
@@ -151,6 +151,8 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
       case Option.SAVE_QUERY:
         break;
       case Option.DOWNLOAD:
+        const { patients, description } = searchResults[searchResultId];
+        downloadCSV(patients, description);
         break;
       case Option.DELETE:
         setIsDeleteCohortModalVisible(true);

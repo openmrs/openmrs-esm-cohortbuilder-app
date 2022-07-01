@@ -63,5 +63,4 @@ export interface SearchHistoryItem {
   results: string;
   description: string;
   patients: Patient[];
-  cohort?: Cohort;
 }
