@@ -11,6 +11,7 @@ import {
   ModalHeader,
   OverflowMenu,
   OverflowMenuItem,
+  Pagination,
   Table,
   TableBody,
   TableCell,
@@ -21,7 +22,12 @@ import {
 } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
-import { Cohort, Patient, SearchHistoryItem } from "../../types/types";
+import {
+  Cohort,
+  PaginationData,
+  Patient,
+  SearchHistoryItem,
+} from "../../types/types";
 import EmptyData from "../empty-data/empty-data.component";
 import { createCohort, createQuery } from "./search-history.resources";
 import styles from "./search-history.style.scss";
@@ -47,7 +53,11 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
   const [searchResults, setSearchResults] = useState<SearchHistoryItem[]>([]);
   const [selectedSearchItemId, setSelectedSearchItemId] = useState(0);
   const [cohortName, setCohortName] = useState("");
+  const [cohortDescription, setCohortDescription] = useState("");
   const [queryName, setQueryName] = useState("");
+  const [queryDescription, setQueryDescription] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [isDeleteHistoryModalVisible, setIsDeleteHistoryModalVisible] =
     useState(false);
   const [isDeleteCohortModalVisible, setIsDeleteCohortModalVisible] =
@@ -62,6 +72,11 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
       setIsHistoryUpdated(false);
     }
   }, [isHistoryUpdated]);
+
+  const handlePagination = ({ page, pageSize }: PaginationData) => {
+    setPage(page);
+    setPageSize(pageSize);
+  };
 
   const headers = [
     {
@@ -86,26 +101,27 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
 
   const saveCohort = async () => {
     const cohortMembers: number[] = [];
-    const { patients, description } = searchResults[selectedSearchItemId];
+    const { patients } = searchResults[selectedSearchItemId];
     patients.forEach((patient: Patient) =>
       cohortMembers.push(parseInt(patient.id))
     );
     let cohort: Cohort = {
       display: cohortName,
       memberIds: cohortMembers,
-      description: description,
+      description: cohortDescription,
       name: cohortName,
     };
 
     try {
       await createCohort(cohort);
       setCohortName("");
+      setCohortDescription("");
       setIsSaveCohortModalVisible(false);
       showNotification({
-        title: t("cohortCreateSuccess", "Successfully created the cohort"),
+        title: t("cohortCreateSuccess", "Success"),
         kind: "success",
         critical: true,
-        description: "Successfully created the cohort",
+        description: "the cohort is created",
       });
     } catch (error) {
       showNotification({
@@ -119,9 +135,8 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
 
   const handleDeleteSearchItem = async () => {
     try {
-      const updatedSearchResults = [...searchResults].splice(
-        selectedSearchItemId,
-        1
+      const updatedSearchResults = [...searchResults].filter(
+        (searchResult, index) => index != selectedSearchItemId
       );
       setSearchResults(updatedSearchResults);
       window.sessionStorage.setItem(
@@ -149,7 +164,10 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
     try {
       const { parameters } = searchResults[selectedSearchItemId];
       parameters.name = queryName;
+      parameters.description = queryDescription;
       await createQuery(parameters);
+      setQueryName("");
+      setQueryDescription("");
       setIsSaveQueryModalVisible(false);
       showNotification({
         title: t("queryCreateSuccess", "Success"),
@@ -169,15 +187,17 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
 
   const handleOption = async (searchResultId: number, option: Option) => {
     setSelectedSearchItemId(searchResultId);
+    const { patients, description } = searchResults[searchResultId];
     switch (option) {
       case Option.SAVE_COHORT:
+        setCohortDescription(description);
         setIsSaveCohortModalVisible(true);
         break;
       case Option.SAVE_QUERY:
+        setQueryDescription(description);
         setIsSaveQueryModalVisible(true);
         break;
       case Option.DOWNLOAD:
-        const { patients, description } = searchResults[searchResultId];
         downloadCSV(patients, description);
         break;
       case Option.DELETE:
@@ -213,48 +233,66 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.map((row) => (
-                <TableRow {...getRowProps({ row })}>
-                  {row.cells.map((cell) => (
-                    <TableCell key={cell.id}>{cell.value}</TableCell>
-                  ))}
-                  <TableCell className={styles.optionCell}>
-                    <OverflowMenu
-                      ariaLabel="overflow-menu"
-                      size="md"
-                      flipped
-                      direction="top"
-                    >
-                      <OverflowMenuItem
-                        itemText={t("saveCohort", "Save Cohort")}
-                        onClick={() =>
-                          handleOption(row.id - 1, Option.SAVE_COHORT)
-                        }
-                      />
-                      <OverflowMenuItem
-                        itemText={t("saveQuery", "Save Query")}
-                        onClick={() =>
-                          handleOption(row.id - 1, Option.SAVE_QUERY)
-                        }
-                      />
-                      <OverflowMenuItem
-                        itemText={t("downloadResults", "Download Results")}
-                        onClick={() =>
-                          handleOption(row.id - 1, Option.DOWNLOAD)
-                        }
-                      />
-                      <OverflowMenuItem
-                        itemText={t("delete", "Delete")}
-                        onClick={() => handleOption(row.id - 1, Option.DELETE)}
-                      />
-                    </OverflowMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {rows
+                .slice((page - 1) * pageSize)
+                .slice(0, pageSize)
+                .map((row) => (
+                  <TableRow {...getRowProps({ row })}>
+                    {row.cells.map((cell) => (
+                      <TableCell key={cell.id}>{cell.value}</TableCell>
+                    ))}
+                    <TableCell className={styles.optionCell}>
+                      <OverflowMenu
+                        ariaLabel="overflow-menu"
+                        size="md"
+                        flipped
+                        direction="top"
+                      >
+                        <OverflowMenuItem
+                          itemText={t("saveCohort", "Save Cohort")}
+                          onClick={() =>
+                            handleOption(row.id - 1, Option.SAVE_COHORT)
+                          }
+                        />
+                        <OverflowMenuItem
+                          itemText={t("saveQuery", "Save Query")}
+                          onClick={() =>
+                            handleOption(row.id - 1, Option.SAVE_QUERY)
+                          }
+                        />
+                        <OverflowMenuItem
+                          itemText={t("downloadResults", "Download Results")}
+                          onClick={() =>
+                            handleOption(row.id - 1, Option.DOWNLOAD)
+                          }
+                        />
+                        <OverflowMenuItem
+                          itemText={t("delete", "Delete")}
+                          onClick={() =>
+                            handleOption(row.id - 1, Option.DELETE)
+                          }
+                        />
+                      </OverflowMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         )}
       </DataTable>
+      {searchResults.length > 10 && (
+        <Pagination
+          backwardText={t("previousPage", "Previous page")}
+          forwardText={t("nextPage", "Next page")}
+          itemsPerPageText={t("itemsPerPage:", "Items per page:")}
+          onChange={handlePagination}
+          page={1}
+          pageSize={10}
+          pageSizes={[10, 20, 30, 40, 50]}
+          size="md"
+          totalItems={searchResults.length}
+        />
+      )}
       {!searchResults.length && <EmptyData displayText="history" />}
       <ComposedModal
         size={"sm"}
@@ -262,7 +300,12 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
         onClose={() => setIsDeleteHistoryModalVisible(false)}
       >
         <ModalHeader>
-          <p>Are you sure you want to delete the search history?</p>
+          <p>
+            {t(
+              "deleteHistory",
+              "Are you sure you want to delete the search history?"
+            )}
+          </p>
         </ModalHeader>
         <ModalFooter
           danger
@@ -284,16 +327,24 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
             <TextInput
               data-modal-primary-focus
               required
-              labelText="Enter a name for the cohort"
+              labelText={t("saveName", "Enter a name")}
               id="cohort-name"
               onChange={(e) => setCohortName(e.target.value)}
               value={cohortName}
             />
+            <br />
+            <TextInput
+              data-modal-primary-focus
+              required
+              labelText={t("saveDescription", "Enter a description")}
+              id="cohort-description"
+              onChange={(e) => setCohortDescription(e.target.value)}
+              value={cohortDescription}
+            />
           </Form>
         </ModalBody>
         <ModalFooter
-          onSubmit={saveCohort}
-          // onRequestSubmit={saveCohort}
+          onRequestSubmit={saveCohort}
           primaryButtonText={t("confirm", "Confirm")}
           secondaryButtonText={t("cancel", "Cancel")}
         />
@@ -308,12 +359,19 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
         </ModalHeader>
         <ModalBody hasForm>
           <TextInput
-            data-modal-primary-focus
             required
-            labelText="Enter a name for the query"
-            id="cohort-name"
+            labelText={t("saveName", "Enter a name")}
+            id="query-name"
             onChange={(e) => setQueryName(e.target.value)}
             value={queryName}
+          />
+          <br />
+          <TextInput
+            required
+            labelText={t("saveDescription", "Enter a description")}
+            id="query-description"
+            onChange={(e) => setQueryDescription(e.target.value)}
+            value={queryDescription}
           />
         </ModalBody>
         <ModalFooter
@@ -328,7 +386,16 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
         onClose={() => setIsDeleteCohortModalVisible(false)}
       >
         <ModalHeader>
-          <p>{`Are you sure you want to delete ${searchResults[selectedSearchItemId]?.description} from the search history?`}</p>
+          <p>
+            {t(
+              "deleteHistoryItem",
+              `Are you sure you want to delete ${searchResults[selectedSearchItemId]?.description} from the search history?`,
+              {
+                searchItemName:
+                  searchResults[selectedSearchItemId]?.description,
+              }
+            )}
+          </p>
         </ModalHeader>
         <ModalFooter
           danger

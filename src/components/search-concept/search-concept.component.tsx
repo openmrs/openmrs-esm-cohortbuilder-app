@@ -31,6 +31,7 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({
 
   const onSearch = async (search: string) => {
     setSearchResults([]);
+    setConcept(null);
     setIsSearching(true);
     try {
       const concepts = await getConcepts(search);
@@ -46,7 +47,7 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({
     }
   };
 
-  const debounceFn = _debounce(onSearch, 500);
+  const debounceFn = _debounce(onSearch, 2000);
 
   const onSearchClear = () => {
     setIsSearchResultsEmpty(false);

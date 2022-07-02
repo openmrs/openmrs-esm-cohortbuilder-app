@@ -12,14 +12,9 @@ import {
 } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
-import { Patient } from "../../types/types";
+import { PaginationData, Patient } from "../../types/types";
 import EmptyData from "../empty-data/empty-data.component";
 import styles from "./cohort-results-table.scss";
-
-interface PaginationData {
-  page: number;
-  pageSize: number;
-}
 
 interface CohortResultsTableProps {
   patients: Patient[];

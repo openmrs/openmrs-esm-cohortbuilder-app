@@ -66,3 +66,8 @@ export interface SearchHistoryItem {
   description: string;
   patients: Patient[];
 }
+
+export interface PaginationData {
+  page: number;
+  pageSize: number;
+}
