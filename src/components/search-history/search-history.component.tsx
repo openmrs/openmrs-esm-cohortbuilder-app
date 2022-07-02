@@ -5,6 +5,7 @@ import {
   Button,
   ComposedModal,
   DataTable,
+  Form,
   ModalBody,
   ModalFooter,
   ModalHeader,
@@ -132,7 +133,7 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
         title: t("cohortCreateSuccess", "Success"),
         kind: "success",
         critical: true,
-        description: "Successfully deleted the search item",
+        description: "the search item is deleted",
       });
     } catch (error) {
       showNotification({
@@ -208,7 +209,7 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
                     {header.header}
                   </TableHeader>
                 ))}
-                <TableHeader></TableHeader>
+                <TableHeader className={styles.optionHeader}></TableHeader>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -217,28 +218,33 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
                   {row.cells.map((cell) => (
                     <TableCell key={cell.id}>{cell.value}</TableCell>
                   ))}
-                  <TableCell>
-                    <OverflowMenu ariaLabel="overflow-menu" size="md">
+                  <TableCell className={styles.optionCell}>
+                    <OverflowMenu
+                      ariaLabel="overflow-menu"
+                      size="md"
+                      flipped
+                      direction="top"
+                    >
                       <OverflowMenuItem
-                        itemText="Save Cohort"
+                        itemText={t("saveCohort", "Save Cohort")}
                         onClick={() =>
                           handleOption(row.id - 1, Option.SAVE_COHORT)
                         }
                       />
                       <OverflowMenuItem
-                        itemText="Save Query"
+                        itemText={t("saveQuery", "Save Query")}
                         onClick={() =>
                           handleOption(row.id - 1, Option.SAVE_QUERY)
                         }
                       />
                       <OverflowMenuItem
-                        itemText="Download"
+                        itemText={t("downloadResults", "Download Results")}
                         onClick={() =>
                           handleOption(row.id - 1, Option.DOWNLOAD)
                         }
                       />
                       <OverflowMenuItem
-                        itemText="Delete"
+                        itemText={t("delete", "Delete")}
                         onClick={() => handleOption(row.id - 1, Option.DELETE)}
                       />
                     </OverflowMenu>
@@ -251,7 +257,7 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
       </DataTable>
       {!searchResults.length && <EmptyData displayText="history" />}
       <ComposedModal
-        size={"xs"}
+        size={"sm"}
         open={isDeleteHistoryModalVisible}
         onClose={() => setIsDeleteHistoryModalVisible(false)}
       >
@@ -259,13 +265,14 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
           <p>Are you sure you want to delete the search history?</p>
         </ModalHeader>
         <ModalFooter
+          danger
           onRequestSubmit={clearHistory}
-          primaryButtonText="Confirm"
-          secondaryButtonText="Cancel"
+          primaryButtonText={t("delete", "Delete")}
+          secondaryButtonText={t("cancel", "Cancel")}
         />
       </ComposedModal>
       <ComposedModal
-        size={"xs"}
+        size={"sm"}
         open={isSaveCohortModalVisible}
         onClose={() => setIsSaveCohortModalVisible(false)}
       >
@@ -273,23 +280,26 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
           <p>Save Cohort</p>
         </ModalHeader>
         <ModalBody hasForm>
-          <TextInput
-            data-modal-primary-focus
-            required
-            labelText="Enter a name for the cohort"
-            id="cohort-name"
-            onChange={(e) => setCohortName(e.target.value)}
-            value={cohortName}
-          />
+          <Form onSubmit={saveCohort}>
+            <TextInput
+              data-modal-primary-focus
+              required
+              labelText="Enter a name for the cohort"
+              id="cohort-name"
+              onChange={(e) => setCohortName(e.target.value)}
+              value={cohortName}
+            />
+          </Form>
         </ModalBody>
         <ModalFooter
-          onRequestSubmit={saveCohort}
-          primaryButtonText="Confirm"
-          secondaryButtonText="Cancel"
+          onSubmit={saveCohort}
+          // onRequestSubmit={saveCohort}
+          primaryButtonText={t("confirm", "Confirm")}
+          secondaryButtonText={t("cancel", "Cancel")}
         />
       </ComposedModal>
       <ComposedModal
-        size={"xs"}
+        size={"sm"}
         open={isSaveQueryModalVisible}
         onClose={() => setIsSaveQueryModalVisible(false)}
       >
@@ -308,22 +318,23 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
         </ModalBody>
         <ModalFooter
           onRequestSubmit={saveQuery}
-          primaryButtonText="Confirm"
-          secondaryButtonText="Cancel"
+          primaryButtonText={t("confirm", "Confirm")}
+          secondaryButtonText={t("cancel", "Cancel")}
         />
       </ComposedModal>
       <ComposedModal
-        size={"xs"}
+        size={"sm"}
         open={isDeleteCohortModalVisible}
         onClose={() => setIsDeleteCohortModalVisible(false)}
       >
         <ModalHeader>
-          <p>{`Are you sure you want to delete cohort?`}</p>
+          <p>{`Are you sure you want to delete ${searchResults[selectedSearchItemId]?.description} from the search history?`}</p>
         </ModalHeader>
         <ModalFooter
+          danger
           onRequestSubmit={handleDeleteSearchItem}
-          primaryButtonText="Delete"
-          secondaryButtonText="Cancel"
+          primaryButtonText={t("delete", "Delete")}
+          secondaryButtonText={t("cancel", "Cancel")}
         />
       </ComposedModal>
     </div>

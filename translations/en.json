@@ -43,5 +43,14 @@
   "highest": "Highest",
   "average": "Average",
   "withinTheLast": "Within the last",
-  "valueIn": "Enter a value in "
+  "valueIn": "Enter a value in ",
+  "cohortCreateSuccess": "Successfully created the cohort",
+  "cohortCreateError": "Error creating the cohort",
+  "cohortDeleteError": "Error deleting the search item",
+  "delete": "Delete",
+  "confirm": "Confirm",
+  "cancel": "Cancel",
+  "saveCohort": "Save Cohort",
+  "saveQuery": "Save Query",
+  "downloadResults": "Download Results"
 }

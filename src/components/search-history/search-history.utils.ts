@@ -13,16 +13,27 @@ export const getSearchHistory = () => {
   return searchHistory;
 };
 
-const convertToCSV = (data: Patient[]) => {
-  return data
-    .map((patient) => {
-      return Object.keys(patient)
-        .map((key) => {
-          return `"${patient[key]}"`;
-        })
-        .join(",");
-    })
-    .join("\n");
+const convertToCSV = (patients: Patient[]) => {
+  const csv =
+    "patient_id, full_name, age, gender\n" +
+    patients
+      .map((patient) => {
+        const orderedPatient = {
+          patientId: patient.patientId,
+          name: patient.name,
+          age: patient.age,
+          gender: patient.gender,
+        };
+
+        return Object.keys(orderedPatient)
+          .map((key) => {
+            return `"${patient[key]}"`;
+          })
+          .join(",");
+      })
+      .join("\n");
+
+  return csv;
 };
 
 export const downloadCSV = (data, filename) => {
