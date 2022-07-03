@@ -16,7 +16,7 @@ export async function createCohort(cohort: Cohort) {
     }
   );
 
-  return savedCohort.data;
+  return savedCohort;
 }
 
 /**

@@ -27,11 +27,11 @@ export interface Column {
 export interface Patient {
   id: string;
   name: string;
-  age: string;
+  age: number;
   gender: string;
   firstname?: string;
   lastname?: string;
-  patientId?: string;
+  patientId?: number;
 }
 
 export interface Concept {

@@ -58,7 +58,7 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
   const [queryDescription, setQueryDescription] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [isDeleteHistoryModalVisible, setIsDeleteHistoryModalVisible] =
+  const [isClearHistoryModalVisible, setIsClearHistoryModalVisible] =
     useState(false);
   const [isDeleteCohortModalVisible, setIsDeleteCohortModalVisible] =
     useState(false);
@@ -71,7 +71,7 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
       setSearchResults(getSearchHistory());
       setIsHistoryUpdated(false);
     }
-  }, [isHistoryUpdated]);
+  }, [isHistoryUpdated, setIsHistoryUpdated]);
 
   const handlePagination = ({ page, pageSize }: PaginationData) => {
     setPage(page);
@@ -96,7 +96,7 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
   const clearHistory = () => {
     window.sessionStorage.removeItem("openmrsHistory");
     setSearchResults([]);
-    setIsDeleteHistoryModalVisible(false);
+    setIsClearHistoryModalVisible(false);
   };
 
   const saveCohort = async () => {
@@ -121,7 +121,7 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
         title: t("cohortCreateSuccess", "Success"),
         kind: "success",
         critical: true,
-        description: "the cohort is created",
+        description: "the cohort is saved",
       });
     } catch (error) {
       showNotification({
@@ -173,7 +173,7 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
         title: t("queryCreateSuccess", "Success"),
         kind: "success",
         critical: true,
-        description: "Successfully saved the query",
+        description: "the query is saved",
       });
     } catch (error) {
       showNotification({
@@ -213,7 +213,7 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
         {searchResults.length > 0 && (
           <Button
             kind="danger--tertiary"
-            onClick={() => setIsDeleteHistoryModalVisible(true)}
+            onClick={() => setIsClearHistoryModalVisible(true)}
           >
             {t("clearHistory", "Clear Search History")}
           </Button>
@@ -247,14 +247,17 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
                         size="md"
                         flipped
                         direction="top"
+                        data-testid="options"
                       >
                         <OverflowMenuItem
+                          data-testid="save-cohort"
                           itemText={t("saveCohort", "Save Cohort")}
                           onClick={() =>
                             handleOption(row.id - 1, Option.SAVE_COHORT)
                           }
                         />
                         <OverflowMenuItem
+                          data-testid="save-query"
                           itemText={t("saveQuery", "Save Query")}
                           onClick={() =>
                             handleOption(row.id - 1, Option.SAVE_QUERY)
@@ -267,7 +270,10 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
                           }
                         />
                         <OverflowMenuItem
-                          itemText={t("delete", "Delete")}
+                          itemText={t(
+                            "deleteFromHistory",
+                            "Delete from history"
+                          )}
                           onClick={() =>
                             handleOption(row.id - 1, Option.DELETE)
                           }
@@ -296,21 +302,21 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
       {!searchResults.length && <EmptyData displayText="history" />}
       <ComposedModal
         size={"sm"}
-        open={isDeleteHistoryModalVisible}
-        onClose={() => setIsDeleteHistoryModalVisible(false)}
+        open={isClearHistoryModalVisible}
+        onClose={() => setIsClearHistoryModalVisible(false)}
       >
         <ModalHeader>
           <p>
             {t(
-              "deleteHistory",
-              "Are you sure you want to delete the search history?"
+              "clearHistoryMsg",
+              "Are you sure you want to clear the search history?"
             )}
           </p>
         </ModalHeader>
         <ModalFooter
           danger
           onRequestSubmit={clearHistory}
-          primaryButtonText={t("delete", "Delete")}
+          primaryButtonText={t("clear", "Clear")}
           secondaryButtonText={t("cancel", "Cancel")}
         />
       </ComposedModal>
@@ -328,6 +334,7 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
               data-modal-primary-focus
               required
               labelText={t("saveName", "Enter a name")}
+              data-testid="cohort-name"
               id="cohort-name"
               onChange={(e) => setCohortName(e.target.value)}
               value={cohortName}
@@ -337,17 +344,28 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
               data-modal-primary-focus
               required
               labelText={t("saveDescription", "Enter a description")}
+              data-testid="cohort-description"
               id="cohort-description"
               onChange={(e) => setCohortDescription(e.target.value)}
               value={cohortDescription}
             />
           </Form>
         </ModalBody>
-        <ModalFooter
-          onRequestSubmit={saveCohort}
-          primaryButtonText={t("confirm", "Confirm")}
-          secondaryButtonText={t("cancel", "Cancel")}
-        />
+        <ModalFooter>
+          <Button
+            kind="secondary"
+            onClick={() => setIsSaveCohortModalVisible(false)}
+          >
+            {t("cancel", "Cancel")}
+          </Button>
+          <Button
+            data-testid="cohort-save-button"
+            kind="primary"
+            onClick={saveCohort}
+          >
+            {t("save", "Save")}
+          </Button>
+        </ModalFooter>
       </ComposedModal>
       <ComposedModal
         size={"sm"}
@@ -362,6 +380,7 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
             required
             labelText={t("saveName", "Enter a name")}
             id="query-name"
+            data-testid="query-name"
             onChange={(e) => setQueryName(e.target.value)}
             value={queryName}
           />
@@ -374,11 +393,21 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
             value={queryDescription}
           />
         </ModalBody>
-        <ModalFooter
-          onRequestSubmit={saveQuery}
-          primaryButtonText={t("confirm", "Confirm")}
-          secondaryButtonText={t("cancel", "Cancel")}
-        />
+        <ModalFooter>
+          <Button
+            kind="secondary"
+            onClick={() => setIsSaveQueryModalVisible(false)}
+          >
+            {t("cancel", "Cancel")}
+          </Button>
+          <Button
+            data-testid="query-save-button"
+            kind="primary"
+            onClick={saveQuery}
+          >
+            {t("save", "Save")}
+          </Button>
+        </ModalFooter>
       </ComposedModal>
       <ComposedModal
         size={"sm"}

@@ -48,13 +48,15 @@
   "cohortCreateError": "Error creating the cohort",
   "cohortDeleteError": "Error deleting the search item",
   "delete": "Delete",
-  "confirm": "Confirm",
+  "deleteFromHistory": "Delete from history",
+  "save": "Save",
+  "clear": "Clear",
   "cancel": "Cancel",
   "saveCohort": "Save Cohort",
   "saveQuery": "Save Query",
   "downloadResults": "Download Results",
   "saveName": "Enter a name",
   "saveDescription": "Enter a description",
-  "deleteHistory": "Are you sure you want to delete the search history?",
+  "clearHistoryMsg": "Are you sure you want to clear the search history?",
   "deleteHistoryItem": "Are you sure you want to delete {{searchItemName}} from the search history?`"
 }
