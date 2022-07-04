@@ -1,14 +1,11 @@
 import React from "react";
 
-import { render, cleanup, fireEvent, act } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { render, cleanup } from "@testing-library/react";
 
 import { SearchHistory } from "./search-history.component";
-import * as apis from "./search-history.resources";
 import * as utils from "./search-history.utils";
 
 jest.mock("./search-history.utils.ts");
-jest.mock("./search-history.resources");
 
 const mockSearchHistory = [
   {
@@ -99,53 +96,5 @@ describe("Test the search history component", () => {
     expect(
       getByText("Patients with NO Chronic viral hepatitis")
     ).toBeInTheDocument();
-  });
-
-  it("should be able to save the search history item as a cohort", async () => {
-    jest.spyOn(utils, "getSearchHistory").mockReturnValue(mockSearchHistory);
-    const { getByTestId } = render(
-      <SearchHistory isHistoryUpdated={true} setIsHistoryUpdated={jest.fn()} />
-    );
-
-    fireEvent.click(getByTestId("options"));
-    fireEvent.click(getByTestId("save-cohort"));
-    await userEvent.type(
-      getByTestId("cohort-name"),
-      "Chronic viral hepatitis cohort"
-    );
-    await act(async () => {
-      fireEvent.click(getByTestId("cohort-save-button"));
-    });
-    expect(jest.spyOn(apis, "createCohort")).toBeCalled();
-  });
-
-  it("should be able to save the search history item as a query", async () => {
-    jest.spyOn(utils, "getSearchHistory").mockReturnValue(mockSearchHistory);
-    const { getByTestId } = render(
-      <SearchHistory isHistoryUpdated={true} setIsHistoryUpdated={jest.fn()} />
-    );
-
-    fireEvent.click(getByTestId("options"));
-    fireEvent.click(getByTestId("save-query"));
-    await userEvent.type(
-      getByTestId("query-name"),
-      "Chronic viral hepatitis query"
-    );
-    await act(async () => {
-      fireEvent.click(getByTestId("query-save-button"));
-    });
-    expect(jest.spyOn(apis, "createQuery")).toBeCalled();
-  });
-
-  it("should be able delete search history item", async () => {
-    jest.spyOn(utils, "getSearchHistory").mockReturnValue(mockSearchHistory);
-    const { getByText, getByTestId } = render(
-      <SearchHistory isHistoryUpdated={true} setIsHistoryUpdated={jest.fn()} />
-    );
-
-    fireEvent.click(getByTestId("options"));
-    fireEvent.click(getByText("Delete from history"));
-    fireEvent.click(getByText("Delete"));
-    expect(getByText("There are no history to display")).toBeInTheDocument();
   });
 });

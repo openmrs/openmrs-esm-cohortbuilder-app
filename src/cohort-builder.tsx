@@ -92,7 +92,11 @@ const CohortBuilder: React.FC = () => {
         title: t("success", "Success!"),
         kind: "success",
         critical: true,
-        description: `Search is completed with ${rows.length} result(s)`,
+        description: t(
+          "searchIsCompleted",
+          `Search is completed with ${rows.length} result(s)`,
+          { numOfResults: rows.length }
+        ),
       });
       setIsLoading(false);
       setIsHistoryUpdated(true);
