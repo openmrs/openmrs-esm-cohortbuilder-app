@@ -55,7 +55,7 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({
 
   const debouncedSearch = useRef(
     _debounce(async (searchText: string) => {
-      if (searchText != "") {
+      if (searchText) {
         await onSearch(searchText);
       }
     }, 400)
