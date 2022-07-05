@@ -1,4 +1,10 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 
 import {
   DatePicker,
@@ -142,35 +148,10 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
   ];
 
   useEffect(() => {
-    if (concept) {
-      handleInputValues();
-    }
-  }, [
-    concept,
-    lastDays,
-    lastMonths,
-    onOrAfter,
-    onOrBefore,
-    operator,
-    operatorValue,
-    timeModifier,
-  ]);
-
-  useEffect(() => {
     if (resetInputs) {
       handleResetInputs();
     }
   }, [resetInputs]);
-
-  const handleLastDaysAndMonths = () => {
-    if (lastDays > 0 || lastMonths > 0) {
-      const onOrAfter = dayjs()
-        .subtract(lastDays, "days")
-        .subtract(lastMonths, "months")
-        .format();
-      setOnOrBefore(onOrAfter);
-    }
-  };
 
   const handleDates = (dates: Date[]) => {
     setOnOrAfter(dayjs(dates[0]).format());
@@ -188,8 +169,14 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
     setTimeModifier("ANY");
   };
 
-  const handleInputValues = () => {
-    handleLastDaysAndMonths();
+  const handleInputValues = useCallback(() => {
+    if (lastDays > 0 || lastMonths > 0) {
+      const onOrAfter = dayjs()
+        .subtract(lastDays, "days")
+        .subtract(lastMonths, "months")
+        .format();
+      setOnOrBefore(onOrAfter);
+    }
     const observations: Observation = {
       modifier: "",
       onOrAfter: onOrAfter,
@@ -219,7 +206,36 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
     });
     setSearchParams(composeJson(params));
     setQueryDescription(queryDescriptionBuilder(observations, concept.name));
-  };
+  }, [
+    concept?.hl7Abbrev,
+    concept?.name,
+    concept?.uuid,
+    lastDays,
+    lastMonths,
+    onOrAfter,
+    onOrBefore,
+    operator,
+    operatorValue,
+    setQueryDescription,
+    setSearchParams,
+    timeModifier,
+  ]);
+
+  useEffect(() => {
+    if (concept) {
+      handleInputValues();
+    }
+  }, [
+    concept,
+    handleInputValues,
+    lastDays,
+    lastMonths,
+    onOrAfter,
+    onOrBefore,
+    operator,
+    operatorValue,
+    timeModifier,
+  ]);
 
   return (
     <div className={styles.container}>

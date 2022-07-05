@@ -7,14 +7,14 @@ import SearchButtonSet from "./search-button-set";
 describe("Test the search button set component", () => {
   afterEach(cleanup);
   it("should be able to see all the buttons", async () => {
-    const { getByText } = render(
+    const { getByTestId } = render(
       <SearchButtonSet
         handleReset={jest.fn()}
         handleSubmit={jest.fn()}
         isLoading={false}
       />
     );
-    expect(getByText("Search")).toBeInTheDocument();
-    expect(getByText("Reset")).toBeInTheDocument();
+    expect(getByTestId("search-btn")).toBeInTheDocument();
+    expect(getByTestId("reset-btn")).toBeInTheDocument();
   });
 });
