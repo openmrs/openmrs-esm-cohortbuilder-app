@@ -21,7 +21,9 @@
  *   https://testing-library.com/docs/guiding-principles
  */
 import React from "react";
+
 import { render, cleanup } from "@testing-library/react";
+
 import CohortBuilder from "./cohort-builder";
 
 describe(`<CohortBuilder />`, () => {

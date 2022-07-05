@@ -7,6 +7,8 @@ export interface Query {
   columns: Column[];
   rowFilters: RowFilters[];
   customRowFilterCombination: string;
+  name?: string;
+  description?: string;
 }
 
 export interface RowFilters {
@@ -25,11 +27,11 @@ export interface Column {
 export interface Patient {
   id: string;
   name: string;
-  age: string;
+  age: number;
   gender: string;
   firstname?: string;
   lastname?: string;
-  patientId?: string;
+  patientId?: number;
 }
 
 export interface Concept {
@@ -47,4 +49,25 @@ export interface DataType {
   hl7Abbreviation: string;
   description: string;
   name: string;
+}
+
+export interface Cohort {
+  uuid?: string;
+  display: string;
+  name: string;
+  description: string;
+  memberIds: number[];
+}
+
+export interface SearchHistoryItem {
+  id: string;
+  parameters?: Query;
+  results: string;
+  description: string;
+  patients: Patient[];
+}
+
+export interface PaginationData {
+  page: number;
+  pageSize: number;
 }

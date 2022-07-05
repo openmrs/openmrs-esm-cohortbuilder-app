@@ -1,4 +1,10 @@
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useState,
+  useRef,
+  useEffect,
+} from "react";
 
 import {
   Button,
@@ -31,6 +37,7 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({
 
   const onSearch = async (search: string) => {
     setSearchResults([]);
+    setConcept(null);
     setIsSearching(true);
     try {
       const concepts = await getConcepts(search);
@@ -46,7 +53,19 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({
     }
   };
 
-  const debounceFn = _debounce(onSearch, 500);
+  const debouncedSearch = useRef(
+    _debounce(async (searchText: string) => {
+      if (searchText) {
+        await onSearch(searchText);
+      }
+    }, 400)
+  ).current;
+
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [debouncedSearch]);
 
   const onSearchClear = () => {
     setIsSearchResultsEmpty(false);
@@ -60,7 +79,7 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({
 
   const handleWithDebounce = (event) => {
     setSearchText(event.target.value);
-    debounceFn(event.target.value);
+    debouncedSearch(event.target.value);
   };
 
   return (
