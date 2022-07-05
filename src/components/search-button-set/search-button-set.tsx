@@ -12,24 +12,32 @@ import styles from "./search-button-set.css";
 
 interface SearchButtonSet {
   isLoading: boolean;
-  handleSubmit: () => void;
-  handleReset: () => void;
+  onHandleSubmit: () => void;
+  onHandleReset: () => void;
 }
 
 const SearchButtonSet: React.FC<SearchButtonSet> = ({
   isLoading,
-  handleSubmit,
-  handleReset,
+  onHandleSubmit,
+  onHandleReset,
 }) => {
   const { t } = useTranslation();
 
   return (
     <Column sm={2} md={{ offset: 4 }} className={styles.container}>
       <ButtonSet className={styles.buttonSet}>
-        <Button kind="secondary" onClick={handleReset} data-testid="reset-btn">
+        <Button
+          kind="secondary"
+          onClick={onHandleReset}
+          data-testid="reset-btn"
+        >
           {t("reset", "Reset")}
         </Button>
-        <Button kind="primary" onClick={handleSubmit} data-testid="search-btn">
+        <Button
+          kind="primary"
+          onClick={onHandleSubmit}
+          data-testid="search-btn"
+        >
           {isLoading ? (
             <InlineLoading description={t("loading", "Loading")} />
           ) : (

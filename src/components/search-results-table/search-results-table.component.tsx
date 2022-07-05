@@ -14,13 +14,13 @@ import { useTranslation } from "react-i18next";
 
 import { PaginationData, Patient } from "../../types/types";
 import EmptyData from "../empty-data/empty-data.component";
-import styles from "./cohort-results-table.scss";
+import styles from "./search-results-table.scss";
 
-interface CohortResultsTableProps {
+interface SearchResultsTableProps {
   patients: Patient[];
 }
 
-export const CohortResultsTable: React.FC<CohortResultsTableProps> = ({
+export const SearchResultsTable: React.FC<SearchResultsTableProps> = ({
   patients,
 }) => {
   const [page, setPage] = useState(1);
