@@ -7,10 +7,10 @@ import { useTranslation } from "react-i18next";
 import { search } from "./cohort-builder.resource";
 import styles from "./cohort-builder.scss";
 import { addToHistory } from "./cohort-builder.utils";
-import { CohortResultsTable } from "./components/cohort-results-table/cohort-results-table.component";
 import SearchButtonSet from "./components/search-button-set/search-button-set";
 import { SearchByConcepts } from "./components/search-by-concepts/search-by-concepts.component";
 import { SearchHistory } from "./components/search-history/search-history.component";
+import { SearchResultsTable } from "./components/search-results-table/search-results-table.component";
 import { Patient, SearchParams } from "./types/types";
 
 interface TabItem {
@@ -121,11 +121,11 @@ const CohortBuilder: React.FC = () => {
         ))}
       </Tabs>
       <SearchButtonSet
-        handleReset={handleReset}
-        handleSubmit={handleSubmit}
+        onHandleReset={handleReset}
+        onHandleSubmit={handleSubmit}
         isLoading={isLoading}
       />
-      <CohortResultsTable patients={patients} />
+      <SearchResultsTable patients={patients} />
       <SearchHistory
         isHistoryUpdated={isHistoryUpdated}
         setIsHistoryUpdated={setIsHistoryUpdated}

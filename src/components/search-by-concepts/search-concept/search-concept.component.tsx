@@ -15,7 +15,7 @@ import {
 import _debounce from "lodash/debounce";
 import { useTranslation } from "react-i18next";
 
-import { Concept } from "../../types/types";
+import { Concept } from "../../../types/types";
 import { getConcepts } from "./search-concept.resource";
 import styles from "./search-concept.style.css";
 
