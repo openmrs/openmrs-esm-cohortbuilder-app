@@ -33,10 +33,15 @@ describe("Test the search results component", () => {
   });
 
   it("should display the search results", () => {
-    const { getByText } = render(
+    const { getAllByRole } = render(
       <SearchResultsTable patients={mockPatients} />
     );
-    expect(getByText("Horatio Hornblower")).toBeInTheDocument();
-    expect(getByText("47")).toBeInTheDocument();
+    const rows = getAllByRole("row");
+    const cells = getAllByRole("cell");
+    expect(rows).toHaveLength(mockPatients.length + 1);
+    expect(cells[1].textContent).toBe(mockPatients[0].name);
+    expect(cells[5].textContent).toBe(mockPatients[1].name);
+    expect(cells[0].textContent).toBe(mockPatients[0].id);
+    expect(cells[4].textContent).toBe(mockPatients[1].id);
   });
 });

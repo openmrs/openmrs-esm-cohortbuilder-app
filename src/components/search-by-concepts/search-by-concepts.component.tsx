@@ -21,8 +21,8 @@ import {
   queryDescriptionBuilder,
 } from "../../cohort-builder.utils";
 import { Concept, SearchParams } from "../../types/types";
-import { SearchConcept } from "../search-concept/search-concept.component";
 import styles from "./search-by-concepts.style.scss";
+import { SearchConcept } from "./search-concept/search-concept.component";
 
 const operators = [
   {

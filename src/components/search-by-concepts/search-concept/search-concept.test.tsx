@@ -9,7 +9,7 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { Concept } from "../../types/types";
+import { Concept } from "../../../types/types";
 import { SearchConcept } from "./search-concept.component";
 import * as apis from "./search-concept.resource";
 
@@ -60,7 +60,6 @@ describe("Test the concept search component", () => {
     );
     expect(screen.getByText("BLOOD SUGAR")).toBeInTheDocument();
     expect(screen.getByText("Whole blood sample")).toBeInTheDocument();
-    fireEvent.click(screen.getByText("BLOOD SUGAR"));
   });
 
   it("should be able to clear the current search value", async () => {
