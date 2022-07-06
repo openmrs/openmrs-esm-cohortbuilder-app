@@ -58,7 +58,7 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({
       if (searchText) {
         await onSearch(searchText);
       }
-    }, 400)
+    }, 500)
   ).current;
 
   useEffect(() => {

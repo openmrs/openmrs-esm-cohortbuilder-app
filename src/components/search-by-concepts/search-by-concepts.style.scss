@@ -1,8 +1,14 @@
-@import 'carbon-components/scss/globals/scss/typography.scss';
+@import "~@openmrs/esm-styleguide/src/vars";
+@import "~carbon-components/src/globals/scss/vars";
+@import "~carbon-components/src/globals/scss/mixins";
 
 .heading {
   @include carbon--type-style('productive-heading-02');
   margin-bottom: 1rem;
+}
+
+.contentSwitcher {
+  height: $spacing-08;
 }
 
 .column {
@@ -35,8 +41,9 @@
   padding-right: 1rem;
 }
 
-.dropdown {
-  padding-right: 3rem;
+.operators {
+  width: 60%;
+  padding-right: 1rem;
 }
 
 .value {

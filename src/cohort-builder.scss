@@ -12,8 +12,8 @@
   width: 50%;
 }
 
-div.bx--tab-content {
-  padding: 0 !important;
+:global(.bx--tab-content) {
+  width: 100%;
 }
 
 .verticalTabs {
@@ -30,7 +30,6 @@ div.bx--tab-content {
 }
 
 .tab > {
-  width: 80%;
   button {
     border-bottom: 0 !important;
     border-left: 3px solid $ui-03 !important;

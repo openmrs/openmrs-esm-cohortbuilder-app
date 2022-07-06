@@ -113,26 +113,6 @@ const CohortBuilder: React.FC = () => {
   };
 
   return (
-<<<<<<< HEAD
-    <div className={`omrs-main-content ${styles.container}`}>
-      <Tabs className={styles.tab}>
-        {tabs.map((tab: TabItem, index: number) => (
-          <Tab key={index} label={tab.name}>
-            {tab.component}
-          </Tab>
-        ))}
-      </Tabs>
-      <SearchButtonSet
-        onHandleReset={handleReset}
-        onHandleSubmit={handleSubmit}
-        isLoading={isLoading}
-      />
-      <SearchResultsTable patients={patients} />
-      <SearchHistory
-        isHistoryUpdated={isHistoryUpdated}
-        setIsHistoryUpdated={setIsHistoryUpdated}
-      />
-=======
     <div className={`omrs-main-content ${styles.mainContainer}`}>
       <div className={styles.container}>
         <div className={styles.tabContainer}>
@@ -148,21 +128,20 @@ const CohortBuilder: React.FC = () => {
               >
                 {tab.component}
                 <SearchButtonSet
-                  handleReset={handleReset}
-                  handleSubmit={handleSubmit}
+                  onHandleReset={handleReset}
+                  onHandleSubmit={handleSubmit}
                   isLoading={isLoading}
                 />
               </Tab>
             ))}
           </Tabs>
         </div>
-        <CohortResultsTable patients={patients} />
+        <SearchResultsTable patients={patients} />
         <SearchHistory
           isHistoryUpdated={isHistoryUpdated}
           setIsHistoryUpdated={setIsHistoryUpdated}
         />
       </div>
->>>>>>> 1ecd1f0 (Change the layout)
     </div>
   );
 };
