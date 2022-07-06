@@ -1,11 +1,58 @@
 @import 'carbon-components/css/carbon-components.css';
 @import '~@openmrs/esm-styleguide/src/vars';
 
-.container {
+.mainContainer {
   padding: 1.5rem;
   background: $ui-01;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  width: 50%;
 }
 
 div.bx--tab-content {
   padding: 0 !important;
+}
+
+.verticalTabs {
+  margin: 1rem 0;
+  width: 20%;
+
+  &:global(.bx--tabs--scrollable .bx--tabs--scrollable__nav-item+.bx--tabs--scrollable__nav-item) {
+    margin-left: 0rem;
+  }
+  
+  > ul {
+    flex-direction: column !important;
+  }
+}
+
+.tab > {
+  width: 80%;
+  button {
+    border-bottom: 0 !important;
+    border-left: 3px solid $ui-03 !important;
+  }
+  
+  button, button:focus, button:active {
+    outline: 0 !important;
+    outline-offset: 0 !important;
+  }
+}
+
+.selectedTab > button {
+  border-left: 3px solid var(--brand-03) !important;
+  border-bottom: 0 !important;
+  font-weight: 600 !important;
+}
+
+.tabContainer {
+  display: flex;
+  background: white;
+  padding-left: 1.5rem;
+  padding-right: 1rem;
+  padding-top: 1rem;
+  margin-bottom: 1rem;
 }

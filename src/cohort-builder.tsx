@@ -28,6 +28,7 @@ const CohortBuilder: React.FC = () => {
     query: null,
   });
   const [queryDescription, setQueryDescription] = useState("");
+  const [selectedTab, setSelectedTab] = useState(0);
 
   const tabs: TabItem[] = [
     {
@@ -112,6 +113,7 @@ const CohortBuilder: React.FC = () => {
   };
 
   return (
+<<<<<<< HEAD
     <div className={`omrs-main-content ${styles.container}`}>
       <Tabs className={styles.tab}>
         {tabs.map((tab: TabItem, index: number) => (
@@ -130,6 +132,37 @@ const CohortBuilder: React.FC = () => {
         isHistoryUpdated={isHistoryUpdated}
         setIsHistoryUpdated={setIsHistoryUpdated}
       />
+=======
+    <div className={`omrs-main-content ${styles.mainContainer}`}>
+      <div className={styles.container}>
+        <div className={styles.tabContainer}>
+          <Tabs className={styles.verticalTabs}>
+            {tabs.map((tab: TabItem, index: number) => (
+              <Tab
+                key={index}
+                label={tab.name}
+                onClick={() => setSelectedTab(index)}
+                className={`${styles.tab} ${
+                  selectedTab == index && styles.selectedTab
+                }`}
+              >
+                {tab.component}
+                <SearchButtonSet
+                  handleReset={handleReset}
+                  handleSubmit={handleSubmit}
+                  isLoading={isLoading}
+                />
+              </Tab>
+            ))}
+          </Tabs>
+        </div>
+        <CohortResultsTable patients={patients} />
+        <SearchHistory
+          isHistoryUpdated={isHistoryUpdated}
+          setIsHistoryUpdated={setIsHistoryUpdated}
+        />
+      </div>
+>>>>>>> 1ecd1f0 (Change the layout)
     </div>
   );
 };

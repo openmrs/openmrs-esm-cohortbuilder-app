@@ -246,7 +246,7 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
         <SearchConcept setConcept={setConcept} concept={concept} />
         {concept?.hl7Abbrev === "NM" ? (
           <>
-            <Column className={styles.column} sm={2} md={{ span: 6 }}>
+            <Column className={styles.column}>
               <div style={{ display: "flex" }}>
                 <div className={styles.multipleInputs}>
                   <p style={{ paddingRight: 20 }}>
@@ -299,7 +299,7 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
             </Column>
           </>
         ) : (
-          <Column className={styles.column} sm={2} md={{ span: 4 }}>
+          <Column className={styles.column}>
             <Dropdown
               id="timeModifier"
               data-testid="timeModifier"
