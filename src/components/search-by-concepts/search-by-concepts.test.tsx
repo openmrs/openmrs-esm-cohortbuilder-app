@@ -115,13 +115,11 @@ describe("Test the search by concept component", () => {
     fireEvent.click(lastMonthsInput);
     fireEvent.change(lastMonthsInput, { target: { value: "4" } });
     fireEvent.click(getByText("Any"));
-    mockQuery.query.rowFilters[0].parameterValues.onOrBefore = dayjs(new Date())
-      .subtract(15, "days")
-      .subtract(4, "months")
-      .format();
+    const date = dayjs().subtract(15, "days").subtract(4, "months");
+    mockQuery.query.rowFilters[0].parameterValues.onOrBefore = date.format();
     expect(setSearchParams).toBeCalledWith(mockQuery);
     expect(setQueryDescription).toBeCalledWith(
-      "Patients with ANY BLOOD SUGAR   until 21/6/2022"
+      "Patients with ANY BLOOD SUGAR   until " + date.format("DD/M/YYYY")
     );
   });
 });

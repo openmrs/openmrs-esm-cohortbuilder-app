@@ -21,16 +21,19 @@ import styles from "./search-concept.style.css";
 
 interface SearchConceptProps {
   concept: Concept;
+  searchText: string;
   setConcept: Dispatch<SetStateAction<Concept>>;
+  setSearchText: Dispatch<SetStateAction<String>>;
 }
 
 export const SearchConcept: React.FC<SearchConceptProps> = ({
   concept,
+  searchText,
   setConcept,
+  setSearchText,
 }) => {
   const { t } = useTranslation();
   const [searchResults, setSearchResults] = useState<Concept[]>([]);
-  const [searchText, setSearchText] = useState("");
   const [searchError, setSearchError] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [isSearchResultsEmpty, setIsSearchResultsEmpty] = useState(false);
@@ -39,6 +42,7 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({
     setSearchResults([]);
     setConcept(null);
     setIsSearching(true);
+    setIsSearchResultsEmpty(false);
     try {
       const concepts = await getConcepts(search);
       if (concepts.length) {
@@ -58,7 +62,7 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({
       if (searchText) {
         await onSearch(searchText);
       }
-    }, 400)
+    }, 500)
   ).current;
 
   useEffect(() => {
@@ -75,6 +79,7 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({
   const handleConceptClick = (concept: Concept) => {
     setConcept(concept);
     setSearchResults([]);
+    setIsSearchResultsEmpty(false);
   };
 
   const handleWithDebounce = (event) => {

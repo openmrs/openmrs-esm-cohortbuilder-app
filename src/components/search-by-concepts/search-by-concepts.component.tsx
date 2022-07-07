@@ -12,6 +12,8 @@ import {
   Column,
   Dropdown,
   NumberInput,
+  Switch,
+  ContentSwitcher,
 } from "carbon-components-react";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
@@ -26,27 +28,27 @@ import { SearchConcept } from "./search-concept/search-concept.component";
 
 const operators = [
   {
-    id: "option-0",
+    id: 1,
     label: "<",
     value: "LESS_THAN",
   },
   {
-    id: "option-1",
+    id: 2,
     label: "<=",
     value: "LESS_EQUAL",
   },
   {
-    id: "option-2",
+    id: 3,
     label: "=",
     value: "EQUAL",
   },
   {
-    id: "option-3",
+    id: 4,
     label: ">=",
     value: "GREATER_EQUAL",
   },
   {
-    id: "option-4",
+    id: 5,
     label: ">",
     value: "GREATER_THAN",
   },
@@ -92,6 +94,7 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
   const [timeModifier, setTimeModifier] = useState("ANY");
   const [onOrAfter, setOnOrAfter] = useState("");
   const [onOrBefore, setOnOrBefore] = useState("");
+  const [searchText, setSearchText] = useState("");
 
   const observationOptions = [
     {
@@ -161,6 +164,7 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
   const handleResetInputs = () => {
     setConcept(null);
     setLastDays(0);
+    setSearchText("");
     setOnOrAfter("");
     setOnOrBefore("");
     setLastMonths(0);
@@ -239,14 +243,16 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
 
   return (
     <div className={styles.container}>
-      <p className={styles.heading}>
-        {t("searchByConcepts", "Search By Concepts")}
-      </p>
       <div>
-        <SearchConcept setConcept={setConcept} concept={concept} />
+        <SearchConcept
+          setConcept={setConcept}
+          concept={concept}
+          searchText={searchText}
+          setSearchText={setSearchText}
+        />
         {concept?.hl7Abbrev === "NM" ? (
           <>
-            <Column className={styles.column} sm={2} md={{ span: 6 }}>
+            <Column className={styles.column}>
               <div style={{ display: "flex" }}>
                 <div className={styles.multipleInputs}>
                   <p style={{ paddingRight: 20 }}>
@@ -266,27 +272,31 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
               </div>
             </Column>
             <Column className={styles.column}>
-              <div style={{ display: "flex" }}>
-                <div className={styles.multipleInputs}>
-                  <p className={styles.value}>
-                    {t("whatValues", "What values")}
-                  </p>
-                  <Dropdown
-                    className={styles.dropdown}
-                    id="operator1"
-                    onChange={(data) => setOperator(data.selectedItem.value)}
-                    initialSelectedItem={operators[0]}
-                    items={operators}
-                    label="What values"
-                  />
+              <p className={styles.value}>{t("whatValues", "What values")}</p>
+              <div className={styles.whatValuesInputs}>
+                <div className={styles.operators}>
+                  <ContentSwitcher
+                    selectedIndex={operators[0].id}
+                    className={styles.contentSwitcher}
+                    size="lg"
+                    onChange={({ index }) =>
+                      setOperator(operators[index].value)
+                    }
+                  >
+                    {operators.map((operator) => (
+                      <Switch
+                        key={operator.id}
+                        name={operator.value}
+                        text={operator.label}
+                      />
+                    ))}
+                  </ContentSwitcher>
                 </div>
                 <div className={styles.multipleInputs}>
-                  <p className={styles.value}>
-                    {t("valueIn", "Enter a value in ")} {concept.units}
-                  </p>
                   <NumberInput
                     id="operator-value"
                     invalidText={t("numberIsNotValid", "Number is not valid")}
+                    label={t("valueIn", "Enter a value in ") + concept.units}
                     min={0}
                     size="sm"
                     value={0}
@@ -299,7 +309,7 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
             </Column>
           </>
         ) : (
-          <Column className={styles.column} sm={2} md={{ span: 4 }}>
+          <Column className={styles.column}>
             <Dropdown
               id="timeModifier"
               data-testid="timeModifier"
@@ -311,40 +321,39 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
           </Column>
         )}
         <Column className={styles.column}>
-          <div style={{ display: "flex" }}>
-            <div className={styles.multipleInputs}>
-              <p style={{ paddingRight: 20 }}>
-                {t("withinTheLast", "Within the last")}{" "}
-              </p>
+          <div className={styles.daysContainer}>
+            <div
+              className={styles.multipleInputs}
+              style={{ width: 20, marginRight: 20 }}
+            >
               <NumberInput
                 id="last-months"
                 data-testid="last-months"
+                label={t("withinTheLast", "Within the last months")}
                 invalidText={t("numberIsNotValid", "Number is not valid")}
                 min={0}
                 size="sm"
                 value={lastMonths}
                 onChange={(event) => setLastMonths(event.imaginaryTarget.value)}
               />
-              <p className={styles.lastTime}>months</p>
             </div>
             <div className={styles.multipleInputs}>
               <NumberInput
+                label={t("lastDays", "and / or days")}
                 id="last-days"
                 data-testid="last-days"
+                style={{ width: 20 }}
                 invalidText={t("numberIsNotValid", "Number is not valid")}
                 min={0}
                 size="sm"
                 value={lastDays}
                 onChange={(event) => setLastDays(event.imaginaryTarget.value)}
               />
-              <p className={styles.lastTime}>
-                {t("lastDays", "and / or days")}
-              </p>
             </div>
           </div>
         </Column>
-        <Column className={styles.column}>
-          <p className={styles.dateRange}>{t("dateRange", "Date Range")} :</p>
+        <Column className={styles.column} style={{ display: "flex" }}>
+          <p className={styles.dateRange}>{t("dateRange", "Date Range")}</p>
           <DatePicker
             datePickerType="range"
             dateFormat="d-m-Y"
