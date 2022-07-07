@@ -51,20 +51,36 @@ describe("Test the concept search component", () => {
   afterEach(cleanup);
   it("should be able to search for a concept", async () => {
     jest.spyOn(apis, "getConcepts").mockResolvedValue(concepts);
-    render(<SearchConcept concept={null} setConcept={jest.fn()} />);
+    let searchText = "";
+    const setSearchText = jest
+      .fn()
+      .mockImplementation((search: string) => (searchText = search));
+    render(
+      <SearchConcept
+        concept={null}
+        setConcept={jest.fn()}
+        searchText={searchText}
+        setSearchText={setSearchText}
+      />
+    );
     const searchInput = screen.getByPlaceholderText("Search Concepts");
     fireEvent.click(searchInput);
     await userEvent.type(searchInput, "blood s");
     await waitFor(() =>
-      expect(jest.spyOn(apis, "getConcepts")).toBeCalledWith("blood s")
+      expect(jest.spyOn(apis, "getConcepts")).toBeCalledWith(searchText)
     );
-    expect(screen.getByText("BLOOD SUGAR")).toBeInTheDocument();
-    expect(screen.getByText("Whole blood sample")).toBeInTheDocument();
+    expect(screen.getByText(concepts[0].name)).toBeInTheDocument();
+    expect(screen.getByText(concepts[1].name)).toBeInTheDocument();
   });
 
   it("should be able to clear the current search value", async () => {
     const { getByLabelText, getByPlaceholderText } = render(
-      <SearchConcept concept={null} setConcept={jest.fn()} />
+      <SearchConcept
+        concept={null}
+        setConcept={jest.fn()}
+        searchText={""}
+        setSearchText={jest.fn()}
+      />
     );
     const searchInput = getByPlaceholderText("Search Concepts");
     fireEvent.click(searchInput);

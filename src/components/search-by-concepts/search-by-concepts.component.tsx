@@ -94,6 +94,7 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
   const [timeModifier, setTimeModifier] = useState("ANY");
   const [onOrAfter, setOnOrAfter] = useState("");
   const [onOrBefore, setOnOrBefore] = useState("");
+  const [searchText, setSearchText] = useState("");
 
   const observationOptions = [
     {
@@ -163,6 +164,7 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
   const handleResetInputs = () => {
     setConcept(null);
     setLastDays(0);
+    setSearchText("");
     setOnOrAfter("");
     setOnOrBefore("");
     setLastMonths(0);
@@ -242,7 +244,12 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
   return (
     <div className={styles.container}>
       <div>
-        <SearchConcept setConcept={setConcept} concept={concept} />
+        <SearchConcept
+          setConcept={setConcept}
+          concept={concept}
+          searchText={searchText}
+          setSearchText={setSearchText}
+        />
         {concept?.hl7Abbrev === "NM" ? (
           <>
             <Column className={styles.column}>

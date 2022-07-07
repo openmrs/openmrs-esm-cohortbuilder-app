@@ -12,6 +12,7 @@ import {
 } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
+import mainStyle from "../../cohort-builder.scss";
 import { PaginationData, Patient } from "../../types/types";
 import EmptyData from "../empty-data/empty-data.component";
 import styles from "./search-results-table.scss";
@@ -53,7 +54,9 @@ export const SearchResultsTable: React.FC<SearchResultsTableProps> = ({
 
   return (
     <div className={styles.container}>
-      <p className={styles.heading}>{t("searchResults", "Search Results")}</p>
+      <p className={mainStyle.heading}>
+        {t("searchResults", "Search Results")}
+      </p>
       <DataTable rows={patients} headers={headers}>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
           <Table {...getTableProps()}>

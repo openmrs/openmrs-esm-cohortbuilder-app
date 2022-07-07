@@ -16,6 +16,7 @@ import {
 } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
+import mainStyle from "../../cohort-builder.scss";
 import { PaginationData, SearchHistoryItem } from "../../types/types";
 import EmptyData from "../empty-data/empty-data.component";
 import SearchHistoryOptions from "./search-history-options/search-history-options.component";
@@ -86,7 +87,9 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <p className={styles.heading}>{t("searchHistory", "Search History")}</p>
+        <p className={mainStyle.heading}>
+          {t("searchHistory", "Search History")}
+        </p>
         {searchResults.length > 0 && (
           <Button
             kind="danger--tertiary"

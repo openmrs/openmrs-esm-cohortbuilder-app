@@ -21,16 +21,19 @@ import styles from "./search-concept.style.css";
 
 interface SearchConceptProps {
   concept: Concept;
+  searchText: string;
   setConcept: Dispatch<SetStateAction<Concept>>;
+  setSearchText: Dispatch<SetStateAction<String>>;
 }
 
 export const SearchConcept: React.FC<SearchConceptProps> = ({
   concept,
+  searchText,
   setConcept,
+  setSearchText,
 }) => {
   const { t } = useTranslation();
   const [searchResults, setSearchResults] = useState<Concept[]>([]);
-  const [searchText, setSearchText] = useState("");
   const [searchError, setSearchError] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [isSearchResultsEmpty, setIsSearchResultsEmpty] = useState(false);
