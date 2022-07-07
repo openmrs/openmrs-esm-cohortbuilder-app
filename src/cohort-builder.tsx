@@ -115,26 +115,32 @@ const CohortBuilder: React.FC = () => {
   return (
     <div className={`omrs-main-content ${styles.mainContainer}`}>
       <div className={styles.container}>
+        <p className={styles.title}>{t("cohortBuilder", "Cohort Builder")}</p>
         <div className={styles.tabContainer}>
-          <Tabs className={styles.verticalTabs}>
-            {tabs.map((tab: TabItem, index: number) => (
-              <Tab
-                key={index}
-                label={tab.name}
-                onClick={() => setSelectedTab(index)}
-                className={`${styles.tab} ${
-                  selectedTab == index && styles.selectedTab
-                }`}
-              >
-                {tab.component}
-                <SearchButtonSet
-                  onHandleReset={handleReset}
-                  onHandleSubmit={handleSubmit}
-                  isLoading={isLoading}
-                />
-              </Tab>
-            ))}
-          </Tabs>
+          <p className={styles.heading}>
+            {t("searchCriteria", "Search Criteria")}
+          </p>
+          <div className={styles.searchContainer}>
+            <Tabs className={styles.verticalTabs}>
+              {tabs.map((tab: TabItem, index: number) => (
+                <Tab
+                  key={index}
+                  label={tab.name}
+                  onClick={() => setSelectedTab(index)}
+                  className={`${styles.tab} ${
+                    selectedTab == index && styles.selectedTab
+                  }`}
+                >
+                  {tab.component}
+                  <SearchButtonSet
+                    onHandleReset={handleReset}
+                    onHandleSubmit={handleSubmit}
+                    isLoading={isLoading}
+                  />
+                </Tab>
+              ))}
+            </Tabs>
+          </div>
         </div>
         <SearchResultsTable patients={patients} />
         <SearchHistory

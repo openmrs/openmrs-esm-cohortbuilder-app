@@ -2,11 +2,6 @@
 @import "~carbon-components/src/globals/scss/vars";
 @import "~carbon-components/src/globals/scss/mixins";
 
-.heading {
-  @include carbon--type-style('productive-heading-02');
-  margin-bottom: 1rem;
-}
-
 .contentSwitcher {
   height: $spacing-08;
 }
@@ -16,7 +11,9 @@
 }
 
 .dateRange {
-  padding-bottom: 1rem;
+  padding-right: 1rem;
+  font-size: 0.75rem;
+  color: #525252;
  }
 
 .buttonSet {
@@ -48,4 +45,15 @@
 
 .value {
   padding-right: 2rem;
+}
+
+.whatValuesInputs{
+  display: flex;
+  align-items: end;
+}
+
+.daysContainer {
+   display: flex;
+   justify-content: space-between;
+   width: 65%;
 }

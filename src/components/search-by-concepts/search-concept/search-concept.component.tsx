@@ -39,6 +39,7 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({
     setSearchResults([]);
     setConcept(null);
     setIsSearching(true);
+    setIsSearchResultsEmpty(false);
     try {
       const concepts = await getConcepts(search);
       if (concepts.length) {
@@ -75,6 +76,7 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({
   const handleConceptClick = (concept: Concept) => {
     setConcept(concept);
     setSearchResults([]);
+    setIsSearchResultsEmpty(false);
   };
 
   const handleWithDebounce = (event) => {

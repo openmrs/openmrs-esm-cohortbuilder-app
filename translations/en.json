@@ -59,5 +59,7 @@
   "saveDescription": "Enter a description",
   "clearHistoryMsg": "Are you sure you want to clear the search history?",
   "deleteHistoryItem": "Are you sure you want to delete {{searchItemName}} from the search history?",
-  "searchIsCompleted": "Search is completed with {{numOfResults}} result(s)"
+  "searchIsCompleted": "Search is completed with {{numOfResults}} result(s)",
+  "cohortBuilder": "Cohort Builder",
+  "searchCriteria": "Search Criteria"
 }

@@ -241,9 +241,6 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
 
   return (
     <div className={styles.container}>
-      <p className={styles.heading}>
-        {t("searchByConcepts", "Search By Concepts")}
-      </p>
       <div>
         <SearchConcept setConcept={setConcept} concept={concept} />
         {concept?.hl7Abbrev === "NM" ? (
@@ -269,7 +266,7 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
             </Column>
             <Column className={styles.column}>
               <p className={styles.value}>{t("whatValues", "What values")}</p>
-              <div style={{ display: "flex" }}>
+              <div className={styles.whatValuesInputs}>
                 <div className={styles.operators}>
                   <ContentSwitcher
                     selectedIndex={operators[0].id}
@@ -292,9 +289,7 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
                   <NumberInput
                     id="operator-value"
                     invalidText={t("numberIsNotValid", "Number is not valid")}
-                    placeholder={
-                      t("valueIn", "Enter a value in ") + concept.units
-                    }
+                    label={t("valueIn", "Enter a value in ") + concept.units}
                     min={0}
                     size="sm"
                     value={0}
@@ -319,7 +314,7 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
           </Column>
         )}
         <Column className={styles.column}>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div className={styles.daysContainer}>
             <div
               className={styles.multipleInputs}
               style={{ width: 20, marginRight: 20 }}
@@ -347,9 +342,6 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
                 value={lastDays}
                 onChange={(event) => setLastDays(event.imaginaryTarget.value)}
               />
-              {/* <p className={styles.lastTime}>
-                {t("lastDays", "and / or days")}
-              </p> */}
             </div>
           </div>
         </Column>
