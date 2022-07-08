@@ -61,5 +61,15 @@
   "deleteHistoryItem": "Are you sure you want to delete {{searchItemName}} from the search history?",
   "searchIsCompleted": "Search is completed with {{numOfResults}} result(s)",
   "cohortBuilder": "Cohort Builder",
-  "searchCriteria": "Search Criteria"
+  "searchCriteria": "Search Criteria",
+  "all": "All",
+  "males": "Male",
+  "females": "Female",
+  "dead": "Dead",
+  "alive": "Alive",
+  "minAgeIsNotValid": "The age must be greater than 0",
+  "maxAgeIsNotValid": "The age must be less than 200",
+  "between": "Between",
+  "and": "and",
+  "birthDate": "Birth date"
 }

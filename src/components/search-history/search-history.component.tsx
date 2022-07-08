@@ -99,7 +99,7 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
           </Button>
         )}
       </div>
-      <DataTable rows={searchResults} headers={headers}>
+      <DataTable rows={searchResults} headers={headers} useZebraStyles>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
           <Table {...getTableProps()}>
             <TableHead>

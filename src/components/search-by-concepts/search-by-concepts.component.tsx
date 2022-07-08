@@ -28,27 +28,27 @@ import { SearchConcept } from "./search-concept/search-concept.component";
 
 const operators = [
   {
-    id: 1,
+    id: 0,
     label: "<",
     value: "LESS_THAN",
   },
   {
-    id: 2,
+    id: 1,
     label: "<=",
     value: "LESS_EQUAL",
   },
   {
-    id: 3,
+    id: 2,
     label: "=",
     value: "EQUAL",
   },
   {
-    id: 4,
+    id: 3,
     label: ">=",
     value: "GREATER_EQUAL",
   },
   {
-    id: 5,
+    id: 4,
     label: ">",
     value: "GREATER_THAN",
   },

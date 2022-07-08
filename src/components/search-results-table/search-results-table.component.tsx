@@ -57,7 +57,7 @@ export const SearchResultsTable: React.FC<SearchResultsTableProps> = ({
       <p className={mainStyle.heading}>
         {t("searchResults", "Search Results")}
       </p>
-      <DataTable rows={patients} headers={headers}>
+      <DataTable rows={patients} headers={headers} useZebraStyles>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
           <Table {...getTableProps()}>
             <TableHead>
