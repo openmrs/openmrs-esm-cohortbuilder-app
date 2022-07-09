@@ -39,7 +39,7 @@ export const SearchByDemographics: React.FC<SearchByDemographicsProps> = ({
   const [livingStatus, setLivingStatus] = useState("alive");
   const [gender, setGender] = useState("all");
   const [birthDayStartDate, setBirthDayStartDate] = useState("");
-  const [birthDayEndDate, setBirthDayEndDate] = useState("ANY");
+  const [birthDayEndDate, setBirthDayEndDate] = useState("");
   const [minAge, setMinAge] = useState(0);
   const [maxAge, setMaxAge] = useState(0);
 
@@ -134,6 +134,7 @@ export const SearchByDemographics: React.FC<SearchByDemographicsProps> = ({
             >
               {genders.map((gender) => (
                 <Switch
+                  data-testid={gender.label}
                   key={gender.id}
                   name={gender.value}
                   text={gender.label}

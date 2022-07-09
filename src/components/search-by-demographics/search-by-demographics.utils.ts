@@ -35,33 +35,33 @@ export const getDescription = ({
   birthDayEndDate,
   livingStatus,
 }: Demographics) => {
-  let label =
+  let description =
     gender != "all"
       ? `${gender === "males" ? "Male" : "Female"} Patients`
       : "All Patients";
   if (minAge || maxAge) {
     if (minAge && maxAge) {
-      label += ` with ages between ${minAge} and ${maxAge}`;
+      description += ` with ages between ${minAge} and ${maxAge}`;
     } else {
-      label += minAge
+      description += minAge
         ? ` with minimum age of ${minAge}`
         : ` with maximum age of ${maxAge}`;
     }
-    label += " years";
+    description += " years";
   }
   if (birthDayStartDate != "" || birthDayEndDate != "") {
     if (birthDayStartDate && birthDayEndDate) {
-      label += ` and birthdate between ${birthDayStartDate} and ${birthDayEndDate}`;
+      description += ` and birthdate between ${birthDayStartDate} and ${birthDayEndDate}`;
     } else {
-      label += minAge
+      description += minAge
         ? ` and born before ${birthDayStartDate}`
         : ` and born before ${birthDayEndDate}`;
     }
   }
   if (livingStatus) {
-    label += ` that are ${livingStatus}`;
+    description += ` that are ${livingStatus}`;
   }
-  return label;
+  return description;
 };
 
 export const getQueryDetails = ({

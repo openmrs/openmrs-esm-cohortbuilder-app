@@ -1,6 +1,9 @@
 import { composeJson } from "../../cohort-builder.utils";
 
-export const getQueryDetails = (attributeId, attributeValues) => {
+export const getQueryDetails = (
+  attributeId: string,
+  attributeValues: string[]
+) => {
   const searchParameters = {
     personWithAttribute: [
       {
@@ -19,43 +22,21 @@ export const getQueryDetails = (attributeId, attributeValues) => {
 };
 
 export const getSearchByAttributesDescription = (
-  attributeId,
-  selectedAttributeValues
+  attributeId: string,
+  selectedAttributeValues: string[]
 ) => {
-  let label = "Patients";
-  const uuid = attributeId;
-  const attributeLabel = uuid;
-  // ? patientAttributes.find((attribute) => attribute.uuid === uuid).display
-  // : " with any attribute";
-
+  let description = "Patients";
   const attributeValues =
     selectedAttributeValues.length > 0
-      ? selectedAttributeValues
-          .map((attribute) => attribute.label)
-          .join(", ")
-          .replace(/,(?=[^,]*$)/, " or")
+      ? selectedAttributeValues.join(", ").replace(/,(?=[^,]*$)/, " or")
       : "";
 
-  label += uuid
-    ? ` with${attributeValues ? "" : " any"} ${attributeLabel}`
-    : attributeLabel;
+  description += attributeId
+    ? ` with${attributeValues ? "" : " any"} ${attributeId}`
+    : attributeId;
 
-  label += attributeValues
+  description += attributeValues
     ? ` equal to ${attributeValues.length > 1 && "either"} ${attributeValues}`
     : "";
-  return label;
+  return description;
 };
-
-/*
-{
-  "key": "reporting.library.cohortDefinition.builtIn.personWithAttribute",
-  "parameterValues": {
-      "attributeType": "8d871f2a-c2cc-11de-8d13-0010c6dffd0f",
-      "values": [
-          "married",
-          "test"
-      ]
-  },
-  "type": "org.openmrs.module.reporting.dataset.definition.PatientDataSetDefinition"
-}
-*/

@@ -66,9 +66,12 @@ export const SearchByPersonAttributes: React.FC<
     setSearchParams(
       getQueryDetails(selectedAttributeId, selectedAttributeValues)
     );
+    const selectedPersonAttribute = personAttributes.find(
+      (personAttribute) => personAttribute.value == selectedAttributeId
+    );
     setQueryDescription(
       getSearchByAttributesDescription(
-        personAttributes[selectedAttributeId]?.label,
+        selectedPersonAttribute?.label,
         selectedAttributeValues
       )
     );
@@ -94,7 +97,7 @@ export const SearchByPersonAttributes: React.FC<
             onChange={(data) => setSelectedAttributeId(data.selectedItem.value)}
             initialSelectedItem={personAttributes[0]}
             items={personAttributes}
-            label="Select a person attribute"
+            label={t("selectAttribute", "Select a person attribute")}
           />
         </div>
       </Column>
@@ -102,12 +105,16 @@ export const SearchByPersonAttributes: React.FC<
         <Column>
           <TextInput
             id={"selectedAttributeValues"}
+            data-testid={"selectedAttributeValues"}
             disabled={!selectedAttributeId}
-            labelText={"Enter Comma Delimited Values"}
+            labelText={t(
+              "selectedAttributeValues",
+              "Enter Comma Delimited Values"
+            )}
             onChange={(e) =>
               setSelectedAttributeValues(e.target.value.trim().split(","))
             }
-          ></TextInput>
+          />
         </Column>
       </div>
     </div>
