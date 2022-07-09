@@ -4,7 +4,7 @@ import { render, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import dayjs from "dayjs";
 
-import { Concept } from "../../types/types";
+import { Concept } from "../../types";
 import { SearchByConcepts } from "./search-by-concepts.component";
 import * as apis from "./search-concept/search-concept.resource";
 

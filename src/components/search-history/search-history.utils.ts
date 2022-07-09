@@ -1,4 +1,4 @@
-import { Patient, SearchHistoryItem } from "../../types/types";
+import { Patient, SearchHistoryItem } from "../../types";
 
 export const getSearchHistory = () => {
   const history = JSON.parse(window.sessionStorage.getItem("openmrsHistory"));

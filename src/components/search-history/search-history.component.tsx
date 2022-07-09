@@ -17,7 +17,7 @@ import {
 import { useTranslation } from "react-i18next";
 
 import mainStyle from "../../cohort-builder.scss";
-import { PaginationData, SearchHistoryItem } from "../../types/types";
+import { PaginationData, SearchHistoryItem } from "../../types";
 import EmptyData from "../empty-data/empty-data.component";
 import SearchHistoryOptions from "./search-history-options/search-history-options.component";
 import styles from "./search-history.style.scss";

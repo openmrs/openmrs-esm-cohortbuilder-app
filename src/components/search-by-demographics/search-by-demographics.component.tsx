@@ -17,7 +17,7 @@ import {
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 
-import { SearchParams } from "../../types/types";
+import { SearchParams } from "../../types";
 import styles from "./search-by-demographics.style.scss";
 import {
   getDescription,

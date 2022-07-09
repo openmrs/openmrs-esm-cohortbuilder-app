@@ -13,7 +13,7 @@ import {
 import { useTranslation } from "react-i18next";
 
 import mainStyle from "../../cohort-builder.scss";
-import { PaginationData, Patient } from "../../types/types";
+import { PaginationData, Patient } from "../../types";
 import EmptyData from "../empty-data/empty-data.component";
 import styles from "./search-results-table.scss";
 

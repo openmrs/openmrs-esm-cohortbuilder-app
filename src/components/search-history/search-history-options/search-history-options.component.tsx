@@ -13,7 +13,7 @@ import {
 } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
-import { Cohort, Patient, SearchHistoryItem } from "../../../types/types";
+import { Cohort, Patient, SearchHistoryItem } from "../../../types";
 import { downloadCSV } from "../search-history.utils";
 import { createCohort, createQuery } from "./search-history-options.resources";
 

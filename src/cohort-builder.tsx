@@ -10,9 +10,10 @@ import { addToHistory } from "./cohort-builder.utils";
 import SearchButtonSet from "./components/search-button-set/search-button-set";
 import { SearchByConcepts } from "./components/search-by-concepts/search-by-concepts.component";
 import { SearchByDemographics } from "./components/search-by-demographics/search-by-demographics.component";
+import { SearchByPersonAttributes } from "./components/search-by-person-attributes/search-by-person-attributes.component";
 import { SearchHistory } from "./components/search-history/search-history.component";
 import { SearchResultsTable } from "./components/search-results-table/search-results-table.component";
-import { Patient, SearchParams } from "./types/types";
+import { Patient, SearchParams } from "./types";
 
 interface TabItem {
   name: string;
@@ -53,11 +54,17 @@ const CohortBuilder: React.FC = () => {
       ),
     },
     {
-      name: t("encounters", "Encounters"),
-      component: <span></span>,
+      name: t("personAttributes", "Person Attributes"),
+      component: (
+        <SearchByPersonAttributes
+          resetInputs={resetInputs}
+          setSearchParams={setSearchParams}
+          setQueryDescription={setQueryDescription}
+        />
+      ),
     },
     {
-      name: t("enrollments", "Enrollments"),
+      name: t("encounters", "Encounters"),
       component: <span></span>,
     },
     {

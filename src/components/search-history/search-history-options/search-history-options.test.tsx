@@ -3,7 +3,7 @@ import React from "react";
 import { render, cleanup, fireEvent, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { Cohort, Query } from "../../../types/types";
+import { Cohort, Query } from "../../../types";
 import SearchHistoryOptions from "./search-history-options.component";
 import * as apis from "./search-history-options.resources";
 

@@ -71,3 +71,9 @@ export interface PaginationData {
   page: number;
   pageSize: number;
 }
+
+export interface PersonAttribute {
+  id: number;
+  label: string;
+  value: string;
+}

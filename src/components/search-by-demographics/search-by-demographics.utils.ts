@@ -54,8 +54,8 @@ export const getDescription = ({
       label += ` and birthdate between ${birthDayStartDate} and ${birthDayEndDate}`;
     } else {
       label += minAge
-        ? `and born before ${birthDayStartDate}`
-        : `and born before ${birthDayEndDate}`;
+        ? ` and born before ${birthDayStartDate}`
+        : ` and born before ${birthDayEndDate}`;
     }
   }
   if (livingStatus) {

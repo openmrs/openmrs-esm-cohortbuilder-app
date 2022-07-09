@@ -22,7 +22,7 @@ import {
   composeJson,
   queryDescriptionBuilder,
 } from "../../cohort-builder.utils";
-import { Concept, SearchParams } from "../../types/types";
+import { Concept, SearchParams } from "../../types";
 import styles from "./search-by-concepts.style.scss";
 import { SearchConcept } from "./search-concept/search-concept.component";
 

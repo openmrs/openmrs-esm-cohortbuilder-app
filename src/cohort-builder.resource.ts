@@ -1,6 +1,6 @@
 import { openmrsFetch, FetchResponse } from "@openmrs/esm-framework";
 
-import { Patient, SearchParams } from "./types/types";
+import { Patient, SearchParams } from "./types";
 
 /**
  * @param searchParams query details

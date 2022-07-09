@@ -1,4 +1,4 @@
-import { Column, Patient, Query } from "./types/types";
+import { Column, Patient, Query } from "./types";
 
 export const composeJson = (searchParameters) => {
   const query: Query = {
