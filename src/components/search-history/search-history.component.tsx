@@ -17,7 +17,7 @@ import {
 import { useTranslation } from "react-i18next";
 
 import mainStyle from "../../cohort-builder.scss";
-import { PaginationData, SearchHistoryItem } from "../../types/types";
+import { PaginationData, SearchHistoryItem } from "../../types";
 import EmptyData from "../empty-data/empty-data.component";
 import SearchHistoryOptions from "./search-history-options/search-history-options.component";
 import styles from "./search-history.style.scss";
@@ -28,7 +28,7 @@ interface SearchHistoryProps {
   setIsHistoryUpdated: Dispatch<SetStateAction<boolean>>;
 }
 
-export const SearchHistory: React.FC<SearchHistoryProps> = ({
+const SearchHistory: React.FC<SearchHistoryProps> = ({
   isHistoryUpdated,
   setIsHistoryUpdated,
 }) => {
@@ -99,7 +99,7 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
           </Button>
         )}
       </div>
-      <DataTable rows={searchResults} headers={headers}>
+      <DataTable rows={searchResults} headers={headers} useZebraStyles>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
           <Table {...getTableProps()}>
             <TableHead>
@@ -170,3 +170,5 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
     </div>
   );
 };
+
+export default SearchHistory;

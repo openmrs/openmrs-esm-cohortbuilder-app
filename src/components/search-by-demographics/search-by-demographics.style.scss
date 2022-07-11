@@ -8,48 +8,40 @@
 
 .column {
  padding-top: 1.5rem;
+ display: flex;
 }
 
-.dateRange {
+.text {
   padding-right: 1rem;
   font-size: 0.75rem;
   color: #525252;
  }
 
-.text {
- padding-top: 1.5rem;
-}
-
 .multipleInputs {
- display: flex;
- align-items: center;
+ width: 40%;
+ margin-right: 0.2rem;
 }
 
-.timeModifier {
-  width: 300px;
-}
-
-.lastTime {
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
-
-.operators {
+.switch {
   width: 60%;
   padding-right: 1rem;
 }
 
-.value {
-  padding-right: 2rem;
-}
-
-.whatValuesInputs{
+.genderContainer{
   display: flex;
   align-items: end;
 }
 
-.daysContainer {
+.ageContainer {
    display: flex;
    justify-content: space-between;
-   width: 65%;
+   width: 34%;
+}
+
+.age {
+  display: flex;
+}
+
+.genderTitle {
+  padding-bottom: 0.5rem;
 }

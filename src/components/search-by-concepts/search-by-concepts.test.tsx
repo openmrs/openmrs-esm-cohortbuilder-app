@@ -1,11 +1,17 @@
 import React from "react";
 
-import { render, cleanup, fireEvent, waitFor } from "@testing-library/react";
+import {
+  render,
+  cleanup,
+  fireEvent,
+  waitFor,
+  act,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import dayjs from "dayjs";
 
-import { Concept } from "../../types/types";
-import { SearchByConcepts } from "./search-by-concepts.component";
+import { Concept } from "../../types";
+import SearchByConcepts from "./search-by-concepts.component";
 import * as apis from "./search-concept/search-concept.resource";
 
 jest.mock("./search-concept/search-concept.resource.ts");
@@ -92,14 +98,9 @@ describe("Test the search by concept component", () => {
 
   it("should be able to select input values", async () => {
     jest.spyOn(apis, "getConcepts").mockResolvedValue(concepts);
-    const setSearchParams = jest.fn();
-    const setQueryDescription = jest.fn();
+    const submit = jest.fn();
     const { getByTestId, getByText, getByPlaceholderText } = render(
-      <SearchByConcepts
-        resetInputs={false}
-        setQueryDescription={setQueryDescription}
-        setSearchParams={setSearchParams}
-      />
+      <SearchByConcepts onSubmit={submit} />
     );
     const searchInput = getByPlaceholderText("Search Concepts");
     fireEvent.click(searchInput);
@@ -117,9 +118,12 @@ describe("Test the search by concept component", () => {
     fireEvent.click(getByText("Any"));
     const date = dayjs().subtract(15, "days").subtract(4, "months");
     mockQuery.query.rowFilters[0].parameterValues.onOrBefore = date.format();
-    expect(setSearchParams).toBeCalledWith(mockQuery);
-    expect(setQueryDescription).toBeCalledWith(
-      "Patients with ANY BLOOD SUGAR   until " + date.format("DD/M/YYYY")
-    );
+    fireEvent.click(getByTestId("search-btn"));
+    await act(async () => {
+      expect(submit).toBeCalledWith(
+        mockQuery,
+        "Patients with ANY BLOOD SUGAR  until " + date.format("DD/M/YYYY")
+      );
+    });
   });
 });

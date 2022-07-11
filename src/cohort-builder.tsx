@@ -7,11 +7,12 @@ import { useTranslation } from "react-i18next";
 import { search } from "./cohort-builder.resource";
 import styles from "./cohort-builder.scss";
 import { addToHistory } from "./cohort-builder.utils";
-import SearchButtonSet from "./components/search-button-set/search-button-set";
-import { SearchByConcepts } from "./components/search-by-concepts/search-by-concepts.component";
-import { SearchHistory } from "./components/search-history/search-history.component";
-import { SearchResultsTable } from "./components/search-results-table/search-results-table.component";
-import { Patient, SearchParams } from "./types/types";
+import SearchByConcepts from "./components/search-by-concepts/search-by-concepts.component";
+import SearchByDemographics from "./components/search-by-demographics/search-by-demographics.component";
+import SearchByPersonAttributes from "./components/search-by-person-attributes/search-by-person-attributes.component";
+import SearchHistory from "./components/search-history/search-history.component";
+import SearchResultsTable from "./components/search-results-table/search-results-table.component";
+import { Patient, SearchParams } from "./types";
 
 interface TabItem {
   name: string;
@@ -21,36 +22,64 @@ interface TabItem {
 const CohortBuilder: React.FC = () => {
   const { t } = useTranslation();
   const [patients, setPatients] = useState<Patient[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [resetInputs, setResetInputs] = useState(false);
   const [isHistoryUpdated, setIsHistoryUpdated] = useState(true);
-  const [searchParams, setSearchParams] = useState<SearchParams>({
-    query: null,
-  });
-  const [queryDescription, setQueryDescription] = useState("");
   const [selectedTab, setSelectedTab] = useState(0);
+
+  const runSearch = (
+    searchParams: SearchParams,
+    queryDescription: string
+  ): Promise<boolean> => {
+    return new Promise(async (resolve) => {
+      setPatients([]);
+      try {
+        const {
+          data: { rows },
+        } = await search(searchParams);
+        rows.map((patient: Patient) => {
+          patient.id = patient.patientId.toString();
+          patient.name = `${patient.firstname} ${patient.lastname}`;
+        });
+        setPatients(rows);
+        addToHistory(queryDescription, rows, searchParams.query);
+        showNotification({
+          title: t("success", "Success!"),
+          kind: "success",
+          critical: true,
+          description: t(
+            "searchIsCompleted",
+            `Search is completed with ${rows.length} result(s)`,
+            { numOfResults: rows.length }
+          ),
+        });
+        setIsHistoryUpdated(true);
+        resolve(true);
+      } catch (error) {
+        showNotification({
+          title: t("error", "Error"),
+          kind: "error",
+          critical: true,
+          description: error?.message,
+        });
+        resolve(true);
+      }
+    });
+  };
 
   const tabs: TabItem[] = [
     {
       name: t("concept", "Concept"),
-      component: (
-        <SearchByConcepts
-          resetInputs={resetInputs}
-          setSearchParams={setSearchParams}
-          setQueryDescription={setQueryDescription}
-        />
-      ),
+      component: <SearchByConcepts onSubmit={runSearch} />,
     },
     {
       name: t("demographics", "Demographics"),
-      component: <span></span>,
+      component: <SearchByDemographics onSubmit={runSearch} />,
+    },
+    {
+      name: t("personAttributes", "Person Attributes"),
+      component: <SearchByPersonAttributes onSubmit={runSearch} />,
     },
     {
       name: t("encounters", "Encounters"),
-      component: <span></span>,
-    },
-    {
-      name: t("enrollments", "Enrollments"),
       component: <span></span>,
     },
     {
@@ -70,47 +99,6 @@ const CohortBuilder: React.FC = () => {
       component: <span></span>,
     },
   ];
-
-  const handleReset = () => {
-    setPatients([]);
-    setResetInputs(true);
-  };
-
-  const handleSubmit = async () => {
-    setPatients([]);
-    setIsLoading(true);
-    try {
-      const {
-        data: { rows },
-      } = await search(searchParams);
-      rows.map((patient: Patient) => {
-        patient.id = patient.patientId.toString();
-        patient.name = `${patient.firstname} ${patient.lastname}`;
-      });
-      setPatients(rows);
-      addToHistory(queryDescription, rows, searchParams.query);
-      showNotification({
-        title: t("success", "Success!"),
-        kind: "success",
-        critical: true,
-        description: t(
-          "searchIsCompleted",
-          `Search is completed with ${rows.length} result(s)`,
-          { numOfResults: rows.length }
-        ),
-      });
-      setIsLoading(false);
-      setIsHistoryUpdated(true);
-    } catch (error) {
-      showNotification({
-        title: t("error", "Error"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className={`omrs-main-content ${styles.mainContainer}`}>
@@ -132,11 +120,6 @@ const CohortBuilder: React.FC = () => {
                   }`}
                 >
                   {tab.component}
-                  <SearchButtonSet
-                    onHandleReset={handleReset}
-                    onHandleSubmit={handleSubmit}
-                    isLoading={isLoading}
-                  />
                 </Tab>
               ))}
             </Tabs>

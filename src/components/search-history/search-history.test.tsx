@@ -2,7 +2,7 @@ import React from "react";
 
 import { render, cleanup } from "@testing-library/react";
 
-import { SearchHistory } from "./search-history.component";
+import SearchHistory from "./search-history.component";
 import * as utils from "./search-history.utils";
 
 jest.mock("./search-history.utils.ts");

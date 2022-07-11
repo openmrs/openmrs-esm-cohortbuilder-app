@@ -1,6 +1,6 @@
 import { FetchResponse, openmrsFetch } from "@openmrs/esm-framework";
 
-import { Concept, DataType } from "../../../types/types";
+import { Concept, DataType } from "../../../types";
 
 interface ConceptResponse {
   uuid: string;

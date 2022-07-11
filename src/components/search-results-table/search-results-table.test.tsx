@@ -2,7 +2,7 @@ import React from "react";
 
 import { render, cleanup } from "@testing-library/react";
 
-import { SearchResultsTable } from "./search-results-table.component";
+import SearchResultsTable from "./search-results-table.component";
 
 const mockPatients = [
   {

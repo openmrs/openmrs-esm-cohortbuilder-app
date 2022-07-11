@@ -1,6 +1,6 @@
 import { FetchResponse, openmrsFetch } from "@openmrs/esm-framework";
 
-import { Cohort, Query } from "../../../types/types";
+import { Cohort, Query } from "../../../types";
 
 /**
  * @returns Cohort

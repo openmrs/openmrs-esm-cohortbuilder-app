@@ -1,10 +1,4 @@
-import React, {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { useState } from "react";
 
 import {
   DatePicker,
@@ -22,33 +16,34 @@ import {
   composeJson,
   queryDescriptionBuilder,
 } from "../../cohort-builder.utils";
-import { Concept, SearchParams } from "../../types/types";
+import { Concept, SearchByProps } from "../../types";
+import SearchButtonSet from "../search-button-set/search-button-set";
 import styles from "./search-by-concepts.style.scss";
 import { SearchConcept } from "./search-concept/search-concept.component";
 
 const operators = [
   {
-    id: 1,
+    id: 0,
     label: "<",
     value: "LESS_THAN",
   },
   {
-    id: 2,
+    id: 1,
     label: "<=",
     value: "LESS_EQUAL",
   },
   {
-    id: 3,
+    id: 2,
     label: "=",
     value: "EQUAL",
   },
   {
-    id: 4,
+    id: 3,
     label: ">=",
     value: "GREATER_EQUAL",
   },
   {
-    id: 5,
+    id: 4,
     label: ">",
     value: "GREATER_THAN",
   },
@@ -64,12 +59,6 @@ interface Observation {
   value1: string;
 }
 
-interface SearchByConceptsProps {
-  setQueryDescription: Dispatch<SetStateAction<String>>;
-  setSearchParams: Dispatch<SetStateAction<SearchParams>>;
-  resetInputs: boolean;
-}
-
 const types = {
   CWE: "codedObsSearchAdvanced",
   NM: "numericObsSearchAdvanced",
@@ -80,11 +69,7 @@ const types = {
   BIT: "codedObsSearchAdvanced",
 };
 
-export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
-  setQueryDescription,
-  setSearchParams,
-  resetInputs,
-}) => {
+const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
   const [concept, setConcept] = useState<Concept>(null);
   const [lastDays, setLastDays] = useState(0);
@@ -95,6 +80,7 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
   const [onOrAfter, setOnOrAfter] = useState("");
   const [onOrBefore, setOnOrBefore] = useState("");
   const [searchText, setSearchText] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const observationOptions = [
     {
@@ -150,18 +136,12 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
     },
   ];
 
-  useEffect(() => {
-    if (resetInputs) {
-      handleResetInputs();
-    }
-  }, [resetInputs]);
-
   const handleDates = (dates: Date[]) => {
     setOnOrAfter(dayjs(dates[0]).format());
     setOnOrBefore(dayjs(dates[1]).format());
   };
 
-  const handleResetInputs = () => {
+  const reset = () => {
     setConcept(null);
     setLastDays(0);
     setSearchText("");
@@ -173,22 +153,25 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
     setTimeModifier("ANY");
   };
 
-  const handleInputValues = useCallback(() => {
+  const getOnOrBefore = () => {
     if (lastDays > 0 || lastMonths > 0) {
-      const onOrAfter = dayjs()
+      return dayjs()
         .subtract(lastDays, "days")
         .subtract(lastMonths, "months")
         .format();
-      setOnOrBefore(onOrAfter);
     }
+  };
+
+  const submit = async () => {
+    setIsLoading(true);
     const observations: Observation = {
       modifier: "",
-      onOrAfter: onOrAfter,
-      onOrBefore: onOrBefore,
       operator1: operator,
-      question: concept.uuid,
-      timeModifier: timeModifier,
       value1: operatorValue > 0 ? operatorValue.toString() : "",
+      question: concept.uuid,
+      onOrBefore: getOnOrBefore() || onOrBefore,
+      onOrAfter,
+      timeModifier,
     };
     const dataType = types[concept.hl7Abbrev];
     const params = { [dataType]: [] };
@@ -208,38 +191,12 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
           })
         : "";
     });
-    setSearchParams(composeJson(params));
-    setQueryDescription(queryDescriptionBuilder(observations, concept.name));
-  }, [
-    concept?.hl7Abbrev,
-    concept?.name,
-    concept?.uuid,
-    lastDays,
-    lastMonths,
-    onOrAfter,
-    onOrBefore,
-    operator,
-    operatorValue,
-    setQueryDescription,
-    setSearchParams,
-    timeModifier,
-  ]);
-
-  useEffect(() => {
-    if (concept) {
-      handleInputValues();
-    }
-  }, [
-    concept,
-    handleInputValues,
-    lastDays,
-    lastMonths,
-    onOrAfter,
-    onOrBefore,
-    operator,
-    operatorValue,
-    timeModifier,
-  ]);
+    await onSubmit(
+      composeJson(params),
+      queryDescriptionBuilder(observations, concept.name)
+    );
+    setIsLoading(false);
+  };
 
   return (
     <div className={styles.container}>
@@ -375,6 +332,13 @@ export const SearchByConcepts: React.FC<SearchByConceptsProps> = ({
           </DatePicker>
         </Column>
       </div>
+      <SearchButtonSet
+        isLoading={isLoading}
+        onHandleSubmit={submit}
+        onHandleReset={reset}
+      />
     </div>
   );
 };
+
+export default SearchByConcepts;
