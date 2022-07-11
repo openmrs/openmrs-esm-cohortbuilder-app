@@ -1,6 +1,6 @@
 import React from "react";
 
-import { render, fireEvent, waitFor } from "@testing-library/react";
+import { render, fireEvent, waitFor, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import SearchByPersonAttributes from "./search-by-person-attributes.component";
@@ -110,7 +110,7 @@ describe("Test the search by person attributes component", () => {
     jest.spyOn(apis, "getPersonAttributes").mockResolvedValue(personAttributes);
     const submit = jest.fn();
     const { getByTestId, getByText } = render(
-      <SearchByPersonAttributes onSubmit={submit} isLoading={false} />
+      <SearchByPersonAttributes onSubmit={submit} />
     );
     await waitFor(() => expect(jest.spyOn(apis, "getPersonAttributes")));
     fireEvent.click(getByText("Open menu"));
@@ -118,9 +118,11 @@ describe("Test the search by person attributes component", () => {
     fireEvent.click(getByTestId("selectedAttributeValues"));
     await userEvent.type(getByTestId("selectedAttributeValues"), "janet,irina");
     fireEvent.click(getByTestId("search-btn"));
-    expect(submit).toBeCalledWith(
-      mockQuery,
-      "Patients with Mother's Name equal to either janet or irina"
-    );
+    await act(async () => {
+      expect(submit).toBeCalledWith(
+        mockQuery,
+        "Patients with Mother's Name equal to either janet or irina"
+      );
+    });
   });
 });

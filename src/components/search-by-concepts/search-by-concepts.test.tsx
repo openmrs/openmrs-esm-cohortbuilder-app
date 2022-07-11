@@ -1,6 +1,12 @@
 import React from "react";
 
-import { render, cleanup, fireEvent, waitFor } from "@testing-library/react";
+import {
+  render,
+  cleanup,
+  fireEvent,
+  waitFor,
+  act,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import dayjs from "dayjs";
 
@@ -94,7 +100,7 @@ describe("Test the search by concept component", () => {
     jest.spyOn(apis, "getConcepts").mockResolvedValue(concepts);
     const submit = jest.fn();
     const { getByTestId, getByText, getByPlaceholderText } = render(
-      <SearchByConcepts onSubmit={submit} isLoading={false} />
+      <SearchByConcepts onSubmit={submit} />
     );
     const searchInput = getByPlaceholderText("Search Concepts");
     fireEvent.click(searchInput);
@@ -113,9 +119,11 @@ describe("Test the search by concept component", () => {
     const date = dayjs().subtract(15, "days").subtract(4, "months");
     mockQuery.query.rowFilters[0].parameterValues.onOrBefore = date.format();
     fireEvent.click(getByTestId("search-btn"));
-    expect(submit).toBeCalledWith(
-      mockQuery,
-      "Patients with ANY BLOOD SUGAR  until " + date.format("DD/M/YYYY")
-    );
+    await act(async () => {
+      expect(submit).toBeCalledWith(
+        mockQuery,
+        "Patients with ANY BLOOD SUGAR  until " + date.format("DD/M/YYYY")
+      );
+    });
   });
 });

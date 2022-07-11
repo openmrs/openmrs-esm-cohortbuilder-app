@@ -19,10 +19,7 @@ import {
   getQueryDetails,
 } from "./search-by-demographics.utils";
 
-const SearchByDemographics: React.FC<SearchByProps> = ({
-  onSubmit,
-  isLoading,
-}) => {
+const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
   const [livingStatus, setLivingStatus] = useState("alive");
   const [gender, setGender] = useState("all");
@@ -30,6 +27,7 @@ const SearchByDemographics: React.FC<SearchByProps> = ({
   const [birthDayEndDate, setBirthDayEndDate] = useState("");
   const [minAge, setMinAge] = useState(0);
   const [maxAge, setMaxAge] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   const genders = [
     {
@@ -74,7 +72,8 @@ const SearchByDemographics: React.FC<SearchByProps> = ({
     setBirthDayStartDate("");
   };
 
-  const submit = () => {
+  const submit = async () => {
+    setIsLoading(true);
     const demographics = {
       gender,
       minAge,
@@ -83,7 +82,8 @@ const SearchByDemographics: React.FC<SearchByProps> = ({
       birthDayEndDate,
       livingStatus,
     };
-    onSubmit(getQueryDetails(demographics), getDescription(demographics));
+    await onSubmit(getQueryDetails(demographics), getDescription(demographics));
+    setIsLoading(false);
   };
 
   return (

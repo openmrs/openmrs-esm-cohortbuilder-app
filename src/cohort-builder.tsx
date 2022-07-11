@@ -22,67 +22,61 @@ interface TabItem {
 const CohortBuilder: React.FC = () => {
   const { t } = useTranslation();
   const [patients, setPatients] = useState<Patient[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [isHistoryUpdated, setIsHistoryUpdated] = useState(true);
   const [selectedTab, setSelectedTab] = useState(0);
 
-  const runSearch = async (
+  const runSearch = (
     searchParams: SearchParams,
     queryDescription: string
-  ) => {
-    setPatients([]);
-    setIsLoading(true);
-    try {
-      const {
-        data: { rows },
-      } = await search(searchParams);
-      rows.map((patient: Patient) => {
-        patient.id = patient.patientId.toString();
-        patient.name = `${patient.firstname} ${patient.lastname}`;
-      });
-      setPatients(rows);
-      addToHistory(queryDescription, rows, searchParams.query);
-      showNotification({
-        title: t("success", "Success!"),
-        kind: "success",
-        critical: true,
-        description: t(
-          "searchIsCompleted",
-          `Search is completed with ${rows.length} result(s)`,
-          { numOfResults: rows.length }
-        ),
-      });
-      setIsLoading(false);
-      setIsHistoryUpdated(true);
-    } catch (error) {
-      showNotification({
-        title: t("error", "Error"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
-      setIsLoading(false);
-    }
+  ): Promise<boolean> => {
+    return new Promise(async (resolve) => {
+      setPatients([]);
+      try {
+        const {
+          data: { rows },
+        } = await search(searchParams);
+        rows.map((patient: Patient) => {
+          patient.id = patient.patientId.toString();
+          patient.name = `${patient.firstname} ${patient.lastname}`;
+        });
+        setPatients(rows);
+        addToHistory(queryDescription, rows, searchParams.query);
+        showNotification({
+          title: t("success", "Success!"),
+          kind: "success",
+          critical: true,
+          description: t(
+            "searchIsCompleted",
+            `Search is completed with ${rows.length} result(s)`,
+            { numOfResults: rows.length }
+          ),
+        });
+        setIsHistoryUpdated(true);
+        resolve(true);
+      } catch (error) {
+        showNotification({
+          title: t("error", "Error"),
+          kind: "error",
+          critical: true,
+          description: error?.message,
+        });
+        resolve(true);
+      }
+    });
   };
 
   const tabs: TabItem[] = [
     {
       name: t("concept", "Concept"),
-      component: (
-        <SearchByConcepts onSubmit={runSearch} isLoading={isLoading} />
-      ),
+      component: <SearchByConcepts onSubmit={runSearch} />,
     },
     {
       name: t("demographics", "Demographics"),
-      component: (
-        <SearchByDemographics onSubmit={runSearch} isLoading={isLoading} />
-      ),
+      component: <SearchByDemographics onSubmit={runSearch} />,
     },
     {
       name: t("personAttributes", "Person Attributes"),
-      component: (
-        <SearchByPersonAttributes onSubmit={runSearch} isLoading={isLoading} />
-      ),
+      component: <SearchByPersonAttributes onSubmit={runSearch} />,
     },
     {
       name: t("encounters", "Encounters"),

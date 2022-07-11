@@ -69,7 +69,7 @@ const types = {
   BIT: "codedObsSearchAdvanced",
 };
 
-const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit, isLoading }) => {
+const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
   const [concept, setConcept] = useState<Concept>(null);
   const [lastDays, setLastDays] = useState(0);
@@ -80,6 +80,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit, isLoading }) => {
   const [onOrAfter, setOnOrAfter] = useState("");
   const [onOrBefore, setOnOrBefore] = useState("");
   const [searchText, setSearchText] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const observationOptions = [
     {
@@ -161,7 +162,8 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit, isLoading }) => {
     }
   };
 
-  const submit = () => {
+  const submit = async () => {
+    setIsLoading(true);
     const observations: Observation = {
       modifier: "",
       operator1: operator,
@@ -189,10 +191,11 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit, isLoading }) => {
           })
         : "";
     });
-    onSubmit(
+    await onSubmit(
       composeJson(params),
       queryDescriptionBuilder(observations, concept.name)
     );
+    setIsLoading(false);
   };
 
   return (

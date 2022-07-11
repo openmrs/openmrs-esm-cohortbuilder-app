@@ -79,6 +79,8 @@ export interface PersonAttribute {
 }
 
 export interface SearchByProps {
-  onSubmit: (searchParams: SearchParams, queryDescription: string) => void;
-  isLoading: boolean;
+  onSubmit: (
+    searchParams: SearchParams,
+    queryDescription: string
+  ) => Promise<boolean>;
 }

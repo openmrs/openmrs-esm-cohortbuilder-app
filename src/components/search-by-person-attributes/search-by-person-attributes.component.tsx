@@ -13,18 +13,16 @@ import {
   getSearchByAttributesDescription,
 } from "./search-by-person-attributes.utils";
 
-const SearchByPersonAttributes: React.FC<SearchByProps> = ({
-  onSubmit,
-  isLoading,
-}) => {
+const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
   const [personAttributes, setPersonAttributes] = useState<PersonAttribute[]>(
     []
   );
   const [selectedAttributeValues, setSelectedAttributeValues] = useState([]);
   const [selectedAttributeId, setSelectedAttributeId] = useState<string>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const onPersonAttributesReceive = async () => {
+  const fetchPersonAttributes = async () => {
     try {
       setPersonAttributes(await getPersonAttributes());
     } catch (error) {
@@ -38,7 +36,7 @@ const SearchByPersonAttributes: React.FC<SearchByProps> = ({
   };
 
   useEffect(() => {
-    onPersonAttributesReceive();
+    fetchPersonAttributes();
   }, []);
 
   const handleResetInputs = () => {
@@ -46,17 +44,19 @@ const SearchByPersonAttributes: React.FC<SearchByProps> = ({
     setSelectedAttributeValues([]);
   };
 
-  const submit = () => {
+  const submit = async () => {
+    setIsLoading(true);
     const selectedPersonAttribute = personAttributes.find(
       (personAttribute) => personAttribute.value == selectedAttributeId
     );
-    onSubmit(
+    await onSubmit(
       getQueryDetails(selectedAttributeId, selectedAttributeValues),
       getSearchByAttributesDescription(
         selectedPersonAttribute?.label,
         selectedAttributeValues
       )
     );
+    setIsLoading(false);
   };
 
   return (

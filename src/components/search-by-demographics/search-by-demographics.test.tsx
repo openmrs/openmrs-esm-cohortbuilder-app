@@ -1,6 +1,6 @@
 import React from "react";
 
-import { render, cleanup, fireEvent } from "@testing-library/react";
+import { render, cleanup, fireEvent, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import dayjs from "dayjs";
 
@@ -66,9 +66,7 @@ describe("Test the search by demographics component", () => {
 
   it("should be able to select input values", async () => {
     const submit = jest.fn();
-    const { getByTestId } = render(
-      <SearchByDemographics onSubmit={submit} isLoading={false} />
-    );
+    const { getByTestId } = render(<SearchByDemographics onSubmit={submit} />);
     fireEvent.click(getByTestId("Male"));
     const minAgeInput = getByTestId("minAge");
     const maxAgeInput = getByTestId("maxAge");
@@ -78,9 +76,11 @@ describe("Test the search by demographics component", () => {
     await userEvent.type(maxAgeInput, "20");
     mockQuery.query.rowFilters[2].parameterValues.endDate = dayjs().format();
     fireEvent.click(getByTestId("search-btn"));
-    expect(submit).toBeCalledWith(
-      mockQuery,
-      "Male Patients with ages between 10 and 20 years that are alive"
-    );
+    await act(async () => {
+      expect(submit).toBeCalledWith(
+        mockQuery,
+        "Male Patients with ages between 10 and 20 years that are alive"
+      );
+    });
   });
 });
