@@ -28,7 +28,7 @@ interface SearchHistoryProps {
   setIsHistoryUpdated: Dispatch<SetStateAction<boolean>>;
 }
 
-export const SearchHistory: React.FC<SearchHistoryProps> = ({
+const SearchHistory: React.FC<SearchHistoryProps> = ({
   isHistoryUpdated,
   setIsHistoryUpdated,
 }) => {
@@ -170,3 +170,5 @@ export const SearchHistory: React.FC<SearchHistoryProps> = ({
     </div>
   );
 };
+
+export default SearchHistory;

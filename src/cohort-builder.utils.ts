@@ -149,21 +149,7 @@ export const formatDate = (dateString: string) => {
  * @returns {string} date in the required format
  */
 export const queryDescriptionBuilder = (state, conceptName: string) => {
-  const { modifier, timeModifier, onOrAfter, onOrBefore } = state;
-
-  const operatorText = "";
-
-  const newModifier = "";
-
-  let modifierDescription;
-
-  if (modifier && isNaN(modifier)) {
-    modifierDescription = `= ${newModifier}`;
-  } else if (modifier) {
-    modifierDescription = `${operatorText} ${newModifier}`;
-  } else {
-    modifierDescription = "";
-  }
+  const { timeModifier, onOrAfter, onOrBefore } = state;
 
   const onOrAfterDescription = onOrAfter
     ? `since ${formatDate(onOrAfter)}`
@@ -172,5 +158,5 @@ export const queryDescriptionBuilder = (state, conceptName: string) => {
     ? `until ${formatDate(onOrBefore)}`
     : "";
 
-  return `Patients with ${timeModifier} ${conceptName} ${modifierDescription} ${onOrAfterDescription} ${onOrBeforeDescription}`.trim();
+  return `Patients with ${timeModifier} ${conceptName} ${onOrAfterDescription} ${onOrBeforeDescription}`.trim();
 };

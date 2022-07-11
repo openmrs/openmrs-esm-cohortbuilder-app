@@ -7,12 +7,11 @@ import { useTranslation } from "react-i18next";
 import { search } from "./cohort-builder.resource";
 import styles from "./cohort-builder.scss";
 import { addToHistory } from "./cohort-builder.utils";
-import SearchButtonSet from "./components/search-button-set/search-button-set";
-import { SearchByConcepts } from "./components/search-by-concepts/search-by-concepts.component";
-import { SearchByDemographics } from "./components/search-by-demographics/search-by-demographics.component";
-import { SearchByPersonAttributes } from "./components/search-by-person-attributes/search-by-person-attributes.component";
-import { SearchHistory } from "./components/search-history/search-history.component";
-import { SearchResultsTable } from "./components/search-results-table/search-results-table.component";
+import SearchByConcepts from "./components/search-by-concepts/search-by-concepts.component";
+import SearchByDemographics from "./components/search-by-demographics/search-by-demographics.component";
+import SearchByPersonAttributes from "./components/search-by-person-attributes/search-by-person-attributes.component";
+import SearchHistory from "./components/search-history/search-history.component";
+import SearchResultsTable from "./components/search-results-table/search-results-table.component";
 import { Patient, SearchParams } from "./types";
 
 interface TabItem {
@@ -24,73 +23,13 @@ const CohortBuilder: React.FC = () => {
   const { t } = useTranslation();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [resetInputs, setResetInputs] = useState(false);
   const [isHistoryUpdated, setIsHistoryUpdated] = useState(true);
-  const [searchParams, setSearchParams] = useState<SearchParams>({
-    query: null,
-  });
-  const [queryDescription, setQueryDescription] = useState("");
   const [selectedTab, setSelectedTab] = useState(0);
 
-  const tabs: TabItem[] = [
-    {
-      name: t("concept", "Concept"),
-      component: (
-        <SearchByConcepts
-          resetInputs={resetInputs}
-          setSearchParams={setSearchParams}
-          setQueryDescription={setQueryDescription}
-        />
-      ),
-    },
-    {
-      name: t("demographics", "Demographics"),
-      component: (
-        <SearchByDemographics
-          resetInputs={resetInputs}
-          setSearchParams={setSearchParams}
-          setQueryDescription={setQueryDescription}
-        />
-      ),
-    },
-    {
-      name: t("personAttributes", "Person Attributes"),
-      component: (
-        <SearchByPersonAttributes
-          resetInputs={resetInputs}
-          setSearchParams={setSearchParams}
-          setQueryDescription={setQueryDescription}
-        />
-      ),
-    },
-    {
-      name: t("encounters", "Encounters"),
-      component: <span></span>,
-    },
-    {
-      name: t("drugOrder", "Drug Order"),
-      component: <span></span>,
-    },
-    {
-      name: "SQL",
-      component: <span></span>,
-    },
-    {
-      name: t("composition", "Composition"),
-      component: <span></span>,
-    },
-    {
-      name: t("savedDefinitions", "Saved Definitions"),
-      component: <span></span>,
-    },
-  ];
-
-  const handleReset = () => {
-    setPatients([]);
-    setResetInputs(true);
-  };
-
-  const handleSubmit = async () => {
+  const runSearch = async (
+    searchParams: SearchParams,
+    queryDescription: string
+  ) => {
     setPatients([]);
     setIsLoading(true);
     try {
@@ -126,6 +65,47 @@ const CohortBuilder: React.FC = () => {
     }
   };
 
+  const tabs: TabItem[] = [
+    {
+      name: t("concept", "Concept"),
+      component: (
+        <SearchByConcepts onSubmit={runSearch} isLoading={isLoading} />
+      ),
+    },
+    {
+      name: t("demographics", "Demographics"),
+      component: (
+        <SearchByDemographics onSubmit={runSearch} isLoading={isLoading} />
+      ),
+    },
+    {
+      name: t("personAttributes", "Person Attributes"),
+      component: (
+        <SearchByPersonAttributes onSubmit={runSearch} isLoading={isLoading} />
+      ),
+    },
+    {
+      name: t("encounters", "Encounters"),
+      component: <span></span>,
+    },
+    {
+      name: t("drugOrder", "Drug Order"),
+      component: <span></span>,
+    },
+    {
+      name: "SQL",
+      component: <span></span>,
+    },
+    {
+      name: t("composition", "Composition"),
+      component: <span></span>,
+    },
+    {
+      name: t("savedDefinitions", "Saved Definitions"),
+      component: <span></span>,
+    },
+  ];
+
   return (
     <div className={`omrs-main-content ${styles.mainContainer}`}>
       <div className={styles.container}>
@@ -146,11 +126,6 @@ const CohortBuilder: React.FC = () => {
                   }`}
                 >
                   {tab.component}
-                  <SearchButtonSet
-                    onHandleReset={handleReset}
-                    onHandleSubmit={handleSubmit}
-                    isLoading={isLoading}
-                  />
                 </Tab>
               ))}
             </Tabs>

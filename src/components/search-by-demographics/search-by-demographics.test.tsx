@@ -1,9 +1,10 @@
 import React from "react";
 
 import { render, cleanup, fireEvent } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import dayjs from "dayjs";
 
-import { SearchByDemographics } from "./search-by-demographics.component";
+import SearchByDemographics from "./search-by-demographics.component";
 
 const mockQuery = {
   query: {
@@ -63,22 +64,22 @@ const mockQuery = {
 describe("Test the search by demographics component", () => {
   afterEach(cleanup);
 
-  it("should be able to select input values", () => {
-    const setSearchParams = jest.fn();
-    const setQueryDescription = jest.fn();
+  it("should be able to select input values", async () => {
+    const submit = jest.fn();
     const { getByTestId } = render(
-      <SearchByDemographics
-        setQueryDescription={setQueryDescription}
-        setSearchParams={setSearchParams}
-        resetInputs={false}
-      />
+      <SearchByDemographics onSubmit={submit} isLoading={false} />
     );
     fireEvent.click(getByTestId("Male"));
-    fireEvent.change(getByTestId("minAge"), { target: { value: "10" } });
-    fireEvent.change(getByTestId("maxAge"), { target: { value: "20" } });
+    const minAgeInput = getByTestId("minAge");
+    const maxAgeInput = getByTestId("maxAge");
+    fireEvent.click(minAgeInput);
+    await userEvent.type(minAgeInput, "10");
+    fireEvent.click(maxAgeInput);
+    await userEvent.type(maxAgeInput, "20");
     mockQuery.query.rowFilters[2].parameterValues.endDate = dayjs().format();
-    expect(setSearchParams).toBeCalledWith(mockQuery);
-    expect(setQueryDescription).toBeCalledWith(
+    fireEvent.click(getByTestId("search-btn"));
+    expect(submit).toBeCalledWith(
+      mockQuery,
       "Male Patients with ages between 10 and 20 years that are alive"
     );
   });

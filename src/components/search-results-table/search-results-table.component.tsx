@@ -21,7 +21,7 @@ interface SearchResultsTableProps {
   patients: Patient[];
 }
 
-export const SearchResultsTable: React.FC<SearchResultsTableProps> = ({
+const SearchResultsTable: React.FC<SearchResultsTableProps> = ({
   patients,
 }) => {
   const [page, setPage] = useState(1);
@@ -101,3 +101,5 @@ export const SearchResultsTable: React.FC<SearchResultsTableProps> = ({
     </div>
   );
 };
+
+export default SearchResultsTable;

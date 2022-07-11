@@ -1,16 +1,11 @@
-import React, {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { useEffect, useState } from "react";
 
 import { showNotification } from "@openmrs/esm-framework";
 import { Column, Dropdown, TextInput } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
-import { PersonAttribute, SearchParams } from "../../types";
+import { PersonAttribute, SearchByProps } from "../../types";
+import SearchButtonSet from "../search-button-set/search-button-set";
 import { getPersonAttributes } from "./search-by-person-attributes.resource";
 import styles from "./search-by-person-attributes.style.scss";
 import {
@@ -18,15 +13,10 @@ import {
   getSearchByAttributesDescription,
 } from "./search-by-person-attributes.utils";
 
-interface SearchByPersonAttributesProps {
-  setQueryDescription: Dispatch<SetStateAction<String>>;
-  setSearchParams: Dispatch<SetStateAction<SearchParams>>;
-  resetInputs: boolean;
-}
-
-export const SearchByPersonAttributes: React.FC<
-  SearchByPersonAttributesProps
-> = ({ setQueryDescription, setSearchParams, resetInputs }) => {
+const SearchByPersonAttributes: React.FC<SearchByProps> = ({
+  onSubmit,
+  isLoading,
+}) => {
   const { t } = useTranslation();
   const [personAttributes, setPersonAttributes] = useState<PersonAttribute[]>(
     []
@@ -34,13 +24,7 @@ export const SearchByPersonAttributes: React.FC<
   const [selectedAttributeValues, setSelectedAttributeValues] = useState([]);
   const [selectedAttributeId, setSelectedAttributeId] = useState<string>(null);
 
-  useEffect(() => {
-    if (resetInputs) {
-      handleResetInputs();
-    }
-  }, [resetInputs]);
-
-  const onPersonAttributesReceive = useCallback(async () => {
+  const onPersonAttributesReceive = async () => {
     try {
       setPersonAttributes(await getPersonAttributes());
     } catch (error) {
@@ -51,41 +35,29 @@ export const SearchByPersonAttributes: React.FC<
         description: error?.message,
       });
     }
-  }, [t]);
+  };
 
   useEffect(() => {
     onPersonAttributesReceive();
-  }, [onPersonAttributesReceive]);
+  }, []);
 
   const handleResetInputs = () => {
     setSelectedAttributeId(null);
     setSelectedAttributeValues([]);
   };
 
-  const handleInputValues = useCallback(() => {
-    setSearchParams(
-      getQueryDetails(selectedAttributeId, selectedAttributeValues)
-    );
+  const submit = () => {
     const selectedPersonAttribute = personAttributes.find(
       (personAttribute) => personAttribute.value == selectedAttributeId
     );
-    setQueryDescription(
+    onSubmit(
+      getQueryDetails(selectedAttributeId, selectedAttributeValues),
       getSearchByAttributesDescription(
         selectedPersonAttribute?.label,
         selectedAttributeValues
       )
     );
-  }, [
-    personAttributes,
-    selectedAttributeId,
-    selectedAttributeValues,
-    setQueryDescription,
-    setSearchParams,
-  ]);
-
-  useEffect(() => {
-    handleInputValues();
-  }, [handleInputValues]);
+  };
 
   return (
     <div className={styles.container}>
@@ -117,6 +89,13 @@ export const SearchByPersonAttributes: React.FC<
           />
         </Column>
       </div>
+      <SearchButtonSet
+        onHandleReset={handleResetInputs}
+        onHandleSubmit={submit}
+        isLoading={isLoading}
+      />
     </div>
   );
 };
+
+export default SearchByPersonAttributes;

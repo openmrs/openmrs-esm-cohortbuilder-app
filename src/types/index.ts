@@ -77,3 +77,8 @@ export interface PersonAttribute {
   label: string;
   value: string;
 }
+
+export interface SearchByProps {
+  onSubmit: (searchParams: SearchParams, queryDescription: string) => void;
+  isLoading: boolean;
+}

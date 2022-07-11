@@ -3,7 +3,7 @@ import React from "react";
 import { render, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { SearchByPersonAttributes } from "./search-by-person-attributes.component";
+import SearchByPersonAttributes from "./search-by-person-attributes.component";
 import * as apis from "./search-by-person-attributes.resource";
 
 jest.mock("./search-by-person-attributes.resource.ts");
@@ -61,22 +61,66 @@ const personAttributes = [
   },
 ];
 
+const mockQuery = {
+  query: {
+    columns: [
+      {
+        key: "reporting.library.patientDataDefinition.builtIn.preferredName.givenName",
+        name: "firstname",
+        type: "org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition",
+      },
+      {
+        key: "reporting.library.patientDataDefinition.builtIn.preferredName.familyName",
+        name: "lastname",
+        type: "org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition",
+      },
+      {
+        key: "reporting.library.patientDataDefinition.builtIn.gender",
+        name: "gender",
+        type: "org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition",
+      },
+      {
+        key: "reporting.library.patientDataDefinition.builtIn.ageOnDate.fullYears",
+        name: "age",
+        type: "org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition",
+      },
+      {
+        key: "reporting.library.patientDataDefinition.builtIn.patientId",
+        name: "patientId",
+        type: "org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition",
+      },
+    ],
+    customRowFilterCombination: "1",
+    rowFilters: [
+      {
+        key: "reporting.library.cohortDefinition.builtIn.personWithAttribute",
+        parameterValues: {
+          attributeType: "8d871d18-c2cc-11de-8d13-0010c6dffd0f",
+          values: ["janet", "irina"],
+        },
+        type: "org.openmrs.module.reporting.dataset.definition.PatientDataSetDefinition",
+      },
+    ],
+    type: "org.openmrs.module.reporting.dataset.definition.PatientDataSetDefinition",
+  },
+};
+
 describe("Test the search by person attributes component", () => {
   it("should be able to select input values", async () => {
     jest.spyOn(apis, "getPersonAttributes").mockResolvedValue(personAttributes);
-    const setSearchParams = jest.fn();
-    const setQueryDescription = jest.fn();
+    const submit = jest.fn();
     const { getByTestId, getByText } = render(
-      <SearchByPersonAttributes
-        setQueryDescription={setQueryDescription}
-        setSearchParams={setSearchParams}
-        resetInputs={false}
-      />
+      <SearchByPersonAttributes onSubmit={submit} isLoading={false} />
     );
     await waitFor(() => expect(jest.spyOn(apis, "getPersonAttributes")));
     fireEvent.click(getByText("Open menu"));
     fireEvent.click(getByText("Mother's Name"));
     fireEvent.click(getByTestId("selectedAttributeValues"));
     await userEvent.type(getByTestId("selectedAttributeValues"), "janet,irina");
+    fireEvent.click(getByTestId("search-btn"));
+    expect(submit).toBeCalledWith(
+      mockQuery,
+      "Patients with Mother's Name equal to either janet or irina"
+    );
   });
 });

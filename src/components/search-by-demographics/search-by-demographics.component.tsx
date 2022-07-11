@@ -1,10 +1,4 @@
-import React, {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { useState } from "react";
 
 import {
   DatePicker,
@@ -17,23 +11,17 @@ import {
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 
-import { SearchParams } from "../../types";
+import { SearchByProps } from "../../types";
+import SearchButtonSet from "../search-button-set/search-button-set";
 import styles from "./search-by-demographics.style.scss";
 import {
   getDescription,
   getQueryDetails,
 } from "./search-by-demographics.utils";
 
-interface SearchByDemographicsProps {
-  setQueryDescription: Dispatch<SetStateAction<String>>;
-  setSearchParams: Dispatch<SetStateAction<SearchParams>>;
-  resetInputs: boolean;
-}
-
-export const SearchByDemographics: React.FC<SearchByDemographicsProps> = ({
-  setQueryDescription,
-  setSearchParams,
-  resetInputs,
+const SearchByDemographics: React.FC<SearchByProps> = ({
+  onSubmit,
+  isLoading,
 }) => {
   const { t } = useTranslation();
   const [livingStatus, setLivingStatus] = useState("alive");
@@ -74,25 +62,19 @@ export const SearchByDemographics: React.FC<SearchByDemographicsProps> = ({
     },
   ];
 
-  useEffect(() => {
-    if (resetInputs) {
-      handleResetInputs();
-    }
-  }, [resetInputs]);
-
   const handleBirthDay = (dates: Date[]) => {
     setBirthDayStartDate(dayjs(dates[0]).format());
     setBirthDayEndDate(dayjs(dates[1]).format());
   };
 
-  const handleResetInputs = () => {
+  const reset = () => {
     setMaxAge(0);
     setMinAge(0);
     setBirthDayEndDate("");
     setBirthDayStartDate("");
   };
 
-  const handleInputValues = useCallback(() => {
+  const submit = () => {
     const demographics = {
       gender,
       minAge,
@@ -101,22 +83,8 @@ export const SearchByDemographics: React.FC<SearchByDemographicsProps> = ({
       birthDayEndDate,
       livingStatus,
     };
-    setQueryDescription(getDescription(demographics));
-    setSearchParams(getQueryDetails(demographics));
-  }, [
-    birthDayEndDate,
-    birthDayStartDate,
-    gender,
-    livingStatus,
-    maxAge,
-    minAge,
-    setQueryDescription,
-    setSearchParams,
-  ]);
-
-  useEffect(() => {
-    handleInputValues();
-  }, [handleInputValues]);
+    onSubmit(getQueryDetails(demographics), getDescription(demographics));
+  };
 
   return (
     <div className={styles.container}>
@@ -226,6 +194,13 @@ export const SearchByDemographics: React.FC<SearchByDemographicsProps> = ({
           </DatePicker>
         </Column>
       </div>
+      <SearchButtonSet
+        isLoading={isLoading}
+        onHandleSubmit={submit}
+        onHandleReset={reset}
+      />
     </div>
   );
 };
+
+export default SearchByDemographics;
