@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 
+import { showNotification } from "@openmrs/esm-framework";
 import {
   DatePicker,
   DatePickerInput,
@@ -41,9 +42,18 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
   };
 
   const fetchDropDownValues = async () => {
-    setEncounters(await fetchEncounterTypes());
-    setForms(await fetchForms());
-    setLocations(await fetchLocations());
+    try {
+      setEncounters(await fetchEncounterTypes());
+      setForms(await fetchForms());
+      setLocations(await fetchLocations());
+    } catch (error) {
+      showNotification({
+        title: t("error", "Error"),
+        kind: "error",
+        critical: true,
+        description: error?.message,
+      });
+    }
   };
 
   useEffect(() => {
@@ -84,8 +94,8 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
             data-testid="encounters"
             onChange={(data) => setSelectedEncounterTypes(data.selectedItems)}
             items={encounters}
-            titleText={t("selectAttribute", "Select a encounter type")}
-            label={t("selectAttribute", "Select a encounter type")}
+            titleText={t("selectEncounterType", "Select an encounter type")}
+            label={t("selectEncounterType", "Select an encounter type")}
           />
         </div>
       </Column>
@@ -116,10 +126,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
         </Column>
       </div>
       <div className={styles.column}>
-        {/* <Column md={2}>
-          <p className={styles.text}>{t("age", "Age")}</p>
-        </Column> */}
-        <Column className={styles.age}>
+        <Column className={styles.encounterRange}>
           <div className={styles.multipleInputs}>
             <NumberInput
               id="atLeastCount"

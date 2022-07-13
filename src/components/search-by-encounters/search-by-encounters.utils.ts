@@ -10,44 +10,46 @@ export const getDescription = ({
   onOrAfter,
   onOrBefore,
 }: EncounterDetails) => {
-  let label = "Patients with Encounter of";
+  let description = "Patients with Encounter of";
   const selectedEncounters = selectedEncounterTypes
     .map((encounter) => encounter.label)
     .join(", ")
     .replace(/,(?=[^,]*$)/, " and ");
 
-  label += selectedEncounters
+  description += selectedEncounters
     ? ` Type${selectedEncounters.length > 1 ? "s" : ""} ${selectedEncounters}`
     : " any Type";
   if (encounterLocation) {
-    label += ` at ${encounterLocation.value}`;
+    description += ` at ${encounterLocation.label}`;
   }
   if (encounterForm) {
-    label += ` from ${encounterForm.value}`;
+    description += ` from ${encounterForm.label}`;
   }
   if (atLeastCount) {
-    label += ` at least ${atLeastCount} ${atLeastCount > 1 ? "times" : "time"}`;
+    description += ` at least ${atLeastCount} ${
+      atLeastCount > 1 ? "times" : "time"
+    }`;
   }
   if (atMostCount) {
-    label += ` ${atLeastCount ? " and" : ""} at most ${atMostCount} ${
+    description += ` ${atLeastCount ? " and" : ""} at most ${atMostCount} ${
       atMostCount > 1 ? "times" : "time"
     }`;
   }
   if (onOrAfter) {
     if (onOrBefore) {
-      label += ` from ${onOrAfter}`;
+      description += ` from ${onOrAfter}`;
     } else {
-      label += ` on or after ${onOrAfter}`;
+      description += ` on or after ${onOrAfter}`;
     }
   }
   if (onOrBefore) {
     if (onOrAfter) {
-      label += ` to ${onOrBefore}`;
+      description += ` to ${onOrBefore}`;
     } else {
-      label += ` on or before ${onOrBefore}`;
+      description += ` on or before ${onOrBefore}`;
     }
   }
-  return label;
+  return description;
 };
 
 export const getQueryDetails = ({
