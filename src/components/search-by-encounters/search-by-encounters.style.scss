@@ -1,0 +1,46 @@
+@import "~@openmrs/esm-styleguide/src/vars";
+@import "~carbon-components/src/globals/scss/vars";
+@import "~carbon-components/src/globals/scss/mixins";
+
+.contentSwitcher {
+  height: $spacing-08;
+}
+
+.column {
+ padding-top: 1.5rem;
+ display: flex;
+}
+
+.text {
+  padding-right: 1rem;
+  font-size: 0.75rem;
+  color: #525252;
+ }
+
+.multipleInputs {
+ margin-right: 0.2rem;
+}
+
+.switch {
+  width: 60%;
+  padding-right: 1rem;
+}
+
+.genderContainer{
+  display: flex;
+  align-items: end;
+}
+
+.ageContainer {
+   display: flex;
+   justify-content: space-between;
+   width: 34%;
+}
+
+.age {
+  display: flex;
+}
+
+.genderTitle {
+  padding-bottom: 0.5rem;
+}

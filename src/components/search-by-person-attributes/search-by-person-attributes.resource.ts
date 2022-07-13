@@ -1,11 +1,6 @@
 import { FetchResponse, openmrsFetch } from "@openmrs/esm-framework";
 
-import { PersonAttribute } from "../../types";
-
-interface PersonAttributeResponse {
-  uuid: string;
-  display: string;
-}
+import { PersonAttribute, PersonAttributeResponse } from "../../types";
 
 /**
  * @returns PersonAttributes

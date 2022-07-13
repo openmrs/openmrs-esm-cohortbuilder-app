@@ -9,6 +9,7 @@ import styles from "./cohort-builder.scss";
 import { addToHistory } from "./cohort-builder.utils";
 import SearchByConcepts from "./components/search-by-concepts/search-by-concepts.component";
 import SearchByDemographics from "./components/search-by-demographics/search-by-demographics.component";
+import SearchByEncounters from "./components/search-by-encounters/search-by-encounters.component";
 import SearchByPersonAttributes from "./components/search-by-person-attributes/search-by-person-attributes.component";
 import SearchHistory from "./components/search-history/search-history.component";
 import SearchResultsTable from "./components/search-results-table/search-results-table.component";
@@ -80,6 +81,10 @@ const CohortBuilder: React.FC = () => {
     },
     {
       name: t("encounters", "Encounters"),
+      component: <SearchByEncounters onSubmit={runSearch} />,
+    },
+    {
+      name: t("locations", "Locations"),
       component: <span></span>,
     },
     {
