@@ -94,7 +94,6 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
             data-testid="encounters"
             onChange={(data) => setSelectedEncounterTypes(data.selectedItems)}
             items={encounters}
-            titleText={t("selectEncounterType", "Select an encounter type")}
             label={t("selectEncounterType", "Select an encounter type")}
           />
         </div>

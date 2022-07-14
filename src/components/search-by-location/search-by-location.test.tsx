@@ -80,11 +80,13 @@ describe("Test the search by location component", () => {
       <SearchByLocation onSubmit={submit} />
     );
     await waitFor(() => expect(jest.spyOn(apis, "fetchLocations")));
+
     fireEvent.click(getByTitle("Select a location"));
     fireEvent.click(getByText(mockLocations[2].label));
     fireEvent.click(getByTitle("Any Encounter"));
     fireEvent.click(getByText("Most Recent Encounter"));
     fireEvent.click(getByTestId("search-btn"));
+
     await act(async () => {
       expect(submit).toBeCalledWith(
         mockQuery,

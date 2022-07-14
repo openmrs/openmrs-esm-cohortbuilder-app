@@ -138,7 +138,7 @@ describe("Test the search by encounters component", () => {
       .spyOn(apis, "fetchEncounterTypes")
       .mockResolvedValue(mockEncounterTypes);
     const submit = jest.fn();
-    const { getByTestId, getByTitle, getByText, getAllByText } = render(
+    const { getByTestId, getByTitle, getByText } = render(
       <SearchByEncounters onSubmit={submit} />
     );
     await waitFor(() => {
@@ -147,7 +147,7 @@ describe("Test the search by encounters component", () => {
       expect(jest.spyOn(apis, "fetchEncounterTypes"));
     });
 
-    fireEvent.click(getAllByText("Select an encounter type")[1]);
+    fireEvent.click(getByText("Select an encounter type"));
     fireEvent.click(getByText(mockEncounterTypes[4].label));
     fireEvent.click(getByTitle("Select a form"));
     fireEvent.click(getByText(mockForms[1].label));

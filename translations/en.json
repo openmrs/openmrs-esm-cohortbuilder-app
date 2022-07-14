@@ -2,7 +2,7 @@
   "searchResults": "Search Results",
   "searchHistory": "Search History",
   "clearHistory": "Clear Search History",
-  "concept": "Concepts",
+  "concepts": "Concepts",
   "demographics": "Demographics",
   "encounters": "Encounters",
   "enrollments": "Enrollments",
@@ -74,6 +74,17 @@
   "birthDate": "Birth date",
   "selectedAttributeValues": "Enter Comma Delimited Values",
   "selectAttribute": "Select a person attribute",
-  "locations": "Locations",
-  "personAttributes": "Person Attributes"
+  "location": "Location",
+  "personAttributes": "Person Attributes",
+  "selectEncounterType": "Select an encounter type",
+  "selectForm": "Select a form",
+  "selectLocation": "Select a location",
+  "atLeast": "at least many",
+  "upto": "upto this many",
+  "from": "From",
+  "to": "to",
+  "anyEncounter": "Any Encounter",
+  "mostRecentEncounter": "Most Recent Encounter",
+  "earliestEncounter": "Earliest Encounter",
+  "selectMethod": "Select a method"
 }

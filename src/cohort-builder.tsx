@@ -69,7 +69,7 @@ const CohortBuilder: React.FC = () => {
 
   const tabs: TabItem[] = [
     {
-      name: t("concept", "Concept"),
+      name: t("concepts", "Concepts"),
       component: <SearchByConcepts onSubmit={runSearch} />,
     },
     {
@@ -85,7 +85,7 @@ const CohortBuilder: React.FC = () => {
       component: <SearchByEncounters onSubmit={runSearch} />,
     },
     {
-      name: t("locations", "Locations"),
+      name: t("location", "Location"),
       component: <SearchByLocation onSubmit={runSearch} />,
     },
     {
