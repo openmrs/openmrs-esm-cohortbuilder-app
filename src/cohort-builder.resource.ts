@@ -1,6 +1,6 @@
 import { openmrsFetch, FetchResponse } from "@openmrs/esm-framework";
 
-import { Patient, SearchParams, Location, LocationResponse } from "./types";
+import { Patient, SearchParams, DropdownValue, Response } from "./types";
 
 /**
  * @param searchParams query details
@@ -27,7 +27,7 @@ export const search = async (searchParams: SearchParams) => {
  */
 export const fetchLocations = async () => {
   const locationsResp: FetchResponse<{
-    results: LocationResponse[];
+    results: Response[];
   }> = await openmrsFetch("/ws/rest/v1/location", {
     method: "GET",
   });
@@ -35,8 +35,8 @@ export const fetchLocations = async () => {
   const {
     data: { results },
   } = locationsResp;
-  const locations: Location[] = [];
-  results.map((location: LocationResponse, index: number) => {
+  const locations: DropdownValue[] = [];
+  results.map((location: Response, index: number) => {
     locations.push({
       id: index,
       label: location.display,

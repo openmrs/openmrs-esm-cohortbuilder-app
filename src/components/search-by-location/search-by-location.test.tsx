@@ -28,7 +28,7 @@ const mockLocations = [
   },
 ];
 
-const mockQuery = {
+const expectedQuery = {
   query: {
     columns: [
       {
@@ -89,7 +89,7 @@ describe("Test the search by location component", () => {
 
     await act(async () => {
       expect(submit).toBeCalledWith(
-        mockQuery,
+        expectedQuery,
         `Patients in ${mockLocations[2].label} (by method ANY_ENCOUNTER).`
       );
     });

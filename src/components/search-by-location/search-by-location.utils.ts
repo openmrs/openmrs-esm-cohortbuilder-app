@@ -1,7 +1,10 @@
 import { composeJson } from "../../cohort-builder.utils";
-import { Location } from "../../types";
+import { DropdownValue } from "../../types";
 
-export const getQueryDetails = (method: string, selectedLocation: Location) => {
+export const getQueryDetails = (
+  method: string,
+  selectedLocation: DropdownValue
+) => {
   const searchParameter = {
     encounterSearchAdvanced: [
       { name: "locationList", value: [selectedLocation.value] },
@@ -13,7 +16,10 @@ export const getQueryDetails = (method: string, selectedLocation: Location) => {
   return queryDetails;
 };
 
-export const getDescription = (method: string, selectedLocation: Location) => {
+export const getDescription = (
+  method: string,
+  selectedLocation: DropdownValue
+) => {
   let description = `Patients in ${selectedLocation.label}`;
   switch (method) {
     case "FIRST":

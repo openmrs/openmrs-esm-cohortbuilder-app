@@ -1,22 +1,17 @@
 import React, { useEffect, useState } from "react";
 
-import { showNotification } from "@openmrs/esm-framework";
+import { showToast } from "@openmrs/esm-framework";
 import { Column, Dropdown } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
 import { fetchLocations } from "../../cohort-builder.resource";
-import { DropdownValue, Location, SearchByProps } from "../../types";
+import { DropdownValue, SearchByProps } from "../../types";
 import SearchButtonSet from "../search-button-set/search-button-set";
 import styles from "./search-by-location.style.scss";
 import { getQueryDetails, getDescription } from "./search-by-location.utils";
 
 const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
-  const [locations, setLocations] = useState<Location[]>([]);
-  const [selectedLocation, setSelectedLocation] = useState<Location>(null);
-  const [selectedMethod, setSelectedMethod] = useState<DropdownValue>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
   const methods = [
     {
       id: 0,
@@ -34,12 +29,18 @@ const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
       value: "FIRST",
     },
   ];
+  const [locations, setLocations] = useState<DropdownValue[]>([]);
+  const [selectedLocation, setSelectedLocation] = useState<DropdownValue>(null);
+  const [selectedMethod, setSelectedMethod] = useState<DropdownValue>(
+    methods[0]
+  );
+  const [isLoading, setIsLoading] = useState(false);
 
   const getLocations = async () => {
     try {
       setLocations(await fetchLocations());
     } catch (error) {
-      showNotification({
+      showToast({
         title: t("error", "Error"),
         kind: "error",
         critical: true,

@@ -78,14 +78,6 @@ export interface DropdownValue {
   value: string;
 }
 
-export interface PersonAttribute extends DropdownValue {}
-
-export interface Location extends DropdownValue {}
-
-export interface Form extends DropdownValue {}
-
-export interface EncounterType extends DropdownValue {}
-
 export interface SearchByProps {
   onSubmit: (
     searchParams: SearchParams,
@@ -98,20 +90,12 @@ export interface Response {
   display: string;
 }
 
-export interface PersonAttributeResponse extends Response {}
-
-export interface LocationResponse extends Response {}
-
-export interface FormResponse extends Response {}
-
-export interface EncounterTypeResponse extends Response {}
-
 export interface EncounterDetails {
   onOrAfter: string;
   onOrBefore: string;
   atLeastCount: number;
   atMostCount: number;
-  encounterForm: Form;
-  encounterLocation: Location;
-  selectedEncounterTypes: EncounterType[];
+  encounterForm: DropdownValue;
+  encounterLocation: DropdownValue;
+  selectedEncounterTypes: DropdownValue[];
 }

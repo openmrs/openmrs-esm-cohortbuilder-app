@@ -82,7 +82,7 @@ const mockForms = [
   },
 ];
 
-const mockQuery = {
+const expectedQuery = {
   query: {
     columns: [
       {
@@ -164,7 +164,7 @@ describe("Test the search by encounters component", () => {
     fireEvent.click(getByTestId("search-btn"));
     await act(async () => {
       expect(submit).toBeCalledWith(
-        mockQuery,
+        expectedQuery,
         `Patients with Encounter of Types ${mockEncounterTypes[4].label} at ${mockLocations[2].label} from ${mockForms[1].label} at least 10 times  and at most 20 times`
       );
     });

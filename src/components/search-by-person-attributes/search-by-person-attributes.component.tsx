@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 
-import { showNotification } from "@openmrs/esm-framework";
+import { showToast } from "@openmrs/esm-framework";
 import { Column, Dropdown, TextInput } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
-import { PersonAttribute, SearchByProps } from "../../types";
+import { DropdownValue, SearchByProps } from "../../types";
 import SearchButtonSet from "../search-button-set/search-button-set";
 import { getPersonAttributes } from "./search-by-person-attributes.resource";
 import styles from "./search-by-person-attributes.style.scss";
@@ -15,9 +15,7 @@ import {
 
 const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
-  const [personAttributes, setPersonAttributes] = useState<PersonAttribute[]>(
-    []
-  );
+  const [personAttributes, setPersonAttributes] = useState<DropdownValue[]>([]);
   const [selectedAttributeValues, setSelectedAttributeValues] = useState([]);
   const [selectedAttributeId, setSelectedAttributeId] = useState<string>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +24,7 @@ const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
     try {
       setPersonAttributes(await getPersonAttributes());
     } catch (error) {
-      showNotification({
+      showToast({
         title: t("error", "Error"),
         kind: "error",
         critical: true,

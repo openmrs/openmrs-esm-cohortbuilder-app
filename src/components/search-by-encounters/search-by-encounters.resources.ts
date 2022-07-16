@@ -1,18 +1,13 @@
 import { openmrsFetch, FetchResponse } from "@openmrs/esm-framework";
 
-import {
-  Form,
-  EncounterType,
-  FormResponse,
-  EncounterTypeResponse,
-} from "../../types";
+import { DropdownValue, Response } from "../../types";
 
 /**
  * @returns Locations
  */
 export const fetchForms = async () => {
   const formsResp: FetchResponse<{
-    results: FormResponse[];
+    results: Response[];
   }> = await openmrsFetch("/ws/rest/v1/form", {
     method: "GET",
   });
@@ -20,8 +15,8 @@ export const fetchForms = async () => {
   const {
     data: { results },
   } = formsResp;
-  const forms: Form[] = [];
-  results.map((form: FormResponse, index: number) => {
+  const forms: DropdownValue[] = [];
+  results.map((form: Response, index: number) => {
     forms.push({
       id: index,
       label: form.display,
@@ -37,7 +32,7 @@ export const fetchForms = async () => {
  */
 export const fetchEncounterTypes = async () => {
   const encounterTypesResp: FetchResponse<{
-    results: EncounterTypeResponse[];
+    results: Response[];
   }> = await openmrsFetch("/ws/rest/v1/encountertype", {
     method: "GET",
   });
@@ -45,8 +40,8 @@ export const fetchEncounterTypes = async () => {
   const {
     data: { results },
   } = encounterTypesResp;
-  const encounterTypes: EncounterType[] = [];
-  results.map((encounterType: EncounterTypeResponse, index: number) => {
+  const encounterTypes: DropdownValue[] = [];
+  results.map((encounterType: Response, index: number) => {
     encounterTypes.push({
       id: index,
       label: encounterType.display,

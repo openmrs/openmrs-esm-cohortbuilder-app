@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { showNotification } from "@openmrs/esm-framework";
+import { showToast } from "@openmrs/esm-framework";
 import {
   DatePicker,
   DatePickerInput,
@@ -13,7 +13,7 @@ import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 
 import { fetchLocations } from "../../cohort-builder.resource";
-import { Form, SearchByProps, Location } from "../../types";
+import { SearchByProps, DropdownValue } from "../../types";
 import SearchButtonSet from "../search-button-set/search-button-set";
 import {
   fetchEncounterTypes,
@@ -28,15 +28,15 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [atMostCount, setAtMostCount] = useState(0);
   const [encounters, setEncounters] = useState([]);
   const [selectedEncounterTypes, setSelectedEncounterTypes] = useState([]);
-  const [encounterLocation, setEncounterLocation] = useState<Location>();
-  const [encounterForm, setEncounterForm] = useState<Form>();
-  const [locations, setLocations] = useState<Location[]>([]);
-  const [forms, setForms] = useState<Form[]>([]);
+  const [encounterLocation, setEncounterLocation] = useState<DropdownValue>();
+  const [encounterForm, setEncounterForm] = useState<DropdownValue>();
+  const [locations, setLocations] = useState<DropdownValue[]>([]);
+  const [forms, setForms] = useState<DropdownValue[]>([]);
   const [onOrBefore, setOnOrBefore] = useState("");
   const [onOrAfter, setOnOrAfter] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleDates = (dates: Date[]) => {
+  const handleDatesChange = (dates: Date[]) => {
     setOnOrAfter(dayjs(dates[0]).format());
     setOnOrBefore(dayjs(dates[1]).format());
   };
@@ -47,7 +47,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
       setForms(await fetchForms());
       setLocations(await fetchLocations());
     } catch (error) {
-      showNotification({
+      showToast({
         title: t("error", "Error"),
         kind: "error",
         critical: true,
@@ -130,10 +130,10 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
             <NumberInput
               id="atLeastCount"
               data-testid="atLeastCount"
-              label={t("atLeast", "at least many")}
+              label={t("atLeast", "at least")}
               min={0}
               size="sm"
-              value={atLeastCount}
+              value={atLeastCount > 0 && atLeastCount}
               onChange={(event) => setAtLeastCount(event.imaginaryTarget.value)}
             />
           </div>
@@ -144,7 +144,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
               label={t("upto", "upto this many")}
               min={0}
               size="sm"
-              value={atMostCount}
+              value={atMostCount > 0 && atMostCount}
               onChange={(event) => setAtMostCount(event.imaginaryTarget.value)}
             />
           </div>
@@ -156,7 +156,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
             datePickerType="range"
             dateFormat="d-m-Y"
             allowInput={false}
-            onChange={(dates: Date[]) => handleDates(dates)}
+            onChange={(dates: Date[]) => handleDatesChange(dates)}
           >
             <DatePickerInput
               id="date-picker-input-id-start"

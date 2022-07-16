@@ -1,13 +1,13 @@
 import { FetchResponse, openmrsFetch } from "@openmrs/esm-framework";
 
-import { PersonAttribute, PersonAttributeResponse } from "../../types";
+import { DropdownValue, Response } from "../../types";
 
 /**
  * @returns PersonAttributes
  */
-export async function getPersonAttributes(): Promise<PersonAttribute[]> {
+export async function getPersonAttributes(): Promise<DropdownValue[]> {
   const personAttributesResp: FetchResponse<{
-    results: PersonAttributeResponse[];
+    results: Response[];
   }> = await openmrsFetch("/ws/rest/v1/personattributetype", {
     method: "GET",
   });
@@ -15,8 +15,8 @@ export async function getPersonAttributes(): Promise<PersonAttribute[]> {
   const {
     data: { results },
   } = personAttributesResp;
-  const personAttributes: PersonAttribute[] = [];
-  results.map((personAttribute: PersonAttributeResponse, index: number) => {
+  const personAttributes: DropdownValue[] = [];
+  results.map((personAttribute: Response, index: number) => {
     personAttributes.push({
       id: index,
       label: personAttribute.display,

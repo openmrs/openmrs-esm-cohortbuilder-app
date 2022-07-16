@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { showNotification } from "@openmrs/esm-framework";
+import { showToast } from "@openmrs/esm-framework";
 import { Tab, Tabs } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
@@ -43,7 +43,7 @@ const CohortBuilder: React.FC = () => {
         });
         setPatients(rows);
         addToHistory(queryDescription, rows, searchParams.query);
-        showNotification({
+        showToast({
           title: t("success", "Success!"),
           kind: "success",
           critical: true,
@@ -56,7 +56,7 @@ const CohortBuilder: React.FC = () => {
         setIsHistoryUpdated(true);
         resolve(true);
       } catch (error) {
-        showNotification({
+        showToast({
           title: t("error", "Error"),
           kind: "error",
           critical: true,

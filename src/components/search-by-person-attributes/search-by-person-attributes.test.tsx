@@ -61,7 +61,7 @@ const personAttributes = [
   },
 ];
 
-const mockQuery = {
+const expectedQuery = {
   query: {
     columns: [
       {
@@ -120,7 +120,7 @@ describe("Test the search by person attributes component", () => {
     fireEvent.click(getByTestId("search-btn"));
     await act(async () => {
       expect(submit).toBeCalledWith(
-        mockQuery,
+        expectedQuery,
         "Patients with Mother's Name equal to either janet or irina"
       );
     });
