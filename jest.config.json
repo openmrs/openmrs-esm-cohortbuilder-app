@@ -14,5 +14,6 @@
   "setupFilesAfterEnv": [
     "<rootDir>/src/setup-tests.ts"
   ],
-  "testEnvironment": "jsdom"
+  "testEnvironment": "jsdom",
+  "testTimeout": 10000
 }

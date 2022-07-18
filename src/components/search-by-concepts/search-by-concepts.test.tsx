@@ -16,7 +16,7 @@ import * as apis from "./search-concept/search-concept.resource";
 
 jest.mock("./search-concept/search-concept.resource.ts");
 
-const mockQuery = {
+const expectedQuery = {
   query: {
     type: "org.openmrs.module.reporting.dataset.definition.PatientDataSetDefinition",
     columns: [
@@ -117,12 +117,13 @@ describe("Test the search by concept component", () => {
     fireEvent.change(lastMonthsInput, { target: { value: "4" } });
     fireEvent.click(getByText("Any"));
     const date = dayjs().subtract(15, "days").subtract(4, "months");
-    mockQuery.query.rowFilters[0].parameterValues.onOrBefore = date.format();
+    expectedQuery.query.rowFilters[0].parameterValues.onOrBefore =
+      date.format();
     fireEvent.click(getByTestId("search-btn"));
     await act(async () => {
       expect(submit).toBeCalledWith(
-        mockQuery,
-        "Patients with ANY BLOOD SUGAR  until " + date.format("DD/M/YYYY")
+        expectedQuery,
+        "Patients with ANY BLOOD SUGAR  until " + date.format("D/M/YYYY")
       );
     });
   });

@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 
 import SearchByDemographics from "./search-by-demographics.component";
 
-const mockQuery = {
+const expectedQuery = {
   query: {
     type: "org.openmrs.module.reporting.dataset.definition.PatientDataSetDefinition",
     columns: [
@@ -74,11 +74,12 @@ describe("Test the search by demographics component", () => {
     await userEvent.type(minAgeInput, "10");
     fireEvent.click(maxAgeInput);
     await userEvent.type(maxAgeInput, "20");
-    mockQuery.query.rowFilters[2].parameterValues.endDate = dayjs().format();
+    expectedQuery.query.rowFilters[2].parameterValues.endDate =
+      dayjs().format();
     fireEvent.click(getByTestId("search-btn"));
     await act(async () => {
       expect(submit).toBeCalledWith(
-        mockQuery,
+        expectedQuery,
         "Male Patients with ages between 10 and 20 years that are alive"
       );
     });

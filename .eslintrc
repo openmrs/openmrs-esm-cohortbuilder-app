@@ -3,6 +3,7 @@
   "plugins": ["@typescript-eslint", "import", "unused-imports"],
   "rules": {
     "unused-imports/no-unused-imports": "error",
+    "react-hooks/exhaustive-deps": 0,
     "import/order":[
       "error",
       {

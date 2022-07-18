@@ -72,7 +72,7 @@ export interface PaginationData {
   pageSize: number;
 }
 
-export interface PersonAttribute {
+export interface DropdownValue {
   id: number;
   label: string;
   value: string;
@@ -83,4 +83,19 @@ export interface SearchByProps {
     searchParams: SearchParams,
     queryDescription: string
   ) => Promise<boolean>;
+}
+
+export interface Response {
+  uuid: string;
+  display: string;
+}
+
+export interface EncounterDetails {
+  onOrAfter: string;
+  onOrBefore: string;
+  atLeastCount: number;
+  atMostCount: number;
+  encounterForm: DropdownValue;
+  encounterLocation: DropdownValue;
+  selectedEncounterTypes: DropdownValue[];
 }

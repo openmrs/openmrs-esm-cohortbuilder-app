@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { showNotification } from "@openmrs/esm-framework";
+import { showToast } from "@openmrs/esm-framework";
 import { Tab, Tabs } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
@@ -9,6 +9,8 @@ import styles from "./cohort-builder.scss";
 import { addToHistory } from "./cohort-builder.utils";
 import SearchByConcepts from "./components/search-by-concepts/search-by-concepts.component";
 import SearchByDemographics from "./components/search-by-demographics/search-by-demographics.component";
+import SearchByEncounters from "./components/search-by-encounters/search-by-encounters.component";
+import SearchByLocation from "./components/search-by-location/search-by-location.component";
 import SearchByPersonAttributes from "./components/search-by-person-attributes/search-by-person-attributes.component";
 import SearchHistory from "./components/search-history/search-history.component";
 import SearchResultsTable from "./components/search-results-table/search-results-table.component";
@@ -41,7 +43,7 @@ const CohortBuilder: React.FC = () => {
         });
         setPatients(rows);
         addToHistory(queryDescription, rows, searchParams.query);
-        showNotification({
+        showToast({
           title: t("success", "Success!"),
           kind: "success",
           critical: true,
@@ -54,7 +56,7 @@ const CohortBuilder: React.FC = () => {
         setIsHistoryUpdated(true);
         resolve(true);
       } catch (error) {
-        showNotification({
+        showToast({
           title: t("error", "Error"),
           kind: "error",
           critical: true,
@@ -67,7 +69,7 @@ const CohortBuilder: React.FC = () => {
 
   const tabs: TabItem[] = [
     {
-      name: t("concept", "Concept"),
+      name: t("concepts", "Concepts"),
       component: <SearchByConcepts onSubmit={runSearch} />,
     },
     {
@@ -80,7 +82,11 @@ const CohortBuilder: React.FC = () => {
     },
     {
       name: t("encounters", "Encounters"),
-      component: <span></span>,
+      component: <SearchByEncounters onSubmit={runSearch} />,
+    },
+    {
+      name: t("location", "Location"),
+      component: <SearchByLocation onSubmit={runSearch} />,
     },
     {
       name: t("drugOrder", "Drug Order"),

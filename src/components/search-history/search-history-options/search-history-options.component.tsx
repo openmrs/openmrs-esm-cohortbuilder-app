@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { showNotification } from "@openmrs/esm-framework";
+import { showToast } from "@openmrs/esm-framework";
 import {
   Button,
   ComposedModal,
@@ -82,14 +82,14 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({
       setCohortName("");
       setCohortDescription("");
       setIsSaveCohortModalVisible(false);
-      showNotification({
+      showToast({
         title: t("cohortCreateSuccess", "Success"),
         kind: "success",
         critical: true,
         description: "the cohort is saved",
       });
     } catch (error) {
-      showNotification({
+      showToast({
         title: t("cohortCreateError", "Error creating the cohort"),
         kind: "error",
         critical: true,
@@ -102,14 +102,14 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({
     try {
       updateSearchHistory(searchItem);
       setIsDeleteCohortModalVisible(false);
-      showNotification({
+      showToast({
         title: t("cohortCreateSuccess", "Success"),
         kind: "success",
         critical: true,
         description: "the search item is deleted",
       });
     } catch (error) {
-      showNotification({
+      showToast({
         title: t("cohortDeleteError", "Error deleting the search item"),
         kind: "error",
         critical: true,
@@ -127,14 +127,14 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({
       setQueryName("");
       setQueryDescription("");
       setIsSaveQueryModalVisible(false);
-      showNotification({
+      showToast({
         title: t("queryCreateSuccess", "Success"),
         kind: "success",
         critical: true,
         description: "the query is saved",
       });
     } catch (error) {
-      showNotification({
+      showToast({
         title: t("queryDeleteError", "Error saving the query"),
         kind: "error",
         critical: true,

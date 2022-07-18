@@ -136,7 +136,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
     },
   ];
 
-  const handleDates = (dates: Date[]) => {
+  const handleDatesChange = (dates: Date[]) => {
     setOnOrAfter(dayjs(dates[0]).format());
     setOnOrBefore(dayjs(dates[1]).format());
   };
@@ -256,7 +256,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
                     label={t("valueIn", "Enter a value in ") + concept.units}
                     min={0}
                     size="sm"
-                    value={0}
+                    value={operatorValue > 0 && operatorValue}
                     onChange={(event) =>
                       setOperatorValue(event.imaginaryTarget.value)
                     }
@@ -290,7 +290,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
                 invalidText={t("numberIsNotValid", "Number is not valid")}
                 min={0}
                 size="sm"
-                value={lastMonths}
+                value={lastMonths > 0 && lastMonths}
                 onChange={(event) => setLastMonths(event.imaginaryTarget.value)}
               />
             </div>
@@ -303,7 +303,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
                 invalidText={t("numberIsNotValid", "Number is not valid")}
                 min={0}
                 size="sm"
-                value={lastDays}
+                value={lastDays > 0 && lastDays}
                 onChange={(event) => setLastDays(event.imaginaryTarget.value)}
               />
             </div>
@@ -315,7 +315,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
             datePickerType="range"
             dateFormat="d-m-Y"
             allowInput={false}
-            onChange={(dates: Date[]) => handleDates(dates)}
+            onChange={(dates: Date[]) => handleDatesChange(dates)}
           >
             <DatePickerInput
               id="date-picker-input-id-start"
