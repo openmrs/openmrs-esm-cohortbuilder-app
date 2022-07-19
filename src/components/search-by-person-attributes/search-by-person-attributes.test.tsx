@@ -107,12 +107,16 @@ const expectedQuery = {
 
 describe("Test the search by person attributes component", () => {
   it("should be able to select input values", async () => {
-    jest.spyOn(apis, "getPersonAttributes").mockResolvedValue(personAttributes);
+    jest.spyOn(apis, "usePersonAttributes").mockReturnValue({
+      personAttributes,
+      isValidating: false,
+      error: undefined,
+    });
     const submit = jest.fn();
     const { getByTestId, getByText } = render(
       <SearchByPersonAttributes onSubmit={submit} />
     );
-    await waitFor(() => expect(jest.spyOn(apis, "getPersonAttributes")));
+    await waitFor(() => expect(jest.spyOn(apis, "usePersonAttributes")));
     fireEvent.click(getByText("Open menu"));
     fireEvent.click(getByText("Mother's Name"));
     fireEvent.click(getByTestId("selectedAttributeValues"));

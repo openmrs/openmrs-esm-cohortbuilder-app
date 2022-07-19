@@ -1,22 +1,18 @@
-import { openmrsFetch, FetchResponse } from "@openmrs/esm-framework";
+import { openmrsFetch } from "@openmrs/esm-framework";
+import useSWR from "swr";
 
 import { DropdownValue, Response } from "../../types";
 
 /**
  * @returns Locations
  */
-export const fetchForms = async () => {
-  const formsResp: FetchResponse<{
-    results: Response[];
-  }> = await openmrsFetch("/ws/rest/v1/form", {
-    method: "GET",
-  });
+export const useForms = () => {
+  const { data, isValidating, error } = useSWR<{
+    data: { results: Response[] };
+  }>("/ws/rest/v1/form", openmrsFetch);
 
-  const {
-    data: { results },
-  } = formsResp;
   const forms: DropdownValue[] = [];
-  results.map((form: Response, index: number) => {
+  data?.data.results.map((form: Response, index: number) => {
     forms.push({
       id: index,
       label: form.display,
@@ -24,24 +20,19 @@ export const fetchForms = async () => {
     });
   });
 
-  return forms;
+  return { forms, isValidating, formsError: error };
 };
 
 /**
  * @returns EncounterTypes
  */
-export const fetchEncounterTypes = async () => {
-  const encounterTypesResp: FetchResponse<{
-    results: Response[];
-  }> = await openmrsFetch("/ws/rest/v1/encountertype", {
-    method: "GET",
-  });
+export const useEncounterTypes = () => {
+  const { data, isValidating, error } = useSWR<{
+    data: { results: Response[] };
+  }>("/ws/rest/v1/encountertype", openmrsFetch);
 
-  const {
-    data: { results },
-  } = encounterTypesResp;
   const encounterTypes: DropdownValue[] = [];
-  results.map((encounterType: Response, index: number) => {
+  data?.data.results.map((encounterType: Response, index: number) => {
     encounterTypes.push({
       id: index,
       label: encounterType.display,
@@ -49,5 +40,5 @@ export const fetchEncounterTypes = async () => {
     });
   });
 
-  return encounterTypes;
+  return { encounterTypes, isValidating, encounterTypesError: error };
 };

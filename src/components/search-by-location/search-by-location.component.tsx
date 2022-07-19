@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { showToast } from "@openmrs/esm-framework";
 import { Column, Dropdown } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
-import { fetchLocations } from "../../cohort-builder.resource";
+import { useLocations } from "../../cohort-builder.resource";
 import { DropdownValue, SearchByProps } from "../../types";
 import SearchButtonSet from "../search-button-set/search-button-set";
 import styles from "./search-by-location.style.scss";
@@ -29,29 +29,21 @@ const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
       value: "FIRST",
     },
   ];
-  const [locations, setLocations] = useState<DropdownValue[]>([]);
+  const { locations, locationsError } = useLocations();
   const [selectedLocation, setSelectedLocation] = useState<DropdownValue>(null);
   const [selectedMethod, setSelectedMethod] = useState<DropdownValue>(
     methods[0]
   );
   const [isLoading, setIsLoading] = useState(false);
 
-  const getLocations = async () => {
-    try {
-      setLocations(await fetchLocations());
-    } catch (error) {
-      showToast({
-        title: t("error", "Error"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
-    }
-  };
-
-  useEffect(() => {
-    getLocations();
-  }, []);
+  if (locationsError) {
+    showToast({
+      title: t("error", "Error"),
+      kind: "error",
+      critical: true,
+      description: locationsError?.message,
+    });
+  }
 
   const handleResetInputs = () => {
     setSelectedLocation(null);
@@ -75,7 +67,6 @@ const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
             id="locations"
             data-testid="locations"
             onChange={(data) => setSelectedLocation(data.selectedItem)}
-            initialSelectedItem={locations[0]}
             items={locations}
             label={t("selectLocation", "Select a location")}
           />

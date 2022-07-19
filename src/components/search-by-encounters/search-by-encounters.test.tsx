@@ -132,19 +132,29 @@ const expectedQuery = {
 describe("Test the search by encounters component", () => {
   afterEach(cleanup);
   it("should be able to select input values", async () => {
-    jest.spyOn(commonApis, "fetchLocations").mockResolvedValue(mockLocations);
-    jest.spyOn(apis, "fetchForms").mockResolvedValue(mockForms);
-    jest
-      .spyOn(apis, "fetchEncounterTypes")
-      .mockResolvedValue(mockEncounterTypes);
+    jest.spyOn(commonApis, "useLocations").mockReturnValue({
+      locations: mockLocations,
+      isValidating: false,
+      locationsError: undefined,
+    });
+    jest.spyOn(apis, "useForms").mockReturnValue({
+      forms: mockForms,
+      isValidating: false,
+      formsError: undefined,
+    });
+    jest.spyOn(apis, "useEncounterTypes").mockReturnValue({
+      encounterTypes: mockEncounterTypes,
+      isValidating: false,
+      encounterTypesError: undefined,
+    });
     const submit = jest.fn();
     const { getByTestId, getByTitle, getByText } = render(
       <SearchByEncounters onSubmit={submit} />
     );
     await waitFor(() => {
-      expect(jest.spyOn(commonApis, "fetchLocations"));
-      expect(jest.spyOn(apis, "fetchForms"));
-      expect(jest.spyOn(apis, "fetchEncounterTypes"));
+      expect(jest.spyOn(commonApis, "useLocations"));
+      expect(jest.spyOn(apis, "useForms"));
+      expect(jest.spyOn(apis, "useEncounterTypes"));
     });
 
     fireEvent.click(getByText("Select an encounter type"));

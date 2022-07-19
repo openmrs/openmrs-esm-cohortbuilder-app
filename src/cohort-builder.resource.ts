@@ -1,4 +1,5 @@
 import { openmrsFetch, FetchResponse } from "@openmrs/esm-framework";
+import useSWR from "swr";
 
 import { Patient, SearchParams, DropdownValue, Response } from "./types";
 
@@ -25,18 +26,13 @@ export const search = async (searchParams: SearchParams) => {
 /**
  * @returns Locations
  */
-export const fetchLocations = async () => {
-  const locationsResp: FetchResponse<{
-    results: Response[];
-  }> = await openmrsFetch("/ws/rest/v1/location", {
-    method: "GET",
-  });
+export const useLocations = () => {
+  const { data, isValidating, error } = useSWR<{
+    data: { results: Response[] };
+  }>("/ws/rest/v1/location", openmrsFetch);
 
-  const {
-    data: { results },
-  } = locationsResp;
   const locations: DropdownValue[] = [];
-  results.map((location: Response, index: number) => {
+  data?.data.results.map((location: Response, index: number) => {
     locations.push({
       id: index,
       label: location.display,
@@ -44,5 +40,5 @@ export const fetchLocations = async () => {
     });
   });
 
-  return locations;
+  return { locations, isValidating, locationsError: error };
 };
