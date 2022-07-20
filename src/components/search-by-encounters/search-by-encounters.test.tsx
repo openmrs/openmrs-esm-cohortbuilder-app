@@ -134,17 +134,17 @@ describe("Test the search by encounters component", () => {
   it("should be able to select input values", async () => {
     jest.spyOn(commonApis, "useLocations").mockReturnValue({
       locations: mockLocations,
-      isValidating: false,
+      isLoading: false,
       locationsError: undefined,
     });
     jest.spyOn(apis, "useForms").mockReturnValue({
       forms: mockForms,
-      isValidating: false,
+      isLoading: false,
       formsError: undefined,
     });
     jest.spyOn(apis, "useEncounterTypes").mockReturnValue({
       encounterTypes: mockEncounterTypes,
-      isValidating: false,
+      isLoading: false,
       encounterTypesError: undefined,
     });
     const submit = jest.fn();

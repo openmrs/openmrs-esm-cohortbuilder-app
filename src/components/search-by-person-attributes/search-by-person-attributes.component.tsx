@@ -15,17 +15,17 @@ import {
 
 const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
-  const { personAttributes, error, isValidating } = usePersonAttributes();
+  const { personAttributes, personAttributesError } = usePersonAttributes();
   const [selectedAttributeValues, setSelectedAttributeValues] = useState([]);
   const [selectedAttributeId, setSelectedAttributeId] = useState<string>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  if (error) {
+  if (personAttributesError) {
     showToast({
       title: t("error", "Error"),
       kind: "error",
       critical: true,
-      description: error?.message,
+      description: personAttributesError?.message,
     });
   }
 
@@ -51,21 +51,17 @@ const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
 
   return (
     <div className={styles.container}>
-      {!isValidating && (
-        <Column>
-          <div>
-            <Dropdown
-              id="personAttributes"
-              data-testid="personAttributes"
-              onChange={(data) =>
-                setSelectedAttributeId(data.selectedItem.value)
-              }
-              items={personAttributes}
-              label={t("selectAttribute", "Select a person attribute")}
-            />
-          </div>
-        </Column>
-      )}
+      <Column>
+        <div>
+          <Dropdown
+            id="personAttributes"
+            data-testid="personAttributes"
+            onChange={(data) => setSelectedAttributeId(data.selectedItem.value)}
+            items={personAttributes}
+            label={t("selectAttribute", "Select a person attribute")}
+          />
+        </div>
+      </Column>
       <div className={styles.column}>
         <Column>
           <TextInput

@@ -76,7 +76,7 @@ describe("Test the search by location component", () => {
   it("should be able to select input values", async () => {
     jest.spyOn(apis, "useLocations").mockReturnValue({
       locations: mockLocations,
-      isValidating: false,
+      isLoading: false,
       locationsError: undefined,
     });
     const submit = jest.fn();

@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+
 import { openmrsFetch, FetchResponse } from "@openmrs/esm-framework";
 import useSWR from "swr";
 
@@ -27,18 +29,25 @@ export const search = async (searchParams: SearchParams) => {
  * @returns Locations
  */
 export const useLocations = () => {
-  const { data, isValidating, error } = useSWR<{
+  const { data, error } = useSWR<{
     data: { results: Response[] };
   }>("/ws/rest/v1/location", openmrsFetch);
 
-  const locations: DropdownValue[] = [];
-  data?.data.results.map((location: Response, index: number) => {
-    locations.push({
-      id: index,
-      label: location.display,
-      value: location.uuid,
+  const results = useMemo(() => {
+    const locations: DropdownValue[] = [];
+    data?.data.results.map((location: Response, index: number) => {
+      locations.push({
+        id: index,
+        label: location.display,
+        value: location.uuid,
+      });
     });
-  });
+    return {
+      isLoading: !data && !error,
+      locations,
+      locationsError: error,
+    };
+  }, [data, error]);
 
-  return { locations, isValidating, locationsError: error };
+  return results;
 };

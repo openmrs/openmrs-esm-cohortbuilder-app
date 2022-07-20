@@ -109,8 +109,8 @@ describe("Test the search by person attributes component", () => {
   it("should be able to select input values", async () => {
     jest.spyOn(apis, "usePersonAttributes").mockReturnValue({
       personAttributes,
-      isValidating: false,
-      error: undefined,
+      isLoading: false,
+      personAttributesError: undefined,
     });
     const submit = jest.fn();
     const { getByTestId, getByText } = render(
