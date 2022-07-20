@@ -74,12 +74,16 @@ const expectedQuery = {
 
 describe("Test the search by location component", () => {
   it("should be able to select input values", async () => {
-    jest.spyOn(apis, "fetchLocations").mockResolvedValue(mockLocations);
+    jest.spyOn(apis, "useLocations").mockReturnValue({
+      locations: mockLocations,
+      isLoading: false,
+      locationsError: undefined,
+    });
     const submit = jest.fn();
     const { getByTestId, getByTitle, getByText } = render(
       <SearchByLocation onSubmit={submit} />
     );
-    await waitFor(() => expect(jest.spyOn(apis, "fetchLocations")));
+    await waitFor(() => expect(jest.spyOn(apis, "useLocations")));
 
     fireEvent.click(getByTitle("Select a location"));
     fireEvent.click(getByText(mockLocations[2].label));

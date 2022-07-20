@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { showToast } from "@openmrs/esm-framework";
 import { Column, Dropdown, TextInput } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
-import { DropdownValue, SearchByProps } from "../../types";
+import { SearchByProps } from "../../types";
 import SearchButtonSet from "../search-button-set/search-button-set";
-import { getPersonAttributes } from "./search-by-person-attributes.resource";
+import { usePersonAttributes } from "./search-by-person-attributes.resource";
 import styles from "./search-by-person-attributes.style.scss";
 import {
   getQueryDetails,
@@ -15,27 +15,19 @@ import {
 
 const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
-  const [personAttributes, setPersonAttributes] = useState<DropdownValue[]>([]);
+  const { personAttributes, personAttributesError } = usePersonAttributes();
   const [selectedAttributeValues, setSelectedAttributeValues] = useState([]);
   const [selectedAttributeId, setSelectedAttributeId] = useState<string>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchPersonAttributes = async () => {
-    try {
-      setPersonAttributes(await getPersonAttributes());
-    } catch (error) {
-      showToast({
-        title: t("error", "Error"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
-    }
-  };
-
-  useEffect(() => {
-    fetchPersonAttributes();
-  }, []);
+  if (personAttributesError) {
+    showToast({
+      title: t("error", "Error"),
+      kind: "error",
+      critical: true,
+      description: personAttributesError?.message,
+    });
+  }
 
   const handleResetInputs = () => {
     setSelectedAttributeId(null);
@@ -44,7 +36,7 @@ const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
 
   const submit = async () => {
     setIsLoading(true);
-    const selectedPersonAttribute = personAttributes.find(
+    const selectedPersonAttribute = personAttributes?.find(
       (personAttribute) => personAttribute.value == selectedAttributeId
     );
     await onSubmit(
@@ -65,7 +57,6 @@ const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
             id="personAttributes"
             data-testid="personAttributes"
             onChange={(data) => setSelectedAttributeId(data.selectedItem.value)}
-            initialSelectedItem={personAttributes[0]}
             items={personAttributes}
             label={t("selectAttribute", "Select a person attribute")}
           />

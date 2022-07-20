@@ -256,7 +256,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
                     label={t("valueIn", "Enter a value in ") + concept.units}
                     min={0}
                     size="sm"
-                    value={operatorValue > 0 && operatorValue}
+                    value={operatorValue}
                     onChange={(event) =>
                       setOperatorValue(event.imaginaryTarget.value)
                     }
@@ -290,7 +290,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
                 invalidText={t("numberIsNotValid", "Number is not valid")}
                 min={0}
                 size="sm"
-                value={lastMonths > 0 && lastMonths}
+                value={lastMonths}
                 onChange={(event) => setLastMonths(event.imaginaryTarget.value)}
               />
             </div>
@@ -303,7 +303,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
                 invalidText={t("numberIsNotValid", "Number is not valid")}
                 min={0}
                 size="sm"
-                value={lastDays > 0 && lastDays}
+                value={lastDays}
                 onChange={(event) => setLastDays(event.imaginaryTarget.value)}
               />
             </div>
