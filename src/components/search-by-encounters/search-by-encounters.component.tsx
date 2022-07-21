@@ -91,7 +91,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
   };
 
   return (
-    <div className={styles.container}>
+    <>
       <Column>
         <div>
           <MultiSelect
@@ -181,7 +181,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
         onHandleSubmit={submit}
         onHandleReset={reset}
       />
-    </div>
+    </>
   );
 };
 

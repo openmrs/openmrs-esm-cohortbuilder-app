@@ -60,7 +60,7 @@ const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
   };
 
   return (
-    <div className={styles.container}>
+    <>
       <Column>
         <div>
           <Dropdown
@@ -89,7 +89,7 @@ const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
         onHandleSubmit={submit}
         isLoading={isLoading}
       />
-    </div>
+    </>
   );
 };
 

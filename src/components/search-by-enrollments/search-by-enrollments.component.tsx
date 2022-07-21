@@ -1,93 +1,175 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { showToast } from "@openmrs/esm-framework";
-import { Column, Dropdown } from "carbon-components-react";
+import {
+  Column,
+  DatePicker,
+  DatePickerInput,
+  MultiSelect,
+} from "carbon-components-react";
+import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 
-import { fetchLocations } from "../../cohort-builder.resource";
+import { useLocations } from "../../cohort-builder.resource";
 import { DropdownValue, SearchByProps } from "../../types";
 import SearchButtonSet from "../search-button-set/search-button-set";
-import styles from "./search-by-location.style.scss";
-import { getQueryDetails, getDescription } from "./search-by-location.utils";
+import { usePrograms } from "./search-by-enrollments.resource";
+import styles from "./search-by-enrollments.style.scss";
+import { getQueryDetails, getDescription } from "./search-by-enrollments.utils";
 
 const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
-  const methods = [
-    {
-      id: 0,
-      label: t("anyEncounter", "Any Encounter"),
-      value: "ANY",
-    },
-    {
-      id: 1,
-      label: t("mostRecentEncounter", "Most Recent Encounter"),
-      value: "LAST",
-    },
-    {
-      id: 2,
-      label: t("earliestEncounter", "Earliest Encounter"),
-      value: "FIRST",
-    },
-  ];
-  const [locations, setLocations] = useState<DropdownValue[]>([]);
-  const [selectedLocation, setSelectedLocation] = useState<DropdownValue>(null);
-  const [selectedMethod, setSelectedMethod] = useState<DropdownValue>(
-    methods[0]
-  );
+  const { programs, programsError } = usePrograms();
+  const { locations, locationsError } = useLocations();
+  const [enrolledOnOrAfter, setEnrolledOnOrAfter] = useState("");
+  const [enrolledOnOrBefore, setEnrolledOnOrBefore] = useState("");
+  const [completedOnOrAfter, setCompletedOnOrAfter] = useState("");
+  const [completedOnOrBefore, setCompletedOnOrBefore] = useState("");
+  const [selectedLocations, setSelectedLocations] =
+    useState<DropdownValue[]>(null);
+  const [selectedPrograms, setSelectedPrograms] =
+    useState<DropdownValue[]>(null);
+
   const [isLoading, setIsLoading] = useState(false);
 
-  const getLocations = async () => {
-    try {
-      setLocations(await fetchLocations());
-    } catch (error) {
-      showToast({
-        title: t("error", "Error"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
-    }
-  };
+  if (programsError) {
+    showToast({
+      title: t("error", "Error"),
+      kind: "error",
+      critical: true,
+      description: programsError?.message,
+    });
+  }
 
-  useEffect(() => {
-    getLocations();
-  }, []);
+  if (locationsError) {
+    showToast({
+      title: t("error", "Error"),
+      kind: "error",
+      critical: true,
+      description: locationsError?.message,
+    });
+  }
 
   const handleResetInputs = () => {
-    setSelectedLocation(null);
-    setSelectedMethod(null);
+    setSelectedPrograms(null);
   };
 
   const submit = async () => {
     setIsLoading(true);
-    await onSubmit(
-      getQueryDetails(selectedMethod.value, selectedLocation),
-      getDescription(selectedMethod.label, selectedLocation)
-    );
+    const searchParams = {
+      enrolledOnOrAfter,
+      enrolledOnOrBefore,
+      completedOnOrAfter,
+      completedOnOrBefore,
+      selectedPrograms,
+      selectedLocations,
+    };
+    await onSubmit(getQueryDetails(searchParams), getDescription(searchParams));
     setIsLoading(false);
   };
 
   return (
-    <div className={styles.container}>
+    <>
       <Column>
         <div>
-          <Dropdown
-            id="locations"
-            data-testid="locations"
-            onChange={(data) => setSelectedLocation(data.selectedItem)}
-            initialSelectedItem={locations[0]}
-            items={locations}
-            label={t("selectLocation", "Select a location")}
+          <MultiSelect
+            id="programs"
+            data-testid="programs"
+            onChange={(data) => setSelectedPrograms(data.selectedItems)}
+            items={programs}
+            label={t("selectPrograms", "Select programs")}
           />
         </div>
       </Column>
-      <div className={styles.column}></div>
+      <Column>
+        <div>
+          <MultiSelect
+            id="locations"
+            data-testid="locations"
+            onChange={(data) => setSelectedLocations(data.selectedItems)}
+            items={locations}
+            label={t("selectLocations", "Select locations")}
+          />
+        </div>
+      </Column>
+      <div className={styles.column}>
+        <Column>
+          <DatePicker
+            datePickerType="single"
+            dateFormat="d-m-Y"
+            allowInput={false}
+          >
+            <DatePickerInput
+              onChange={(e) =>
+                setEnrolledOnOrAfter(dayjs(e.target.value).format())
+              }
+              id="enrolledOnOrAfter"
+              labelText="Enrolled between"
+              placeholder="DD-MM-YYYY"
+              size="md"
+            />
+          </DatePicker>
+        </Column>
+        <Column>
+          <DatePicker
+            datePickerType="single"
+            dateFormat="d-m-Y"
+            allowInput={false}
+          >
+            <DatePickerInput
+              onChange={(e) =>
+                setEnrolledOnOrBefore(dayjs(e.target.value).format())
+              }
+              id="enrolledOnOrBefore"
+              labelText="and"
+              placeholder="DD-MM-YYYY"
+              size="md"
+            />
+          </DatePicker>
+        </Column>
+      </div>
+      <div className={styles.column}>
+        <Column>
+          <DatePicker
+            datePickerType="single"
+            dateFormat="d-m-Y"
+            allowInput={false}
+          >
+            <DatePickerInput
+              onChange={(e) =>
+                setCompletedOnOrAfter(dayjs(e.target.value).format())
+              }
+              id="completedOnOrAfter"
+              labelText="Completed between"
+              placeholder="DD-MM-YYYY"
+              size="md"
+            />
+          </DatePicker>
+        </Column>
+        <Column>
+          <DatePicker
+            datePickerType="single"
+            dateFormat="d-m-Y"
+            allowInput={false}
+          >
+            <DatePickerInput
+              onChange={(e) =>
+                setCompletedOnOrBefore(dayjs(e.target.value).format())
+              }
+              id="completedOnOrBefore"
+              labelText="and"
+              placeholder="DD-MM-YYYY"
+              size="md"
+            />
+          </DatePicker>
+        </Column>
+      </div>
       <SearchButtonSet
         onHandleReset={handleResetInputs}
         onHandleSubmit={submit}
         isLoading={isLoading}
       />
-    </div>
+    </>
   );
 };
 

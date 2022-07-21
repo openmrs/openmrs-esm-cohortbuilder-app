@@ -87,7 +87,7 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
   };
 
   return (
-    <div className={styles.container}>
+    <>
       <Column>
         <p className={`${styles.text} ${styles.genderTitle}`}>
           {t("gender", "Gender")}
@@ -199,7 +199,7 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
         onHandleSubmit={submit}
         onHandleReset={reset}
       />
-    </div>
+    </>
   );
 };
 

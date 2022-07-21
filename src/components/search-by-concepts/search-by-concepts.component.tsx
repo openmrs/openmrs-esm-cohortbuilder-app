@@ -199,7 +199,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
   };
 
   return (
-    <div className={styles.container}>
+    <>
       <div>
         <SearchConcept
           setConcept={setConcept}
@@ -337,7 +337,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
         onHandleSubmit={submit}
         onHandleReset={reset}
       />
-    </div>
+    </>
   );
 };
 
