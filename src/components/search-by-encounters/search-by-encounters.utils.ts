@@ -3,8 +3,8 @@ import { EncounterDetails } from "../../types";
 
 export const getDescription = ({
   selectedEncounterTypes,
-  encounterLocation,
-  encounterForm,
+  encounterLocations,
+  encounterForms,
   atLeastCount,
   atMostCount,
   onOrAfter,
@@ -12,18 +12,22 @@ export const getDescription = ({
 }: EncounterDetails) => {
   let description = "Patients with Encounter of";
   const selectedEncounters = selectedEncounterTypes
-    .map((encounter) => encounter.label)
+    .map((encounterType) => encounterType.label)
     .join(", ")
     .replace(/,(?=[^,]*$)/, " and ");
 
   description += selectedEncounters
     ? ` Type${selectedEncounters.length > 1 ? "s" : ""} ${selectedEncounters}`
     : " any Type";
-  if (encounterLocation) {
-    description += ` at ${encounterLocation.label}`;
+  if (encounterLocations.length) {
+    description += ` at ${encounterLocations
+      .map((location) => location.label)
+      .join(", ")}`;
   }
-  if (encounterForm) {
-    description += ` from ${encounterForm.label}`;
+  if (encounterForms.length) {
+    description += ` from ${encounterForms
+      .map((form) => form.label)
+      .join(", ")}`;
   }
   if (atLeastCount) {
     description += ` at least ${atLeastCount} ${
@@ -56,8 +60,8 @@ export const getQueryDetails = ({
   onOrAfter,
   atLeastCount,
   atMostCount,
-  encounterForm,
-  encounterLocation,
+  encounterForms,
+  encounterLocations,
   onOrBefore,
   selectedEncounterTypes,
 }: EncounterDetails) => {
@@ -80,16 +84,16 @@ export const getQueryDetails = ({
       value: atMostCount,
     });
   }
-  if (encounterForm) {
+  if (encounterForms.length) {
     searchParams.encounterSearchAdvanced.push({
       name: "formList",
-      value: [encounterForm.value],
+      value: encounterForms.map((form) => form.value),
     });
   }
-  if (encounterLocation) {
+  if (encounterLocations.length) {
     searchParams.encounterSearchAdvanced.push({
       name: "locationList",
-      value: [encounterLocation.value],
+      value: encounterLocations.map((location) => location.value),
     });
   }
   if (onOrBefore) {
@@ -101,7 +105,7 @@ export const getQueryDetails = ({
   if (selectedEncounterTypes.length > 0) {
     searchParams.encounterSearchAdvanced.push({
       name: "encounterTypeList",
-      value: selectedEncounterTypes.map((encounter) => encounter.value),
+      value: selectedEncounterTypes.map((encounterType) => encounterType.value),
     });
   }
 

@@ -60,11 +60,6 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
     },
   ];
 
-  const handleBirthDay = (dates: Date[]) => {
-    setBirthDayStartDate(dayjs(dates[0]).format());
-    setBirthDayEndDate(dayjs(dates[1]).format());
-  };
-
   const reset = () => {
     setMaxAge(0);
     setMinAge(0);
@@ -169,24 +164,28 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
         </Column>
       </div>
       <div className={styles.column}>
-        <Column md={2}>
-          <p className={styles.text}>{t("birthDate", "Birth date")}</p>
-        </Column>
         <Column>
           <DatePicker
-            datePickerType="range"
-            dateFormat="d-m-Y"
+            datePickerType="single"
             allowInput={false}
-            onChange={(dates: Date[]) => handleBirthDay(dates)}
+            onChange={(date) => setBirthDayStartDate(dayjs(date[0]).format())}
           >
             <DatePickerInput
-              id="date-picker-input-id-start"
-              labelText={t("between", "Between")}
+              id="startDate"
+              labelText={t("birthDate", "Birth date between")}
               placeholder="DD-MM-YYYY"
               size="md"
             />
+          </DatePicker>
+        </Column>
+        <Column>
+          <DatePicker
+            datePickerType="single"
+            allowInput={false}
+            onChange={(date) => setBirthDayEndDate(dayjs(date[0]).format())}
+          >
             <DatePickerInput
-              id="date-picker-input-id-finish"
+              id="endDate"
               labelText={t("and", "and")}
               placeholder="DD-MM-YYYY"
               size="md"

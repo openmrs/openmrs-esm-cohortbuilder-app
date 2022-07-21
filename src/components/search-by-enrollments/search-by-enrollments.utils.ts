@@ -18,15 +18,12 @@ export const getQueryDetails = ({
   selectedPrograms,
   selectedLocations,
 }: EnrollmentsSearchParams) => {
-  const locations = [];
-  selectedLocations?.map((location) => locations.push(location.value));
-
-  const programs = [];
-  selectedPrograms?.map((location) => programs.push(location.value));
-
   const searchParameter = {
     patientsWithEnrollment: [
-      { name: "programs", value: programs },
+      {
+        name: "programs",
+        value: selectedPrograms?.map((location) => location.value),
+      },
       enrolledOnOrAfter && {
         name: "enrolledOnOrAfter",
         value: enrolledOnOrAfter,
@@ -43,7 +40,10 @@ export const getQueryDetails = ({
         name: "completedOnOrBefore",
         value: completedOnOrBefore,
       },
-      { name: "locationList", value: locations },
+      {
+        name: "locationList",
+        value: selectedLocations?.map((location) => location.value),
+      },
     ],
   };
   const queryDetails = composeJson(searchParameter);
@@ -55,14 +55,14 @@ export const getDescription = ({
   selectedPrograms,
   selectedLocations,
 }: EnrollmentsSearchParams) => {
-  const programs = [];
-  selectedPrograms?.map((location) => programs.push(location.label));
-  let description = `Patients enrolled in ${programs.join(",")}`;
+  let description = `Patients enrolled in ${selectedPrograms
+    ?.map((location) => location.label)
+    .join(", ")}`;
 
-  if (selectedLocations.length) {
-    const locations = [];
-    selectedLocations?.map((location) => locations.push(location.label));
-    description = description + ` at ${locations.join(",")}`;
+  if (selectedLocations?.length) {
+    description =
+      description +
+      ` at ${selectedLocations?.map((location) => location.label).join(", ")}`;
   }
 
   return description;

@@ -136,11 +136,6 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
     },
   ];
 
-  const handleDatesChange = (dates: Date[]) => {
-    setOnOrAfter(dayjs(dates[0]).format());
-    setOnOrBefore(dayjs(dates[1]).format());
-  };
-
   const reset = () => {
     setConcept(null);
     setLastDays(0);
@@ -309,28 +304,36 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
             </div>
           </div>
         </Column>
-        <Column className={styles.column} style={{ display: "flex" }}>
-          <p className={styles.dateRange}>{t("dateRange", "Date Range")}</p>
-          <DatePicker
-            datePickerType="range"
-            dateFormat="d-m-Y"
-            allowInput={false}
-            onChange={(dates: Date[]) => handleDatesChange(dates)}
-          >
-            <DatePickerInput
-              id="date-picker-input-id-start"
-              labelText={t("startDate", "Start date")}
-              placeholder="DD-MM-YYYY"
-              size="md"
-            />
-            <DatePickerInput
-              id="date-picker-input-id-finish"
-              labelText={t("endDate", "End date")}
-              placeholder="DD-MM-YYYY"
-              size="md"
-            />
-          </DatePicker>
-        </Column>
+        <div className={styles.dateRange}>
+          <Column>
+            <DatePicker
+              datePickerType="single"
+              allowInput={false}
+              onChange={(date) => setOnOrAfter(dayjs(date[0]).format())}
+            >
+              <DatePickerInput
+                id="startDate"
+                labelText={t("dateRange", "Date range start date")}
+                placeholder="DD-MM-YYYY"
+                size="md"
+              />
+            </DatePicker>
+          </Column>
+          <Column>
+            <DatePicker
+              datePickerType="single"
+              allowInput={false}
+              onChange={(date) => setOnOrBefore(dayjs(date[0]).format())}
+            >
+              <DatePickerInput
+                id="endDate"
+                labelText={t("endDate", "End date")}
+                placeholder="DD-MM-YYYY"
+                size="md"
+              />
+            </DatePicker>
+          </Column>
+        </div>
       </div>
       <SearchButtonSet
         isLoading={isLoading}

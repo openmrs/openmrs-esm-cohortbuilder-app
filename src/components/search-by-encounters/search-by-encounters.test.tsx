@@ -29,11 +29,6 @@ const mockLocations = [
     label: "Pharmacy",
     value: "8d871afc-c2cc-11de-8d13-0010c6dffd0f",
   },
-  {
-    id: 3,
-    label: "Outpatient Clinic",
-    value: "8d871f2a-c2cc-11de-8d13-0010c6dffd0f",
-  },
 ];
 
 const mockEncounterTypes = [
@@ -118,9 +113,9 @@ const expectedQuery = {
         parameterValues: {
           atLeastCount: "10",
           atMostCount: "20",
-          encounterTypeList: ["67a71486-1a54-468f-ac3e-7091a9a79584"],
-          formList: ["9326eb32-d0fd-40c3-8c30-69d5774af06d"],
-          locationList: ["8d871afc-c2cc-11de-8d13-0010c6dffd0f"],
+          encounterTypeList: [mockEncounterTypes[4].value],
+          formList: [mockForms[1].value],
+          locationList: [mockLocations[2].value],
         },
         type: "org.openmrs.module.reporting.dataset.definition.PatientDataSetDefinition",
       },
@@ -148,7 +143,7 @@ describe("Test the search by encounters component", () => {
       encounterTypesError: undefined,
     });
     const submit = jest.fn();
-    const { getByTestId, getByTitle, getByText } = render(
+    const { getByTestId, getByText } = render(
       <SearchByEncounters onSubmit={submit} />
     );
     await waitFor(() => {
@@ -157,11 +152,11 @@ describe("Test the search by encounters component", () => {
       expect(jest.spyOn(apis, "useEncounterTypes"));
     });
 
-    fireEvent.click(getByText("Select an encounter type"));
+    fireEvent.click(getByText("Select encounter types"));
     fireEvent.click(getByText(mockEncounterTypes[4].label));
-    fireEvent.click(getByTitle("Select a form"));
+    fireEvent.click(getByText("Select forms"));
     fireEvent.click(getByText(mockForms[1].label));
-    fireEvent.click(getByTitle("Select a location"));
+    fireEvent.click(getByText("Select locations"));
     fireEvent.click(getByText(mockLocations[2].label));
 
     const atLeastCountInput = getByTestId("atLeastCount");

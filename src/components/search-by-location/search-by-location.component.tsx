@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { showToast } from "@openmrs/esm-framework";
-import { Column, Dropdown } from "carbon-components-react";
+import { Column, Dropdown, MultiSelect } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
 import { useLocations } from "../../cohort-builder.resource";
@@ -30,7 +30,8 @@ const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
     },
   ];
   const { locations, locationsError } = useLocations();
-  const [selectedLocation, setSelectedLocation] = useState<DropdownValue>(null);
+  const [selectedLocations, setSelectedLocations] =
+    useState<DropdownValue[]>(null);
   const [selectedMethod, setSelectedMethod] = useState<DropdownValue>(
     methods[0]
   );
@@ -46,15 +47,15 @@ const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
   }
 
   const handleResetInputs = () => {
-    setSelectedLocation(null);
+    setSelectedLocations(null);
     setSelectedMethod(null);
   };
 
   const submit = async () => {
     setIsLoading(true);
     await onSubmit(
-      getQueryDetails(selectedMethod.value, selectedLocation),
-      getDescription(selectedMethod.label, selectedLocation)
+      getQueryDetails(selectedMethod.value, selectedLocations),
+      getDescription(selectedMethod.label, selectedLocations)
     );
     setIsLoading(false);
   };
@@ -63,12 +64,12 @@ const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
     <>
       <Column>
         <div>
-          <Dropdown
+          <MultiSelect
             id="locations"
             data-testid="locations"
-            onChange={(data) => setSelectedLocation(data.selectedItem)}
+            onChange={(data) => setSelectedLocations(data.selectedItems)}
             items={locations}
-            label={t("selectLocation", "Select a location")}
+            label={t("selectLocations", "Select locations")}
           />
         </div>
       </Column>

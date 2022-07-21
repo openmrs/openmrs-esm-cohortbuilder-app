@@ -96,13 +96,10 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
         <Column>
           <DatePicker
             datePickerType="single"
-            dateFormat="d-m-Y"
             allowInput={false}
+            onChange={(date) => setEnrolledOnOrAfter(dayjs(date[0]).format())}
           >
             <DatePickerInput
-              onChange={(e) =>
-                setEnrolledOnOrAfter(dayjs(e.target.value).format())
-              }
               id="enrolledOnOrAfter"
               labelText="Enrolled between"
               placeholder="DD-MM-YYYY"
@@ -113,13 +110,10 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
         <Column>
           <DatePicker
             datePickerType="single"
-            dateFormat="d-m-Y"
             allowInput={false}
+            onChange={(date) => setEnrolledOnOrBefore(dayjs(date[0]).format())}
           >
             <DatePickerInput
-              onChange={(e) =>
-                setEnrolledOnOrBefore(dayjs(e.target.value).format())
-              }
               id="enrolledOnOrBefore"
               labelText="and"
               placeholder="DD-MM-YYYY"
@@ -132,13 +126,10 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
         <Column>
           <DatePicker
             datePickerType="single"
-            dateFormat="d-m-Y"
             allowInput={false}
+            onChange={(date) => setCompletedOnOrAfter(dayjs(date[0]).format())}
           >
             <DatePickerInput
-              onChange={(e) =>
-                setCompletedOnOrAfter(dayjs(e.target.value).format())
-              }
               id="completedOnOrAfter"
               labelText="Completed between"
               placeholder="DD-MM-YYYY"
@@ -149,13 +140,10 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
         <Column>
           <DatePicker
             datePickerType="single"
-            dateFormat="d-m-Y"
             allowInput={false}
+            onChange={(date) => setCompletedOnOrBefore(dayjs(date[0]).format())}
           >
             <DatePickerInput
-              onChange={(e) =>
-                setCompletedOnOrBefore(dayjs(e.target.value).format())
-              }
               id="completedOnOrBefore"
               labelText="and"
               placeholder="DD-MM-YYYY"
