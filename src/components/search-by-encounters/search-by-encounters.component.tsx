@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { showToast } from "@openmrs/esm-framework";
 import {
@@ -12,13 +12,10 @@ import {
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 
-import { fetchLocations } from "../../cohort-builder.resource";
+import { useLocations } from "../../cohort-builder.resource";
 import { SearchByProps, DropdownValue } from "../../types";
 import SearchButtonSet from "../search-button-set/search-button-set";
-import {
-  fetchEncounterTypes,
-  fetchForms,
-} from "./search-by-encounters.resources";
+import { useEncounterTypes, useForms } from "./search-by-encounters.resources";
 import styles from "./search-by-encounters.style.scss";
 import { getDescription, getQueryDetails } from "./search-by-encounters.utils";
 
@@ -26,12 +23,12 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
   const [atLeastCount, setAtLeastCount] = useState(0);
   const [atMostCount, setAtMostCount] = useState(0);
-  const [encounters, setEncounters] = useState([]);
+  const { encounterTypes, encounterTypesError } = useEncounterTypes();
   const [selectedEncounterTypes, setSelectedEncounterTypes] = useState([]);
   const [encounterLocation, setEncounterLocation] = useState<DropdownValue>();
   const [encounterForm, setEncounterForm] = useState<DropdownValue>();
-  const [locations, setLocations] = useState<DropdownValue[]>([]);
-  const [forms, setForms] = useState<DropdownValue[]>([]);
+  const { locations, locationsError } = useLocations();
+  const { forms, formsError } = useForms();
   const [onOrBefore, setOnOrBefore] = useState("");
   const [onOrAfter, setOnOrAfter] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -41,24 +38,32 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
     setOnOrBefore(dayjs(dates[1]).format());
   };
 
-  const fetchDropDownValues = async () => {
-    try {
-      setEncounters(await fetchEncounterTypes());
-      setForms(await fetchForms());
-      setLocations(await fetchLocations());
-    } catch (error) {
-      showToast({
-        title: t("error", "Error"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
-    }
-  };
+  if (locationsError) {
+    showToast({
+      title: t("error", "Error"),
+      kind: "error",
+      critical: true,
+      description: locationsError?.message,
+    });
+  }
 
-  useEffect(() => {
-    fetchDropDownValues();
-  }, []);
+  if (formsError) {
+    showToast({
+      title: t("error", "Error"),
+      kind: "error",
+      critical: true,
+      description: formsError?.message,
+    });
+  }
+
+  if (encounterTypesError) {
+    showToast({
+      title: t("error", "Error"),
+      kind: "error",
+      critical: true,
+      description: encounterTypesError?.message,
+    });
+  }
 
   const reset = () => {
     setAtLeastCount(0);
@@ -93,7 +98,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
             id="encounters"
             data-testid="encounters"
             onChange={(data) => setSelectedEncounterTypes(data.selectedItems)}
-            items={encounters}
+            items={encounterTypes}
             label={t("selectEncounterType", "Select an encounter type")}
           />
         </div>
@@ -105,7 +110,6 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
               id="forms"
               data-testid="forms"
               onChange={(data) => setEncounterForm(data.selectedItem)}
-              initialSelectedItem={forms[0]}
               items={forms}
               label={t("selectForm", "Select a form")}
             />
@@ -117,7 +121,6 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
               id="locations"
               data-testid="locations"
               onChange={(data) => setEncounterLocation(data.selectedItem)}
-              initialSelectedItem={locations[0]}
               items={locations}
               label={t("selectLocation", "Select a location")}
             />
@@ -133,7 +136,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
               label={t("atLeast", "at least")}
               min={0}
               size="sm"
-              value={atLeastCount > 0 && atLeastCount}
+              value={atLeastCount}
               onChange={(event) => setAtLeastCount(event.imaginaryTarget.value)}
             />
           </div>
@@ -144,7 +147,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
               label={t("upto", "upto this many")}
               min={0}
               size="sm"
-              value={atMostCount > 0 && atMostCount}
+              value={atMostCount}
               onChange={(event) => setAtMostCount(event.imaginaryTarget.value)}
             />
           </div>
