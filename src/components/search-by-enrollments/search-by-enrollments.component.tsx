@@ -29,7 +29,6 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
     useState<DropdownValue[]>(null);
   const [selectedPrograms, setSelectedPrograms] =
     useState<DropdownValue[]>(null);
-
   const [isLoading, setIsLoading] = useState(false);
 
   if (programsError) {
@@ -52,6 +51,10 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
 
   const handleResetInputs = () => {
     setSelectedPrograms(null);
+    setEnrolledOnOrAfter("");
+    setEnrolledOnOrBefore("");
+    setCompletedOnOrAfter("");
+    setCompletedOnOrBefore("");
   };
 
   const submit = async () => {
@@ -102,6 +105,10 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
             <DatePickerInput
               id="enrolledOnOrAfter"
               labelText="Enrolled between"
+              value={
+                enrolledOnOrAfter &&
+                dayjs(enrolledOnOrAfter).format("DD-MM-YYYY")
+              }
               placeholder="DD-MM-YYYY"
               size="md"
             />
@@ -116,6 +123,10 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
             <DatePickerInput
               id="enrolledOnOrBefore"
               labelText="and"
+              value={
+                enrolledOnOrBefore &&
+                dayjs(enrolledOnOrBefore).format("DD-MM-YYYY")
+              }
               placeholder="DD-MM-YYYY"
               size="md"
             />
@@ -132,6 +143,10 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
             <DatePickerInput
               id="completedOnOrAfter"
               labelText="Completed between"
+              value={
+                completedOnOrAfter &&
+                dayjs(completedOnOrAfter).format("DD-MM-YYYY")
+              }
               placeholder="DD-MM-YYYY"
               size="md"
             />
@@ -146,6 +161,10 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
             <DatePickerInput
               id="completedOnOrBefore"
               labelText="and"
+              value={
+                completedOnOrBefore &&
+                dayjs(completedOnOrBefore).format("DD-MM-YYYY")
+              }
               placeholder="DD-MM-YYYY"
               size="md"
             />

@@ -159,8 +159,9 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
             onChange={(date) => setOnOrAfter(dayjs(date[0]).format())}
           >
             <DatePickerInput
-              id="date-picker-input-id-start"
+              id="onOrAfter"
               labelText={t("from", "From")}
+              value={onOrAfter && dayjs(onOrAfter).format("DD-MM-YYYY")}
               placeholder="DD-MM-YYYY"
               size="md"
             />
@@ -173,7 +174,8 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
             onChange={(date) => setOnOrBefore(dayjs(date[0]).format())}
           >
             <DatePickerInput
-              id="date-picker-input-id-finish"
+              id="onOrBefore"
+              value={onOrBefore && dayjs(onOrBefore).format("DD-MM-YYYY")}
               labelText={t("to", "to")}
               placeholder="DD-MM-YYYY"
               size="md"

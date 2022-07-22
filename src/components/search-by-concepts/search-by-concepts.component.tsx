@@ -313,6 +313,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
             >
               <DatePickerInput
                 id="startDate"
+                value={onOrAfter && dayjs(onOrAfter).format("DD-MM-YYYY")}
                 labelText={t("dateRange", "Date range start date")}
                 placeholder="DD-MM-YYYY"
                 size="md"
@@ -327,6 +328,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
             >
               <DatePickerInput
                 id="endDate"
+                value={onOrBefore && dayjs(onOrBefore).format("DD-MM-YYYY")}
                 labelText={t("endDate", "End date")}
                 placeholder="DD-MM-YYYY"
                 size="md"

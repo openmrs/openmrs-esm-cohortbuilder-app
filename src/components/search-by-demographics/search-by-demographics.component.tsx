@@ -173,6 +173,10 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
             <DatePickerInput
               id="startDate"
               labelText={t("birthDate", "Birth date between")}
+              value={
+                birthDayStartDate &&
+                dayjs(birthDayStartDate).format("DD-MM-YYYY")
+              }
               placeholder="DD-MM-YYYY"
               size="md"
             />
@@ -187,6 +191,9 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
             <DatePickerInput
               id="endDate"
               labelText={t("and", "and")}
+              value={
+                birthDayEndDate && dayjs(birthDayEndDate).format("DD-MM-YYYY")
+              }
               placeholder="DD-MM-YYYY"
               size="md"
             />
