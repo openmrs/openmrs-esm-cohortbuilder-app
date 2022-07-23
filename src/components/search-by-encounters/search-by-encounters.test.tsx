@@ -9,6 +9,7 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
+import translations from "../../../translations/en.json";
 import * as commonApis from "../../cohort-builder.resource";
 import SearchByEncounters from "./search-by-encounters.component";
 import * as apis from "./search-by-encounters.resources";
@@ -152,11 +153,11 @@ describe("Test the search by encounters component", () => {
       expect(jest.spyOn(apis, "useEncounterTypes"));
     });
 
-    fireEvent.click(getByText("Select encounter types"));
+    fireEvent.click(getByText(translations.selectEncounterTypes));
     fireEvent.click(getByText(mockEncounterTypes[4].label));
-    fireEvent.click(getByText("Select forms"));
+    fireEvent.click(getByText(translations.selectForms));
     fireEvent.click(getByText(mockForms[1].label));
-    fireEvent.click(getByText("Select locations"));
+    fireEvent.click(getByText(translations.selectLocations));
     fireEvent.click(getByText(mockLocations[2].label));
 
     const atLeastCountInput = getByTestId("atLeastCount");

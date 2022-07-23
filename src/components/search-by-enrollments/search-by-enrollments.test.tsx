@@ -2,6 +2,7 @@ import React from "react";
 
 import { render, fireEvent, waitFor, act } from "@testing-library/react";
 
+import translations from "../../../translations/en.json";
 import * as commonApis from "../../cohort-builder.resource";
 import SearchByEnrollments from "./search-by-enrollments.component";
 import * as apis from "./search-by-enrollments.resource";
@@ -102,9 +103,9 @@ describe("Test the search by enrollments component", () => {
       expect(jest.spyOn(apis, "usePrograms"));
     });
 
-    fireEvent.click(getByText("Select locations"));
+    fireEvent.click(getByText(translations.selectLocations));
     fireEvent.click(getByText(mockLocations[2].label));
-    fireEvent.click(getByText("Select programs"));
+    fireEvent.click(getByText(translations.selectPrograms));
     fireEvent.click(getByText(mockPrograms[0].label));
     fireEvent.click(getByTestId("search-btn"));
 

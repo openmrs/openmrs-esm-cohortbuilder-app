@@ -2,6 +2,7 @@ import React from "react";
 
 import { render, cleanup } from "@testing-library/react";
 
+import translations from "../../../translations/en.json";
 import SearchHistory from "./search-history.component";
 import * as utils from "./search-history.utils";
 
@@ -91,10 +92,8 @@ describe("Test the search history component", () => {
     const { getByText } = render(
       <SearchHistory isHistoryUpdated={true} setIsHistoryUpdated={jest.fn()} />
     );
-    expect(getByText("Clear Search History")).toBeInTheDocument();
+    expect(getByText(translations.clearHistory)).toBeInTheDocument();
     expect(getByText("2")).toBeInTheDocument();
-    expect(
-      getByText("Patients with NO Chronic viral hepatitis")
-    ).toBeInTheDocument();
+    expect(getByText(mockSearchHistory[0].description)).toBeInTheDocument();
   });
 });

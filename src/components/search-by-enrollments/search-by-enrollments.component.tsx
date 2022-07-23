@@ -104,7 +104,7 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
           >
             <DatePickerInput
               id="enrolledOnOrAfter"
-              labelText="Enrolled between"
+              labelText={t("enrolledBetween", "Enrolled between")}
               value={
                 enrolledOnOrAfter &&
                 dayjs(enrolledOnOrAfter).format("DD-MM-YYYY")
@@ -122,7 +122,7 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
           >
             <DatePickerInput
               id="enrolledOnOrBefore"
-              labelText="and"
+              labelText={t("and", "and")}
               value={
                 enrolledOnOrBefore &&
                 dayjs(enrolledOnOrBefore).format("DD-MM-YYYY")
@@ -142,7 +142,7 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
           >
             <DatePickerInput
               id="completedOnOrAfter"
-              labelText="Completed between"
+              labelText={t("completedBetween", "Completed between")}
               value={
                 completedOnOrAfter &&
                 dayjs(completedOnOrAfter).format("DD-MM-YYYY")
@@ -160,7 +160,7 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
           >
             <DatePickerInput
               id="completedOnOrBefore"
-              labelText="and"
+              labelText={t("and", "and")}
               value={
                 completedOnOrBefore &&
                 dayjs(completedOnOrBefore).format("DD-MM-YYYY")
