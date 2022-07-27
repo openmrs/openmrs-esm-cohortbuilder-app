@@ -10,7 +10,7 @@ on:
       - created
 
 env:
-  ESM_NAME: "@openmrs/esm-cohortbuilder"
+  ESM_NAME: "@openmrs/esm-cohort-builder-app"
   JS_NAME: "openmrs-esm-cohort-builder-app.js"
 
 jobs:
