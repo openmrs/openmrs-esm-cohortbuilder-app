@@ -11,8 +11,7 @@ on:
 
 env:
   ESM_NAME: "@openmrs/esm-cohortbuilder"
-  JS_NAME: "openmrs-esm-cohortbuilder.js"
-  DIR_NAME: "esm-cohortbuilder"
+  JS_NAME: "openmrs-esm-cohort-builder-app.js"
 
 jobs:
   build:
