@@ -1,18 +1,11 @@
 import React from "react";
 
-import {
-  render,
-  cleanup,
-  fireEvent,
-  waitFor,
-  act,
-} from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { render, fireEvent, waitFor, act } from "@testing-library/react";
 
 import translations from "../../../translations/en.json";
 import * as commonApis from "../../cohort-builder.resource";
-import SearchByEncounters from "./search-by-encounters.component";
-import * as apis from "./search-by-encounters.resources";
+import SearchByEnrollments from "./search-by-enrollments.component";
+import * as apis from "./search-by-enrollments.resource";
 
 const mockLocations = [
   {
@@ -32,49 +25,16 @@ const mockLocations = [
   },
 ];
 
-const mockEncounterTypes = [
+const mockPrograms = [
   {
     id: 0,
-    value: "0cd5d4cb-204e-419a-9dd7-1e18e939ce4c",
-    label: "Patient Tracing Form",
+    value: "64f950e6-1b07-4ac0-8e7e-f3e148f3463f",
+    label: "HIV Care and Treatment",
   },
   {
     id: 1,
-    value: "3044916a-7e5f-478b-9091-803233f27f91",
-    label: "Transfer Out",
-  },
-  {
-    id: 2,
-    value: "41af1931-184e-45f8-86ca-d42e0db0b8a1",
-    label: "Viral Load results",
-  },
-  {
-    id: 3,
-    value: "d7151f82-c1f3-4152-a605-2f9ea7414a79",
-    label: "Visit Note",
-  },
-  {
-    id: 4,
-    value: "67a71486-1a54-468f-ac3e-7091a9a79584",
-    label: "Vitals",
-  },
-];
-
-const mockForms = [
-  {
-    id: 0,
-    value: "bb826dc9-8c1a-4b19-83c9-b59e5e128a7b",
-    label: "POC Patient Consent",
-  },
-  {
-    id: 1,
-    value: "9326eb32-d0fd-40c3-8c30-69d5774af06d",
-    label: "POC Patient Consent v1.2",
-  },
-  {
-    id: 2,
-    value: "7f5ce1d4-a42e-4b59-840e-f239d844cf9b",
-    label: "POC Test Form",
+    value: "ac1bbc45-8c35-49ff-a574-9553ff789527",
+    label: "HIV Preventative Services (PEP/PrEP)",
   },
 ];
 
@@ -110,12 +70,9 @@ const expectedQuery = {
     customRowFilterCombination: "1",
     rowFilters: [
       {
-        key: "reporting.library.cohortDefinition.builtIn.encounterSearchAdvanced",
+        key: "reporting.library.cohortDefinition.builtIn.patientsWithEnrollment",
         parameterValues: {
-          atLeastCount: "10",
-          atMostCount: "20",
-          encounterTypeList: [mockEncounterTypes[4].value],
-          formList: [mockForms[1].value],
+          programs: [mockPrograms[0].value],
           locationList: [mockLocations[2].value],
         },
         type: "org.openmrs.module.reporting.dataset.definition.PatientDataSetDefinition",
@@ -125,53 +82,37 @@ const expectedQuery = {
   },
 };
 
-describe("Test the search by encounters component", () => {
-  afterEach(cleanup);
+describe("Test the search by enrollments component", () => {
   it("should be able to select input values", async () => {
     jest.spyOn(commonApis, "useLocations").mockReturnValue({
       locations: mockLocations,
       isLoading: false,
       locationsError: undefined,
     });
-    jest.spyOn(apis, "useForms").mockReturnValue({
-      forms: mockForms,
+    jest.spyOn(apis, "usePrograms").mockReturnValue({
+      programs: mockPrograms,
       isLoading: false,
-      formsError: undefined,
-    });
-    jest.spyOn(apis, "useEncounterTypes").mockReturnValue({
-      encounterTypes: mockEncounterTypes,
-      isLoading: false,
-      encounterTypesError: undefined,
+      programsError: undefined,
     });
     const submit = jest.fn();
     const { getByTestId, getByText } = render(
-      <SearchByEncounters onSubmit={submit} />
+      <SearchByEnrollments onSubmit={submit} />
     );
     await waitFor(() => {
       expect(jest.spyOn(commonApis, "useLocations"));
-      expect(jest.spyOn(apis, "useForms"));
-      expect(jest.spyOn(apis, "useEncounterTypes"));
+      expect(jest.spyOn(apis, "usePrograms"));
     });
 
-    fireEvent.click(getByText(translations.selectEncounterTypes));
-    fireEvent.click(getByText(mockEncounterTypes[4].label));
-    fireEvent.click(getByText(translations.selectForms));
-    fireEvent.click(getByText(mockForms[1].label));
     fireEvent.click(getByText(translations.selectLocations));
     fireEvent.click(getByText(mockLocations[2].label));
-
-    const atLeastCountInput = getByTestId("atLeastCount");
-    const atMostCountInput = getByTestId("atMostCount");
-    fireEvent.click(atLeastCountInput);
-    await userEvent.type(atLeastCountInput, "10");
-    fireEvent.click(atMostCountInput);
-    await userEvent.type(atMostCountInput, "20");
-
+    fireEvent.click(getByText(translations.selectPrograms));
+    fireEvent.click(getByText(mockPrograms[0].label));
     fireEvent.click(getByTestId("search-btn"));
+
     await act(async () => {
       expect(submit).toBeCalledWith(
         expectedQuery,
-        `Patients with Encounter of Types ${mockEncounterTypes[4].label} at ${mockLocations[2].label} from ${mockForms[1].label} at least 10 times  and at most 20 times`
+        `Patients enrolled in ${mockPrograms[0].label} at ${mockLocations[2].label}`
       );
     });
   });

@@ -3,11 +3,13 @@ import { DropdownValue } from "../../types";
 
 export const getQueryDetails = (
   method: string,
-  selectedLocation: DropdownValue
+  selectedLocations: DropdownValue[]
 ) => {
+  const locations = [];
+  selectedLocations?.map((location) => locations.push(location.value));
   const searchParameter = {
     encounterSearchAdvanced: [
-      { name: "locationList", value: [selectedLocation.value] },
+      { name: "locationList", value: locations },
       { name: "timeQualifier", value: method },
     ],
   };
@@ -18,9 +20,11 @@ export const getQueryDetails = (
 
 export const getDescription = (
   method: string,
-  selectedLocation: DropdownValue
+  selectedLocations: DropdownValue[]
 ) => {
-  let description = `Patients in ${selectedLocation.label}`;
+  let description = `Patients in ${selectedLocations
+    ?.map((location) => location.label)
+    .join(", ")}`;
   switch (method) {
     case "FIRST":
       description += " (by method EARLIEST_ENCOUNTER).";

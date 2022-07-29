@@ -6,7 +6,6 @@ import {
   DatePickerInput,
   Column,
   NumberInput,
-  Dropdown,
   MultiSelect,
 } from "carbon-components-react";
 import dayjs from "dayjs";
@@ -24,19 +23,18 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [atLeastCount, setAtLeastCount] = useState(0);
   const [atMostCount, setAtMostCount] = useState(0);
   const { encounterTypes, encounterTypesError } = useEncounterTypes();
-  const [selectedEncounterTypes, setSelectedEncounterTypes] = useState([]);
-  const [encounterLocation, setEncounterLocation] = useState<DropdownValue>();
-  const [encounterForm, setEncounterForm] = useState<DropdownValue>();
+  const [selectedEncounterTypes, setSelectedEncounterTypes] = useState<
+    DropdownValue[]
+  >([]);
+  const [encounterLocations, setEncounterLocations] = useState<DropdownValue[]>(
+    []
+  );
+  const [encounterForms, setEncounterForms] = useState<DropdownValue[]>([]);
   const { locations, locationsError } = useLocations();
   const { forms, formsError } = useForms();
   const [onOrBefore, setOnOrBefore] = useState("");
   const [onOrAfter, setOnOrAfter] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  const handleDatesChange = (dates: Date[]) => {
-    setOnOrAfter(dayjs(dates[0]).format());
-    setOnOrBefore(dayjs(dates[1]).format());
-  };
 
   if (locationsError) {
     showToast({
@@ -78,8 +76,8 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
       onOrAfter,
       atLeastCount,
       atMostCount,
-      encounterForm,
-      encounterLocation,
+      encounterForms,
+      encounterLocations,
       onOrBefore,
       selectedEncounterTypes,
     };
@@ -91,7 +89,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
   };
 
   return (
-    <div className={styles.container}>
+    <>
       <Column>
         <div>
           <MultiSelect
@@ -99,30 +97,30 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
             data-testid="encounters"
             onChange={(data) => setSelectedEncounterTypes(data.selectedItems)}
             items={encounterTypes}
-            label={t("selectEncounterType", "Select an encounter type")}
+            label={t("selectEncounterTypes", "Select encounter types")}
           />
         </div>
       </Column>
       <div className={styles.column}>
         <Column>
           <div>
-            <Dropdown
+            <MultiSelect
               id="forms"
               data-testid="forms"
-              onChange={(data) => setEncounterForm(data.selectedItem)}
+              onChange={(data) => setEncounterForms(data.selectedItems)}
               items={forms}
-              label={t("selectForm", "Select a form")}
+              label={t("selectForms", "Select forms")}
             />
           </div>
         </Column>
         <Column>
           <div>
-            <Dropdown
+            <MultiSelect
               id="locations"
               data-testid="locations"
-              onChange={(data) => setEncounterLocation(data.selectedItem)}
+              onChange={(data) => setEncounterLocations(data.selectedItems)}
               items={locations}
-              label={t("selectLocation", "Select a location")}
+              label={t("selectLocations", "Select locations")}
             />
           </div>
         </Column>
@@ -156,19 +154,28 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
       <div className={styles.column}>
         <Column>
           <DatePicker
-            datePickerType="range"
-            dateFormat="d-m-Y"
+            datePickerType="single"
             allowInput={false}
-            onChange={(dates: Date[]) => handleDatesChange(dates)}
+            onChange={(date) => setOnOrAfter(dayjs(date[0]).format())}
           >
             <DatePickerInput
-              id="date-picker-input-id-start"
+              id="onOrAfter"
               labelText={t("from", "From")}
+              value={onOrAfter && dayjs(onOrAfter).format("DD-MM-YYYY")}
               placeholder="DD-MM-YYYY"
               size="md"
             />
+          </DatePicker>
+        </Column>
+        <Column>
+          <DatePicker
+            datePickerType="single"
+            allowInput={false}
+            onChange={(date) => setOnOrBefore(dayjs(date[0]).format())}
+          >
             <DatePickerInput
-              id="date-picker-input-id-finish"
+              id="onOrBefore"
+              value={onOrBefore && dayjs(onOrBefore).format("DD-MM-YYYY")}
               labelText={t("to", "to")}
               placeholder="DD-MM-YYYY"
               size="md"
@@ -181,7 +188,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
         onHandleSubmit={submit}
         onHandleReset={reset}
       />
-    </div>
+    </>
   );
 };
 

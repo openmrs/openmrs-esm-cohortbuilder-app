@@ -76,9 +76,9 @@
   "selectAttribute": "Select a person attribute",
   "location": "Location",
   "personAttributes": "Person Attributes",
-  "selectEncounterType": "Select an encounter type",
-  "selectForm": "Select a form",
-  "selectLocation": "Select a location",
+  "selectEncounterTypes": "Select encounter types",
+  "selectForms": "Select forms",
+  "selectLocations": "Select locations",
   "atLeast": "at least many",
   "upto": "upto this many",
   "from": "From",
@@ -86,5 +86,8 @@
   "anyEncounter": "Any Encounter",
   "mostRecentEncounter": "Most Recent Encounter",
   "earliestEncounter": "Earliest Encounter",
-  "selectMethod": "Select a method"
+  "selectMethod": "Select a method",
+  "selectPrograms": "Select programs",
+  "enrolledBetween": "Enrolled between",
+  "completedBetween": "Completed between"
 }

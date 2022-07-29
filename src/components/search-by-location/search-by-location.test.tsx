@@ -2,6 +2,7 @@ import React from "react";
 
 import { render, fireEvent, waitFor, act } from "@testing-library/react";
 
+import translations from "../../../translations/en.json";
 import * as apis from "../../cohort-builder.resource";
 import SearchByLocation from "./search-by-location.component";
 
@@ -20,11 +21,6 @@ const mockLocations = [
     id: 2,
     label: "Pharmacy",
     value: "8d871afc-c2cc-11de-8d13-0010c6dffd0f",
-  },
-  {
-    id: 3,
-    label: "Outpatient Clinic",
-    value: "8d871f2a-c2cc-11de-8d13-0010c6dffd0f",
   },
 ];
 
@@ -85,7 +81,7 @@ describe("Test the search by location component", () => {
     );
     await waitFor(() => expect(jest.spyOn(apis, "useLocations")));
 
-    fireEvent.click(getByTitle("Select a location"));
+    fireEvent.click(getByText(translations.selectLocations));
     fireEvent.click(getByText(mockLocations[2].label));
     fireEvent.click(getByTitle("Any Encounter"));
     fireEvent.click(getByText("Most Recent Encounter"));

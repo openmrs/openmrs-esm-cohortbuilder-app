@@ -95,7 +95,7 @@ export interface EncounterDetails {
   onOrBefore: string;
   atLeastCount: number;
   atMostCount: number;
-  encounterForm: DropdownValue;
-  encounterLocation: DropdownValue;
+  encounterForms: DropdownValue[];
+  encounterLocations: DropdownValue[];
   selectedEncounterTypes: DropdownValue[];
 }

@@ -103,16 +103,18 @@ describe("Test the search by concept component", () => {
       <SearchByConcepts onSubmit={submit} />
     );
     const searchInput = getByPlaceholderText("Search Concepts");
+    const lastDaysInput = getByTestId("last-days");
+    const lastMonthsInput = getByTestId("last-months");
+
     fireEvent.click(searchInput);
     await userEvent.type(searchInput, "blood sugar");
     await waitFor(() =>
       expect(jest.spyOn(apis, "getConcepts")).toBeCalledWith("blood sugar")
     );
+
     fireEvent.click(getByText("BLOOD SUGAR"));
-    const lastDaysInput = getByTestId("last-days");
     fireEvent.click(lastDaysInput);
     fireEvent.change(lastDaysInput, { target: { value: "15" } });
-    const lastMonthsInput = getByTestId("last-months");
     fireEvent.click(lastMonthsInput);
     fireEvent.change(lastMonthsInput, { target: { value: "4" } });
     fireEvent.click(getByText("Any"));
@@ -120,6 +122,7 @@ describe("Test the search by concept component", () => {
     expectedQuery.query.rowFilters[0].parameterValues.onOrBefore =
       date.format();
     fireEvent.click(getByTestId("search-btn"));
+
     await act(async () => {
       expect(submit).toBeCalledWith(
         expectedQuery,

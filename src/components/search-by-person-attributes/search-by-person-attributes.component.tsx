@@ -50,7 +50,7 @@ const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
   };
 
   return (
-    <div className={styles.container}>
+    <>
       <Column>
         <div>
           <Dropdown
@@ -83,7 +83,7 @@ const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
         onHandleSubmit={submit}
         isLoading={isLoading}
       />
-    </div>
+    </>
   );
 };
 
