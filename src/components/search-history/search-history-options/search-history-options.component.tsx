@@ -13,8 +13,8 @@ import {
 } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
+import { downloadCSV } from "../../../cohort-builder.utils";
 import { Cohort, Patient, SearchHistoryItem } from "../../../types";
-import { downloadCSV } from "../search-history.utils";
 import { createCohort, createQuery } from "./search-history-options.resources";
 
 enum Option {
