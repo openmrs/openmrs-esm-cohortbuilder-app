@@ -11,7 +11,6 @@ import {
 import { useTranslation } from "react-i18next";
 
 import { Response } from "../../../types";
-import { deleteCohort } from "./saved-cohorts-options.resources";
 
 enum Options {
   VIEW,
@@ -20,12 +19,14 @@ enum Options {
 
 interface SavedCohortsOptionsProps {
   cohort: Response;
-  viewCohort: (queryId: string) => Promise<void>;
+  viewCohort: (cohortId: string) => Promise<void>;
+  deleteCohort: (cohortId: string) => Promise<void>;
 }
 
 const SavedCohortsOptions: React.FC<SavedCohortsOptionsProps> = ({
   cohort,
   viewCohort,
+  deleteCohort,
 }) => {
   const { t } = useTranslation();
   const [isDeleteCohortModalVisible, setIsDeleteCohortModalVisible] =
@@ -35,14 +36,14 @@ const SavedCohortsOptions: React.FC<SavedCohortsOptionsProps> = ({
     try {
       await viewCohort(cohort.uuid);
       showToast({
-        title: t("cohortCreateSuccess", "Success"),
+        title: t("success", "Success"),
         kind: "success",
         critical: true,
-        description: "the cohort is deleted",
+        description: t("cohortIsDeleted", "the cohort is deleted"),
       });
     } catch (error) {
       showToast({
-        title: t("cohortDeleteError", "Error deleting the cohort"),
+        title: t("cohortViewError", "Error viewing the cohort"),
         kind: "error",
         critical: true,
         description: error?.message,
@@ -62,23 +63,8 @@ const SavedCohortsOptions: React.FC<SavedCohortsOptionsProps> = ({
   };
 
   const handleDeleteCohort = async () => {
-    try {
-      await deleteCohort(cohort.uuid);
-      setIsDeleteCohortModalVisible(false);
-      showToast({
-        title: t("cohortCreateSuccess", "Success"),
-        kind: "success",
-        critical: true,
-        description: "the cohort is deleted",
-      });
-    } catch (error) {
-      showToast({
-        title: t("cohortDeleteError", "Error deleting the cohort"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
-    }
+    await deleteCohort(cohort.uuid);
+    setIsDeleteCohortModalVisible(false);
   };
 
   return (
@@ -87,7 +73,7 @@ const SavedCohortsOptions: React.FC<SavedCohortsOptionsProps> = ({
         ariaLabel="overflow-menu"
         size="md"
         flipped
-        direction="top"
+        direction="bottom"
         data-testid="options"
       >
         <OverflowMenuItem
@@ -110,10 +96,10 @@ const SavedCohortsOptions: React.FC<SavedCohortsOptionsProps> = ({
         <ModalHeader>
           <p>
             {t(
-              "deleteHistoryItem",
+              "deleteItem",
               `Are you sure you want to delete ${cohort?.name}?`,
               {
-                searchItemName: cohort?.name,
+                itemName: cohort?.name,
               }
             )}
           </p>

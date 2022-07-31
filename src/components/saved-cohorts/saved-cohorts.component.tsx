@@ -20,7 +20,7 @@ import mainStyles from "../../cohort-builder.scss";
 import { PaginationData } from "../../types";
 import EmptyData from "../empty-data/empty-data.component";
 import SavedCohortsOptions from "./saved-cohorts-options/saved-cohorts-options.component";
-import { getCohorts } from "./saved-cohorts.resource";
+import { deleteCohort, getCohorts } from "./saved-cohorts.resource";
 import styles from "./saved-cohorts.scss";
 
 interface SavedCohortsProps {
@@ -65,11 +65,31 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ viewCohort }) => {
         title: t("success", "Success!"),
         kind: "success",
         critical: true,
-        description: t("searchIsCompleted", "Search is completed"),
+        description: t("searchCompleted", "Search is completed"),
       });
     } catch (error) {
       showToast({
-        title: t("cohortDeleteError", "Something went wrong"),
+        title: t("cohortDeleteError", "Error deleting the cohort"),
+        kind: "error",
+        critical: true,
+        description: error?.message,
+      });
+    }
+  };
+
+  const handleDeleteCohort = async (cohortId: string) => {
+    try {
+      await deleteCohort(cohortId);
+      setCohorts(cohorts.filter((cohort) => cohort.uuid != cohortId));
+      showToast({
+        title: t("success", "Success"),
+        kind: "success",
+        critical: true,
+        description: "the cohort is deleted",
+      });
+    } catch (error) {
+      showToast({
+        title: t("cohortDeleteError", "Error deleting the cohort"),
         kind: "error",
         critical: true,
         description: error?.message,
@@ -83,8 +103,8 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ viewCohort }) => {
         <Search
           closeButtonLabelText={t("clearSearch", "Clear search")}
           id="cohort-search"
-          labelText={t("searchConcepts", "Search Cohorts")}
-          placeholder={t("searchConcepts", "Search Cohorts")}
+          labelText={t("searchCohorts", "Search Cohorts")}
+          placeholder={t("searchCohorts", "Search Cohorts")}
           onChange={(e) => setSearchText(e.target.value)}
           onClear={() => setSearchText("")}
           size="lg"
@@ -103,8 +123,10 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ viewCohort }) => {
         </Button>
       </div>
       <p className={mainStyles.text}>
-        You can only search for Cohort Definitions that you have saved using a
-        Name.
+        {t(
+          "savedCohortDescription",
+          "You can only search for Cohort Definitions that you have saved using a Name."
+        )}
       </p>
       <DataTable rows={cohorts} headers={headers} useZebraStyles>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
@@ -132,6 +154,7 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ viewCohort }) => {
                       <SavedCohortsOptions
                         cohort={cohorts[index]}
                         viewCohort={viewCohort}
+                        deleteCohort={handleDeleteCohort}
                       />
                     </TableCell>
                   </TableRow>

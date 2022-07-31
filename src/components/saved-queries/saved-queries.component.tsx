@@ -20,7 +20,7 @@ import mainStyles from "../../cohort-builder.scss";
 import { PaginationData } from "../../types";
 import EmptyData from "../empty-data/empty-data.component";
 import SavedQueriesOptions from "./saved-queries-options/saved-queries-options.component";
-import { getQueries } from "./saved-queries.resource";
+import { deleteDataSet, getQueries } from "./saved-queries.resource";
 import styles from "./saved-queries.scss";
 
 interface SavedCohortsProps {
@@ -77,14 +77,34 @@ const SavedQueries: React.FC<SavedCohortsProps> = ({ viewQuery }) => {
     }
   };
 
+  const deleteQuery = async (queryId: string) => {
+    try {
+      await deleteDataSet(queryId);
+      setQueries(queries.filter((query) => query.uuid != queryId));
+      showToast({
+        title: t("success", "Success"),
+        kind: "success",
+        critical: true,
+        description: t("queryIsDeleted", "the query is deleted"),
+      });
+    } catch (error) {
+      showToast({
+        title: t("queryDeleteError", "Error saving the query"),
+        kind: "error",
+        critical: true,
+        description: error?.message,
+      });
+    }
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.searchContainer}>
         <Search
           closeButtonLabelText={t("clearSearch", "Clear search")}
           id="query-search"
-          labelText={t("searchConcepts", "Search Queries")}
-          placeholder={t("searchConcepts", "Search Queries")}
+          labelText={t("searchQueries", "Search Queries")}
+          placeholder={t("searchQueries", "Search Queries")}
           onChange={(e) => setSearchText(e.target.value)}
           onClear={() => setSearchText("")}
           size="lg"
@@ -103,8 +123,10 @@ const SavedQueries: React.FC<SavedCohortsProps> = ({ viewQuery }) => {
         </Button>
       </div>
       <p className={mainStyles.text}>
-        You can only search for Query Definitions that you have saved using a
-        Name.
+        {t(
+          "savedQueryDescription",
+          "You can only search for Query Definitions that you have saved using a Name."
+        )}
       </p>
       <DataTable rows={queries} headers={headers} useZebraStyles>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
@@ -132,6 +154,7 @@ const SavedQueries: React.FC<SavedCohortsProps> = ({ viewQuery }) => {
                       <SavedQueriesOptions
                         query={queries[index]}
                         viewQuery={viewQuery}
+                        deleteQuery={deleteQuery}
                       />
                     </TableCell>
                   </TableRow>

@@ -11,7 +11,6 @@ import {
 import { useTranslation } from "react-i18next";
 
 import { Response } from "../../../types";
-import { deleteDataSet } from "./saved-queries-options.resources";
 
 enum Options {
   VIEW,
@@ -21,11 +20,13 @@ enum Options {
 interface SavedQueriesOptionsProps {
   query: Response;
   viewQuery: (queryId: string) => Promise<void>;
+  deleteQuery: (queryId: string) => Promise<void>;
 }
 
 const SavedQueriesOptions: React.FC<SavedQueriesOptionsProps> = ({
   query,
   viewQuery,
+  deleteQuery,
 }) => {
   const { t } = useTranslation();
   const [isDeleteQueryModalVisible, setIsDeleteQueryModalVisible] =
@@ -46,10 +47,10 @@ const SavedQueriesOptions: React.FC<SavedQueriesOptionsProps> = ({
     try {
       await viewQuery(query.uuid);
       showToast({
-        title: t("QueryCreateSuccess", "Success"),
+        title: t("success", "Success"),
         kind: "success",
         critical: true,
-        description: "the search is completed",
+        description: t("searchCompleted", "Search is completed"),
       });
     } catch (error) {
       showToast({
@@ -62,23 +63,8 @@ const SavedQueriesOptions: React.FC<SavedQueriesOptionsProps> = ({
   };
 
   const handleDeleteQuery = async () => {
-    try {
-      await deleteDataSet(query.uuid);
-      setIsDeleteQueryModalVisible(false);
-      showToast({
-        title: t("QueryCreateSuccess", "Success"),
-        kind: "success",
-        critical: true,
-        description: "the query is deleted",
-      });
-    } catch (error) {
-      showToast({
-        title: t("QueryDeleteError", "Something went wrong"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
-    }
+    await deleteQuery(query.uuid);
+    setIsDeleteQueryModalVisible(false);
   };
 
   return (
@@ -87,7 +73,7 @@ const SavedQueriesOptions: React.FC<SavedQueriesOptionsProps> = ({
         ariaLabel="overflow-menu"
         size="md"
         flipped
-        direction="top"
+        direction="bottom"
         data-testid="options"
       >
         <OverflowMenuItem
@@ -96,8 +82,8 @@ const SavedQueriesOptions: React.FC<SavedQueriesOptionsProps> = ({
           onClick={() => handleOption(Options.VIEW)}
         />
         <OverflowMenuItem
-          data-testid="deleteFromHistory"
-          itemText={t("deleteFromHistory", "Delete")}
+          data-testid="delete"
+          itemText={t("delete", "Delete")}
           onClick={() => handleOption(Options.DELETE)}
         />
       </OverflowMenu>

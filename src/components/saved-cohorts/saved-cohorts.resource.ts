@@ -15,7 +15,7 @@ export async function getCohorts(cohortName: String): Promise<Cohort[]> {
   let cohorts: Cohort[] = [];
   if (searchResults.data.results.length > 0) {
     cohorts = searchResults.data.results.map((cohort, index) => {
-      const cohortData: Cohort = { ...cohort, id: index.toString() + 1 };
+      const cohortData: Cohort = { ...cohort, id: (index + 1).toString() };
       return cohortData;
     });
   }
