@@ -23,11 +23,11 @@ import SavedQueriesOptions from "./saved-queries-options/saved-queries-options.c
 import { deleteDataSet, getQueries } from "./saved-queries.resource";
 import styles from "./saved-queries.scss";
 
-interface SavedCohortsProps {
+interface SavedQueriesProps {
   viewQuery: (queryId: string) => Promise<void>;
 }
 
-const SavedQueries: React.FC<SavedCohortsProps> = ({ viewQuery }) => {
+const SavedQueries: React.FC<SavedQueriesProps> = ({ viewQuery }) => {
   const [page, setPage] = useState(1);
   const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -113,6 +113,7 @@ const SavedQueries: React.FC<SavedCohortsProps> = ({ viewQuery }) => {
         <Button
           kind="primary"
           className={styles.searchBtn}
+          data-testid="search-queries"
           onClick={handleSearch}
         >
           {isLoading ? (

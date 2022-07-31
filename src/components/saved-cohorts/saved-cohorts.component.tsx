@@ -113,6 +113,7 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ viewCohort }) => {
         <Button
           kind="primary"
           className={styles.searchBtn}
+          data-testid="search-cohorts"
           onClick={handleSearch}
         >
           {isLoading ? (
