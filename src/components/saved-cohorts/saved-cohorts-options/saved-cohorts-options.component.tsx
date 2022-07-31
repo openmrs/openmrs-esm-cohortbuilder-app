@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 import { Response } from "../../../types";
 import { deleteCohort } from "./saved-cohorts-options.resources";
 
-enum Option {
+enum Options {
   VIEW,
   DELETE,
 }
@@ -50,12 +50,12 @@ const SavedCohortsOptions: React.FC<SavedCohortsOptionsProps> = ({
     }
   };
 
-  const handleOption = async (option: Option) => {
+  const handleOption = async (option: Options) => {
     switch (option) {
-      case Option.VIEW:
+      case Options.VIEW:
         handleViewCohort();
         break;
-      case Option.DELETE:
+      case Options.DELETE:
         setIsDeleteCohortModalVisible(true);
         break;
     }
@@ -93,12 +93,12 @@ const SavedCohortsOptions: React.FC<SavedCohortsOptionsProps> = ({
         <OverflowMenuItem
           data-testid="view"
           itemText={t("view", "View")}
-          onClick={() => handleOption(Option.VIEW)}
+          onClick={() => handleOption(Options.VIEW)}
         />
         <OverflowMenuItem
           data-testid="delete"
           itemText={t("delete", "Delete")}
-          onClick={() => handleOption(Option.DELETE)}
+          onClick={() => handleOption(Options.DELETE)}
         />
       </OverflowMenu>
 

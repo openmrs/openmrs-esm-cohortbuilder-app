@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 import { Response } from "../../../types";
 import { deleteDataSet } from "./saved-queries-options.resources";
 
-enum Option {
+enum Options {
   VIEW,
   DELETE,
 }
@@ -31,12 +31,12 @@ const SavedQueriesOptions: React.FC<SavedQueriesOptionsProps> = ({
   const [isDeleteQueryModalVisible, setIsDeleteQueryModalVisible] =
     useState(false);
 
-  const handleOption = async (option: Option) => {
+  const handleOption = async (option: Options) => {
     switch (option) {
-      case Option.VIEW:
+      case Options.VIEW:
         handleViewQuery();
         break;
-      case Option.DELETE:
+      case Options.DELETE:
         setIsDeleteQueryModalVisible(true);
         break;
     }
@@ -93,12 +93,12 @@ const SavedQueriesOptions: React.FC<SavedQueriesOptionsProps> = ({
         <OverflowMenuItem
           data-testid="view"
           itemText={t("view", "View")}
-          onClick={() => handleOption(Option.VIEW)}
+          onClick={() => handleOption(Options.VIEW)}
         />
         <OverflowMenuItem
           data-testid="deleteFromHistory"
           itemText={t("deleteFromHistory", "Delete")}
-          onClick={() => handleOption(Option.DELETE)}
+          onClick={() => handleOption(Options.DELETE)}
         />
       </OverflowMenu>
 

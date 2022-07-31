@@ -61,6 +61,12 @@ const SavedQueries: React.FC<SavedCohortsProps> = ({ viewQuery }) => {
       const queries = await getQueries(searchText);
       setQueries(queries);
       setIsLoading(false);
+      showToast({
+        title: t("success", "Success!"),
+        kind: "success",
+        critical: true,
+        description: t("searchIsCompleted", "Search is completed"),
+      });
     } catch (error) {
       showToast({
         title: t("somethingWentWrong", "Something went wrong"),
@@ -96,7 +102,7 @@ const SavedQueries: React.FC<SavedCohortsProps> = ({ viewQuery }) => {
           )}
         </Button>
       </div>
-      <p>
+      <p className={mainStyles.text}>
         You can only search for Query Definitions that you have saved using a
         Name.
       </p>

@@ -61,6 +61,12 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ viewCohort }) => {
       const cohorts = await getCohorts(searchText);
       setCohorts(cohorts);
       setIsLoading(false);
+      showToast({
+        title: t("success", "Success!"),
+        kind: "success",
+        critical: true,
+        description: t("searchIsCompleted", "Search is completed"),
+      });
     } catch (error) {
       showToast({
         title: t("cohortDeleteError", "Something went wrong"),
@@ -96,10 +102,9 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ viewCohort }) => {
           )}
         </Button>
       </div>
-      <p>
-        Cohort Definitions can be found on the last column on the Search History
-        table below. You can only search for Cohort Definitions that you have
-        saved using a Name.
+      <p className={mainStyles.text}>
+        You can only search for Cohort Definitions that you have saved using a
+        Name.
       </p>
       <DataTable rows={cohorts} headers={headers} useZebraStyles>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
