@@ -10,7 +10,7 @@ import {
 } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
-import { Response } from "../../../types";
+import { DefinitionDataRow } from "../../../types";
 
 enum Options {
   VIEW,
@@ -18,14 +18,14 @@ enum Options {
 }
 
 interface SavedQueriesOptionsProps {
-  query: Response;
-  viewQuery: (queryId: string) => Promise<void>;
+  query: DefinitionDataRow;
+  onViewQuery: (queryId: string) => Promise<void>;
   deleteQuery: (queryId: string) => Promise<void>;
 }
 
 const SavedQueriesOptions: React.FC<SavedQueriesOptionsProps> = ({
   query,
-  viewQuery,
+  onViewQuery,
   deleteQuery,
 }) => {
   const { t } = useTranslation();
@@ -45,13 +45,7 @@ const SavedQueriesOptions: React.FC<SavedQueriesOptionsProps> = ({
 
   const handleViewQuery = async () => {
     try {
-      await viewQuery(query.uuid);
-      showToast({
-        title: t("success", "Success"),
-        kind: "success",
-        critical: true,
-        description: t("searchCompleted", "Search is completed"),
-      });
+      await onViewQuery(query.id);
     } catch (error) {
       showToast({
         title: t("QueryDeleteError", "Something went wrong"),
@@ -63,7 +57,7 @@ const SavedQueriesOptions: React.FC<SavedQueriesOptionsProps> = ({
   };
 
   const handleDeleteQuery = async () => {
-    await deleteQuery(query.uuid);
+    await deleteQuery(query.id);
     setIsDeleteQueryModalVisible(false);
   };
 

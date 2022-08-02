@@ -2,31 +2,30 @@ import React from "react";
 
 import { render, cleanup, fireEvent } from "@testing-library/react";
 
-import { Response } from "../../../types";
+import { DefinitionDataRow } from "../../../types";
 import SavedQueriesOptions from "./saved-queries-options.component";
 
-const query: Response = {
-  description: "Female Patients that are alive",
+const query: DefinitionDataRow = {
   id: "1",
-  uuid: "1",
-  display: "",
+  name: "Female Patients",
+  description: "Female Patients that are alive",
 };
 
 describe("Test the saved queries options", () => {
   afterEach(cleanup);
   it("should be able to view the saved query", async () => {
-    const viewQuery = jest.fn();
+    const onViewQuery = jest.fn();
     const { getByTestId } = render(
       <SavedQueriesOptions
         query={query}
-        viewQuery={viewQuery}
+        onViewQuery={onViewQuery}
         deleteQuery={jest.fn()}
       />
     );
 
     fireEvent.click(getByTestId("options"));
     fireEvent.click(getByTestId("view"));
-    expect(viewQuery).toBeCalledWith(query.uuid);
+    expect(onViewQuery).toBeCalledWith(query.id);
   });
 
   it("should be able delete a query", async () => {
@@ -34,7 +33,7 @@ describe("Test the saved queries options", () => {
     const { getByText, getByTestId } = render(
       <SavedQueriesOptions
         query={query}
-        viewQuery={jest.fn()}
+        onViewQuery={jest.fn()}
         deleteQuery={deleteQuery}
       />
     );
@@ -42,6 +41,6 @@ describe("Test the saved queries options", () => {
     fireEvent.click(getByTestId("options"));
     fireEvent.click(getByTestId("delete"));
     fireEvent.click(getByText("Delete"));
-    expect(deleteQuery).toBeCalledWith(query.uuid);
+    expect(deleteQuery).toBeCalledWith(query.id);
   });
 });

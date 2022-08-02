@@ -1,29 +1,34 @@
 import { FetchResponse, openmrsFetch } from "@openmrs/esm-framework";
 
-import { Cohort } from "../../types";
+import { Cohort, DefinitionDataRow } from "../../types";
 
 /**
  * @returns Cohorts
- * @param cohortName
  */
-export async function getCohorts(cohortName: String): Promise<Cohort[]> {
-  const searchResults: FetchResponse<{ results: Cohort[] }> =
-    await openmrsFetch(`/ws/rest/v1/cohort?v=full&q=${cohortName}`, {
+export async function getCohorts(): Promise<DefinitionDataRow[]> {
+  const response: FetchResponse<{ results: Cohort[] }> = await openmrsFetch(
+    "/ws/rest/v1/cohort?v=full",
+    {
       method: "GET",
-    });
+    }
+  );
 
-  let cohorts: Cohort[] = [];
-  if (searchResults.data.results.length > 0) {
-    cohorts = searchResults.data.results.map((cohort, index) => {
-      const cohortData: Cohort = { ...cohort, id: (index + 1).toString() };
-      return cohortData;
+  let cohorts: DefinitionDataRow[] = [];
+  if (response.data.results.length > 0) {
+    response.data.results.map((cohort: Cohort) => {
+      const cohortData: DefinitionDataRow = {
+        id: cohort.uuid,
+        name: cohort.name,
+        description: cohort.description,
+      };
+      cohorts.push(cohortData);
     });
   }
 
   return cohorts;
 }
 
-export const deleteCohort = async (cohort: string) => {
+export const onDeleteCohort = async (cohort: string) => {
   const result: FetchResponse = await openmrsFetch(
     `/ws/rest/v1/cohort/${cohort}`,
     {

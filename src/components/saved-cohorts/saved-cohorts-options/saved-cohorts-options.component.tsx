@@ -10,7 +10,7 @@ import {
 } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
-import { Response } from "../../../types";
+import { DefinitionDataRow } from "../../../types";
 
 enum Options {
   VIEW,
@@ -18,15 +18,15 @@ enum Options {
 }
 
 interface SavedCohortsOptionsProps {
-  cohort: Response;
-  viewCohort: (cohortId: string) => Promise<void>;
-  deleteCohort: (cohortId: string) => Promise<void>;
+  cohort: DefinitionDataRow;
+  onViewCohort: (cohortId: string) => Promise<void>;
+  onDeleteCohort: (cohortId: string) => Promise<void>;
 }
 
 const SavedCohortsOptions: React.FC<SavedCohortsOptionsProps> = ({
   cohort,
-  viewCohort,
-  deleteCohort,
+  onViewCohort,
+  onDeleteCohort,
 }) => {
   const { t } = useTranslation();
   const [isDeleteCohortModalVisible, setIsDeleteCohortModalVisible] =
@@ -34,13 +34,7 @@ const SavedCohortsOptions: React.FC<SavedCohortsOptionsProps> = ({
 
   const handleViewCohort = async () => {
     try {
-      await viewCohort(cohort.uuid);
-      showToast({
-        title: t("success", "Success"),
-        kind: "success",
-        critical: true,
-        description: t("cohortIsDeleted", "the cohort is deleted"),
-      });
+      await onViewCohort(cohort.id);
     } catch (error) {
       showToast({
         title: t("cohortViewError", "Error viewing the cohort"),
@@ -63,7 +57,7 @@ const SavedCohortsOptions: React.FC<SavedCohortsOptionsProps> = ({
   };
 
   const handleDeleteCohort = async () => {
-    await deleteCohort(cohort.uuid);
+    await onDeleteCohort(cohort.id);
     setIsDeleteCohortModalVisible(false);
   };
 

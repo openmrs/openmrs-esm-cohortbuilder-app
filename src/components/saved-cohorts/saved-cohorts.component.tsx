@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import { showToast } from "@openmrs/esm-framework";
 import {
@@ -10,30 +10,30 @@ import {
   TableBody,
   TableCell,
   Pagination,
-  Search,
-  Button,
-  InlineLoading,
 } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
 import mainStyles from "../../cohort-builder.scss";
-import { PaginationData } from "../../types";
+import { DefinitionDataRow, PaginationData } from "../../types";
 import EmptyData from "../empty-data/empty-data.component";
 import SavedCohortsOptions from "./saved-cohorts-options/saved-cohorts-options.component";
-import { deleteCohort, getCohorts } from "./saved-cohorts.resource";
+import { onDeleteCohort, getCohorts } from "./saved-cohorts.resource";
 import styles from "./saved-cohorts.scss";
 
 interface SavedCohortsProps {
-  viewCohort: (queryId: string) => Promise<void>;
+  onViewCohort: (queryId: string) => Promise<void>;
 }
 
-const SavedCohorts: React.FC<SavedCohortsProps> = ({ viewCohort }) => {
+const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
   const [page, setPage] = useState(1);
-  const [searchText, setSearchText] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [cohorts, setCohorts] = useState([]);
   const [pageSize, setPageSize] = useState(10);
+  const [cohorts, setCohorts] = useState<DefinitionDataRow[]>([]);
   const { t } = useTranslation();
+
+  const getTableData = async () => {
+    const cohorts = await getCohorts();
+    setCohorts(cohorts);
+  };
 
   const headers = [
     {
@@ -55,37 +55,14 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ viewCohort }) => {
     setPageSize(pageSize);
   };
 
-  const handleSearch = async () => {
-    try {
-      setIsLoading(true);
-      const cohorts = await getCohorts(searchText);
-      setCohorts(cohorts);
-      setIsLoading(false);
-      showToast({
-        title: t("success", "Success!"),
-        kind: "success",
-        critical: true,
-        description: t("searchCompleted", "Search is completed"),
-      });
-    } catch (error) {
-      showToast({
-        title: t("cohortDeleteError", "Error deleting the cohort"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
-    }
-  };
-
   const handleDeleteCohort = async (cohortId: string) => {
     try {
-      await deleteCohort(cohortId);
-      setCohorts(cohorts.filter((cohort) => cohort.uuid != cohortId));
+      await onDeleteCohort(cohortId);
       showToast({
         title: t("success", "Success"),
         kind: "success",
         critical: true,
-        description: "the cohort is deleted",
+        description: t("cohortIsDeleted", "the cohort is deleted"),
       });
     } catch (error) {
       showToast({
@@ -97,32 +74,12 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ viewCohort }) => {
     }
   };
 
+  useEffect(() => {
+    getTableData();
+  }, [handleDeleteCohort]);
+
   return (
     <div className={styles.container}>
-      <div className={styles.searchContainer}>
-        <Search
-          closeButtonLabelText={t("clearSearch", "Clear search")}
-          id="cohort-search"
-          labelText={t("searchCohorts", "Search Cohorts")}
-          placeholder={t("searchCohorts", "Search Cohorts")}
-          onChange={(e) => setSearchText(e.target.value)}
-          onClear={() => setSearchText("")}
-          size="lg"
-          value={searchText}
-        />
-        <Button
-          kind="primary"
-          className={styles.searchBtn}
-          data-testid="search-cohorts"
-          onClick={handleSearch}
-        >
-          {isLoading ? (
-            <InlineLoading description={t("loading", "Loading")} />
-          ) : (
-            t("search", "Search")
-          )}
-        </Button>
-      </div>
       <p className={mainStyles.text}>
         {t(
           "savedCohortDescription",
@@ -154,8 +111,8 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ viewCohort }) => {
                     <TableCell className={mainStyles.optionCell}>
                       <SavedCohortsOptions
                         cohort={cohorts[index]}
-                        viewCohort={viewCohort}
-                        deleteCohort={handleDeleteCohort}
+                        onViewCohort={onViewCohort}
+                        onDeleteCohort={handleDeleteCohort}
                       />
                     </TableCell>
                   </TableRow>

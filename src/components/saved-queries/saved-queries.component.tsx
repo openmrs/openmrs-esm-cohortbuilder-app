@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import { showToast } from "@openmrs/esm-framework";
 import {
@@ -10,30 +10,53 @@ import {
   TableBody,
   TableCell,
   Pagination,
-  Search,
-  Button,
-  InlineLoading,
 } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
 import mainStyles from "../../cohort-builder.scss";
-import { PaginationData } from "../../types";
+import { DefinitionDataRow, PaginationData } from "../../types";
 import EmptyData from "../empty-data/empty-data.component";
 import SavedQueriesOptions from "./saved-queries-options/saved-queries-options.component";
 import { deleteDataSet, getQueries } from "./saved-queries.resource";
 import styles from "./saved-queries.scss";
 
 interface SavedQueriesProps {
-  viewQuery: (queryId: string) => Promise<void>;
+  onViewQuery: (queryId: string) => Promise<void>;
 }
 
-const SavedQueries: React.FC<SavedQueriesProps> = ({ viewQuery }) => {
+const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
   const [page, setPage] = useState(1);
-  const [searchText, setSearchText] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [queries, setQueries] = useState([]);
   const [pageSize, setPageSize] = useState(10);
   const { t } = useTranslation();
+  const [queries, setQueries] = useState<DefinitionDataRow[]>([]);
+
+  const getTableData = async () => {
+    const cohorts = await getQueries();
+    setQueries(cohorts);
+  };
+
+  const deleteQuery = async (queryId: string) => {
+    try {
+      await deleteDataSet(queryId);
+      showToast({
+        title: t("success", "Success"),
+        kind: "success",
+        critical: true,
+        description: t("queryIsDeleted", "the query is deleted"),
+      });
+    } catch (error) {
+      showToast({
+        title: t("queryDeleteError", "Error saving the query"),
+        kind: "error",
+        critical: true,
+        description: error?.message,
+      });
+    }
+  };
+
+  useEffect(() => {
+    getTableData();
+  }, [deleteQuery]);
 
   const headers = [
     {
@@ -55,74 +78,8 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ viewQuery }) => {
     setPageSize(pageSize);
   };
 
-  const handleSearch = async () => {
-    try {
-      setIsLoading(true);
-      const queries = await getQueries(searchText);
-      setQueries(queries);
-      setIsLoading(false);
-      showToast({
-        title: t("success", "Success!"),
-        kind: "success",
-        critical: true,
-        description: t("searchIsCompleted", "Search is completed"),
-      });
-    } catch (error) {
-      showToast({
-        title: t("somethingWentWrong", "Something went wrong"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
-    }
-  };
-
-  const deleteQuery = async (queryId: string) => {
-    try {
-      await deleteDataSet(queryId);
-      setQueries(queries.filter((query) => query.uuid != queryId));
-      showToast({
-        title: t("success", "Success"),
-        kind: "success",
-        critical: true,
-        description: t("queryIsDeleted", "the query is deleted"),
-      });
-    } catch (error) {
-      showToast({
-        title: t("queryDeleteError", "Error saving the query"),
-        kind: "error",
-        critical: true,
-        description: error?.message,
-      });
-    }
-  };
-
   return (
     <div className={styles.container}>
-      <div className={styles.searchContainer}>
-        <Search
-          closeButtonLabelText={t("clearSearch", "Clear search")}
-          id="query-search"
-          labelText={t("searchQueries", "Search Queries")}
-          placeholder={t("searchQueries", "Search Queries")}
-          onChange={(e) => setSearchText(e.target.value)}
-          onClear={() => setSearchText("")}
-          size="lg"
-          value={searchText}
-        />
-        <Button
-          kind="primary"
-          className={styles.searchBtn}
-          data-testid="search-queries"
-          onClick={handleSearch}
-        >
-          {isLoading ? (
-            <InlineLoading description={t("loading", "Loading")} />
-          ) : (
-            t("search", "Search")
-          )}
-        </Button>
-      </div>
       <p className={mainStyles.text}>
         {t(
           "savedQueryDescription",
@@ -154,7 +111,7 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ viewQuery }) => {
                     <TableCell className={mainStyles.optionCell}>
                       <SavedQueriesOptions
                         query={queries[index]}
-                        viewQuery={viewQuery}
+                        onViewQuery={onViewQuery}
                         deleteQuery={deleteQuery}
                       />
                     </TableCell>

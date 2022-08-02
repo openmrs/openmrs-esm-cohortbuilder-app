@@ -2,46 +2,45 @@ import React from "react";
 
 import { render, cleanup, fireEvent } from "@testing-library/react";
 
-import { Response } from "../../../types";
+import { DefinitionDataRow } from "../../../types";
 import SavedCohortsOptions from "./saved-cohorts-options.component";
 
-const cohort: Response = {
-  description: "Female Patients that are alive",
+const cohort: DefinitionDataRow = {
   id: "1",
-  uuid: "1",
-  display: "",
+  name: "Female Patients",
+  description: "Female Patients that are alive",
 };
 
 describe("Test the saved cohorts options", () => {
   afterEach(cleanup);
   it("should be able to view the saved cohort", async () => {
-    const viewCohort = jest.fn();
+    const onViewCohort = jest.fn();
     const { getByTestId } = render(
       <SavedCohortsOptions
         cohort={cohort}
-        viewCohort={viewCohort}
-        deleteCohort={jest.fn()}
+        onViewCohort={onViewCohort}
+        onDeleteCohort={jest.fn()}
       />
     );
 
     fireEvent.click(getByTestId("options"));
     fireEvent.click(getByTestId("view"));
-    expect(viewCohort).toBeCalledWith(cohort.uuid);
+    expect(onViewCohort).toBeCalledWith(cohort.id);
   });
 
   it("should be able delete a cohort", async () => {
-    const deleteCohort = jest.fn();
+    const onDeleteCohort = jest.fn();
     const { getByText, getByTestId } = render(
       <SavedCohortsOptions
         cohort={cohort}
-        viewCohort={jest.fn()}
-        deleteCohort={deleteCohort}
+        onViewCohort={jest.fn()}
+        onDeleteCohort={onDeleteCohort}
       />
     );
 
     fireEvent.click(getByTestId("options"));
     fireEvent.click(getByTestId("delete"));
     fireEvent.click(getByText("Delete"));
-    expect(deleteCohort).toBeCalledWith(cohort.uuid);
+    expect(onDeleteCohort).toBeCalledWith(cohort.id);
   });
 });

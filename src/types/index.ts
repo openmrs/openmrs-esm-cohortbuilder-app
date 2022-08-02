@@ -103,3 +103,9 @@ export interface EncounterDetails {
   encounterLocations: DropdownValue[];
   selectedEncounterTypes: DropdownValue[];
 }
+
+export interface DefinitionDataRow {
+  id: string;
+  name: string;
+  description: string;
+}
