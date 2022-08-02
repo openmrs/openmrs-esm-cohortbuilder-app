@@ -4,9 +4,15 @@ import { showToast } from "@openmrs/esm-framework";
 import { Tab, Tabs } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
-import { search } from "./cohort-builder.resource";
+import {
+  getCohortMembers,
+  getDataSet,
+  search,
+} from "./cohort-builder.resource";
 import styles from "./cohort-builder.scss";
 import { addToHistory } from "./cohort-builder.utils";
+import SavedCohorts from "./components/saved-cohorts/saved-cohorts.component";
+import SavedQueries from "./components/saved-queries/saved-queries.component";
 import SearchByConcepts from "./components/search-by-concepts/search-by-concepts.component";
 import SearchByDemographics from "./components/search-by-demographics/search-by-demographics.component";
 import SearchByEncounters from "./components/search-by-encounters/search-by-encounters.component";
@@ -68,6 +74,54 @@ const CohortBuilder: React.FC = () => {
     });
   };
 
+  const getQueryResults = async (queryId: string) => {
+    try {
+      const patients = await getDataSet(queryId);
+      setPatients(patients);
+      showToast({
+        title: t("success", "Success!"),
+        kind: "success",
+        critical: true,
+        description: t(
+          "searchIsCompleted",
+          `Search is completed with ${patients.length} result(s)`,
+          { numOfResults: patients.length }
+        ),
+      });
+    } catch (error) {
+      showToast({
+        title: t("error", "Error"),
+        kind: "error",
+        critical: true,
+        description: error?.message,
+      });
+    }
+  };
+
+  const getCohortResults = async (cohortId: string) => {
+    try {
+      const patients = await getCohortMembers(cohortId);
+      setPatients(patients);
+      showToast({
+        title: t("success", "Success!"),
+        kind: "success",
+        critical: true,
+        description: t(
+          "searchIsCompleted",
+          `Search is completed with ${patients.length} result(s)`,
+          { numOfResults: patients.length }
+        ),
+      });
+    } catch (error) {
+      showToast({
+        title: t("error", "Error"),
+        kind: "error",
+        critical: true,
+        description: error?.message,
+      });
+    }
+  };
+
   const tabs: TabItem[] = [
     {
       name: t("concepts", "Concepts"),
@@ -106,8 +160,12 @@ const CohortBuilder: React.FC = () => {
       component: <span></span>,
     },
     {
-      name: t("savedDefinitions", "Saved Definitions"),
-      component: <span></span>,
+      name: t("savedDefinitions", "Saved Cohorts"),
+      component: <SavedCohorts onViewCohort={getCohortResults} />,
+    },
+    {
+      name: t("savedDefinitions", "Saved Queries"),
+      component: <SavedQueries onViewQuery={getQueryResults} />,
     },
   ];
 

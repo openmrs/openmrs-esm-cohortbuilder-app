@@ -1,0 +1,15 @@
+.container {
+  background: white;
+  padding: 1rem;
+}
+
+.searchContainer {
+ display: flex;
+ margin-bottom: 2rem;
+}
+
+.searchBtn{
+  &:global(.bx--btn) {
+    min-height: 1rem;
+  }
+}

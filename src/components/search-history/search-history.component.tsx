@@ -16,7 +16,7 @@ import {
 } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
-import mainStyle from "../../cohort-builder.scss";
+import mainStyles from "../../cohort-builder.scss";
 import { PaginationData, SearchHistoryItem } from "../../types";
 import EmptyData from "../empty-data/empty-data.component";
 import SearchHistoryOptions from "./search-history-options/search-history-options.component";
@@ -87,7 +87,7 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <p className={mainStyle.heading}>
+        <p className={mainStyles.heading}>
           {t("searchHistory", "Search History")}
         </p>
         {searchResults.length > 0 && (
@@ -109,21 +109,21 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({
                     {header.header}
                   </TableHeader>
                 ))}
-                <TableHeader className={styles.optionHeader}></TableHeader>
+                <TableHeader className={mainStyles.optionHeader}></TableHeader>
               </TableRow>
             </TableHead>
             <TableBody>
               {rows
                 .slice((page - 1) * pageSize)
                 .slice(0, pageSize)
-                .map((row) => (
+                .map((row, index: number) => (
                   <TableRow {...getRowProps({ row })}>
                     {row.cells.map((cell) => (
                       <TableCell key={cell.id}>{cell.value}</TableCell>
                     ))}
-                    <TableCell className={styles.optionCell}>
+                    <TableCell className={mainStyles.optionCell}>
                       <SearchHistoryOptions
-                        searchItem={searchResults[row.id - 1]}
+                        searchItem={searchResults[index]}
                         updateSearchHistory={updateSearchHistory}
                       />
                     </TableCell>

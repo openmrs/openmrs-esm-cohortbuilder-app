@@ -37,6 +37,10 @@
   padding: 0;
 }
 
+:global(.bx--inline-loading__text) {
+  color: white
+}
+
 .verticalTabs {
   margin: 1rem 0;
   width: 20%;
@@ -78,4 +82,17 @@
   padding-right: 1rem;
   padding-top: 1rem;
   margin-bottom: 1rem;
+}
+
+.optionCell {
+  padding: 0 !important;
+}
+
+.optionHeader {
+  width: 1.5rem !important;
+}
+
+.text {
+ font-size: 0.9rem;
+ padding: 0.5rem;
 }

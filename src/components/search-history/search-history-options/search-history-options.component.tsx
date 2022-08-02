@@ -13,8 +13,8 @@ import {
 } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
+import { downloadCSV } from "../../../cohort-builder.utils";
 import { Cohort, Patient, SearchHistoryItem } from "../../../types";
-import { downloadCSV } from "../search-history.utils";
 import { createCohort, createQuery } from "./search-history-options.resources";
 
 enum Option {
@@ -83,7 +83,7 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({
       setCohortDescription("");
       setIsSaveCohortModalVisible(false);
       showToast({
-        title: t("cohortCreateSuccess", "Success"),
+        title: t("success", "Success"),
         kind: "success",
         critical: true,
         description: "the cohort is saved",
@@ -103,14 +103,14 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({
       updateSearchHistory(searchItem);
       setIsDeleteCohortModalVisible(false);
       showToast({
-        title: t("cohortCreateSuccess", "Success"),
+        title: t("success", "Success"),
         kind: "success",
         critical: true,
         description: "the search item is deleted",
       });
     } catch (error) {
       showToast({
-        title: t("cohortDeleteError", "Error deleting the search item"),
+        title: t("searchItemDeleteError", "Error deleting the cohort"),
         kind: "error",
         critical: true,
         description: error?.message,
@@ -128,7 +128,7 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({
       setQueryDescription("");
       setIsSaveQueryModalVisible(false);
       showToast({
-        title: t("queryCreateSuccess", "Success"),
+        title: t("success", "Success"),
         kind: "success",
         critical: true,
         description: "the query is saved",

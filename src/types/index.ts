@@ -52,11 +52,12 @@ export interface DataType {
 }
 
 export interface Cohort {
+  id?: string;
   uuid?: string;
-  display: string;
+  display?: string;
   name: string;
   description: string;
-  memberIds: number[];
+  memberIds?: number[];
 }
 
 export interface SearchHistoryItem {
@@ -88,6 +89,9 @@ export interface SearchByProps {
 export interface Response {
   uuid: string;
   display: string;
+  description?: string;
+  name?: string;
+  id?: string;
 }
 
 export interface EncounterDetails {
@@ -98,4 +102,10 @@ export interface EncounterDetails {
   encounterForms: DropdownValue[];
   encounterLocations: DropdownValue[];
   selectedEncounterTypes: DropdownValue[];
+}
+
+export interface DefinitionDataRow {
+  id: string;
+  name: string;
+  description: string;
 }
