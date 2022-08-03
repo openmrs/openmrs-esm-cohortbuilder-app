@@ -130,7 +130,7 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
           <p className={styles.text}>{t("age", "Age")}</p>
         </Column>
         <Column className={styles.age}>
-          <div className={styles.multipleInputs}>
+          <Column>
             <NumberInput
               id="minAge"
               data-testid="minAge"
@@ -140,12 +140,11 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
                 "The age must be greater than 0"
               )}
               min={0}
-              size="sm"
               value={minAge}
               onChange={(event) => setMinAge(event.imaginaryTarget.value)}
             />
-          </div>
-          <div className={styles.multipleInputs}>
+          </Column>
+          <Column>
             <NumberInput
               id="maxAge"
               data-testid="maxAge"
@@ -156,11 +155,10 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
               )}
               min={0}
               max={200}
-              size="sm"
               value={maxAge}
               onChange={(event) => setMaxAge(event.imaginaryTarget.value)}
             />
-          </div>
+          </Column>
         </Column>
       </div>
       <div className={styles.column}>

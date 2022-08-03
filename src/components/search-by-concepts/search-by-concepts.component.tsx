@@ -272,37 +272,31 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
             />
           </Column>
         )}
-        <Column className={styles.column}>
-          <div className={styles.daysContainer}>
-            <div
-              className={styles.multipleInputs}
-              style={{ width: 20, marginRight: 20 }}
-            >
-              <NumberInput
-                id="last-months"
-                data-testid="last-months"
-                label={t("withinTheLast", "Within the last months")}
-                invalidText={t("numberIsNotValid", "Number is not valid")}
-                min={0}
-                size="sm"
-                value={lastMonths}
-                onChange={(event) => setLastMonths(event.imaginaryTarget.value)}
-              />
-            </div>
-            <div className={styles.multipleInputs}>
-              <NumberInput
-                label={t("lastDays", "and / or days")}
-                id="last-days"
-                data-testid="last-days"
-                style={{ width: 20 }}
-                invalidText={t("numberIsNotValid", "Number is not valid")}
-                min={0}
-                size="sm"
-                value={lastDays}
-                onChange={(event) => setLastDays(event.imaginaryTarget.value)}
-              />
-            </div>
-          </div>
+        <Column className={styles.dateRange}>
+          <Column>
+            <NumberInput
+              id="last-months"
+              data-testid="last-months"
+              label={t("withinTheLast", "Within the last months")}
+              invalidText={t("numberIsNotValid", "Number is not valid")}
+              min={0}
+              size="sm"
+              value={lastMonths}
+              onChange={(event) => setLastMonths(event.imaginaryTarget.value)}
+            />
+          </Column>
+          <Column>
+            <NumberInput
+              label={t("lastDays", "and / or days")}
+              id="last-days"
+              data-testid="last-days"
+              invalidText={t("numberIsNotValid", "Number is not valid")}
+              min={0}
+              size="sm"
+              value={lastDays}
+              onChange={(event) => setLastDays(event.imaginaryTarget.value)}
+            />
+          </Column>
         </Column>
         <div className={styles.dateRange}>
           <Column>

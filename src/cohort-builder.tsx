@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { showToast } from "@openmrs/esm-framework";
+import { showToast, useLayoutType } from "@openmrs/esm-framework";
 import { Tab, Tabs } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
@@ -33,6 +33,7 @@ const CohortBuilder: React.FC = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [isHistoryUpdated, setIsHistoryUpdated] = useState(true);
   const [selectedTab, setSelectedTab] = useState(0);
+  const isLayoutTablet = useLayoutType() === "tablet";
 
   const runSearch = (
     searchParams: SearchParams,
@@ -171,14 +172,22 @@ const CohortBuilder: React.FC = () => {
 
   return (
     <div className={`omrs-main-content ${styles.mainContainer}`}>
-      <div className={styles.container}>
+      <div
+        className={
+          isLayoutTablet ? styles.tabletContainer : styles.desktopContainer
+        }
+      >
         <p className={styles.title}>{t("cohortBuilder", "Cohort Builder")}</p>
         <div className={styles.tabContainer}>
           <p className={styles.heading}>
             {t("searchCriteria", "Search Criteria")}
           </p>
           <div className={styles.searchContainer}>
-            <Tabs className={styles.verticalTabs}>
+            <Tabs
+              className={`${styles.verticalTabs} ${
+                isLayoutTablet ? styles.tabletTab : styles.desktopTab
+              }`}
+            >
               {tabs.map((tab: TabItem, index: number) => (
                 <Tab
                   key={index}
