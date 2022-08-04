@@ -44,6 +44,7 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
         critical: true,
         description: t("queryIsDeleted", "the query is deleted"),
       });
+      getTableData();
     } catch (error) {
       showToast({
         title: t("queryDeleteError", "Error saving the query"),
@@ -56,13 +57,9 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
 
   useEffect(() => {
     getTableData();
-  }, [deleteQuery]);
+  }, []);
 
   const headers = [
-    {
-      key: "id",
-      header: t("id", "id"),
-    },
     {
       key: "name",
       header: t("name", "Name"),
