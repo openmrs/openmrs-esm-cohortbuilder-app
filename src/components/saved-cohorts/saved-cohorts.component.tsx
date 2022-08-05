@@ -37,10 +37,6 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
 
   const headers = [
     {
-      key: "id",
-      header: t("id", "id"),
-    },
-    {
       key: "name",
       header: t("name", "Name"),
     },
@@ -64,6 +60,7 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
         critical: true,
         description: t("cohortIsDeleted", "the cohort is deleted"),
       });
+      getTableData();
     } catch (error) {
       showToast({
         title: t("cohortDeleteError", "Error deleting the cohort"),
@@ -76,7 +73,7 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
 
   useEffect(() => {
     getTableData();
-  }, [handleDeleteCohort]);
+  }, []);
 
   return (
     <div className={styles.container}>
