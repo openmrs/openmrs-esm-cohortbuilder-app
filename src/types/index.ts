@@ -109,3 +109,12 @@ export interface DefinitionDataRow {
   name: string;
   description: string;
 }
+
+export interface DrugOrderDetails {
+  selectedDrugs: DropdownValue[];
+  selectedCareSetting: DropdownValue;
+  activeOnOrBefore: string;
+  activeOnOrAfter: string;
+  activatedOnOrBefore: string;
+  activatedOnOrAfter: string;
+}
