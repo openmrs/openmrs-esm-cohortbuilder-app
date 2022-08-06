@@ -16,7 +16,7 @@ export const getDescription = ({
     selectedDrugs
       .map((encounterType) => encounterType.label)
       .join(", ")
-      .replace(/,(?=[^,]*$)/, " and ");
+      .replace(/,(?=[^,]*$)/, " and");
 
   if (selectedCareSetting) {
     description += ` from ${selectedCareSetting.label}`;

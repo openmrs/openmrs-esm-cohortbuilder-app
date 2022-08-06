@@ -83,7 +83,7 @@ const SearchByDrugOrder: React.FC<SearchByProps> = ({ onSubmit }) => {
             data-testid="drugs"
             onChange={(data) => setSelectedDrugs(data.selectedItems)}
             items={drugs}
-            label={t("selectLocations", "Select drugs")}
+            label={t("selectDrugs", "Select drugs")}
           />
         </div>
       </Column>
@@ -95,7 +95,7 @@ const SearchByDrugOrder: React.FC<SearchByProps> = ({ onSubmit }) => {
             onChange={(data) => setSelectedCareSetting(data.selectedItem)}
             initialSelectedItem={careSettings[0]}
             items={careSettings}
-            label={t("selectMethod", "Select a care setting")}
+            label={t("selectCareSettings", "Select a care setting")}
           />
         </Column>
       </div>

@@ -105,5 +105,9 @@
   "savedCohortDescription": "You can only search for Cohort Definitions that you have saved using a Name.",
   "savedQueryDescription": "You can only search for Query Definitions that you have saved using a Name.",
   "somethingWentWrong": "Something went wrong",
+  "selectDrugs": "Select drugs",
+  "selectCareSettings": "Select a care setting",
+  "using": "Using between",
+  "used": "Used between",
   "searchQueries": "Search Queries"
 }
