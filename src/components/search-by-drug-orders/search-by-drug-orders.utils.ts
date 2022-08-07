@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import { formatDate } from "@openmrs/esm-framework";
 
 import { composeJson } from "../../cohort-builder.utils";
 import { DrugOrderDetails } from "./../../types/index";
@@ -14,7 +14,7 @@ export const getDescription = ({
   let description =
     "Patients who taking " +
     selectedDrugs
-      .map((encounterType) => encounterType.label)
+      .map((drug) => drug.label)
       .join(", ")
       .replace(/,(?=[^,]*$)/, " and");
 
@@ -23,7 +23,7 @@ export const getDescription = ({
   }
 
   if (activeOnOrAfter) {
-    const date = dayjs(activeOnOrAfter).format("DD/MM/YYYY");
+    const date = formatDate(new Date(activeOnOrAfter), { mode: "standard" });
     if (activeOnOrBefore) {
       description += ` from ${date}`;
     } else {
@@ -32,7 +32,7 @@ export const getDescription = ({
   }
 
   if (activeOnOrBefore) {
-    const date = dayjs(activeOnOrBefore).format("DD/MM/YYYY");
+    const date = formatDate(new Date(activeOnOrBefore), { mode: "standard" });
     if (activeOnOrAfter) {
       description += ` to ${date}`;
     } else {
@@ -41,7 +41,7 @@ export const getDescription = ({
   }
 
   if (activatedOnOrAfter) {
-    const date = dayjs(activatedOnOrAfter).format("DD/MM/YYYY");
+    const date = formatDate(new Date(activatedOnOrAfter), { mode: "standard" });
     if (activatedOnOrBefore) {
       description += ` from ${date}`;
     } else {
@@ -50,7 +50,9 @@ export const getDescription = ({
   }
 
   if (activatedOnOrBefore) {
-    const date = dayjs(activatedOnOrBefore).format("DD/MM/YYYY");
+    const date = formatDate(new Date(activatedOnOrBefore), {
+      mode: "standard",
+    });
     if (activatedOnOrAfter) {
       description += ` to ${date}`;
     } else {

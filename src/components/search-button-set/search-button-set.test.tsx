@@ -1,6 +1,6 @@
 import React from "react";
 
-import { render, fireEvent } from "@testing-library/react";
+import { render, fireEvent, act } from "@testing-library/react";
 
 import SearchButtonSet from "./search-button-set";
 
@@ -15,9 +15,13 @@ describe("Test the search button set component", () => {
         isLoading={false}
       />
     );
-    fireEvent.click(getByTestId("reset-btn"));
+    act(() => {
+      fireEvent.click(getByTestId("reset-btn"));
+    });
     expect(handleReset).toBeCalled();
-    fireEvent.click(getByTestId("search-btn"));
+    act(() => {
+      fireEvent.click(getByTestId("search-btn"));
+    });
     expect(handleSubmit).toBeCalled();
   });
 });

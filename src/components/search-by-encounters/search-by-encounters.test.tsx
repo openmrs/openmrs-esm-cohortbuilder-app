@@ -1,12 +1,6 @@
 import React from "react";
 
-import {
-  render,
-  cleanup,
-  fireEvent,
-  waitFor,
-  act,
-} from "@testing-library/react";
+import { render, cleanup, fireEvent, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import translations from "../../../translations/en.json";
@@ -147,11 +141,6 @@ describe("Test the search by encounters component", () => {
     const { getByTestId, getByText } = render(
       <SearchByEncounters onSubmit={submit} />
     );
-    await waitFor(() => {
-      expect(jest.spyOn(commonApis, "useLocations"));
-      expect(jest.spyOn(apis, "useForms"));
-      expect(jest.spyOn(apis, "useEncounterTypes"));
-    });
 
     fireEvent.click(getByText(translations.selectEncounterTypes));
     fireEvent.click(getByText(mockEncounterTypes[4].label));

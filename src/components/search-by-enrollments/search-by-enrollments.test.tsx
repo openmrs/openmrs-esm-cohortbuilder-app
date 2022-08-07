@@ -1,6 +1,6 @@
 import React from "react";
 
-import { render, fireEvent, waitFor, act } from "@testing-library/react";
+import { render, fireEvent, act } from "@testing-library/react";
 
 import translations from "../../../translations/en.json";
 import * as commonApis from "../../cohort-builder.resource";
@@ -98,10 +98,6 @@ describe("Test the search by enrollments component", () => {
     const { getByTestId, getByText } = render(
       <SearchByEnrollments onSubmit={submit} />
     );
-    await waitFor(() => {
-      expect(jest.spyOn(commonApis, "useLocations"));
-      expect(jest.spyOn(apis, "usePrograms"));
-    });
 
     fireEvent.click(getByText(translations.selectLocations));
     fireEvent.click(getByText(mockLocations[2].label));

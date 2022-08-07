@@ -1,6 +1,6 @@
 import React from "react";
 
-import { render, fireEvent, waitFor, act } from "@testing-library/react";
+import { render, fireEvent, act } from "@testing-library/react";
 
 import translations from "../../../translations/en.json";
 import SearchByDrugOrder from "./search-by-drug-orders.component";
@@ -102,17 +102,30 @@ describe("Test the search by drug orders component", () => {
     const { getByTestId, getByTitle, getByText } = render(
       <SearchByDrugOrder onSubmit={submit} />
     );
-    await waitFor(() => {
-      expect(jest.spyOn(apis, "useDrugs"));
-      expect(jest.spyOn(apis, "useCareSettings"));
+
+    act(() => {
+      fireEvent.click(getByText(translations.selectDrugs));
     });
 
-    fireEvent.click(getByText(translations.selectDrugs));
-    fireEvent.click(getByText(mockDrugs[1].label));
-    fireEvent.click(getByText(mockDrugs[2].label));
-    fireEvent.click(getByTitle(mockCareSettings[0].label));
-    fireEvent.click(getByText(mockCareSettings[2].label));
-    fireEvent.click(getByTestId("search-btn"));
+    act(() => {
+      fireEvent.click(getByText(mockDrugs[1].label));
+    });
+
+    act(() => {
+      fireEvent.click(getByText(mockDrugs[2].label));
+    });
+
+    act(() => {
+      fireEvent.click(getByTitle(mockCareSettings[0].label));
+    });
+
+    act(() => {
+      fireEvent.click(getByText(mockCareSettings[2].label));
+    });
+
+    act(() => {
+      fireEvent.click(getByTestId("search-btn"));
+    });
 
     await act(async () => {
       expect(submit).toBeCalledWith(
