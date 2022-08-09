@@ -15,6 +15,7 @@ import SavedCohorts from "./components/saved-cohorts/saved-cohorts.component";
 import SavedQueries from "./components/saved-queries/saved-queries.component";
 import SearchByConcepts from "./components/search-by-concepts/search-by-concepts.component";
 import SearchByDemographics from "./components/search-by-demographics/search-by-demographics.component";
+import SearchByDrugOrder from "./components/search-by-drug-orders/search-by-drug-orders.component";
 import SearchByEncounters from "./components/search-by-encounters/search-by-encounters.component";
 import SearchByEnrollments from "./components/search-by-enrollments/search-by-enrollments.component";
 import SearchByLocation from "./components/search-by-location/search-by-location.component";
@@ -150,7 +151,7 @@ const CohortBuilder: React.FC = () => {
     },
     {
       name: t("drugOrder", "Drug Order"),
-      component: <span></span>,
+      component: <SearchByDrugOrder onSubmit={runSearch} />,
     },
     {
       name: "SQL",
