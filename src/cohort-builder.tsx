@@ -11,6 +11,7 @@ import {
 } from "./cohort-builder.resource";
 import styles from "./cohort-builder.scss";
 import { addToHistory } from "./cohort-builder.utils";
+import Composition from "./components/composition/composition.component";
 import SavedCohorts from "./components/saved-cohorts/saved-cohorts.component";
 import SavedQueries from "./components/saved-queries/saved-queries.component";
 import SearchByConcepts from "./components/search-by-concepts/search-by-concepts.component";
@@ -159,7 +160,7 @@ const CohortBuilder: React.FC = () => {
     },
     {
       name: t("composition", "Composition"),
-      component: <span></span>,
+      component: <Composition onSubmit={runSearch} />,
     },
     {
       name: t("savedDefinitions", "Saved Cohorts"),
