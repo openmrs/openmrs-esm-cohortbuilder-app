@@ -8,10 +8,12 @@ export const isCompositionValid = (search: string) => {
   );
 };
 
-const formatFilterCombination = (filterText: string, numberOfSearches) => {
-  return filterText.replace(
-    /\d/,
-    (theDigit) => parseInt(theDigit) + numberOfSearches
+const formatFilterCombination = (
+  filterText: string,
+  numberOfSearches: number
+) => {
+  return filterText.replace(/\d/, (theDigit) =>
+    (parseInt(theDigit) + numberOfSearches).toString()
   );
 };
 

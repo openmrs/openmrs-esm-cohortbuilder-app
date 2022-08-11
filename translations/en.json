@@ -111,5 +111,9 @@
   "used": "Used between",
   "searchQueries": "Search Queries",
   "description": "Description",
+  "compositionExplanationOne": "This query combines multiple cohorts using the logical operators:- AND,OR and NOT.",
+  "compositionExplanationTwo": "To use this query, you need to have query results from the other queries in your search history. These are the queries which will then be combined to yield new results.",
+  "compositionExplanationThree": "Example: There is a cohort of patients who are males at #1, and a cohort of patients with ages between 23 and 35 years at #2 in the search history.",
+  "compositionExplanationFour": "You can create a query with a composition '1 AND 2' and add a brief meaningful description for the new query.",
   "invalidComposition": "Composition is not valid"
 }

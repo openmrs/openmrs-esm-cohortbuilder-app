@@ -60,28 +60,6 @@ const Composition: React.FC<SearchByProps> = ({ onSubmit }) => {
         value={compositionQuery}
       />
       <br />
-      <p>
-        This query combines multiple cohorts using the logical operators:-{" "}
-        <strong>'AND'</strong>,<strong> 'OR'</strong>, and{" "}
-        <strong>'NOT'.</strong>
-      </p>
-      <br />
-      <p>
-        To use this query, you need to have query results from the{" "}
-        <strong>other queries</strong> in your <strong>search history</strong>.
-        These are the queries which will then be combined to yeild new results.
-      </p>
-      <br />
-      <p>
-        <strong>Example:</strong> There is a cohort of patients who are males at{" "}
-        <strong>#1</strong>, and a cohort of patients with ages between 23 and
-        35 years at <strong>#2</strong> in the search history.
-        <br />
-        You can create a query with a composition <strong>'1 AND 2' </strong>
-        and add a brief meaningful description for the new query. To view a
-        result for the combined queries.
-      </p>
-      <br />
       <TextInput
         data-modal-primary-focus
         required
@@ -91,6 +69,34 @@ const Composition: React.FC<SearchByProps> = ({ onSubmit }) => {
         onChange={(e) => setDescription(e.target.value)}
         value={description}
       />
+      <br />
+      <p>
+        {t(
+          "compositionExplanationOne",
+          "This query combines multiple cohorts using the logical operators:- AND,OR and NOT."
+        )}
+      </p>
+      <br />
+      <p>
+        {t(
+          "compositionExplanationTwo",
+          "To use this query, you need to have query results from the other queries in your search history. These are the queries which will then be combined to yield new results."
+        )}
+      </p>
+      <br />
+      <p>
+        {t(
+          "compositionExplanationThree",
+          "Example: There is a cohort of patients who are males at #1, and a cohort of patients with ages between 23 and 35 years at #2 in the search history."
+        )}
+      </p>
+      <br />
+      <p>
+        {t(
+          "compositionExplanationFour",
+          "You can create a query with a composition '1 AND 2' and add a brief meaningful description for the new query."
+        )}
+      </p>
       <SearchButtonSet
         onHandleReset={handleResetInputs}
         onHandleSubmit={submit}
