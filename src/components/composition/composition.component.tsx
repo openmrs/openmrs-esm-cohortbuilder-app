@@ -22,6 +22,11 @@ const Composition: React.FC<SearchByProps> = ({ onSubmit }) => {
     setCompositionQuery("");
   };
 
+  const handleCompositionQuery = (composition: string) => {
+    setCompositionQuery(composition);
+    setDescription("Composition of " + composition);
+  };
+
   const submit = async () => {
     setIsLoading(true);
     try {
@@ -54,9 +59,9 @@ const Composition: React.FC<SearchByProps> = ({ onSubmit }) => {
         data-modal-primary-focus
         required
         labelText={t("composition", "Composition")}
-        data-testid="composition-name"
-        id="composition-name"
-        onChange={(e) => setCompositionQuery(e.target.value)}
+        data-testid="composition-query"
+        id="composition-query"
+        onChange={(e) => handleCompositionQuery(e.target.value)}
         value={compositionQuery}
       />
       <br />

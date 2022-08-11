@@ -75,7 +75,7 @@ describe("Test the composition component", () => {
     const submit = jest.fn();
     render(<Composition onSubmit={submit} />);
 
-    const searchInput = screen.getByTestId("composition-name");
+    const searchInput = screen.getByTestId("composition-query");
     fireEvent.click(searchInput);
     await userEvent.type(searchInput, "random text");
 
@@ -86,26 +86,21 @@ describe("Test the composition component", () => {
   it("should be to search a composition query", async () => {
     const submit = jest.fn();
     const compositionQuery = "1 and 2";
-    const compositionDescription = "my composition";
 
     jest
       .spyOn(utils, "createCompositionQuery")
       .mockReturnValue(mockCompositionQuery);
     render(<Composition onSubmit={submit} />);
 
-    const compositionInput = screen.getByTestId("composition-name");
+    const compositionInput = screen.getByTestId("composition-query");
     fireEvent.click(compositionInput);
     await userEvent.type(compositionInput, compositionQuery);
-
-    const descriptionInput = screen.getByTestId("composition-description");
-    fireEvent.click(descriptionInput);
-    await userEvent.type(descriptionInput, compositionDescription);
 
     fireEvent.click(screen.getByTestId("search-btn"));
     await waitFor(() => {
       expect(submit).toBeCalledWith(
         mockCompositionQuery,
-        compositionDescription
+        "Composition of 1 and 2"
       );
     });
   });
