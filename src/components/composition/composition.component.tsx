@@ -15,26 +15,37 @@ const Composition: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [compositionQuery, setCompositionQuery] = useState("");
   const [description, setDescription] = useState("");
-  const [compositionError, setCompositionError] = useState("");
   const { t } = useTranslation();
 
   const handleResetInputs = () => {
     setDescription("");
-    setCompositionError("");
     setCompositionQuery("");
   };
 
   const submit = async () => {
     setIsLoading(true);
-    setCompositionError("");
     try {
-      isCompositionValid(compositionQuery);
-      const searchParams = createCompositionQuery(compositionQuery);
-      await onSubmit(searchParams, description);
+      if (isCompositionValid(compositionQuery)) {
+        const searchParams = createCompositionQuery(compositionQuery);
+        await onSubmit(searchParams, description);
+      } else {
+        showNotification({
+          title: t("error", "Error!"),
+          kind: "error",
+          critical: true,
+          description: t("invalidComposition", "Composition is not valid"),
+        });
+      }
+      setIsLoading(false);
     } catch (error) {
-      setCompositionError("Composition is not valid");
+      setIsLoading(false);
+      showNotification({
+        title: t("error", "Error!"),
+        kind: "error",
+        critical: true,
+        description: t("invalidComposition", "Composition is not valid"),
+      });
     }
-    setIsLoading(false);
   };
 
   return (
@@ -62,28 +73,21 @@ const Composition: React.FC<SearchByProps> = ({ onSubmit }) => {
       </p>
       <br />
       <p>
-        <strong>Example:</strong> There is a cohort of patients who weigh less
-        than 100 KG at <strong>#1</strong>, and a cohort of patients with ages
-        between 23 and 35 years at <strong>#2</strong> in the search history.
+        <strong>Example:</strong> There is a cohort of patients who are males at{" "}
+        <strong>#1</strong>, and a cohort of patients with ages between 23 and
+        35 years at <strong>#2</strong> in the search history.
         <br />
         You can create a query with a composition <strong>'1 AND 2' </strong>
         and add a brief meaningful description for the new query. To view a
         result for the combined queries.
       </p>
       <br />
-      {compositionError &&
-        showNotification({
-          title: t("error", "Error!"),
-          kind: "error",
-          critical: true,
-          description: t("searchIsCompleted", compositionError),
-        })}
       <TextInput
         data-modal-primary-focus
         required
         labelText={t("description", "Description")}
-        data-testid="cohort-name"
-        id="cohort-name"
+        data-testid="composition-description"
+        id="composition-description"
         onChange={(e) => setDescription(e.target.value)}
         value={description}
       />
