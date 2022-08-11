@@ -73,30 +73,24 @@ const Composition: React.FC<SearchByProps> = ({ onSubmit }) => {
       <p>
         {t(
           "compositionExplanationOne",
-          "This query combines multiple cohorts using the logical operators:- AND,OR and NOT."
+          "A composition query combines together the results of multiple cohorts using the logical operators: AND, OR and NOT."
         )}
       </p>
       <br />
       <p>
         {t(
           "compositionExplanationTwo",
-          "To use this query, you need to have query results from the other queries in your search history. These are the queries which will then be combined to yield new results."
+          "To use this query you need to already have query results in your search history. Those existing query results can then be combined to yield the results of the composition query."
         )}
       </p>
       <br />
       <p>
         {t(
           "compositionExplanationThree",
-          "Example: There is a cohort of patients who are males at #1, and a cohort of patients with ages between 23 and 35 years at #2 in the search history."
+          "Example: if the search history #1 is a cohort of patients who are males, and if the search history #2 is a cohort of patients with ages between 23 and 35 years; then '1 AND 2' will result in a cohort of patients who are males with ages between 23 and 35 years."
         )}
       </p>
       <br />
-      <p>
-        {t(
-          "compositionExplanationFour",
-          "You can create a query with a composition '1 AND 2' and add a brief meaningful description for the new query."
-        )}
-      </p>
       <SearchButtonSet
         onHandleReset={handleResetInputs}
         onHandleSubmit={submit}
