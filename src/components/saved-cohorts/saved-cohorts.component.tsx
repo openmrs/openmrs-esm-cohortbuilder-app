@@ -17,7 +17,7 @@ import mainStyles from "../../cohort-builder.scss";
 import { DefinitionDataRow, PaginationData } from "../../types";
 import EmptyData from "../empty-data/empty-data.component";
 import SavedCohortsOptions from "./saved-cohorts-options/saved-cohorts-options.component";
-import { onDeleteCohort, getCohorts } from "./saved-cohorts.resource";
+import { onDeleteCohort, getCohorts } from "./saved-cohorts.resources";
 import styles from "./saved-cohorts.scss";
 
 interface SavedCohortsProps {

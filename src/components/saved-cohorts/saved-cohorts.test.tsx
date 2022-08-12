@@ -4,9 +4,9 @@ import { render, cleanup, screen, waitFor } from "@testing-library/react";
 
 import { DefinitionDataRow } from "../../types";
 import SavedCohorts from "./saved-cohorts.component";
-import * as apis from "./saved-cohorts.resource";
+import * as apis from "./saved-cohorts.resources";
 
-jest.mock("./saved-cohorts.resource.ts");
+jest.mock("./saved-cohorts.resources.ts");
 
 const mockCohorts: DefinitionDataRow[] = [
   {
