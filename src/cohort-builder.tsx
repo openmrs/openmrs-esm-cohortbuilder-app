@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
-import { showToast, useLayoutType } from "@openmrs/esm-framework";
 import { Tab, Tabs, TabList, TabPanels, TabPanel } from "@carbon/react";
+import { showToast, useLayoutType } from "@openmrs/esm-framework";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -195,7 +195,7 @@ const CohortBuilder: React.FC = () => {
             </TabList>
             <TabPanels>
               {tabs.map((tab: TabItem, index: number) => (
-                <TabPanel index={index}>{tab.component}</TabPanel>
+                <TabPanel key={index}>{tab.component}</TabPanel>
               ))}
             </TabPanels>
           </Tabs>

@@ -1,6 +1,7 @@
 import React from "react";
 
-import { render, cleanup, fireEvent } from "@testing-library/react";
+import { screen, render, cleanup } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 import { DefinitionDataRow } from "../../../types";
 import SavedQueriesOptions from "./saved-queries-options.component";
@@ -11,36 +12,36 @@ const query: DefinitionDataRow = {
   description: "Female Patients that are alive",
 };
 
+const testProps = {
+  query: query,
+  onViewQuery: jest.fn(),
+  deleteQuery: jest.fn(),
+};
+
+const renderSavedQueriesOptions = (props = testProps) => {
+  render(<SavedQueriesOptions {...props} />);
+};
+
 describe("Test the saved queries options", () => {
   afterEach(cleanup);
   it("should be able to view the saved query", async () => {
+    const user = userEvent.setup();
     const onViewQuery = jest.fn();
-    const { getByTestId } = render(
-      <SavedQueriesOptions
-        query={query}
-        onViewQuery={onViewQuery}
-        deleteQuery={jest.fn()}
-      />
-    );
+    renderSavedQueriesOptions({ ...testProps, onViewQuery });
 
-    fireEvent.click(getByTestId("options"));
-    fireEvent.click(getByTestId("view"));
+    await user.click(screen.getByTestId("options"));
+    await user.click(screen.getByTestId("view"));
     expect(onViewQuery).toBeCalledWith(query.id);
   });
 
   it("should be able delete a query", async () => {
+    const user = userEvent.setup();
     const deleteQuery = jest.fn();
-    const { getByText, getByTestId } = render(
-      <SavedQueriesOptions
-        query={query}
-        onViewQuery={jest.fn()}
-        deleteQuery={deleteQuery}
-      />
-    );
+    renderSavedQueriesOptions({ ...testProps, deleteQuery });
 
-    fireEvent.click(getByTestId("options"));
-    fireEvent.click(getByTestId("delete"));
-    fireEvent.click(getByText("Delete"));
+    await user.click(screen.getByTestId("options"));
+    await user.click(screen.getByTestId("delete"));
+    await user.click(screen.getByText("Delete"));
     expect(deleteQuery).toBeCalledWith(query.id);
   });
 });

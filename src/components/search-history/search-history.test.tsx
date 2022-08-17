@@ -1,6 +1,6 @@
 import React from "react";
 
-import { render, cleanup } from "@testing-library/react";
+import { render, cleanup, screen } from "@testing-library/react";
 
 import translations from "../../../translations/en.json";
 import SearchHistory from "./search-history.component";
@@ -81,19 +81,26 @@ const mockSearchHistory = [
 describe("Test the search history component", () => {
   afterEach(cleanup);
   it("should render a message when there's no history to display", async () => {
-    const { getByText } = render(
+    render(
       <SearchHistory isHistoryUpdated={false} setIsHistoryUpdated={jest.fn()} />
     );
-    expect(getByText("There are no history to display")).toBeInTheDocument();
+
+    expect(
+      screen.getByText("There are no history to display")
+    ).toBeInTheDocument();
   });
 
-  it("should display the search history", () => {
+  it("should display the search history", async () => {
     jest.spyOn(utils, "getSearchHistory").mockReturnValue(mockSearchHistory);
-    const { getByText } = render(
+
+    render(
       <SearchHistory isHistoryUpdated={true} setIsHistoryUpdated={jest.fn()} />
     );
-    expect(getByText(translations.clearHistory)).toBeInTheDocument();
-    expect(getByText("2")).toBeInTheDocument();
-    expect(getByText(mockSearchHistory[0].description)).toBeInTheDocument();
+
+    expect(screen.getByText(translations.clearHistory)).toBeInTheDocument();
+    expect(screen.getByText("2")).toBeInTheDocument();
+    expect(
+      screen.getByText(mockSearchHistory[0].description)
+    ).toBeInTheDocument();
   });
 });

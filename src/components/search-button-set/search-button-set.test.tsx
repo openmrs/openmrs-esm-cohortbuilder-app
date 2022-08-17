@@ -1,27 +1,26 @@
 import React from "react";
 
-import { render, fireEvent, act } from "@testing-library/react";
+import { screen, render, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 import SearchButtonSet from "./search-button-set";
 
 describe("Test the search button set component", () => {
-  it("should be able search and reset", () => {
+  it("should be able search and reset", async () => {
+    const user = userEvent.setup();
     const handleSubmit = jest.fn();
     const handleReset = jest.fn();
-    const { getByTestId } = render(
+    render(
       <SearchButtonSet
         onHandleReset={handleReset}
         onHandleSubmit={handleSubmit}
         isLoading={false}
       />
     );
-    act(() => {
-      fireEvent.click(getByTestId("reset-btn"));
-    });
-    expect(handleReset).toBeCalled();
-    act(() => {
-      fireEvent.click(getByTestId("search-btn"));
-    });
-    expect(handleSubmit).toBeCalled();
+
+    await user.click(screen.getByTestId("reset-btn"));
+    await waitFor(() => expect(handleReset).toBeCalled());
+    await user.click(screen.getByTestId("search-btn"));
+    await waitFor(() => expect(handleSubmit).toBeCalled());
   });
 });
