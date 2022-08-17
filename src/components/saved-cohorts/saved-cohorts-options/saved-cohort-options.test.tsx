@@ -25,9 +25,9 @@ describe("Test the saved cohorts options", () => {
       />
     );
 
-    await user.click(screen.getByTestId("options"));
-    await user.click(screen.getByTestId("view"));
-    await waitFor(() => expect(onViewCohort).toBeCalledWith(cohort.id));
+    await waitFor(() => user.click(screen.getByTestId("options")));
+    await waitFor(() => user.click(screen.getByTestId("view")));
+    expect(onViewCohort).toBeCalledWith(cohort.id);
   });
 
   it("should be able delete a cohort", async () => {
@@ -41,9 +41,9 @@ describe("Test the saved cohorts options", () => {
       />
     );
 
-    await user.click(screen.getByTestId("options"));
-    await user.click(screen.getByTestId("delete"));
-    await user.click(screen.getByText("Delete"));
-    await waitFor(() => expect(onDeleteCohort).toBeCalledWith(cohort.id));
+    await waitFor(() => user.click(screen.getByTestId("options")));
+    await waitFor(() => user.click(screen.getByTestId("delete")));
+    await waitFor(() => user.click(screen.getByText("Delete")));
+    expect(onDeleteCohort).toBeCalledWith(cohort.id);
   });
 });

@@ -1,6 +1,6 @@
 import React from "react";
 
-import { screen, render, cleanup } from "@testing-library/react";
+import { screen, render, cleanup, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { DefinitionDataRow } from "../../../types";
@@ -29,8 +29,8 @@ describe("Test the saved queries options", () => {
     const onViewQuery = jest.fn();
     renderSavedQueriesOptions({ ...testProps, onViewQuery });
 
-    await user.click(screen.getByTestId("options"));
-    await user.click(screen.getByTestId("view"));
+    await waitFor(() => user.click(screen.getByTestId("options")));
+    await waitFor(() => user.click(screen.getByTestId("view")));
     expect(onViewQuery).toBeCalledWith(query.id);
   });
 
@@ -39,9 +39,9 @@ describe("Test the saved queries options", () => {
     const deleteQuery = jest.fn();
     renderSavedQueriesOptions({ ...testProps, deleteQuery });
 
-    await user.click(screen.getByTestId("options"));
-    await user.click(screen.getByTestId("delete"));
-    await user.click(screen.getByText("Delete"));
+    await waitFor(() => user.click(screen.getByTestId("options")));
+    await waitFor(() => user.click(screen.getByTestId("delete")));
+    await waitFor(() => user.click(screen.getByText("Delete")));
     expect(deleteQuery).toBeCalledWith(query.id);
   });
 });

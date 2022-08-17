@@ -59,8 +59,9 @@ describe("Test the concept search component", () => {
       />
     );
     const searchInput = screen.getByPlaceholderText("Search Concepts");
-    await user.click(searchInput);
-    await userEvent.type(searchInput, "blood s");
+    await waitFor(() => user.click(searchInput));
+    await waitFor(() => user.type(searchInput, "blood s"));
+
     await waitFor(() =>
       expect(jest.spyOn(apis, "getConcepts")).toBeCalledWith(searchText)
     );
@@ -79,10 +80,10 @@ describe("Test the concept search component", () => {
       />
     );
     const searchInput = getByPlaceholderText("Search Concepts");
-    await user.click(searchInput);
-    await userEvent.type(searchInput, "blood");
+    await waitFor(() => user.click(searchInput));
+    await waitFor(() => user.type(searchInput, "blood"));
     const clearButton = getByLabelText("Clear search");
-    await user.click(clearButton);
+    await waitFor(() => user.click(clearButton));
     expect(searchInput.getAttribute("value")).toEqual("");
   });
 });

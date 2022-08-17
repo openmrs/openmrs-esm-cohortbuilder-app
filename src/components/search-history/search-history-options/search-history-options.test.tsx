@@ -1,6 +1,6 @@
 import React from "react";
 
-import { screen, render, cleanup } from "@testing-library/react";
+import { screen, render, cleanup, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { Cohort, Query } from "../../../types";
@@ -95,14 +95,18 @@ describe("Test the search history options", () => {
 
     render(<SearchHistoryOptions {...testProps} />);
 
-    await user.click(screen.getByTestId("options"));
-    await user.click(screen.getByTestId("save-cohort"));
-    await user.type(
-      screen.getByTestId("cohort-name"),
-      "Chronic viral hepatitis cohort"
+    await waitFor(() => user.click(screen.getByTestId("options")));
+    await waitFor(() => user.click(screen.getByTestId("save-cohort")));
+    await waitFor(() =>
+      user.type(
+        screen.getByTestId("cohort-name"),
+        "Chronic viral hepatitis cohort"
+      )
     );
-    await user.click(screen.getByTestId("cohort-save-button"));
-    expect(jest.spyOn(apis, "createCohort")).toBeCalledWith(cohort);
+    await waitFor(() => user.click(screen.getByTestId("cohort-save-button")));
+    await waitFor(() =>
+      expect(jest.spyOn(apis, "createCohort")).toBeCalledWith(cohort)
+    );
   });
 
   it("should be able to save the search history item as a query", async () => {
@@ -110,13 +114,15 @@ describe("Test the search history options", () => {
     const query: Query = searchHistoryItem.parameters;
     render(<SearchHistoryOptions {...testProps} />);
 
-    await user.click(screen.getByTestId("options"));
-    await user.click(screen.getByTestId("save-query"));
-    await user.type(
-      screen.getByTestId("query-name"),
-      "Chronic viral hepatitis query"
+    await waitFor(() => user.click(screen.getByTestId("options")));
+    await waitFor(() => user.click(screen.getByTestId("save-query")));
+    await waitFor(() =>
+      user.type(
+        screen.getByTestId("query-name"),
+        "Chronic viral hepatitis query"
+      )
     );
-    await user.click(screen.getByTestId("query-save-button"));
+    await waitFor(() => user.click(screen.getByTestId("query-save-button")));
     expect(jest.spyOn(apis, "createQuery")).toBeCalledWith(query);
   });
 
@@ -130,9 +136,9 @@ describe("Test the search history options", () => {
       />
     );
 
-    await user.click(screen.getByTestId("options"));
-    await user.click(screen.getByTestId("deleteFromHistory"));
-    await user.click(screen.getByText("Delete"));
+    await waitFor(() => user.click(screen.getByTestId("options")));
+    await waitFor(() => user.click(screen.getByTestId("deleteFromHistory")));
+    await waitFor(() => user.click(screen.getByText("Delete")));
     expect(updateSearchHistory).toBeCalledWith(searchHistoryItem);
   });
 });
