@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 
-import { showToast } from "@openmrs/esm-framework";
 import {
   ComposedModal,
   ModalFooter,
   ModalHeader,
   OverflowMenu,
   OverflowMenuItem,
-} from "carbon-components-react";
+} from "@carbon/react";
+import { showToast } from "@openmrs/esm-framework";
 import { useTranslation } from "react-i18next";
 
 import { DefinitionDataRow } from "../../../types";

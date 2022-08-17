@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 
-import { showToast } from "@openmrs/esm-framework";
 import {
   DataTable,
   Table,
@@ -10,7 +9,8 @@ import {
   TableBody,
   TableCell,
   Pagination,
-} from "carbon-components-react";
+} from "@carbon/react";
+import { showToast } from "@openmrs/esm-framework";
 import { useTranslation } from "react-i18next";
 
 import mainStyles from "../../cohort-builder.scss";

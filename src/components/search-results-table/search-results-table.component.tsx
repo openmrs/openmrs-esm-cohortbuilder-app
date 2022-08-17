@@ -9,7 +9,7 @@ import {
   TableBody,
   TableCell,
   Pagination,
-} from "carbon-components-react";
+} from "@carbon/react";
 import { useTranslation } from "react-i18next";
 
 import mainStyle from "../../cohort-builder.scss";

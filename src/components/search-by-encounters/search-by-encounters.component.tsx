@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 
-import { showToast } from "@openmrs/esm-framework";
 import {
   DatePicker,
   DatePickerInput,
   Column,
   NumberInput,
   MultiSelect,
-} from "carbon-components-react";
+} from "@carbon/react";
+import { showToast } from "@openmrs/esm-framework";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { showToast, useLayoutType } from "@openmrs/esm-framework";
-import { Tab, Tabs } from "carbon-components-react";
+import { Tab, Tabs, TabList, TabPanels, TabPanel } from "@carbon/react";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -34,7 +34,6 @@ const CohortBuilder: React.FC = () => {
   const { t } = useTranslation();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [isHistoryUpdated, setIsHistoryUpdated] = useState(true);
-  const [selectedTab, setSelectedTab] = useState(0);
   const isLayoutTablet = useLayoutType() === "tablet";
 
   const runSearch = (
@@ -184,26 +183,22 @@ const CohortBuilder: React.FC = () => {
           <p className={styles.heading}>
             {t("searchCriteria", "Search Criteria")}
           </p>
-          <div className={styles.searchContainer}>
-            <Tabs
-              className={`${styles.verticalTabs} ${
-                isLayoutTablet ? styles.tabletTab : styles.desktopTab
-              }`}
-            >
+          <Tabs
+            className={`${styles.verticalTabs} ${
+              isLayoutTablet ? styles.tabletTab : styles.desktopTab
+            }`}
+          >
+            <TabList>
               {tabs.map((tab: TabItem, index: number) => (
-                <Tab
-                  key={index}
-                  label={tab.name}
-                  onClick={() => setSelectedTab(index)}
-                  className={`${styles.tab} ${
-                    selectedTab == index && styles.selectedTab
-                  }`}
-                >
-                  {tab.component}
-                </Tab>
+                <Tab key={index}>{tab.name}</Tab>
               ))}
-            </Tabs>
-          </div>
+            </TabList>
+            <TabPanels>
+              {tabs.map((tab: TabItem, index: number) => (
+                <TabPanel index={index}>{tab.component}</TabPanel>
+              ))}
+            </TabPanels>
+          </Tabs>
         </div>
         <SearchResultsTable patients={patients} />
         <SearchHistory

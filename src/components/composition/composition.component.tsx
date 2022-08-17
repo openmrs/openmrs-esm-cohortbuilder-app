@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
+import { TextInput } from "@carbon/react";
 import { showNotification } from "@openmrs/esm-framework";
-import { TextInput } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
 import { SearchByProps } from "../../types";

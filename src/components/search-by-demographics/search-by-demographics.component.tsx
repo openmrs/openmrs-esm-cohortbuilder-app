@@ -7,7 +7,7 @@ import {
   NumberInput,
   Switch,
   ContentSwitcher,
-} from "carbon-components-react";
+} from "@carbon/react";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 

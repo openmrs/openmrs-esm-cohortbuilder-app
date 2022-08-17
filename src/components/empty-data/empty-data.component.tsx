@@ -1,9 +1,9 @@
 import React from "react";
 
+import { Tile } from "@carbon/react";
 import { EmptyDataIllustration } from "@openmrs/esm-patient-common-lib/src/empty-state/index";
-import { Tile } from "carbon-components-react";
 
-import styles from "./empty-data.style.css";
+import styles from "./empty-data.style.scss";
 
 export interface EmptyDataProps {
   displayText: string;

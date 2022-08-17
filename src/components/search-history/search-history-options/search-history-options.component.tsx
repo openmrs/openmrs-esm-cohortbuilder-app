@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 
-import { showToast } from "@openmrs/esm-framework";
 import {
   Button,
   ComposedModal,
@@ -10,7 +9,8 @@ import {
   OverflowMenu,
   OverflowMenuItem,
   TextInput,
-} from "carbon-components-react";
+} from "@carbon/react";
+import { showToast } from "@openmrs/esm-framework";
 import { useTranslation } from "react-i18next";
 
 import { downloadCSV } from "../../../cohort-builder.utils";
