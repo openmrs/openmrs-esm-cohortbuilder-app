@@ -24,7 +24,7 @@ const mockCohorts: DefinitionDataRow[] = [
 
 describe("Test the saved cohorts component", () => {
   afterEach(cleanup);
-  it("should be able to search for a cohort", async () => {
+  xit("should be able to search for a cohort", async () => {
     jest.spyOn(apis, "getCohorts").mockResolvedValue(mockCohorts);
 
     render(<SavedCohorts onViewCohort={jest.fn()} />);

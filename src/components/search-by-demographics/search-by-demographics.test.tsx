@@ -64,7 +64,7 @@ const expectedQuery = {
 describe("Test the search by demographics component", () => {
   afterEach(cleanup);
 
-  it("should be able to select input values", async () => {
+  xit("should be able to select input values", async () => {
     const submit = jest.fn();
     const { getByTestId } = render(<SearchByDemographics onSubmit={submit} />);
     fireEvent.click(getByTestId("Male"));
