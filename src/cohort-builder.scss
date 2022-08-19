@@ -1,11 +1,12 @@
-@import 'carbon-components/css/carbon-components.css';
-@import 'carbon-components/scss/globals/scss/typography.scss';
-@import "~@openmrs/esm-styleguide/src/vars";
+@use '@carbon/styles/scss/spacing';
+// @use '@carbon/colors';
+@use '@carbon/styles/scss/type';
+@import '~@openmrs/esm-styleguide/src/vars';
 
 .heading {
-  @include carbon--type-style('productive-heading-02');
+  @include type.type-style('productive-heading-02');
   color: $text-02;
-  margin-bottom: $spacing-05;;
+  margin-bottom: spacing.$spacing-05;;
 }
 
 .heading:after {
@@ -36,16 +37,16 @@
   width: 90%;
 }
 
-:global(.bx--date-picker.bx--date-picker--single .bx--date-picker__input) {
+:global(.cds--date-picker.cds--date-picker--single .cds--date-picker__input) {
   width: auto;
 }
 
-:global(.bx--tab-content) {
+:global(.cds--tab-content) {
   width: 80%;
   padding: 0;
 }
 
-:global(.bx--inline-loading__text) {
+:global(.cds--inline-loading__text) {
   color: white
 }
 
@@ -53,32 +54,21 @@
   width: 20%;
 }
 
-:global(.bx--col) {
-  padding-left: 0; 
+:global(.cds--col) {
+  padding-left: 0;
 }
 
 .tabletTab {
   width: 25%;
 }
 
-.verticalTabs {
-  margin: 1rem 0;
-
-  &:global(.bx--tabs--scrollable .bx--tabs--scrollable__nav-item+.bx--tabs--scrollable__nav-item) {
-    margin-left: 0rem;
-  }
-  
-  > ul {
-    flex-direction: column !important;
-  }
-}
 
 .tab > {
   button {
     border-bottom: 0 !important;
     border-left: 3px solid $ui-03 !important;
   }
-  
+
   button, button:focus, button:active {
     outline: 0 !important;
     outline-offset: 0 !important;
@@ -91,9 +81,6 @@
   font-weight: 600 !important;
 }
 
-.searchContainer {
-  display: flex;
-}
 
 .tabContainer {
   background: white;

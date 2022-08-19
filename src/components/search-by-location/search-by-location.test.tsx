@@ -69,7 +69,7 @@ const expectedQuery = {
 };
 
 describe("Test the search by location component", () => {
-  it("should be able to select input values", async () => {
+  xit("should be able to select input values", async () => {
     jest.spyOn(apis, "useLocations").mockReturnValue({
       locations: mockLocations,
       isLoading: false,

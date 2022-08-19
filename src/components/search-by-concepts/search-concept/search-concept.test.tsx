@@ -1,12 +1,6 @@
 import React from "react";
 
-import {
-  render,
-  cleanup,
-  screen,
-  fireEvent,
-  waitFor,
-} from "@testing-library/react";
+import { render, cleanup, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { Concept } from "../../../types";
@@ -50,6 +44,7 @@ const concepts: Concept[] = [
 describe("Test the concept search component", () => {
   afterEach(cleanup);
   it("should be able to search for a concept", async () => {
+    const user = userEvent.setup();
     jest.spyOn(apis, "getConcepts").mockResolvedValue(concepts);
     let searchText = "";
     const setSearchText = jest
@@ -64,8 +59,9 @@ describe("Test the concept search component", () => {
       />
     );
     const searchInput = screen.getByPlaceholderText("Search Concepts");
-    fireEvent.click(searchInput);
-    await userEvent.type(searchInput, "blood s");
+    await waitFor(() => user.click(searchInput));
+    await waitFor(() => user.type(searchInput, "blood s"));
+
     await waitFor(() =>
       expect(jest.spyOn(apis, "getConcepts")).toBeCalledWith(searchText)
     );
@@ -74,6 +70,7 @@ describe("Test the concept search component", () => {
   });
 
   it("should be able to clear the current search value", async () => {
+    const user = userEvent.setup();
     const { getByLabelText, getByPlaceholderText } = render(
       <SearchConcept
         concept={null}
@@ -83,10 +80,10 @@ describe("Test the concept search component", () => {
       />
     );
     const searchInput = getByPlaceholderText("Search Concepts");
-    fireEvent.click(searchInput);
-    await userEvent.type(searchInput, "blood");
+    await waitFor(() => user.click(searchInput));
+    await waitFor(() => user.type(searchInput, "blood"));
     const clearButton = getByLabelText("Clear search");
-    fireEvent.click(clearButton);
+    await waitFor(() => user.click(clearButton));
     expect(searchInput.getAttribute("value")).toEqual("");
   });
 });

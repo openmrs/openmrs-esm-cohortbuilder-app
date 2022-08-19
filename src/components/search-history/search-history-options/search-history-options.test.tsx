@@ -1,6 +1,6 @@
 import React from "react";
 
-import { render, cleanup, fireEvent, act } from "@testing-library/react";
+import { screen, render, cleanup, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { Cohort, Query } from "../../../types";
@@ -77,67 +77,68 @@ const searchHistoryItem = {
   results: "2",
 };
 
+const testProps = {
+  searchItem: searchHistoryItem,
+  updateSearchHistory: jest.fn(),
+};
+
 describe("Test the search history options", () => {
   afterEach(cleanup);
   it("should be able to save the search history item as a cohort", async () => {
+    const user = userEvent.setup();
     const cohort: Cohort = {
       memberIds: [2, 3],
       description: "Patients with NO Chronic viral hepatitis",
       name: "Chronic viral hepatitis cohort",
       display: "Chronic viral hepatitis cohort",
     };
-    const { getByTestId } = render(
-      <SearchHistoryOptions
-        searchItem={searchHistoryItem}
-        updateSearchHistory={jest.fn()}
-      />
-    );
 
-    fireEvent.click(getByTestId("options"));
-    fireEvent.click(getByTestId("save-cohort"));
-    await userEvent.type(
-      getByTestId("cohort-name"),
-      "Chronic viral hepatitis cohort"
+    render(<SearchHistoryOptions {...testProps} />);
+
+    await waitFor(() => user.click(screen.getByTestId("options")));
+    await waitFor(() => user.click(screen.getByTestId("save-cohort")));
+    await waitFor(() =>
+      user.type(
+        screen.getByTestId("cohort-name"),
+        "Chronic viral hepatitis cohort"
+      )
     );
-    await act(async () => {
-      fireEvent.click(getByTestId("cohort-save-button"));
-    });
-    expect(jest.spyOn(apis, "createCohort")).toBeCalledWith(cohort);
+    await waitFor(() => user.click(screen.getByTestId("cohort-save-button")));
+    await waitFor(() =>
+      expect(jest.spyOn(apis, "createCohort")).toBeCalledWith(cohort)
+    );
   });
 
   it("should be able to save the search history item as a query", async () => {
+    const user = userEvent.setup();
     const query: Query = searchHistoryItem.parameters;
-    const { getByTestId } = render(
-      <SearchHistoryOptions
-        searchItem={searchHistoryItem}
-        updateSearchHistory={jest.fn()}
-      />
-    );
+    render(<SearchHistoryOptions {...testProps} />);
 
-    fireEvent.click(getByTestId("options"));
-    fireEvent.click(getByTestId("save-query"));
-    await userEvent.type(
-      getByTestId("query-name"),
-      "Chronic viral hepatitis query"
+    await waitFor(() => user.click(screen.getByTestId("options")));
+    await waitFor(() => user.click(screen.getByTestId("save-query")));
+    await waitFor(() =>
+      user.type(
+        screen.getByTestId("query-name"),
+        "Chronic viral hepatitis query"
+      )
     );
-    await act(async () => {
-      fireEvent.click(getByTestId("query-save-button"));
-    });
+    await waitFor(() => user.click(screen.getByTestId("query-save-button")));
     expect(jest.spyOn(apis, "createQuery")).toBeCalledWith(query);
   });
 
   it("should be able delete search history item", async () => {
+    const user = userEvent.setup();
     const updateSearchHistory = jest.fn();
-    const { getByText, getByTestId } = render(
+    render(
       <SearchHistoryOptions
         searchItem={searchHistoryItem}
         updateSearchHistory={updateSearchHistory}
       />
     );
 
-    fireEvent.click(getByTestId("options"));
-    fireEvent.click(getByTestId("deleteFromHistory"));
-    fireEvent.click(getByText("Delete"));
+    await waitFor(() => user.click(screen.getByTestId("options")));
+    await waitFor(() => user.click(screen.getByTestId("deleteFromHistory")));
+    await waitFor(() => user.click(screen.getByText("Delete")));
     expect(updateSearchHistory).toBeCalledWith(searchHistoryItem);
   });
 });

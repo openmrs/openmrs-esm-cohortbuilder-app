@@ -1,6 +1,6 @@
 import React from "react";
 
-import { render, fireEvent, waitFor, act } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import SearchByPersonAttributes from "./search-by-person-attributes.component";
@@ -107,26 +107,27 @@ const expectedQuery = {
 
 describe("Test the search by person attributes component", () => {
   it("should be able to select input values", async () => {
+    const user = userEvent.setup();
     jest.spyOn(apis, "usePersonAttributes").mockReturnValue({
       personAttributes,
       isLoading: false,
       personAttributesError: undefined,
     });
     const submit = jest.fn();
-    const { getByTestId, getByText } = render(
-      <SearchByPersonAttributes onSubmit={submit} />
+    render(<SearchByPersonAttributes onSubmit={submit} />);
+    expect(jest.spyOn(apis, "usePersonAttributes"));
+    await waitFor(() => user.click(screen.getByText("Open menu")));
+    await waitFor(() => user.click(screen.getByText("Mother's Name")));
+    await waitFor(() =>
+      user.click(screen.getByTestId("selectedAttributeValues"))
     );
-    await waitFor(() => expect(jest.spyOn(apis, "usePersonAttributes")));
-    fireEvent.click(getByText("Open menu"));
-    fireEvent.click(getByText("Mother's Name"));
-    fireEvent.click(getByTestId("selectedAttributeValues"));
-    await userEvent.type(getByTestId("selectedAttributeValues"), "janet,irina");
-    fireEvent.click(getByTestId("search-btn"));
-    await act(async () => {
-      expect(submit).toBeCalledWith(
-        expectedQuery,
-        "Patients with Mother's Name equal to either janet or irina"
-      );
-    });
+    await waitFor(() =>
+      user.type(screen.getByTestId("selectedAttributeValues"), "janet,irina")
+    );
+    await waitFor(() => user.click(screen.getByTestId("search-btn")));
+    expect(submit).toBeCalledWith(
+      expectedQuery,
+      "Patients with Mother's Name equal to either janet or irina"
+    );
   });
 });

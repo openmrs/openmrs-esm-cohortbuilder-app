@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
+import { Column, Dropdown, MultiSelect } from "@carbon/react";
 import { showToast } from "@openmrs/esm-framework";
-import { Column, Dropdown, MultiSelect } from "carbon-components-react";
 import { useTranslation } from "react-i18next";
 
 import { useLocations } from "../../cohort-builder.resource";

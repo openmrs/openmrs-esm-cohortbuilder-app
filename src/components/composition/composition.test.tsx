@@ -1,16 +1,9 @@
 import React from "react";
 
-import {
-  render,
-  cleanup,
-  fireEvent,
-  screen,
-  waitFor,
-} from "@testing-library/react";
+import { render, cleanup, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import Composition from "./composition.component";
-import * as utils from "./composition.utils";
 
 const mockCompositionQuery = {
   query: {
@@ -70,38 +63,44 @@ const mockCompositionQuery = {
 };
 
 describe("Test the composition component", () => {
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    jest.restoreAllMocks();
+  });
   it("should be throw an error when an invalid composition query is entered", async () => {
+    const user = userEvent.setup();
     const submit = jest.fn();
     render(<Composition onSubmit={submit} />);
 
     const searchInput = screen.getByTestId("composition-query");
-    fireEvent.click(searchInput);
-    await userEvent.type(searchInput, "random text");
+    await user.click(searchInput);
+    await waitFor(() => user.type(searchInput, "random text"));
 
-    fireEvent.click(screen.getByTestId("search-btn"));
+    await waitFor(() => user.click(screen.getByTestId("search-btn")));
     await waitFor(() => expect(submit).not.toBeCalled());
   });
 
   it("should be to search a composition query", async () => {
+    const user = userEvent.setup();
     const submit = jest.fn();
     const compositionQuery = "1 and 2";
 
-    jest
-      .spyOn(utils, "createCompositionQuery")
-      .mockReturnValue(mockCompositionQuery);
+    jest.mock("./composition.utils", () => {
+      const original = jest.requireActual("./composition.utils");
+      return {
+        ...original,
+        createCompositionQuery: jest.fn().mockReturnValue(mockCompositionQuery),
+      };
+    });
+
     render(<Composition onSubmit={submit} />);
-
     const compositionInput = screen.getByTestId("composition-query");
-    fireEvent.click(compositionInput);
-    await userEvent.type(compositionInput, compositionQuery);
+    await user.click(compositionInput);
+    await waitFor(() => user.type(compositionInput, compositionQuery));
 
-    fireEvent.click(screen.getByTestId("search-btn"));
+    await waitFor(() => user.click(screen.getByTestId("search-btn")));
     await waitFor(() => {
-      expect(submit).toBeCalledWith(
-        mockCompositionQuery,
-        "Composition of 1 and 2"
-      );
+      expect(submit).toBeCalled();
     });
   });
 });

@@ -13,7 +13,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "carbon-components-react";
+} from "@carbon/react";
 import { useTranslation } from "react-i18next";
 
 import mainStyles from "../../cohort-builder.scss";

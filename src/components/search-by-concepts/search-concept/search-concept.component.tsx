@@ -6,12 +6,7 @@ import React, {
   useEffect,
 } from "react";
 
-import {
-  Button,
-  Column,
-  Search,
-  CodeSnippetSkeleton,
-} from "carbon-components-react";
+import { Button, Column, Search, CodeSnippetSkeleton } from "@carbon/react";
 import _debounce from "lodash/debounce";
 import { useTranslation } from "react-i18next";
 
