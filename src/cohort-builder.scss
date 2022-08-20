@@ -1,5 +1,4 @@
 @use '@carbon/styles/scss/spacing';
-// @use '@carbon/colors';
 @use '@carbon/styles/scss/type';
 @import '~@openmrs/esm-styleguide/src/vars';
 
@@ -50,37 +49,58 @@
   color: white
 }
 
+:global(.cds--tab--list) {
+  flex-direction: column;
+  margin: 1rem;
+}
+
+:global(.cds--tabs) {
+  width: auto;
+  max-height: 100%;
+}
+
+:global(.cds--tabs .cds--tabs__nav-link) {
+  border-bottom: 0;
+  border-left: 3px solid $ui-03;
+}
+
+:global(.cds--tabs .cds--tabs__nav-item--selected) {
+  border-left: 3px solid var(--brand-03);
+  border-bottom: 0;
+  font-weight: 600;
+}
+
+:global(.cds--number) {
+  width: 75%;
+}
+
+:global(.cds--tabs__nav-link) {
+  &:active, &:focus { 
+    outline: 0 !important;
+    outline-offset: 0 !important;
+  }
+}
+
+:global(.cds--multi-select__wrapper .cds--list-box__wrapper) {
+  width: 90% !important;
+}
+
 .desktopTab {
   width: 20%;
 }
 
 :global(.cds--col) {
   padding-left: 0;
+  width: 100%;
 }
 
 .tabletTab {
   width: 25%;
 }
 
-
-.tab > {
-  button {
-    border-bottom: 0 !important;
-    border-left: 3px solid $ui-03 !important;
-  }
-
-  button, button:focus, button:active {
-    outline: 0 !important;
-    outline-offset: 0 !important;
-  }
+.tab {
+  display: flex;
 }
-
-.selectedTab > button {
-  border-left: 3px solid var(--brand-03) !important;
-  border-bottom: 0 !important;
-  font-weight: 600 !important;
-}
-
 
 .tabContainer {
   background: white;

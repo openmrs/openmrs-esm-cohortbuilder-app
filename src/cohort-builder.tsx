@@ -183,22 +183,24 @@ const CohortBuilder: React.FC = () => {
           <p className={styles.heading}>
             {t("searchCriteria", "Search Criteria")}
           </p>
-          <Tabs
-            className={`${styles.verticalTabs} ${
-              isLayoutTablet ? styles.tabletTab : styles.desktopTab
-            }`}
-          >
-            <TabList>
-              {tabs.map((tab: TabItem, index: number) => (
-                <Tab key={index}>{tab.name}</Tab>
-              ))}
-            </TabList>
-            <TabPanels>
-              {tabs.map((tab: TabItem, index: number) => (
-                <TabPanel key={index}>{tab.component}</TabPanel>
-              ))}
-            </TabPanels>
-          </Tabs>
+          <div className={styles.tab}>
+            <Tabs
+              className={`${styles.verticalTabs} ${
+                isLayoutTablet ? styles.tabletTab : styles.desktopTab
+              }`}
+            >
+              <TabList>
+                {tabs.map((tab: TabItem, index: number) => (
+                  <Tab key={index}>{tab.name}</Tab>
+                ))}
+              </TabList>
+              <TabPanels>
+                {tabs.map((tab: TabItem, index: number) => (
+                  <TabPanel key={index}>{tab.component}</TabPanel>
+                ))}
+              </TabPanels>
+            </Tabs>
+          </div>
         </div>
         <SearchResultsTable patients={patients} />
         <SearchHistory
