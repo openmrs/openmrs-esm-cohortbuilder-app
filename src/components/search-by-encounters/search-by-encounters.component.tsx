@@ -101,30 +101,21 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
           />
         </div>
       </Column>
-      <div className={styles.column}>
-        <Column>
-          <div>
-            <MultiSelect
-              id="forms"
-              data-testid="forms"
-              onChange={(data) => setEncounterForms(data.selectedItems)}
-              items={forms}
-              label={t("selectForms", "Select forms")}
-            />
-          </div>
-        </Column>
-        <Column>
-          <div>
-            <MultiSelect
-              id="locations"
-              data-testid="locations"
-              onChange={(data) => setEncounterLocations(data.selectedItems)}
-              items={locations}
-              label={t("selectLocations", "Select locations")}
-            />
-          </div>
-        </Column>
-      </div>
+      <MultiSelect
+        id="forms"
+        data-testid="forms"
+        onChange={(data) => setEncounterForms(data.selectedItems)}
+        items={forms}
+        label={t("selectForms", "Select forms")}
+      />
+
+      <MultiSelect
+        id="locations"
+        data-testid="locations"
+        onChange={(data) => setEncounterLocations(data.selectedItems)}
+        items={locations}
+        label={t("selectLocations", "Select locations")}
+      />
       <div className={styles.column}>
         <Column className={styles.encounterRange}>
           <div className={styles.multipleInputs}>

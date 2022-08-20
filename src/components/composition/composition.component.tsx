@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 
 import { SearchByProps } from "../../types";
 import SearchButtonSet from "../search-button-set/search-button-set";
+import styles from "./composition.style.css";
 import {
   createCompositionQuery,
   isCompositionValid,
@@ -75,21 +76,21 @@ const Composition: React.FC<SearchByProps> = ({ onSubmit }) => {
         value={description}
       />
       <br />
-      <p>
+      <p className={styles.text}>
         {t(
           "compositionExplanationOne",
           "A composition query combines together the results of multiple cohorts using the logical operators: AND, OR and NOT."
         )}
       </p>
       <br />
-      <p>
+      <p className={styles.text}>
         {t(
           "compositionExplanationTwo",
           "To use this query you need to already have query results in your search history. Those existing query results can then be combined to yield the results of the composition query."
         )}
       </p>
       <br />
-      <p>
+      <p className={styles.text}>
         {t(
           "compositionExplanationThree",
           "Example: if the search history #1 is a cohort of patients who are males, and if the search history #2 is a cohort of patients with ages between 23 and 35 years; then '1 AND 2' will result in a cohort of patients who are males with ages between 23 and 35 years."
