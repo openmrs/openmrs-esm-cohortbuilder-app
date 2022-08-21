@@ -1,7 +1,7 @@
 import React from "react";
 
 import { openmrsFetch } from "@openmrs/esm-framework";
-import { render, cleanup, screen } from "@testing-library/react";
+import { render, cleanup, screen, waitFor } from "@testing-library/react";
 
 import { DefinitionDataRow } from "../../types";
 import SavedCohorts from "./saved-cohorts.component";
@@ -42,7 +42,10 @@ describe("Test the saved cohorts component", () => {
     mockOpenmrsFetch.mockReturnValue({ data: { results: mockCohorts } });
 
     render(<SavedCohorts onViewCohort={jest.fn()} />);
-    expect(screen.getByText(mockCohorts[0].name)).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByText(mockCohorts[0].name)).toBeInTheDocument()
+    );
+
     expect(screen.getByText(mockCohorts[1].name)).toBeInTheDocument();
   });
 });

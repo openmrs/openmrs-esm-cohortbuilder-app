@@ -191,7 +191,7 @@ const CohortBuilder: React.FC = () => {
                 isLayoutTablet ? styles.tabletTab : styles.desktopTab
               }`}
             >
-              <TabList>
+              <TabList aria-label="navigation">
                 {tabs.map((tab: TabItem, index: number) => (
                   <Tab key={index}>{tab.name}</Tab>
                 ))}

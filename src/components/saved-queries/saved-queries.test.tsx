@@ -1,7 +1,7 @@
 import React from "react";
 
 import { openmrsFetch } from "@openmrs/esm-framework";
-import { render, cleanup, screen } from "@testing-library/react";
+import { render, cleanup, screen, waitFor } from "@testing-library/react";
 
 import { DefinitionDataRow } from "../../types";
 import SavedQueries from "./saved-queries.component";
@@ -42,7 +42,9 @@ describe("Test the saved queries component", () => {
 
     render(<SavedQueries onViewQuery={jest.fn()} />);
 
-    expect(screen.getByText(mockQueries[0].name)).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByText(mockQueries[0].name)).toBeInTheDocument()
+    );
     expect(screen.getByText(mockQueries[1].name)).toBeInTheDocument();
   });
 });

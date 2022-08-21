@@ -115,7 +115,7 @@ describe("Test the search by enrollments component", () => {
 
     // @ts-ignore
     usePrograms.mockImplementation(() => ({
-      encounterTypes: mockPrograms,
+      programs: mockPrograms,
       isLoading: false,
       programsError: undefined,
     }));
@@ -131,15 +131,19 @@ describe("Test the search by enrollments component", () => {
     act(() => {
       fireEvent.click(getByText(translations.selectLocations));
     });
+
     act(() => {
       fireEvent.click(getByText(mockLocations[2].label));
     });
+
     act(() => {
       fireEvent.click(getByText(translations.selectPrograms));
     });
+
     act(() => {
       fireEvent.click(getByText(mockPrograms[0].label));
     });
+
     act(() => {
       fireEvent.click(getByTestId("search-btn"));
     });
