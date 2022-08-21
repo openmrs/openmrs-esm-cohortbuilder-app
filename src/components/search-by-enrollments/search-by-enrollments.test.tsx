@@ -1,11 +1,12 @@
 import React from "react";
 
+import { openmrsFetch } from "@openmrs/esm-framework";
 import { render, fireEvent, act } from "@testing-library/react";
 
 import translations from "../../../translations/en.json";
-import * as commonApis from "../../cohort-builder.resource";
+import { useLocations } from "../../cohort-builder.resources";
 import SearchByEnrollments from "./search-by-enrollments.component";
-import * as apis from "./search-by-enrollments.resource";
+import { usePrograms } from "./search-by-enrollments.resources";
 
 const mockLocations = [
   {
@@ -82,28 +83,66 @@ const expectedQuery = {
   },
 };
 
+const mockOpenmrsFetch = openmrsFetch as jest.Mock;
+
+jest.mock("./search-by-enrollments.resources", () => {
+  const original = jest.requireActual("./search-by-enrollments.resources");
+  return {
+    ...original,
+    usePrograms: jest.fn(),
+  };
+});
+
+jest.mock("../../cohort-builder.resources", () => {
+  const original = jest.requireActual("../../cohort-builder.resources");
+  return {
+    ...original,
+    useLocations: jest.fn(),
+  };
+});
+
 describe("Test the search by enrollments component", () => {
-  xit("should be able to select input values", async () => {
-    jest.spyOn(commonApis, "useLocations").mockReturnValue({
+  it("should be able to select input values", async () => {
+    // @ts-ignore
+    useLocations.mockImplementation(() => ({
       locations: mockLocations,
       isLoading: false,
       locationsError: undefined,
+    }));
+    mockOpenmrsFetch.mockReturnValueOnce({
+      data: { results: mockLocations },
     });
-    jest.spyOn(apis, "usePrograms").mockReturnValue({
-      programs: mockPrograms,
+
+    // @ts-ignore
+    usePrograms.mockImplementation(() => ({
+      encounterTypes: mockPrograms,
       isLoading: false,
       programsError: undefined,
+    }));
+    mockOpenmrsFetch.mockReturnValueOnce({
+      data: { results: mockPrograms },
     });
+
     const submit = jest.fn();
     const { getByTestId, getByText } = render(
       <SearchByEnrollments onSubmit={submit} />
     );
 
-    fireEvent.click(getByText(translations.selectLocations));
-    fireEvent.click(getByText(mockLocations[2].label));
-    fireEvent.click(getByText(translations.selectPrograms));
-    fireEvent.click(getByText(mockPrograms[0].label));
-    fireEvent.click(getByTestId("search-btn"));
+    act(() => {
+      fireEvent.click(getByText(translations.selectLocations));
+    });
+    act(() => {
+      fireEvent.click(getByText(mockLocations[2].label));
+    });
+    act(() => {
+      fireEvent.click(getByText(translations.selectPrograms));
+    });
+    act(() => {
+      fireEvent.click(getByText(mockPrograms[0].label));
+    });
+    act(() => {
+      fireEvent.click(getByTestId("search-btn"));
+    });
 
     await act(async () => {
       expect(submit).toBeCalledWith(

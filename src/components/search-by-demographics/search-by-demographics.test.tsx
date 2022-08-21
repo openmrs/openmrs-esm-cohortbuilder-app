@@ -1,6 +1,12 @@
 import React from "react";
 
-import { render, cleanup, fireEvent, act } from "@testing-library/react";
+import {
+  render,
+  cleanup,
+  fireEvent,
+  act,
+  waitFor,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import dayjs from "dayjs";
 
@@ -64,19 +70,24 @@ const expectedQuery = {
 describe("Test the search by demographics component", () => {
   afterEach(cleanup);
 
-  xit("should be able to select input values", async () => {
+  it("should be able to select input values", async () => {
     const submit = jest.fn();
     const { getByTestId } = render(<SearchByDemographics onSubmit={submit} />);
+
     fireEvent.click(getByTestId("Male"));
     const minAgeInput = getByTestId("minAge");
     const maxAgeInput = getByTestId("maxAge");
+
     fireEvent.click(minAgeInput);
-    await userEvent.type(minAgeInput, "10");
+    await waitFor(() => userEvent.type(minAgeInput, "10"));
+
     fireEvent.click(maxAgeInput);
-    await userEvent.type(maxAgeInput, "20");
+    await waitFor(() => userEvent.type(maxAgeInput, "20"));
+
     expectedQuery.query.rowFilters[2].parameterValues.endDate =
       dayjs().format();
     fireEvent.click(getByTestId("search-btn"));
+
     await act(async () => {
       expect(submit).toBeCalledWith(
         expectedQuery,

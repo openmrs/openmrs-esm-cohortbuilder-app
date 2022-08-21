@@ -1,9 +1,10 @@
 import React from "react";
 
-import { render, fireEvent, waitFor, act } from "@testing-library/react";
+import { openmrsFetch } from "@openmrs/esm-framework";
+import { render, fireEvent, act } from "@testing-library/react";
 
 import translations from "../../../translations/en.json";
-import * as apis from "../../cohort-builder.resource";
+import { useLocations } from "../../cohort-builder.resources";
 import SearchByLocation from "./search-by-location.component";
 
 const mockLocations = [
@@ -68,18 +69,30 @@ const expectedQuery = {
   },
 };
 
+const mockOpenmrsFetch = openmrsFetch as jest.Mock;
+
+jest.mock("../../cohort-builder.resources", () => {
+  const original = jest.requireActual("../../cohort-builder.resources");
+  return {
+    ...original,
+    useLocations: jest.fn(),
+  };
+});
+
 describe("Test the search by location component", () => {
-  xit("should be able to select input values", async () => {
-    jest.spyOn(apis, "useLocations").mockReturnValue({
+  it("should be able to select input values", async () => {
+    // @ts-ignore
+    useLocations.mockImplementation(() => ({
       locations: mockLocations,
       isLoading: false,
       locationsError: undefined,
-    });
+    }));
+    mockOpenmrsFetch.mockReturnValueOnce({ data: { results: mockLocations } });
+
     const submit = jest.fn();
     const { getByTestId, getByTitle, getByText } = render(
       <SearchByLocation onSubmit={submit} />
     );
-    await waitFor(() => expect(jest.spyOn(apis, "useLocations")));
 
     fireEvent.click(getByText(translations.selectLocations));
     fireEvent.click(getByText(mockLocations[2].label));

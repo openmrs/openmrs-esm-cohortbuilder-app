@@ -141,7 +141,7 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
               )}
               min={0}
               value={minAge}
-              onChange={(event) => setMinAge(event.imaginaryTarget.value)}
+              onChange={(event, { value }) => setMinAge(value)}
             />
           </Column>
           <Column>
@@ -156,7 +156,7 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
               min={0}
               max={200}
               value={maxAge}
-              onChange={(event) => setMaxAge(event.imaginaryTarget.value)}
+              onChange={(event, { value }) => setMaxAge(value)}
             />
           </Column>
         </Column>

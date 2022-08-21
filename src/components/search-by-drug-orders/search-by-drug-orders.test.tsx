@@ -1,10 +1,11 @@
 import React from "react";
 
+import { openmrsFetch } from "@openmrs/esm-framework";
 import { render, fireEvent, act } from "@testing-library/react";
 
 import translations from "../../../translations/en.json";
 import SearchByDrugOrder from "./search-by-drug-orders.component";
-import * as apis from "./search-by-drug-orders.resource";
+import { useCareSettings, useDrugs } from "./search-by-drug-orders.resources";
 
 const mockCareSettings = [
   {
@@ -86,18 +87,39 @@ const expectedQuery = {
   },
 };
 
+jest.mock("./search-by-drug-orders.resources", () => {
+  const original = jest.requireActual("./search-by-drug-orders.resources");
+  return {
+    ...original,
+    useCareSettings: jest.fn(),
+    useDrugs: jest.fn(),
+  };
+});
+
+const mockOpenmrsFetch = openmrsFetch as jest.Mock;
+
 describe("Test the search by drug orders component", () => {
-  xit("should be able to select input values", async () => {
-    jest.spyOn(apis, "useDrugs").mockReturnValue({
-      drugs: mockDrugs,
-      isLoading: false,
-      drugsError: undefined,
-    });
-    jest.spyOn(apis, "useCareSettings").mockReturnValue({
+  it("should be able to select input values", async () => {
+    // @ts-ignore
+    useCareSettings.mockImplementation(() => ({
       careSettings: mockCareSettings,
       isLoading: false,
       careSettingsError: undefined,
+    }));
+    mockOpenmrsFetch.mockReturnValueOnce({
+      data: { results: mockCareSettings },
     });
+
+    // @ts-ignore
+    useDrugs.mockImplementation(() => ({
+      drugs: mockDrugs,
+      isLoading: false,
+      drugsError: undefined,
+    }));
+    mockOpenmrsFetch.mockReturnValueOnce({
+      data: { results: mockCareSettings },
+    });
+
     const submit = jest.fn();
     const { getByTestId, getByTitle, getByText } = render(
       <SearchByDrugOrder onSubmit={submit} />

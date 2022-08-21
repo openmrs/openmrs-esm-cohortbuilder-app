@@ -8,7 +8,7 @@ import {
   getCohortMembers,
   getDataSet,
   search,
-} from "./cohort-builder.resource";
+} from "./cohort-builder.resources";
 import styles from "./cohort-builder.scss";
 import { addToHistory } from "./cohort-builder.utils";
 import Composition from "./components/composition/composition.component";

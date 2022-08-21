@@ -4,7 +4,7 @@ import { Column, Dropdown, MultiSelect } from "@carbon/react";
 import { showToast } from "@openmrs/esm-framework";
 import { useTranslation } from "react-i18next";
 
-import { useLocations } from "../../cohort-builder.resource";
+import { useLocations } from "../../cohort-builder.resources";
 import { DropdownValue, SearchByProps } from "../../types";
 import SearchButtonSet from "../search-button-set/search-button-set";
 import styles from "./search-by-location.style.scss";

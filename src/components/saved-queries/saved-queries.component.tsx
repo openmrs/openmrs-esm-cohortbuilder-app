@@ -17,7 +17,7 @@ import mainStyles from "../../cohort-builder.scss";
 import { DefinitionDataRow, PaginationData } from "../../types";
 import EmptyData from "../empty-data/empty-data.component";
 import SavedQueriesOptions from "./saved-queries-options/saved-queries-options.component";
-import { deleteDataSet, getQueries } from "./saved-queries.resource";
+import { deleteDataSet, getQueries } from "./saved-queries.resources";
 import styles from "./saved-queries.scss";
 
 interface SavedQueriesProps {
@@ -31,8 +31,8 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
   const [queries, setQueries] = useState<DefinitionDataRow[]>([]);
 
   const getTableData = async () => {
-    const cohorts = await getQueries();
-    setQueries(cohorts);
+    const queries = await getQueries();
+    setQueries(queries);
   };
 
   const deleteQuery = async (queryId: string) => {

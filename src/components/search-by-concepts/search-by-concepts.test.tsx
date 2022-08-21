@@ -90,7 +90,7 @@ const concepts: Concept[] = [
 describe("Test the search by concept component", () => {
   afterEach(cleanup);
 
-  xit("should be able to select input values", async () => {
+  it("should be able to select input values", async () => {
     const user = userEvent.setup();
     jest.spyOn(apis, "getConcepts").mockResolvedValue(concepts);
     const submit = jest.fn();
@@ -107,12 +107,13 @@ describe("Test the search by concept component", () => {
 
     await waitFor(() => user.click(screen.getByText("BLOOD SUGAR")));
     await waitFor(() => user.click(lastDaysInput));
-    await user.clear(lastDaysInput);
-    await user.type(lastDaysInput, "15");
-    await user.click(lastMonthsInput);
-    await user.clear(lastMonthsInput);
-    await user.type(lastMonthsInput, "4");
-    await user.click(screen.getByText("Any"));
+    await waitFor(() => user.clear(lastDaysInput));
+    await waitFor(() => user.type(lastDaysInput, "15"));
+    await waitFor(() => user.click(lastMonthsInput));
+    await waitFor(() => user.clear(lastMonthsInput));
+    await waitFor(() => user.type(lastMonthsInput, "4"));
+    await waitFor(() => user.click(screen.getByText("Any")));
+
     const date = dayjs().subtract(15, "days").subtract(4, "months");
     expectedQuery.query.rowFilters[0].parameterValues.onOrBefore =
       date.format();
@@ -121,7 +122,7 @@ describe("Test the search by concept component", () => {
     await waitFor(() => {
       expect(submit).toBeCalledWith(
         expectedQuery,
-        "Patients with ANY BLOOD SUGAR"
+        "Patients with ANY BLOOD SUGAR  until " + date.format("D/M/YYYY")
       );
     });
   });

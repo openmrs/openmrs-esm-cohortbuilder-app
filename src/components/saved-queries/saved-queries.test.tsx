@@ -1,12 +1,11 @@
 import React from "react";
 
-import { render, cleanup, screen, waitFor } from "@testing-library/react";
+import { openmrsFetch } from "@openmrs/esm-framework";
+import { render, cleanup, screen } from "@testing-library/react";
 
 import { DefinitionDataRow } from "../../types";
 import SavedQueries from "./saved-queries.component";
-import * as apis from "./saved-queries.resource";
-
-jest.mock("./saved-queries.resource.ts");
+import { getQueries } from "./saved-queries.resources";
 
 const mockQueries: DefinitionDataRow[] = [
   {
@@ -22,13 +21,27 @@ const mockQueries: DefinitionDataRow[] = [
   },
 ];
 
+const mockOpenmrsFetch = openmrsFetch as jest.Mock;
+
+jest.mock("./saved-queries.resources", () => {
+  const original = jest.requireActual("./saved-queries.resources");
+  return {
+    ...original,
+    getQueries: jest.fn(),
+  };
+});
+
 describe("Test the saved queries component", () => {
   afterEach(cleanup);
-  xit("should be able to search for a query", async () => {
-    jest.spyOn(apis, "getQueries").mockResolvedValue(mockQueries);
+  it("should be able to search for a query", async () => {
+    // @ts-ignore
+    getQueries.mockImplementation(() => mockQueries);
+    mockOpenmrsFetch.mockReturnValueOnce({
+      data: { results: mockQueries },
+    });
 
     render(<SavedQueries onViewQuery={jest.fn()} />);
-    await waitFor(() => expect(jest.spyOn(apis, "getQueries")));
+
     expect(screen.getByText(mockQueries[0].name)).toBeInTheDocument();
     expect(screen.getByText(mockQueries[1].name)).toBeInTheDocument();
   });

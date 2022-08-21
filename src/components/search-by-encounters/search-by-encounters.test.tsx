@@ -1,12 +1,13 @@
 import React from "react";
 
+import { openmrsFetch } from "@openmrs/esm-framework";
 import { render, cleanup, fireEvent, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import translations from "../../../translations/en.json";
-import * as commonApis from "../../cohort-builder.resource";
+import { useLocations } from "../../cohort-builder.resources";
 import SearchByEncounters from "./search-by-encounters.component";
-import * as apis from "./search-by-encounters.resources";
+import { useForms, useEncounterTypes } from "./search-by-encounters.resources";
 
 const mockLocations = [
   {
@@ -119,24 +120,58 @@ const expectedQuery = {
   },
 };
 
+const mockOpenmrsFetch = openmrsFetch as jest.Mock;
+
+jest.mock("./search-by-encounters.resources", () => {
+  const original = jest.requireActual("./search-by-encounters.resources");
+  return {
+    ...original,
+    useForms: jest.fn(),
+    useEncounterTypes: jest.fn(),
+  };
+});
+
+jest.mock("../../cohort-builder.resources", () => {
+  const original = jest.requireActual("../../cohort-builder.resources");
+  return {
+    ...original,
+    useLocations: jest.fn(),
+  };
+});
+
 describe("Test the search by encounters component", () => {
   afterEach(cleanup);
-  xit("should be able to select input values", async () => {
-    jest.spyOn(commonApis, "useLocations").mockReturnValue({
-      locations: mockLocations,
-      isLoading: false,
-      locationsError: undefined,
-    });
-    jest.spyOn(apis, "useForms").mockReturnValue({
+  it("should be able to select input values", async () => {
+    // @ts-ignore
+    useForms.mockImplementation(() => ({
       forms: mockForms,
       isLoading: false,
       formsError: undefined,
+    }));
+    mockOpenmrsFetch.mockReturnValueOnce({
+      data: { results: mockForms },
     });
-    jest.spyOn(apis, "useEncounterTypes").mockReturnValue({
+
+    // @ts-ignore
+    useEncounterTypes.mockImplementation(() => ({
       encounterTypes: mockEncounterTypes,
       isLoading: false,
       encounterTypesError: undefined,
+    }));
+    mockOpenmrsFetch.mockReturnValueOnce({
+      data: { results: mockEncounterTypes },
     });
+
+    // @ts-ignore
+    useLocations.mockImplementation(() => ({
+      locations: mockLocations,
+      isLoading: false,
+      locationsError: undefined,
+    }));
+    mockOpenmrsFetch.mockReturnValueOnce({
+      data: { results: mockLocations },
+    });
+
     const submit = jest.fn();
     const { getByTestId, getByText } = render(
       <SearchByEncounters onSubmit={submit} />

@@ -252,9 +252,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
                     min={0}
                     size="sm"
                     value={operatorValue}
-                    onChange={(event) =>
-                      setOperatorValue(event.imaginaryTarget.value)
-                    }
+                    onChange={(event, { value }) => setOperatorValue(value)}
                   />
                 </div>
               </div>
@@ -282,7 +280,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
               min={0}
               size="sm"
               value={lastMonths}
-              onChange={(event) => setLastMonths(event.imaginaryTarget.value)}
+              onChange={(event, { value }) => setLastMonths(value)}
             />
           </Column>
           <Column>
@@ -294,7 +292,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
               min={0}
               size="sm"
               value={lastDays}
-              onChange={(event) => setLastDays(event.imaginaryTarget.value)}
+              onChange={(event, { value }) => setLastDays(value)}
             />
           </Column>
         </Column>
