@@ -120,6 +120,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
         <Column className={styles.encounterRange}>
           <div className={styles.multipleInputs}>
             <NumberInput
+              hideSteppers={true}
               id="atLeastCount"
               data-testid="atLeastCount"
               label={t("atLeast", "at least")}
@@ -131,6 +132,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
           </div>
           <div className={styles.multipleInputs}>
             <NumberInput
+              hideSteppers={true}
               id="atMostCount"
               data-testid="atMostCount"
               label={t("upto", "upto this many")}

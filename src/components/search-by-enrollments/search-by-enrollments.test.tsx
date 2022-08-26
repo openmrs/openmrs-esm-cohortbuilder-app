@@ -1,7 +1,7 @@
 import React from "react";
 
 import { openmrsFetch } from "@openmrs/esm-framework";
-import { render, fireEvent, act } from "@testing-library/react";
+import { render, fireEvent, waitFor } from "@testing-library/react";
 
 import translations from "../../../translations/en.json";
 import { useLocations } from "../../cohort-builder.resources";
@@ -128,27 +128,27 @@ describe("Test the search by enrollments component", () => {
       <SearchByEnrollments onSubmit={submit} />
     );
 
-    act(() => {
+    waitFor(() => {
       fireEvent.click(getByText(translations.selectLocations));
     });
 
-    act(() => {
+    waitFor(() => {
       fireEvent.click(getByText(mockLocations[2].label));
     });
 
-    act(() => {
+    waitFor(() => {
       fireEvent.click(getByText(translations.selectPrograms));
     });
 
-    act(() => {
+    waitFor(() => {
       fireEvent.click(getByText(mockPrograms[0].label));
     });
 
-    act(() => {
+    waitFor(() => {
       fireEvent.click(getByTestId("search-btn"));
     });
 
-    await act(async () => {
+    await waitFor(async () => {
       expect(submit).toBeCalledWith(
         expectedQuery,
         `Patients enrolled in ${mockPrograms[0].label} at ${mockLocations[2].label}`

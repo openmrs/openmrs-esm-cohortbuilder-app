@@ -246,6 +246,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
                 </div>
                 <div className={styles.multipleInputs}>
                   <NumberInput
+                    hideSteppers={true}
                     id="operator-value"
                     invalidText={t("numberIsNotValid", "Number is not valid")}
                     label={t("valueIn", "Enter a value in ") + concept.units}
@@ -273,6 +274,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
         <Column className={styles.dateRange}>
           <Column>
             <NumberInput
+              hideSteppers={true}
               id="last-months"
               data-testid="last-months"
               label={t("withinTheLast", "Within the last months")}
@@ -285,6 +287,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
           </Column>
           <Column>
             <NumberInput
+              hideSteppers={true}
               label={t("lastDays", "and / or days")}
               id="last-days"
               data-testid="last-days"

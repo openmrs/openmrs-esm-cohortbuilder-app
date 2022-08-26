@@ -1,7 +1,7 @@
 import React from "react";
 
 import { openmrsFetch } from "@openmrs/esm-framework";
-import { render, fireEvent, act } from "@testing-library/react";
+import { render, fireEvent, waitFor } from "@testing-library/react";
 
 import translations from "../../../translations/en.json";
 import SearchByDrugOrder from "./search-by-drug-orders.component";
@@ -125,31 +125,31 @@ describe("Test the search by drug orders component", () => {
       <SearchByDrugOrder onSubmit={submit} />
     );
 
-    act(() => {
+    waitFor(() => {
       fireEvent.click(getByText(translations.selectDrugs));
     });
 
-    act(() => {
+    waitFor(() => {
       fireEvent.click(getByText(mockDrugs[1].label));
     });
 
-    act(() => {
+    waitFor(() => {
       fireEvent.click(getByText(mockDrugs[2].label));
     });
 
-    act(() => {
+    waitFor(() => {
       fireEvent.click(getByTitle(mockCareSettings[0].label));
     });
 
-    act(() => {
+    waitFor(() => {
       fireEvent.click(getByText(mockCareSettings[2].label));
     });
 
-    act(() => {
+    waitFor(() => {
       fireEvent.click(getByTestId("search-btn"));
     });
 
-    await act(async () => {
+    await waitFor(async () => {
       expect(submit).toBeCalledWith(
         expectedQuery,
         `Patients who taking ${mockDrugs[1].label} and ${mockDrugs[2].label} from Pharmacy`

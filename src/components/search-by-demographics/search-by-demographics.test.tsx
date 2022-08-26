@@ -1,12 +1,6 @@
 import React from "react";
 
-import {
-  render,
-  cleanup,
-  fireEvent,
-  act,
-  waitFor,
-} from "@testing-library/react";
+import { render, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import dayjs from "dayjs";
 
@@ -88,7 +82,7 @@ describe("Test the search by demographics component", () => {
       dayjs().format();
     fireEvent.click(getByTestId("search-btn"));
 
-    await act(async () => {
+    await waitFor(async () => {
       expect(submit).toBeCalledWith(
         expectedQuery,
         "Male Patients with ages between 10 and 20 years that are alive"

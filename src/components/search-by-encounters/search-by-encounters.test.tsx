@@ -1,7 +1,7 @@
 import React from "react";
 
 import { openmrsFetch } from "@openmrs/esm-framework";
-import { render, cleanup, fireEvent, act } from "@testing-library/react";
+import { render, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import translations from "../../../translations/en.json";
@@ -192,7 +192,7 @@ describe("Test the search by encounters component", () => {
     await userEvent.type(atMostCountInput, "20");
 
     fireEvent.click(getByTestId("search-btn"));
-    await act(async () => {
+    await waitFor(async () => {
       expect(submit).toBeCalledWith(
         expectedQuery,
         `Patients with Encounter of Types ${mockEncounterTypes[4].label} at ${mockLocations[2].label} from ${mockForms[1].label} at least 10 times  and at most 20 times`
