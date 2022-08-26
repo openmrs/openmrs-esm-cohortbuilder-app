@@ -172,7 +172,9 @@ const CohortBuilder: React.FC = () => {
   ];
 
   return (
-    <div className={`omrs-main-content ${styles.mainContainer}`}>
+    <div
+      className={`omrs-main-content ${styles.mainContainer} ${styles.cohortBuilder}`}
+    >
       <div
         className={
           isLayoutTablet ? styles.tabletContainer : styles.desktopContainer
