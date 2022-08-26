@@ -9,7 +9,7 @@
 }
 
 .searchBtn{
-  &:global(.cds--btn) {
+  :global(.cds--btn) {
     min-height: 1rem;
   }
 }

@@ -36,63 +36,66 @@
   width: 90%;
 }
 
-:global(.cds--date-picker.cds--date-picker--single .cds--date-picker__input) {
-  width: auto;
-}
-
-:global(.cds--tab-content) {
-  width: 80%;
-  padding: 0;
-}
-
-:global(.cds--inline-loading__text) {
-  color: white
-}
-
-:global(.cds--tab--list) {
-  flex-direction: column;
-  margin: 1rem;
-}
-
-:global(.cds--tabs) {
-  width: auto;
-  max-height: 100%;
-}
-
-:global(.cds--tabs .cds--tabs__nav-link) {
-  border-bottom: 0;
-  border-left: 3px solid $ui-03;
-}
-
-:global(.cds--tabs .cds--tabs__nav-item--selected) {
-  border-left: 3px solid var(--brand-03);
-  border-bottom: 0;
-  font-weight: 600;
-}
-
-:global(.cds--number) {
-  width: 75%;
-}
-
-:global(.cds--tabs__nav-link) {
-  &:active, &:focus { 
-    outline: 0 !important;
-    outline-offset: 0 !important;
+.cohortBuilder {
+  :global(.cds--date-picker.cds--date-picker--single .cds--date-picker__input) {
+    width: auto;
   }
-}
+  
+  :global(.cds--tab-content) {
+    width: 80%;
+    padding: 0;
+  }
+  
+  :global(.cds--inline-loading__text) {
+    color: white
+  }
+  
+  :global(.cds--tab--list) {
+    flex-direction: column;
+    margin: 1rem;
+  }
+  
+  :global(.cds--tabs) {
+    width: auto;
+    max-height: 100%;
+  }
+  
+  :global(.cds--tabs .cds--tabs__nav-link) {
+    border-bottom: 0;
+    border-left: 3px solid $ui-03;
+  }
+  
+  :global(.cds--tabs .cds--tabs__nav-item--selected) {
+    border-left: 3px solid var(--brand-03);
+    border-bottom: 0;
+    font-weight: 600;
+  }
+  
+  :global(.cds--number) {
+    width: 75%;
+  }
+  
+  :global(.cds--tabs__nav-link) {
+    &:active, &:focus { 
+      outline: 0 !important;
+      outline-offset: 0 !important;
+    }
+  }
+  
+  :global(.cds--multi-select__wrapper .cds--list-box__wrapper) {
+    width: 90% !important;
+  }
 
-:global(.cds--multi-select__wrapper .cds--list-box__wrapper) {
-  width: 90% !important;
+  :global(.cds--col) {
+    padding-left: 0;
+    width: 100%;
+  }
 }
 
 .desktopTab {
   width: 20%;
 }
 
-:global(.cds--col) {
-  padding-left: 0;
-  width: 100%;
-}
 
 .tabletTab {
   width: 25%;
