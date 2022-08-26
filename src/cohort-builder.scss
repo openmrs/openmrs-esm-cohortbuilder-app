@@ -86,10 +86,6 @@
     width: 90% !important;
   }
 
-  .desktopTab {
-    width: 20%;
-  }
-
   :global(.cds--col) {
     padding-left: 0;
     width: 100%;
@@ -98,6 +94,10 @@
 
 .tabletTab {
   width: 25%;
+}
+
+.desktopTab {
+  width: 20%;
 }
 
 .tab {
