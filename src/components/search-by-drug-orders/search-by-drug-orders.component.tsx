@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 
 import { DropdownValue, DrugOrderDetails, SearchByProps } from "../../types";
 import SearchButtonSet from "../search-button-set/search-button-set";
-import { useCareSettings, useDrugs } from "./search-by-drug-orders.resource";
+import { useCareSettings, useDrugs } from "./search-by-drug-orders.resources";
 import styles from "./search-by-drug-orders.style.scss";
 import { getDescription, getQueryDetails } from "./search-by-drug-orders.utils";
 

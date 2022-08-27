@@ -246,15 +246,14 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
                 </div>
                 <div className={styles.multipleInputs}>
                   <NumberInput
+                    hideSteppers={true}
                     id="operator-value"
                     invalidText={t("numberIsNotValid", "Number is not valid")}
                     label={t("valueIn", "Enter a value in ") + concept.units}
                     min={0}
                     size="sm"
                     value={operatorValue}
-                    onChange={(event) =>
-                      setOperatorValue(event.imaginaryTarget.value)
-                    }
+                    onChange={(event, { value }) => setOperatorValue(value)}
                   />
                 </div>
               </div>
@@ -275,6 +274,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
         <Column className={styles.dateRange}>
           <Column>
             <NumberInput
+              hideSteppers={true}
               id="last-months"
               data-testid="last-months"
               label={t("withinTheLast", "Within the last months")}
@@ -282,11 +282,12 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
               min={0}
               size="sm"
               value={lastMonths}
-              onChange={(event) => setLastMonths(event.imaginaryTarget.value)}
+              onChange={(event, { value }) => setLastMonths(value)}
             />
           </Column>
           <Column>
             <NumberInput
+              hideSteppers={true}
               label={t("lastDays", "and / or days")}
               id="last-days"
               data-testid="last-days"
@@ -294,7 +295,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
               min={0}
               size="sm"
               value={lastDays}
-              onChange={(event) => setLastDays(event.imaginaryTarget.value)}
+              onChange={(event, { value }) => setLastDays(value)}
             />
           </Column>
         </Column>

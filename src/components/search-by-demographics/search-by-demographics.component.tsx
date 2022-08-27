@@ -126,27 +126,26 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
         </div>
       </Column>
       <div className={styles.column}>
-        <Column md={2}>
-          <p className={styles.text}>{t("age", "Age")}</p>
-        </Column>
         <Column className={styles.age}>
           <Column>
             <NumberInput
+              hideSteppers={true}
               id="minAge"
               data-testid="minAge"
-              label={t("between", "Between")}
+              label={t("ageBetween", "Age between")}
               invalidText={t(
                 "minAgeIsNotValid",
                 "The age must be greater than 0"
               )}
               min={0}
               value={minAge}
-              onChange={(event) => setMinAge(event.imaginaryTarget.value)}
+              onChange={(event, { value }) => setMinAge(value)}
             />
           </Column>
           <Column>
             <NumberInput
               id="maxAge"
+              hideSteppers={true}
               data-testid="maxAge"
               label={t("and", "and")}
               invalidText={t(
@@ -156,7 +155,7 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
               min={0}
               max={200}
               value={maxAge}
-              onChange={(event) => setMaxAge(event.imaginaryTarget.value)}
+              onChange={(event, { value }) => setMaxAge(value)}
             />
           </Column>
         </Column>

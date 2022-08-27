@@ -1,10 +1,11 @@
 import React from "react";
 
-import { render, fireEvent, act } from "@testing-library/react";
+import { openmrsFetch } from "@openmrs/esm-framework";
+import { render, fireEvent, waitFor } from "@testing-library/react";
 
 import translations from "../../../translations/en.json";
 import SearchByDrugOrder from "./search-by-drug-orders.component";
-import * as apis from "./search-by-drug-orders.resource";
+import { useCareSettings, useDrugs } from "./search-by-drug-orders.resources";
 
 const mockCareSettings = [
   {
@@ -86,48 +87,69 @@ const expectedQuery = {
   },
 };
 
+jest.mock("./search-by-drug-orders.resources", () => {
+  const original = jest.requireActual("./search-by-drug-orders.resources");
+  return {
+    ...original,
+    useCareSettings: jest.fn(),
+    useDrugs: jest.fn(),
+  };
+});
+
+const mockOpenmrsFetch = openmrsFetch as jest.Mock;
+
 describe("Test the search by drug orders component", () => {
-  xit("should be able to select input values", async () => {
-    jest.spyOn(apis, "useDrugs").mockReturnValue({
-      drugs: mockDrugs,
-      isLoading: false,
-      drugsError: undefined,
-    });
-    jest.spyOn(apis, "useCareSettings").mockReturnValue({
+  it("should be able to select input values", async () => {
+    // @ts-ignore
+    useCareSettings.mockImplementation(() => ({
       careSettings: mockCareSettings,
       isLoading: false,
       careSettingsError: undefined,
+    }));
+    mockOpenmrsFetch.mockReturnValueOnce({
+      data: { results: mockCareSettings },
     });
+
+    // @ts-ignore
+    useDrugs.mockImplementation(() => ({
+      drugs: mockDrugs,
+      isLoading: false,
+      drugsError: undefined,
+    }));
+    mockOpenmrsFetch.mockReturnValueOnce({
+      data: { results: mockCareSettings },
+    });
+
     const submit = jest.fn();
     const { getByTestId, getByTitle, getByText } = render(
       <SearchByDrugOrder onSubmit={submit} />
     );
 
-    act(() => {
+    waitFor(() => {
       fireEvent.click(getByText(translations.selectDrugs));
     });
 
-    act(() => {
+    waitFor(() => {
       fireEvent.click(getByText(mockDrugs[1].label));
     });
 
-    act(() => {
+    waitFor(() => {
       fireEvent.click(getByText(mockDrugs[2].label));
     });
 
-    act(() => {
+    waitFor(() => {
       fireEvent.click(getByTitle(mockCareSettings[0].label));
     });
 
-    act(() => {
+    waitFor(() => {
       fireEvent.click(getByText(mockCareSettings[2].label));
     });
 
-    act(() => {
+    waitFor(() => {
       fireEvent.click(getByTestId("search-btn"));
     });
 
-    await act(async () => {
+    await waitFor(async () => {
       expect(submit).toBeCalledWith(
         expectedQuery,
         `Patients who taking ${mockDrugs[1].label} and ${mockDrugs[2].label} from Pharmacy`

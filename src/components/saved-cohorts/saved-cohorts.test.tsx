@@ -1,12 +1,11 @@
 import React from "react";
 
+import { openmrsFetch } from "@openmrs/esm-framework";
 import { render, cleanup, screen, waitFor } from "@testing-library/react";
 
 import { DefinitionDataRow } from "../../types";
 import SavedCohorts from "./saved-cohorts.component";
-import * as apis from "./saved-cohorts.resources";
-
-jest.mock("./saved-cohorts.resources.ts");
+import { getCohorts } from "./saved-cohorts.resources";
 
 const mockCohorts: DefinitionDataRow[] = [
   {
@@ -22,14 +21,31 @@ const mockCohorts: DefinitionDataRow[] = [
   },
 ];
 
+const mockOpenmrsFetch = openmrsFetch as jest.Mock;
+
+jest.mock("./saved-cohorts.resources", () => {
+  const original = jest.requireActual("./saved-cohorts.resources");
+  return {
+    ...original,
+    getCohorts: jest.fn(),
+  };
+});
+
 describe("Test the saved cohorts component", () => {
-  afterEach(cleanup);
-  xit("should be able to search for a cohort", async () => {
-    jest.spyOn(apis, "getCohorts").mockResolvedValue(mockCohorts);
+  afterEach(() => {
+    cleanup();
+    jest.restoreAllMocks();
+  });
+  it("should be able to search for a cohort", async () => {
+    // @ts-ignore
+    getCohorts.mockImplementation(() => mockCohorts);
+    mockOpenmrsFetch.mockReturnValue({ data: { results: mockCohorts } });
 
     render(<SavedCohorts onViewCohort={jest.fn()} />);
-    await waitFor(() => expect(jest.spyOn(apis, "getCohorts")));
-    expect(screen.getByText(mockCohorts[0].name)).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByText(mockCohorts[0].name)).toBeInTheDocument()
+    );
+
     expect(screen.getByText(mockCohorts[1].name)).toBeInTheDocument();
   });
 });

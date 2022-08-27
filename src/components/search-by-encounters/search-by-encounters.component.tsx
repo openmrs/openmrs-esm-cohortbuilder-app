@@ -11,7 +11,7 @@ import { showToast } from "@openmrs/esm-framework";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 
-import { useLocations } from "../../cohort-builder.resource";
+import { useLocations } from "../../cohort-builder.resources";
 import { SearchByProps, DropdownValue } from "../../types";
 import SearchButtonSet from "../search-button-set/search-button-set";
 import { useEncounterTypes, useForms } from "./search-by-encounters.resources";
@@ -120,24 +120,26 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
         <Column className={styles.encounterRange}>
           <div className={styles.multipleInputs}>
             <NumberInput
+              hideSteppers={true}
               id="atLeastCount"
               data-testid="atLeastCount"
               label={t("atLeast", "at least")}
               min={0}
               size="sm"
               value={atLeastCount}
-              onChange={(event) => setAtLeastCount(event.imaginaryTarget.value)}
+              onChange={(event, { value }) => setAtLeastCount(value)}
             />
           </div>
           <div className={styles.multipleInputs}>
             <NumberInput
+              hideSteppers={true}
               id="atMostCount"
               data-testid="atMostCount"
               label={t("upto", "upto this many")}
               min={0}
               size="sm"
               value={atMostCount}
-              onChange={(event) => setAtMostCount(event.imaginaryTarget.value)}
+              onChange={(event, { value }) => setAtMostCount(value)}
             />
           </div>
         </Column>

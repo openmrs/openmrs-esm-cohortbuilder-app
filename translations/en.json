@@ -26,6 +26,7 @@
   "whoseAnswer": "Patients with observations whose answer is ",
   "name": "Name",
   "age": "Age",
+  "ageBetween": "Age between",
   "gender": "Gender",
   "openmrsId": "OpenMRS ID",
   "numberIsNotValid": "Number is not valid",

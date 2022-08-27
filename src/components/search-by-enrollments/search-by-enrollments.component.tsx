@@ -10,10 +10,10 @@ import { showToast } from "@openmrs/esm-framework";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 
-import { useLocations } from "../../cohort-builder.resource";
+import { useLocations } from "../../cohort-builder.resources";
 import { DropdownValue, SearchByProps } from "../../types";
 import SearchButtonSet from "../search-button-set/search-button-set";
-import { usePrograms } from "./search-by-enrollments.resource";
+import { usePrograms } from "./search-by-enrollments.resources";
 import styles from "./search-by-enrollments.style.scss";
 import { getQueryDetails, getDescription } from "./search-by-enrollments.utils";
 
