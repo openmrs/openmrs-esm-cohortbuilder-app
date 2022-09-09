@@ -154,10 +154,6 @@ const CohortBuilder: React.FC = () => {
       component: <SearchByDrugOrder onSubmit={runSearch} />,
     },
     {
-      name: "SQL",
-      component: <span></span>,
-    },
-    {
       name: t("composition", "Composition"),
       component: <Composition onSubmit={runSearch} />,
     },
