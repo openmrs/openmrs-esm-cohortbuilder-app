@@ -100,7 +100,7 @@ describe("Test the search by location component", () => {
     fireEvent.click(getByText("Most Recent Encounter"));
     fireEvent.click(getByTestId("search-btn"));
 
-    await waitFor(async () => {
+    await waitFor(() => {
       expect(submit).toBeCalledWith(
         expectedQuery,
         `Patients in ${mockLocations[2].label} (by method ANY_ENCOUNTER).`

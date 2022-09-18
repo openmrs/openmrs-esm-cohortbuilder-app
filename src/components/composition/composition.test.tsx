@@ -62,45 +62,51 @@ const mockCompositionQuery = {
   },
 };
 
+jest.mock("./composition.utils", () => {
+  const original = jest.requireActual("./composition.utils");
+  return {
+    ...original,
+    createCompositionQuery: jest
+      .fn()
+      .mockImplementation(() => mockCompositionQuery),
+  };
+});
+
 describe("Test the composition component", () => {
   afterEach(() => {
     cleanup();
     jest.restoreAllMocks();
   });
+
   it("should be throw an error when an invalid composition query is entered", async () => {
     const user = userEvent.setup();
     const submit = jest.fn();
     render(<Composition onSubmit={submit} />);
 
-    const searchInput = screen.getByTestId("composition-query");
-    await user.click(searchInput);
-    await waitFor(() => user.type(searchInput, "random text"));
+    const compositionInput = screen.getByTestId("composition-query");
+    await user.click(compositionInput);
+    await waitFor(() => user.type(compositionInput, "random text"));
 
     await waitFor(() => user.click(screen.getByTestId("search-btn")));
     await waitFor(() => expect(submit).not.toBeCalled());
   });
 
   it("should be to search a composition query", async () => {
-    const user = userEvent.setup();
-    const submit = jest.fn();
     const compositionQuery = "1 and 2";
 
-    jest.mock("./composition.utils", () => {
-      const original = jest.requireActual("./composition.utils");
-      return {
-        ...original,
-        createCompositionQuery: jest.fn().mockReturnValue(mockCompositionQuery),
-      };
-    });
-
+    const user = userEvent.setup();
+    const submit = jest.fn();
     render(<Composition onSubmit={submit} />);
     const compositionInput = screen.getByTestId("composition-query");
     await user.click(compositionInput);
     await waitFor(() => user.type(compositionInput, compositionQuery));
 
     await waitFor(() => user.click(screen.getByTestId("search-btn")));
-    await waitFor(() => {
-      expect(submit).toBeCalled();
-    });
+    await waitFor(() =>
+      expect(submit).toBeCalledWith(
+        mockCompositionQuery,
+        `Composition of ${compositionQuery}`
+      )
+    );
   });
 });

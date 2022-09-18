@@ -149,7 +149,7 @@ describe("Test the search by drug orders component", () => {
       fireEvent.click(getByTestId("search-btn"));
     });
 
-    await waitFor(async () => {
+    await waitFor(() => {
       expect(submit).toBeCalledWith(
         expectedQuery,
         `Patients who taking ${mockDrugs[1].label} and ${mockDrugs[2].label} from Pharmacy`

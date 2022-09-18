@@ -82,7 +82,7 @@ describe("Test the search by demographics component", () => {
       dayjs().format();
     fireEvent.click(getByTestId("search-btn"));
 
-    await waitFor(async () => {
+    await waitFor(() => {
       expect(submit).toBeCalledWith(
         expectedQuery,
         "Male Patients with ages between 10 and 20 years that are alive"
