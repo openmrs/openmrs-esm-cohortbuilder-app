@@ -61,7 +61,7 @@ export interface Cohort {
 }
 
 export interface SearchHistoryItem {
-  id?: string;
+  id: string;
   parameters?: Query;
   results: string;
   description: string;
