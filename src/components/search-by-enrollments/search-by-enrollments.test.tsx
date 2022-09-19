@@ -148,7 +148,7 @@ describe("Test the search by enrollments component", () => {
       fireEvent.click(getByTestId("search-btn"));
     });
 
-    await waitFor(async () => {
+    await waitFor(() => {
       expect(submit).toBeCalledWith(
         expectedQuery,
         `Patients enrolled in ${mockPrograms[0].label} at ${mockLocations[2].label}`
