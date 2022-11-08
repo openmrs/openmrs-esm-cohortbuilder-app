@@ -97,7 +97,7 @@ const SearchResultsTable: React.FC<SearchResultsTableProps> = ({
           totalItems={patients.length}
         />
       )}
-      {!patients.length && <EmptyData displayText="data" />}
+      {!patients.length && <EmptyData displayText={t("data", "data")} />}
     </div>
   );
 };

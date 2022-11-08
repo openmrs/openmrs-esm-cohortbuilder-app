@@ -86,7 +86,7 @@ describe("Test the search history component", () => {
     );
 
     expect(
-      screen.getByText("There are no history to display")
+      screen.getByText("There are no data to display")
     ).toBeInTheDocument();
   });
 

@@ -131,7 +131,7 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
           totalItems={cohorts.length}
         />
       )}
-      {!cohorts.length && <EmptyData displayText="cohorts" />}
+      {!cohorts.length && <EmptyData displayText={t("cohorts", "cohorts")} />}
     </div>
   );
 };

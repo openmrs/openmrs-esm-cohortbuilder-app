@@ -146,7 +146,7 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({
           totalItems={searchResults.length}
         />
       )}
-      {!searchResults.length && <EmptyData displayText="history" />}
+      {!searchResults.length && <EmptyData displayText={t("data", "data")} />}
       <ComposedModal
         size={"sm"}
         open={isClearHistoryModalVisible}

@@ -131,7 +131,7 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
           totalItems={queries.length}
         />
       )}
-      {!queries.length && <EmptyData displayText="queries" />}
+      {!queries.length && <EmptyData displayText={t("queries", "queries")} />}
     </div>
   );
 };
