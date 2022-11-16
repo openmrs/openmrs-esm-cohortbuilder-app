@@ -29,7 +29,18 @@ function setupOpenMRS() {
         route: "cohort-builder",
       },
     ],
-    extensions: [],
+    extensions: [
+      {
+        id: "cohort-builder-app-link",
+        slot: "app-menu-slot",
+        load: getAsyncLifecycle(
+          () => import("./cohort-builder-app-menu-link"),
+          options
+        ),
+        online: true,
+        offline: false,
+      },
+    ],
   };
 }
 
