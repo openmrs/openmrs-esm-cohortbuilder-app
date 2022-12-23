@@ -19,6 +19,10 @@
     "coverage": "yarn test -- --coverage",
     "prepare": "husky install"
   },
+  "files": [
+    "dist",
+    "src"
+  ],
   "husky": {
     "hooks": {
       "pre-commit": "pretty-quick --staged && yarn verify"
