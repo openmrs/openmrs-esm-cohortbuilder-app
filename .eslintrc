@@ -4,23 +4,6 @@
   "rules": {
     "unused-imports/no-unused-imports": "error",
     "react-hooks/exhaustive-deps": 0,
-    "import/order":[
-      "error",
-      {
-        "groups": ["builtin", "external", "internal"],
-        "pathGroups":[{
-          "pattern": "react",
-          "group": "external",
-          "position": "before"
-        }],
-        "pathGroupsExcludedImportTypes": ["react"],
-        "newlines-between": "always",
-        "alphabetize": {
-          "order": "asc",
-          "caseInsensitive":true
-        }
-      }
-    ],
     "@typescript-eslint/no-explicit-any":  "error",
     "@typescript-eslint/no-unused-vars":  "error"
   },
