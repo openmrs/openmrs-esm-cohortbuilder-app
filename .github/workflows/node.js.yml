@@ -75,7 +75,7 @@ jobs:
         run: yarn install --immutable
 
       - name: Version
-        run: yarn version "$(node -e "console.log(require('semver').inc(require('./package.json').version, 'patch'))")-pre.${{ github.run_number }}"
+        run: yarn version --new-version "$(node -e "console.log(require('semver').inc(require('./package.json').version, 'patch'))")-pre.${{ github.run_number }}" --no-git-tag-version
 
       - name: Build
         run: yarn build
