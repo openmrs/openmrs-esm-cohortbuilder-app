@@ -1,3 +1,6 @@
+# OS files
+.DS_Store
+
 # Logs
 logs
 *.log
@@ -61,7 +64,15 @@ typings/
 .next
 
 dist/
-.DS_Store
-.idea
+
 # Intellij integration
 *.iml
+
+# ignores for Yarn v3 w/o PNP
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
