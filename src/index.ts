@@ -31,16 +31,6 @@ function setupOpenMRS() {
     ],
     extensions: [
       {
-        id: "cohort-builder-app-link",
-        slot: "app-menu-slot",
-        load: getAsyncLifecycle(
-          () => import("./cohort-builder-app-menu-link"),
-          options
-        ),
-        online: true,
-        offline: false,
-      },
-      {
         id: "system-administration-cohort-builder-card-link",
         slot: "system-admin-page-card-link-slot",
         load: getAsyncLifecycle(
