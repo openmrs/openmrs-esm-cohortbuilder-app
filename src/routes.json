@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json.openmrs.org/routes.schema.json",
+  "backendDependencies": {
+    "fhir2": "^1.2.0",
+    "webservices.rest": "^2.2.0",
+    "reportingrest": "^1.0.0",
+    "reporting": "^1.0.0"
+  },
+  "pages": [
+    {
+      "component": "cohortBuilder",
+      "route": "cohort-builder",
+      "online": true,
+      "offline": true
+    }
+  ],
+  "extensions": [
+    {
+      "name": "system-administration-cohort-builder-card-link",
+      "slot": "system-admin-page-card-link-slot",
+      "component": "cohortBuilder",
+      "online": true,
+      "offline": true
+    }
+  ]
+}
