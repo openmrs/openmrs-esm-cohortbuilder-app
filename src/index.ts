@@ -14,9 +14,14 @@ export const importTranslation = require.context(
   "lazy"
 );
 
+export function startupApp() {}
+
 export const cohortBuilder = getAsyncLifecycle(
   () => import("./cohort-builder"),
   options
 );
 
-export function startupApp() {}
+export const cohortBuilderAdminPageCardLink = getAsyncLifecycle(
+  () => import("./cohort-builder-admin-link.component"),
+  options
+);
