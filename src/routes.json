@@ -18,7 +18,7 @@
     {
       "name": "system-administration-cohort-builder-card-link",
       "slot": "system-admin-page-card-link-slot",
-      "component": "cohortBuilder",
+      "component": "cohortBuilderAdminPageCardLink",
       "online": true,
       "offline": true
     }
