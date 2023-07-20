@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  testOnPR:
+  test-on-PR:
     if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     steps:
@@ -54,7 +54,7 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
-  testOnPush:
+  test-on-push:
     if: ${{ github.event_name == 'push' }}
     timeout-minutes: 60
     runs-on: ubuntu-latest
