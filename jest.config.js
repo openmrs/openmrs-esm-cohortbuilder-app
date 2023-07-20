@@ -15,4 +15,5 @@ module.exports = {
   testEnvironmentOptions: {
     url: "http://localhost/",
   },
+  testPathIgnorePatterns: ["<rootDir>/e2e"],
 };
