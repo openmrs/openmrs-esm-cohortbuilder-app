@@ -13,19 +13,17 @@ test("search by demographics", async ({ page }) => {
   });
 
   await test.step("And I select the demographic values", async () => {
-    await cohortBuilderPage
+    const startDate = cohortBuilderPage
       .demographicsTabPanel()
-      .locator("#startDate")
-      .click();
-    await cohortBuilderPage
+      .locator("#startDate");
+    const endDate = cohortBuilderPage
       .demographicsTabPanel()
-      .locator("#startDate")
-      .fill("07/03/2023");
-    await cohortBuilderPage.demographicsTabPanel().locator("#endDate").click();
-    await cohortBuilderPage
-      .demographicsTabPanel()
-      .locator("#endDate")
-      .fill("07/12/2023");
+      .locator("#endDate");
+
+    await startDate.click();
+    await startDate.fill("07/03/2023");
+    await endDate.click();
+    await endDate.fill("07/12/2023");
     await page.getByTestId("minAge").fill("10");
     await page.getByTestId("maxAge").fill("50");
     await page.getByTestId("Male").click();
