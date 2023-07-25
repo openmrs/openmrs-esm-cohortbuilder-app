@@ -19,11 +19,14 @@ test("search by demographics", async ({ page }) => {
     const endDate = cohortBuilderPage
       .demographicsTabPanel()
       .locator("#endDate");
+    const calendar = page.getByRole("application", {
+      name: "calendar-container",
+    });
 
     await startDate.click();
-    await startDate.fill("07/03/2023");
+    await calendar.getByText("9", { exact: true }).click();
     await endDate.click();
-    await endDate.fill("07/12/2023");
+    await calendar.getByText("14", { exact: true }).click();
     await page.getByTestId("minAge").fill("10");
     await page.getByTestId("maxAge").fill("50");
     await page.getByTestId("Male").click();
