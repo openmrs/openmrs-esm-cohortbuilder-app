@@ -37,7 +37,7 @@ test("search by demographics", async ({ page }) => {
     await cohortBuilderPage.searchButton().click();
   });
 
-  await test.step("Then should get a success", async () => {
+  await test.step("Then should get a success notification", async () => {
     await expect(cohortBuilderPage.successNotification()).toBeVisible();
   });
 });
