@@ -33,7 +33,7 @@ test("search by demographics", async ({ page }) => {
     await page.getByRole("tab", { name: "Alive" }).click();
   });
 
-  await test.step("Then I click the search button", async () => {
+  await test.step("And I click the search button", async () => {
     await cohortBuilderPage.searchButton().click();
   });
 
