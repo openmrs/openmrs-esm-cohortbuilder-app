@@ -14,7 +14,10 @@ const config: PlaywrightTestConfig = {
   forbidOnly: !!process.env.CI,
   retries: 0,
   reporter: process.env.CI
-    ? [["junit", { outputFile: "results.xml" }], ["html"]]
+    ? [
+        ["junit", { outputFile: "results.xml" }],
+        ["html", { outputFolder: "../test-results/report" }],
+      ]
     : [["html", { outputFolder: "../test-results/report" }]],
   globalSetup: require.resolve("./e2e/core/global-setup"),
   use: {
