@@ -8,25 +8,30 @@ test("search by location", async ({ page }) => {
     await cohortBuilderPage.gotoCohortBuilder();
   });
 
-  await page.getByRole("tab", { name: "Location" }).click();
-  await page
-    .getByRole("tabpanel", { name: "Location" })
-    .locator("div")
-    .filter({ hasText: "Select locationsOpen menu" })
-    .nth(2)
-    .click();
-  await page.getByText("ART Clinic").click();
-  await page.getByText("Community Outreach").click();
-  await page
-    .getByRole("button", {
-      name: "Total items selected: 2,To clear selection, press Delete or Backspace, 2 Clear all selected items Select locations Close menu",
-    })
-    .click();
-  await page.getByRole("button", { name: "Any Encounter Open menu" }).click();
-  await page
-    .getByRole("option", { name: "Any Encounter" })
-    .getByText("Any Encounter")
-    .click();
+  await test.step("And I select location tab", async () => {
+    await cohortBuilderPage.locationTab().click();
+  });
+
+  await test.step("And I select the location values", async () => {
+    await cohortBuilderPage
+      .locationTabPanel()
+      .locator("div")
+      .filter({ hasText: "Select locationsOpen menu" })
+      .nth(2)
+      .click();
+    await page.getByText("ART Clinic").click();
+    await page.getByText("Community Outreach").click();
+    await page
+      .getByRole("button", {
+        name: "Total items selected: 2,To clear selection, press Delete or Backspace, 2 Clear all selected items Select locations Close menu",
+      })
+      .click();
+    await page.getByRole("button", { name: "Any Encounter Open menu" }).click();
+    await page
+      .getByRole("option", { name: "Any Encounter" })
+      .getByText("Any Encounter")
+      .click();
+  });
 
   await test.step("Then I click the search button", async () => {
     await cohortBuilderPage.searchButton().click();
