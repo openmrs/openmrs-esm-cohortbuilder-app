@@ -12,6 +12,8 @@ export class CohortBuilderPage {
     this.page.getByRole("tabpanel", { name: "Location" });
   readonly searchButton = () =>
     this.page.getByRole("button", { name: "Search", exact: true });
+  readonly enrollmentsTab = () =>
+    this.page.getByRole("tab", { name: "Enrollments" });
   readonly successNotification = () => this.page.getByText("Success!");
 
   async gotoCohortBuilder() {

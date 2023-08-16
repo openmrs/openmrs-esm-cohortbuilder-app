@@ -19,11 +19,14 @@ test("search by location", async ({ page }) => {
       .filter({ hasText: "Select locationsOpen menu" })
       .nth(2)
       .click();
-    await page.getByText("ART Clinic").click();
-    await page.getByText("Community Outreach").click();
+    await page
+      .getByRole("option", { name: "Community Outreach" })
+      .locator("div")
+      .first()
+      .click();
     await page
       .getByRole("button", {
-        name: "Total items selected: 2,To clear selection, press Delete or Backspace, 2 Clear all selected items Select locations Close menu",
+        name: "Total items selected: 1,To clear selection, press Delete or Backspace, 1 Clear all selected items Select locations Close menu",
       })
       .click();
     await page.getByRole("button", { name: "Any Encounter Open menu" }).click();
