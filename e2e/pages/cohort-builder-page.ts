@@ -7,6 +7,9 @@ export class CohortBuilderPage {
     this.page.getByRole("tab", { name: "Demographics" });
   readonly demographicsTabPanel = () =>
     this.page.getByRole("tabpanel", { name: "Demographics" });
+  readonly locationTab = () => this.page.getByRole("tab", { name: "Location" });
+  readonly locationTabPanel = () =>
+    this.page.getByRole("tabpanel", { name: "Location" });
   readonly searchButton = () =>
     this.page.getByRole("button", { name: "Search", exact: true });
   readonly successNotification = () => this.page.getByText("Success!");
