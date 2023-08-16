@@ -42,13 +42,13 @@ test("search by enrollments", async ({ page }) => {
       })
       .click();
     await page.getByLabel("Enrolled between").click();
-    calendar.getByText("1", { exact: true }).first().click();
+    await calendar.getByText("1", { exact: true }).first().click();
     await page.locator("#enrolledOnOrBefore").click();
-    calendar.getByText("5").first().click();
+    await calendar.getByText("5").first().click();
     await page.getByLabel("Completed between").click();
-    calendar.getByText("1", { exact: true }).first().click();
+    await calendar.getByText("1", { exact: true }).first().click();
     await page.locator("#completedOnOrBefore").click();
-    calendar.getByText("8").first().click();
+    await calendar.getByText("8").first().click();
   });
 
   await test.step("Then I click the search button", async () => {
