@@ -31,14 +31,13 @@ test("search by enrollments", async ({ page }) => {
       .getByRole("button", { name: "Select locations Open menu" })
       .click();
     await page
-      .getByRole("option", { name: "ART Clinic" })
+      .getByRole("option", { name: "Community Outreach" })
       .locator("div")
       .first()
       .click();
-    await page.getByText("Community Outreach", { exact: true }).click();
     await page
       .getByRole("button", {
-        name: "Total items selected: 2,To clear selection, press Delete or Backspace, 2 Clear all selected items Select locations Close menu",
+        name: "Total items selected: 1,To clear selection, press Delete or Backspace, 1 Clear all selected items Select locations Close menu",
       })
       .click();
     await page.getByLabel("Enrolled between").click();
