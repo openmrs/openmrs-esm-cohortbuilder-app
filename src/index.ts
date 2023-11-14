@@ -1,4 +1,7 @@
-import { getAsyncLifecycle } from "@openmrs/esm-framework";
+import { getSyncLifecycle } from "@openmrs/esm-framework";
+
+import cohortBuilderComponent from "./cohort-builder";
+import cohortBuilderAdminPageCardLinkComponent from "./cohort-builder-admin-link.component";
 
 const moduleName = "@openmrs/esm-cohort-builder";
 
@@ -16,12 +19,9 @@ export const importTranslation = require.context(
 
 export function startupApp() {}
 
-export const cohortBuilder = getAsyncLifecycle(
-  () => import("./cohort-builder"),
-  options
-);
+export const cohortBuilder = getSyncLifecycle(cohortBuilderComponent, options);
 
-export const cohortBuilderAdminPageCardLink = getAsyncLifecycle(
-  () => import("./cohort-builder-admin-link.component"),
+export const cohortBuilderAdminPageCardLink = getSyncLifecycle(
+  cohortBuilderAdminPageCardLinkComponent,
   options
 );
