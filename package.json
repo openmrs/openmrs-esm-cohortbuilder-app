@@ -99,6 +99,7 @@
   },
   "packageManager": "yarn@3.6.0",
   "dependencies": {
+    "classnames": "^2.3.2",
     "dotenv": "^16.3.1"
   }
 }
