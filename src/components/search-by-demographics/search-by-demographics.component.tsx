@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import classNames from "classnames";
 import {
   DatePicker,
   DatePickerInput,
@@ -84,7 +84,7 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
   return (
     <>
       <Column>
-        <p className={`${styles.text} ${styles.genderTitle}`}>
+        <p className={classNames(styles.text, styles.genderTitle)}>
           {t("gender", "Gender")}
         </p>
         <div className={styles.genderContainer}>

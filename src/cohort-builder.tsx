@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import classNames from "classnames";
 import { Tab, Tabs, TabList, TabPanels, TabPanel } from "@carbon/react";
 import { showToast, useLayoutType } from "@openmrs/esm-framework";
 import { useTranslation } from "react-i18next";
@@ -169,12 +169,16 @@ const CohortBuilder: React.FC = () => {
 
   return (
     <div
-      className={`omrs-main-content ${styles.mainContainer} ${styles.cohortBuilder}`}
+      className={classNames(
+        "omrs-main-content",
+        styles.mainContainer,
+        styles.cohortBuilder
+      )}
     >
       <div
-        className={
+        className={classNames(
           isLayoutTablet ? styles.tabletContainer : styles.desktopContainer
-        }
+        )}
       >
         <p className={styles.title}>{t("cohortBuilder", "Cohort Builder")}</p>
         <div className={styles.tabContainer}>
@@ -183,9 +187,10 @@ const CohortBuilder: React.FC = () => {
           </p>
           <div className={styles.tab}>
             <Tabs
-              className={`${styles.verticalTabs} ${
-                isLayoutTablet ? styles.tabletTab : styles.desktopTab
-              }`}
+              className={classNames(styles.verticalTabs, {
+                [styles.tabletTab]: isLayoutTablet,
+                [styles.desktopTab]: !isLayoutTablet,
+              })}
             >
               <TabList aria-label="navigation">
                 {tabs.map((tab: TabItem, index: number) => (
