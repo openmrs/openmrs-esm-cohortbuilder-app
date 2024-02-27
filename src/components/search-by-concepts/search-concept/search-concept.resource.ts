@@ -1,4 +1,8 @@
-import { FetchResponse, openmrsFetch } from "@openmrs/esm-framework";
+import {
+  FetchResponse,
+  openmrsFetch,
+  restBaseUrl,
+} from "@openmrs/esm-framework";
 
 import { Concept, DataType } from "../../../types";
 
@@ -22,7 +26,7 @@ interface Description {
  */
 export async function getConcepts(conceptName: String): Promise<Concept[]> {
   const searchResult: FetchResponse<{ results: ConceptResponse[] }> =
-    await openmrsFetch(`/ws/rest/v1/concept?v=full&q=${conceptName}`, {
+    await openmrsFetch(`${restBaseUrl}/concept?v=full&q=${conceptName}`, {
       method: "GET",
     });
 

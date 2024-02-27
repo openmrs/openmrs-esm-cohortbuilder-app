@@ -1,4 +1,8 @@
-import { openmrsFetch, FetchResponse } from "@openmrs/esm-framework";
+import {
+  openmrsFetch,
+  FetchResponse,
+  restBaseUrl,
+} from "@openmrs/esm-framework";
 import useSWRImmutable from "swr/immutable";
 
 import { Patient, SearchParams, DropdownValue, Response } from "./types";
@@ -13,7 +17,7 @@ interface SearchResults {
 
 export const search = async (searchParams: SearchParams) => {
   const searchResults: FetchResponse<SearchResults> = await openmrsFetch(
-    "/ws/rest/v1/reportingrest/adhocquery?v=full",
+    `${restBaseUrl}/reportingrest/adhocquery?v=full`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -29,7 +33,7 @@ export const search = async (searchParams: SearchParams) => {
 export const useLocations = () => {
   const { data, error } = useSWRImmutable<{
     data: { results: Response[] };
-  }>("/ws/rest/v1/location", openmrsFetch);
+  }>(`${restBaseUrl}/location`, openmrsFetch);
 
   const locations: DropdownValue[] = [];
   data?.data.results.map((location: Response, index: number) => {
@@ -49,7 +53,7 @@ export const useLocations = () => {
 
 export const getDataSet = async (queryID: string) => {
   const results: FetchResponse<SearchResults> = await openmrsFetch(
-    `/ws/rest/v1/reportingrest/dataSet/${queryID}`,
+    `${restBaseUrl}/reportingrest/dataSet/${queryID}`,
     {
       method: "GET",
     }
@@ -67,7 +71,7 @@ export const getDataSet = async (queryID: string) => {
 
 export const getCohortMembers = async (cohortId: string) => {
   const results: FetchResponse<SearchResults> = await openmrsFetch(
-    `/ws/rest/v1/cohort/${cohortId}/member?v=full`,
+    `${restBaseUrl}/cohort/${cohortId}/member?v=full`,
     {
       method: "GET",
     }
