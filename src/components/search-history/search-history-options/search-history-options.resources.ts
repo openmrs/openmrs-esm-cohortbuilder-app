@@ -1,4 +1,8 @@
-import { FetchResponse, openmrsFetch } from "@openmrs/esm-framework";
+import {
+  FetchResponse,
+  openmrsFetch,
+  restBaseUrl,
+} from "@openmrs/esm-framework";
 
 import { Cohort, Query } from "../../../types";
 
@@ -9,7 +13,7 @@ import { Cohort, Query } from "../../../types";
 export async function createCohort(
   cohort: Cohort
 ): Promise<FetchResponse<Cohort>> {
-  return await openmrsFetch("/ws/rest/v1/cohort", {
+  return await openmrsFetch(`${restBaseUrl}/cohort`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: cohort,
@@ -21,7 +25,7 @@ export async function createCohort(
  * @param query
  */
 export async function createQuery(query: Query): Promise<FetchResponse<Query>> {
-  return await openmrsFetch("/ws/rest/v1/reportingrest/adhocdataset", {
+  return await openmrsFetch(`${restBaseUrl}/reportingrest/adhocdataset`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: query,

@@ -1,4 +1,8 @@
-import { FetchResponse, openmrsFetch } from "@openmrs/esm-framework";
+import {
+  FetchResponse,
+  openmrsFetch,
+  restBaseUrl,
+} from "@openmrs/esm-framework";
 
 import { Response, DefinitionDataRow } from "../../types";
 
@@ -7,7 +11,7 @@ import { Response, DefinitionDataRow } from "../../types";
  */
 export async function getQueries(): Promise<DefinitionDataRow[]> {
   const response: FetchResponse<{ results: Response[] }> = await openmrsFetch(
-    "/ws/rest/v1/reportingrest/dataSetDefinition?v=full",
+    `${restBaseUrl}/reportingrest/dataSetDefinition?v=full`,
     {
       method: "GET",
     }
@@ -30,7 +34,7 @@ export async function getQueries(): Promise<DefinitionDataRow[]> {
 
 export const deleteDataSet = async (queryID: string) => {
   const dataset: FetchResponse = await openmrsFetch(
-    `/ws/rest/v1/reportingrest/adhocdataset/${queryID}?purge=true`,
+    `${restBaseUrl}/reportingrest/adhocdataset/${queryID}?purge=true`,
     {
       method: "DELETE",
     }

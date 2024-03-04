@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import { openmrsFetch } from "@openmrs/esm-framework";
+import { openmrsFetch, restBaseUrl } from "@openmrs/esm-framework";
 import useSWRImmutable from "swr/immutable";
 
 import { DropdownValue, Response } from "../../types";
@@ -11,7 +11,7 @@ import { DropdownValue, Response } from "../../types";
 export function useDrugs() {
   const { data, error } = useSWRImmutable<{
     data: { results: Response[] };
-  }>("/ws/rest/v1/drug", openmrsFetch);
+  }>(`${restBaseUrl}/drug`, openmrsFetch);
 
   const results = useMemo(() => {
     const drugs: DropdownValue[] = [];
@@ -38,7 +38,7 @@ export function useDrugs() {
 export function useCareSettings() {
   const { data, error } = useSWRImmutable<{
     data: { results: Response[] };
-  }>("/ws/rest/v1/caresetting", openmrsFetch);
+  }>(`${restBaseUrl}/caresetting`, openmrsFetch);
 
   const results = useMemo(() => {
     const careSettings: DropdownValue[] = [];

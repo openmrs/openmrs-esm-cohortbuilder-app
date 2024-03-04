@@ -1,4 +1,8 @@
-import { FetchResponse, openmrsFetch } from "@openmrs/esm-framework";
+import {
+  FetchResponse,
+  openmrsFetch,
+  restBaseUrl,
+} from "@openmrs/esm-framework";
 
 import { Cohort, DefinitionDataRow } from "../../types";
 
@@ -7,7 +11,7 @@ import { Cohort, DefinitionDataRow } from "../../types";
  */
 export async function getCohorts(): Promise<DefinitionDataRow[]> {
   const response: FetchResponse<{ results: Cohort[] }> = await openmrsFetch(
-    "/ws/rest/v1/cohort?v=full",
+    `${restBaseUrl}/cohort?v=full`,
     {
       method: "GET",
     }
@@ -30,7 +34,7 @@ export async function getCohorts(): Promise<DefinitionDataRow[]> {
 
 export const onDeleteCohort = async (cohort: string) => {
   const result: FetchResponse = await openmrsFetch(
-    `/ws/rest/v1/cohort/${cohort}`,
+    `${restBaseUrl}/cohort/${cohort}`,
     {
       method: "DELETE",
     }
