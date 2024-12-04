@@ -1,7 +1,5 @@
 import React from "react";
-
-import { render, cleanup } from "@testing-library/react";
-
+import { render } from "@testing-library/react";
 import SearchResultsTable from "./search-results-table.component";
 
 const mockPatients = [
@@ -26,7 +24,6 @@ const mockPatients = [
 ];
 
 describe("Test the search results component", () => {
-  afterEach(cleanup);
   it("should render a message when there's no results to display", async () => {
     const { getByText } = render(<SearchResultsTable patients={[]} />);
     expect(getByText("There are no data to display")).toBeInTheDocument();
@@ -34,7 +31,7 @@ describe("Test the search results component", () => {
 
   it("should display the search results", () => {
     const { getAllByRole } = render(
-      <SearchResultsTable patients={mockPatients} />
+      <SearchResultsTable patients={mockPatients} />,
     );
     const rows = getAllByRole("row");
     const cells = getAllByRole("cell");

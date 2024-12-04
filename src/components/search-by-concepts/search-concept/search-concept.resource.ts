@@ -1,10 +1,9 @@
 import {
-  FetchResponse,
+  type FetchResponse,
   openmrsFetch,
   restBaseUrl,
 } from "@openmrs/esm-framework";
-
-import { Concept, DataType } from "../../../types";
+import { type Concept, type DataType } from "../../../types";
 
 interface ConceptResponse {
   uuid: string;
@@ -35,7 +34,7 @@ export async function getConcepts(conceptName: String): Promise<Concept[]> {
     concepts = searchResult.data.results.map((concept) => {
       const description = concept.descriptions.filter(
         (description: Description) =>
-          description.locale == "en" ? description.description : ""
+          description.locale == "en" ? description.description : "",
       );
       const conceptData: Concept = {
         uuid: concept.uuid,

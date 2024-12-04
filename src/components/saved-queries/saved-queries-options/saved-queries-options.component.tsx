@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import { useTranslation } from "react-i18next";
 import {
   ComposedModal,
   ModalFooter,
@@ -8,9 +8,7 @@ import {
   OverflowMenuItem,
 } from "@carbon/react";
 import { showToast } from "@openmrs/esm-framework";
-import { useTranslation } from "react-i18next";
-
-import { DefinitionDataRow } from "../../../types";
+import { type DefinitionDataRow } from "../../../types";
 
 enum Options {
   VIEW,
@@ -94,7 +92,7 @@ const SavedQueriesOptions: React.FC<SavedQueriesOptionsProps> = ({
               `Are you sure you want to delete ${query?.name}?`,
               {
                 item: query?.name,
-              }
+              },
             )}
           </p>
         </ModalHeader>

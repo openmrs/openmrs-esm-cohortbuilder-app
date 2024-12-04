@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 import {
   DatePicker,
   DatePickerInput,
@@ -9,17 +8,16 @@ import {
   Switch,
   ContentSwitcher,
 } from "@carbon/react";
-import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
-
+import dayjs from "dayjs";
 import {
   composeJson,
   queryDescriptionBuilder,
 } from "../../cohort-builder.utils";
-import { Concept, SearchByProps } from "../../types";
+import { type Concept, type SearchByProps } from "../../types";
+import { SearchConcept } from "./search-concept/search-concept.component";
 import SearchButtonSet from "../search-button-set/search-button-set";
 import styles from "./search-by-concepts.style.scss";
-import { SearchConcept } from "./search-concept/search-concept.component";
 
 const operators = [
   {
@@ -92,7 +90,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
       id: "option-1",
       label: t(
         "haveNoObservations",
-        "Patients who do not have these observations"
+        "Patients who do not have these observations",
       ),
       value: "NO",
     },
@@ -188,7 +186,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
     });
     await onSubmit(
       composeJson(params),
-      queryDescriptionBuilder(observations, concept.name)
+      queryDescriptionBuilder(observations, concept.name),
     );
     setIsLoading(false);
   };

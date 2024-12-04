@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import dayjs from "dayjs";
 import {
   DatePicker,
   DatePickerInput,
@@ -7,16 +7,15 @@ import {
   NumberInput,
   MultiSelect,
 } from "@carbon/react";
-import { showToast } from "@openmrs/esm-framework";
-import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 
+import { showToast } from "@openmrs/esm-framework";
 import { useLocations } from "../../cohort-builder.resources";
-import { SearchByProps, DropdownValue } from "../../types";
-import SearchButtonSet from "../search-button-set/search-button-set";
-import { useEncounterTypes, useForms } from "./search-by-encounters.resources";
-import styles from "./search-by-encounters.style.scss";
+import { type SearchByProps, type DropdownValue } from "../../types";
 import { getDescription, getQueryDetails } from "./search-by-encounters.utils";
+import { useEncounterTypes, useForms } from "./search-by-encounters.resources";
+import SearchButtonSet from "../search-button-set/search-button-set";
+import styles from "./search-by-encounters.style.scss";
 
 const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
@@ -27,7 +26,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
     DropdownValue[]
   >([]);
   const [encounterLocations, setEncounterLocations] = useState<DropdownValue[]>(
-    []
+    [],
   );
   const [encounterForms, setEncounterForms] = useState<DropdownValue[]>([]);
   const { locations, locationsError } = useLocations();
@@ -83,7 +82,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
     };
     await onSubmit(
       getQueryDetails(encounterDetails),
-      getDescription(encounterDetails)
+      getDescription(encounterDetails),
     );
     setIsLoading(false);
   };

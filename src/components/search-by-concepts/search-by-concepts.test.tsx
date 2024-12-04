@@ -1,10 +1,8 @@
 import React from "react";
-
-import { render, cleanup, waitFor, screen } from "@testing-library/react";
+import { render, waitFor, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import dayjs from "dayjs";
-
-import { Concept } from "../../types";
+import { type Concept } from "../../types";
 import SearchByConcepts from "./search-by-concepts.component";
 import * as apis from "./search-concept/search-concept.resource";
 
@@ -88,8 +86,6 @@ const concepts: Concept[] = [
 ];
 
 describe("Test the search by concept component", () => {
-  afterEach(cleanup);
-
   it("should be able to select input values", async () => {
     const user = userEvent.setup();
     jest.spyOn(apis, "getConcepts").mockResolvedValue(concepts);
@@ -102,7 +98,7 @@ describe("Test the search by concept component", () => {
     await waitFor(() => user.click(searchInput));
     await waitFor(() => user.type(searchInput, "blood sugar"));
     await waitFor(() =>
-      expect(jest.spyOn(apis, "getConcepts")).toBeCalledWith("blood sugar")
+      expect(jest.spyOn(apis, "getConcepts")).toBeCalledWith("blood sugar"),
     );
 
     await waitFor(() => user.click(screen.getByText("BLOOD SUGAR")));
@@ -122,7 +118,7 @@ describe("Test the search by concept component", () => {
     await waitFor(() => {
       expect(submit).toBeCalledWith(
         expectedQuery,
-        "Patients with ANY BLOOD SUGAR  until " + date.format("D/M/YYYY")
+        "Patients with ANY BLOOD SUGAR  until " + date.format("D/M/YYYY"),
       );
     });
   });

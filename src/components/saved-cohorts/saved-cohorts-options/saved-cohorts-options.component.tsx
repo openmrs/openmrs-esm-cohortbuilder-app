@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 import {
   ComposedModal,
   ModalFooter,
@@ -7,10 +6,9 @@ import {
   OverflowMenu,
   OverflowMenuItem,
 } from "@carbon/react";
-import { showToast } from "@openmrs/esm-framework";
 import { useTranslation } from "react-i18next";
-
-import { DefinitionDataRow } from "../../../types";
+import { showToast } from "@openmrs/esm-framework";
+import { type DefinitionDataRow } from "../../../types";
 
 enum Options {
   VIEW,
@@ -94,7 +92,7 @@ const SavedCohortsOptions: React.FC<SavedCohortsOptionsProps> = ({
               `Are you sure you want to delete ${cohort?.name}?`,
               {
                 itemName: cohort?.name,
-              }
+              },
             )}
           </p>
         </ModalHeader>

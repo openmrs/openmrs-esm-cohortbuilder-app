@@ -1,5 +1,5 @@
 import { composeJson } from "../../cohort-builder.utils";
-import { EncounterDetails } from "../../types";
+import { type EncounterDetails } from "../../types";
 
 export const getDescription = ({
   selectedEncounterTypes,

@@ -1,9 +1,9 @@
 import { composeJson } from "../../cohort-builder.utils";
-import { DropdownValue } from "../../types";
+import { type DropdownValue } from "../../types";
 
 export const getQueryDetails = (
   method: string,
-  selectedLocations: DropdownValue[]
+  selectedLocations: DropdownValue[],
 ) => {
   const locations = [];
   selectedLocations?.map((location) => locations.push(location.value));
@@ -20,7 +20,7 @@ export const getQueryDetails = (
 
 export const getDescription = (
   method: string,
-  selectedLocations: DropdownValue[]
+  selectedLocations: DropdownValue[],
 ) => {
   let description = `Patients in ${selectedLocations
     ?.map((location) => location.label)

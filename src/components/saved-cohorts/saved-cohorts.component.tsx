@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-
 import {
   DataTable,
   Table,
@@ -12,12 +11,11 @@ import {
 } from "@carbon/react";
 import { showToast } from "@openmrs/esm-framework";
 import { useTranslation } from "react-i18next";
-
-import mainStyles from "../../cohort-builder.scss";
-import { DefinitionDataRow, PaginationData } from "../../types";
+import { type DefinitionDataRow, type PaginationData } from "../../types";
+import { onDeleteCohort, getCohorts } from "./saved-cohorts.resources";
 import EmptyData from "../empty-data/empty-data.component";
 import SavedCohortsOptions from "./saved-cohorts-options/saved-cohorts-options.component";
-import { onDeleteCohort, getCohorts } from "./saved-cohorts.resources";
+import mainStyles from "../../cohort-builder.scss";
 import styles from "./saved-cohorts.scss";
 
 interface SavedCohortsProps {
@@ -80,7 +78,7 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
       <p className={mainStyles.text}>
         {t(
           "savedCohortDescription",
-          "You can only search for Cohort Definitions that you have saved using a Name."
+          "You can only search for Cohort Definitions that you have saved using a Name.",
         )}
       </p>
       <DataTable rows={cohorts} headers={headers} useZebraStyles>

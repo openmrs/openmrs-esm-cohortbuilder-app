@@ -1,17 +1,16 @@
 import {
-  FetchResponse,
+  type FetchResponse,
   openmrsFetch,
   restBaseUrl,
 } from "@openmrs/esm-framework";
-
-import { Cohort, Query } from "../../../types";
+import { type Cohort, type Query } from "../../../types";
 
 /**
  * @returns Cohort
  * @param cohort
  */
 export async function createCohort(
-  cohort: Cohort
+  cohort: Cohort,
 ): Promise<FetchResponse<Cohort>> {
   return await openmrsFetch(`${restBaseUrl}/cohort`, {
     method: "POST",

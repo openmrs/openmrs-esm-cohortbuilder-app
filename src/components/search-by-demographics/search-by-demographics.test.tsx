@@ -1,9 +1,7 @@
 import React from "react";
-
-import { render, cleanup, fireEvent, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import dayjs from "dayjs";
-
+import { render, fireEvent, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import SearchByDemographics from "./search-by-demographics.component";
 
 const expectedQuery = {
@@ -62,8 +60,6 @@ const expectedQuery = {
 };
 
 describe("Test the search by demographics component", () => {
-  afterEach(cleanup);
-
   it("should be able to select input values", async () => {
     const submit = jest.fn();
     const { getByTestId } = render(<SearchByDemographics onSubmit={submit} />);
@@ -85,7 +81,7 @@ describe("Test the search by demographics component", () => {
     await waitFor(() => {
       expect(submit).toBeCalledWith(
         expectedQuery,
-        "Male Patients with ages between 10 and 20 years that are alive"
+        "Male Patients with ages between 10 and 20 years that are alive",
       );
     });
   });

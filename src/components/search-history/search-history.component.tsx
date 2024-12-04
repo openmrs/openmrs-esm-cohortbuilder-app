@@ -1,5 +1,9 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
-
+import React, {
+  type Dispatch,
+  type SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 import {
   Button,
   ComposedModal,
@@ -15,13 +19,12 @@ import {
   TableRow,
 } from "@carbon/react";
 import { useTranslation } from "react-i18next";
-
 import mainStyles from "../../cohort-builder.scss";
-import { PaginationData, SearchHistoryItem } from "../../types";
+import { type PaginationData, type SearchHistoryItem } from "../../types";
+import { getSearchHistory } from "./search-history.utils";
 import EmptyData from "../empty-data/empty-data.component";
 import SearchHistoryOptions from "./search-history-options/search-history-options.component";
 import styles from "./search-history.style.scss";
-import { getSearchHistory } from "./search-history.utils";
 
 interface SearchHistoryProps {
   isHistoryUpdated: boolean;
@@ -75,12 +78,12 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({
   const updateSearchHistory = (selectedSearchItem: SearchHistoryItem) => {
     const updatedSearchResults = [...searchResults].filter(
       (searchResult, index) =>
-        index != searchResults.indexOf(selectedSearchItem)
+        index != searchResults.indexOf(selectedSearchItem),
     );
     setSearchResults(updatedSearchResults);
     window.sessionStorage.setItem(
       "openmrsHistory",
-      JSON.stringify(updatedSearchResults)
+      JSON.stringify(updatedSearchResults),
     );
   };
 
@@ -156,7 +159,7 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({
           <p>
             {t(
               "clearHistoryMsg",
-              "Are you sure you want to clear the search history?"
+              "Are you sure you want to clear the search history?",
             )}
           </p>
         </ModalHeader>

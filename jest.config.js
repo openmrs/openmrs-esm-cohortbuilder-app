@@ -1,4 +1,5 @@
 module.exports = {
+  clearMocks: true,
   transform: {
     "^.+\\.tsx?$": "@swc/jest",
   },
@@ -6,9 +7,10 @@ module.exports = {
   moduleNameMapper: {
     "\\.(s?css)$": "identity-obj-proxy",
     "@openmrs/esm-framework": "@openmrs/esm-framework/mock",
-    "^lodash-es/(.*)$": "lodash/$1",
-    "^uuid$": "<rootDir>/node_modules/uuid/dist/index.js",
     "^dexie$": require.resolve("dexie"),
+    "^lodash-es/(.*)$": "lodash/$1",
+    "^lodash-es$": "lodash",
+    "^uuid$": "<rootDir>/node_modules/uuid/dist/index.js",
   },
   setupFilesAfterEnv: ["<rootDir>/src/setup-tests.ts"],
   testEnvironment: "jsdom",

@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 
 import { Column, Dropdown, TextInput } from "@carbon/react";
-import { showToast } from "@openmrs/esm-framework";
 import { useTranslation } from "react-i18next";
-
-import { SearchByProps } from "../../types";
+import { showToast } from "@openmrs/esm-framework";
+import { type SearchByProps } from "../../types";
 import SearchButtonSet from "../search-button-set/search-button-set";
 import { usePersonAttributes } from "./search-by-person-attributes.resource";
 import styles from "./search-by-person-attributes.style.scss";
@@ -37,14 +36,14 @@ const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
   const submit = async () => {
     setIsLoading(true);
     const selectedPersonAttribute = personAttributes?.find(
-      (personAttribute) => personAttribute.value == selectedAttributeId
+      (personAttribute) => personAttribute.value == selectedAttributeId,
     );
     await onSubmit(
       getQueryDetails(selectedAttributeId, selectedAttributeValues),
       getSearchByAttributesDescription(
         selectedPersonAttribute?.label,
-        selectedAttributeValues
-      )
+        selectedAttributeValues,
+      ),
     );
     setIsLoading(false);
   };
@@ -70,7 +69,7 @@ const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
             disabled={!selectedAttributeId}
             labelText={t(
               "selectedAttributeValues",
-              "Enter Comma Delimited Values"
+              "Enter Comma Delimited Values",
             )}
             onChange={(e) =>
               setSelectedAttributeValues(e.target.value.trim().split(","))

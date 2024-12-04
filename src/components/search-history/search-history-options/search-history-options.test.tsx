@@ -1,9 +1,8 @@
 import React from "react";
 
-import { screen, render, cleanup, waitFor } from "@testing-library/react";
+import { screen, render, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-
-import { Cohort, Query } from "../../../types";
+import { type Cohort, type Query } from "../../../types";
 import SearchHistoryOptions from "./search-history-options.component";
 import * as apis from "./search-history-options.resources";
 
@@ -83,7 +82,6 @@ const testProps = {
 };
 
 describe("Test the search history options", () => {
-  afterEach(cleanup);
   it("should be able to save the search history item as a cohort", async () => {
     const user = userEvent.setup();
     const cohort: Cohort = {
@@ -100,12 +98,12 @@ describe("Test the search history options", () => {
     await waitFor(() =>
       user.type(
         screen.getByTestId("cohort-name"),
-        "Chronic viral hepatitis cohort"
-      )
+        "Chronic viral hepatitis cohort",
+      ),
     );
     await waitFor(() => user.click(screen.getByTestId("cohort-save-button")));
     await waitFor(() =>
-      expect(jest.spyOn(apis, "createCohort")).toBeCalledWith(cohort)
+      expect(jest.spyOn(apis, "createCohort")).toBeCalledWith(cohort),
     );
   });
 
@@ -119,8 +117,8 @@ describe("Test the search history options", () => {
     await waitFor(() =>
       user.type(
         screen.getByTestId("query-name"),
-        "Chronic viral hepatitis query"
-      )
+        "Chronic viral hepatitis query",
+      ),
     );
     await waitFor(() => user.click(screen.getByTestId("query-save-button")));
     expect(jest.spyOn(apis, "createQuery")).toBeCalledWith(query);
@@ -133,7 +131,7 @@ describe("Test the search history options", () => {
       <SearchHistoryOptions
         searchItem={searchHistoryItem}
         updateSearchHistory={updateSearchHistory}
-      />
+      />,
     );
 
     await waitFor(() => user.click(screen.getByTestId("options")));

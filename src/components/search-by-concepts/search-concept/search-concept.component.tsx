@@ -1,16 +1,14 @@
 import React, {
-  Dispatch,
-  SetStateAction,
+  type Dispatch,
+  type SetStateAction,
   useState,
   useRef,
   useEffect,
 } from "react";
-
-import { Button, Column, Search, CodeSnippetSkeleton } from "@carbon/react";
-import _debounce from "lodash/debounce";
 import { useTranslation } from "react-i18next";
-
-import { Concept } from "../../../types";
+import debounce from "lodash-es/debounce";
+import { Button, Column, CodeSnippetSkeleton, Search } from "@carbon/react";
+import { type Concept } from "../../../types";
 import { getConcepts } from "./search-concept.resource";
 import styles from "./search-concept.style.css";
 
@@ -53,11 +51,11 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({
   };
 
   const debouncedSearch = useRef(
-    _debounce(async (searchText: string) => {
+    debounce(async (searchText: string) => {
       if (searchText) {
         await onSearch(searchText);
       }
-    }, 500)
+    }, 500),
   ).current;
 
   useEffect(() => {

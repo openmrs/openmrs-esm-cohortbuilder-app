@@ -1,9 +1,7 @@
 import React from "react";
-
-import { screen, render, cleanup, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-
-import { DefinitionDataRow } from "../../../types";
+import { screen, render, waitFor } from "@testing-library/react";
+import { type DefinitionDataRow } from "../../../types";
 import SavedCohortsOptions from "./saved-cohorts-options.component";
 
 const cohort: DefinitionDataRow = {
@@ -13,7 +11,6 @@ const cohort: DefinitionDataRow = {
 };
 
 describe("Test the saved cohorts options", () => {
-  afterEach(cleanup);
   it("should be able to view the saved cohort", async () => {
     const user = userEvent.setup();
     const onViewCohort = jest.fn();
@@ -22,7 +19,7 @@ describe("Test the saved cohorts options", () => {
         cohort={cohort}
         onViewCohort={onViewCohort}
         onDeleteCohort={jest.fn()}
-      />
+      />,
     );
 
     await waitFor(() => user.click(screen.getByTestId("options")));
@@ -38,7 +35,7 @@ describe("Test the saved cohorts options", () => {
         cohort={cohort}
         onViewCohort={jest.fn()}
         onDeleteCohort={onDeleteCohort}
-      />
+      />,
     );
 
     await waitFor(() => user.click(screen.getByTestId("options")));

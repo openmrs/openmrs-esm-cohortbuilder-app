@@ -1,9 +1,7 @@
 import React from "react";
-
-import { render, cleanup, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-
-import { Concept } from "../../../types";
+import { type Concept } from "../../../types";
 import { SearchConcept } from "./search-concept.component";
 import * as apis from "./search-concept.resource";
 
@@ -42,7 +40,6 @@ const concepts: Concept[] = [
 ];
 
 describe("Test the concept search component", () => {
-  afterEach(cleanup);
   it("should be able to search for a concept", async () => {
     const user = userEvent.setup();
     jest.spyOn(apis, "getConcepts").mockResolvedValue(concepts);
@@ -56,14 +53,14 @@ describe("Test the concept search component", () => {
         setConcept={jest.fn()}
         searchText={searchText}
         setSearchText={setSearchText}
-      />
+      />,
     );
     const searchInput = screen.getByPlaceholderText("Search Concepts");
     await waitFor(() => user.click(searchInput));
     await waitFor(() => user.type(searchInput, "blood s"));
 
     await waitFor(() =>
-      expect(jest.spyOn(apis, "getConcepts")).toBeCalledWith(searchText)
+      expect(jest.spyOn(apis, "getConcepts")).toBeCalledWith(searchText),
     );
     expect(screen.getByText(concepts[0].name)).toBeInTheDocument();
     expect(screen.getByText(concepts[1].name)).toBeInTheDocument();
@@ -77,7 +74,7 @@ describe("Test the concept search component", () => {
         setConcept={jest.fn()}
         searchText={""}
         setSearchText={jest.fn()}
-      />
+      />,
     );
     const searchInput = getByPlaceholderText("Search Concepts");
     await waitFor(() => user.click(searchInput));

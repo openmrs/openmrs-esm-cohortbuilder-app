@@ -1,7 +1,6 @@
-import { openmrsFetch, restBaseUrl } from "@openmrs/esm-framework";
 import useSWRImmutable from "swr/immutable";
-
-import { DropdownValue, Response } from "../../types";
+import { openmrsFetch, restBaseUrl } from "@openmrs/esm-framework";
+import { type DropdownValue, type Response } from "../../types";
 
 /**
  * @returns PersonAttributes

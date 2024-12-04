@@ -1,11 +1,10 @@
+import useSWRImmutable from "swr/immutable";
 import {
   openmrsFetch,
-  FetchResponse,
   restBaseUrl,
+  type FetchResponse,
 } from "@openmrs/esm-framework";
-import useSWRImmutable from "swr/immutable";
-
-import { Patient, SearchParams, DropdownValue, Response } from "./types";
+import type { Patient, SearchParams, DropdownValue, Response } from "./types";
 
 /**
  * @param searchParams query details
@@ -22,7 +21,7 @@ export const search = async (searchParams: SearchParams) => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: searchParams.query,
-    }
+    },
   );
   return searchResults;
 };
@@ -56,7 +55,7 @@ export const getDataSet = async (queryID: string) => {
     `${restBaseUrl}/reportingrest/dataSet/${queryID}`,
     {
       method: "GET",
-    }
+    },
   );
 
   const dataset = results.data.rows.map((patient: Patient) => {
@@ -74,7 +73,7 @@ export const getCohortMembers = async (cohortId: string) => {
     `${restBaseUrl}/cohort/${cohortId}/member?v=full`,
     {
       method: "GET",
-    }
+    },
   );
 
   const dataset = results.data.rows.map((patient: Patient) => {

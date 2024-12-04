@@ -1,4 +1,4 @@
-import { Column, Patient, Query } from "./types";
+import { type Column, type Patient, type Query } from "./types";
 
 export const composeJson = (searchParameters) => {
   const query: Query = {
@@ -10,7 +10,7 @@ export const composeJson = (searchParameters) => {
   query.columns = addColumnsToDisplay();
   let counter = 0;
   query.rowFilters = [];
-  for (let field in searchParameters) {
+  for (const field in searchParameters) {
     if (isNullValues(searchParameters[field])) {
       delete searchParameters[field];
       continue;
@@ -19,12 +19,12 @@ export const composeJson = (searchParameters) => {
       query.rowFilters[counter] = {};
       query.rowFilters[counter].key = getDefinitionLibraryKey(
         field,
-        searchParameters[field]
+        searchParameters[field],
       );
     }
     if (Array.isArray(searchParameters[field])) {
       query.rowFilters[counter].parameterValues = getParameterValues(
-        searchParameters[field]
+        searchParameters[field],
       );
     }
     if (
@@ -119,10 +119,10 @@ export const addColumnsToDisplay = () => {
 export const addToHistory = (
   description: string,
   patients: Patient[],
-  parameters: {}
+  parameters: {},
 ) => {
   const oldHistory = JSON.parse(
-    window.sessionStorage.getItem("openmrsHistory")
+    window.sessionStorage.getItem("openmrsHistory"),
   );
   let newHistory = [];
 

@@ -1,10 +1,9 @@
 import {
-  FetchResponse,
+  type FetchResponse,
   openmrsFetch,
   restBaseUrl,
 } from "@openmrs/esm-framework";
-
-import { Cohort, DefinitionDataRow } from "../../types";
+import { type Cohort, type DefinitionDataRow } from "../../types";
 
 /**
  * @returns Cohorts
@@ -14,10 +13,10 @@ export async function getCohorts(): Promise<DefinitionDataRow[]> {
     `${restBaseUrl}/cohort?v=full`,
     {
       method: "GET",
-    }
+    },
   );
 
-  let cohorts: DefinitionDataRow[] = [];
+  const cohorts: DefinitionDataRow[] = [];
   if (response.data.results.length > 0) {
     response.data.results.map((cohort: Cohort) => {
       const cohortData: DefinitionDataRow = {
@@ -37,7 +36,7 @@ export const onDeleteCohort = async (cohort: string) => {
     `${restBaseUrl}/cohort/${cohort}`,
     {
       method: "DELETE",
-    }
+    },
   );
   return result;
 };

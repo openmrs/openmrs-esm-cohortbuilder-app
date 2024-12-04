@@ -1,0 +1,19 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "stream",
+  "tasks": {
+    "build": {
+      "outputs": [
+        "dist"
+      ]
+    },
+    "lint": {},
+    "test": {},
+    "test:watch": {
+      "cache": false,
+      "persistent": true
+    },
+    "typescript": {},
+    "verify": {}
+  }
+}

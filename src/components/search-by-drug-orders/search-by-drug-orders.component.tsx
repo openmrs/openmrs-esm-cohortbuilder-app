@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import dayjs from "dayjs";
 import {
   Column,
   DatePicker,
@@ -7,15 +7,17 @@ import {
   Dropdown,
   MultiSelect,
 } from "@carbon/react";
-import { showToast } from "@openmrs/esm-framework";
-import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
-
-import { DropdownValue, DrugOrderDetails, SearchByProps } from "../../types";
-import SearchButtonSet from "../search-button-set/search-button-set";
-import { useCareSettings, useDrugs } from "./search-by-drug-orders.resources";
-import styles from "./search-by-drug-orders.style.scss";
+import { showToast } from "@openmrs/esm-framework";
+import {
+  type DropdownValue,
+  type DrugOrderDetails,
+  type SearchByProps,
+} from "../../types";
 import { getDescription, getQueryDetails } from "./search-by-drug-orders.utils";
+import { useCareSettings, useDrugs } from "./search-by-drug-orders.resources";
+import SearchButtonSet from "../search-button-set/search-button-set";
+import styles from "./search-by-drug-orders.style.scss";
 
 const SearchByDrugOrder: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
@@ -69,7 +71,7 @@ const SearchByDrugOrder: React.FC<SearchByProps> = ({ onSubmit }) => {
     };
     await onSubmit(
       getQueryDetails(drugOrderParams),
-      getDescription(drugOrderParams)
+      getDescription(drugOrderParams),
     );
     setIsLoading(false);
   };

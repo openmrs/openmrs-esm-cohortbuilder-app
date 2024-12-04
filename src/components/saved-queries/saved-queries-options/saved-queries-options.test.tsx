@@ -1,9 +1,7 @@
 import React from "react";
-
-import { screen, render, cleanup, waitFor } from "@testing-library/react";
+import { screen, render, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-
-import { DefinitionDataRow } from "../../../types";
+import { type DefinitionDataRow } from "../../../types";
 import SavedQueriesOptions from "./saved-queries-options.component";
 
 const query: DefinitionDataRow = {
@@ -23,7 +21,6 @@ const renderSavedQueriesOptions = (props = testProps) => {
 };
 
 describe("Test the saved queries options", () => {
-  afterEach(cleanup);
   it("should be able to view the saved query", async () => {
     const user = userEvent.setup();
     const onViewQuery = jest.fn();

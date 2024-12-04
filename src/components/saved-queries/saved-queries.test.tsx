@@ -1,11 +1,9 @@
 import React from "react";
-
+import { render, screen, waitFor } from "@testing-library/react";
 import { openmrsFetch } from "@openmrs/esm-framework";
-import { render, cleanup, screen, waitFor } from "@testing-library/react";
-
-import { DefinitionDataRow } from "../../types";
-import SavedQueries from "./saved-queries.component";
+import { type DefinitionDataRow } from "../../types";
 import { getQueries } from "./saved-queries.resources";
+import SavedQueries from "./saved-queries.component";
 
 const mockQueries: DefinitionDataRow[] = [
   {
@@ -32,7 +30,6 @@ jest.mock("./saved-queries.resources", () => {
 });
 
 describe("Test the saved queries component", () => {
-  afterEach(cleanup);
   it("should be able to search for a query", async () => {
     // @ts-ignore
     getQueries.mockImplementation(() => mockQueries);
@@ -43,7 +40,7 @@ describe("Test the saved queries component", () => {
     render(<SavedQueries onViewQuery={jest.fn()} />);
 
     await waitFor(() =>
-      expect(screen.getByText(mockQueries[0].name)).toBeInTheDocument()
+      expect(screen.getByText(mockQueries[0].name)).toBeInTheDocument(),
     );
     expect(screen.getByText(mockQueries[1].name)).toBeInTheDocument();
   });

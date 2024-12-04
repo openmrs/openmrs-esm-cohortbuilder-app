@@ -1,11 +1,9 @@
 import React from "react";
-
 import { openmrsFetch } from "@openmrs/esm-framework";
-import { render, cleanup, screen, waitFor } from "@testing-library/react";
-
-import { DefinitionDataRow } from "../../types";
-import SavedCohorts from "./saved-cohorts.component";
+import { render, screen, waitFor } from "@testing-library/react";
+import { type DefinitionDataRow } from "../../types";
 import { getCohorts } from "./saved-cohorts.resources";
+import SavedCohorts from "./saved-cohorts.component";
 
 const mockCohorts: DefinitionDataRow[] = [
   {
@@ -32,10 +30,6 @@ jest.mock("./saved-cohorts.resources", () => {
 });
 
 describe("Test the saved cohorts component", () => {
-  afterEach(() => {
-    cleanup();
-    jest.restoreAllMocks();
-  });
   it("should be able to search for a cohort", async () => {
     // @ts-ignore
     getCohorts.mockImplementation(() => mockCohorts);
@@ -43,7 +37,7 @@ describe("Test the saved cohorts component", () => {
 
     render(<SavedCohorts onViewCohort={jest.fn()} />);
     await waitFor(() =>
-      expect(screen.getByText(mockCohorts[0].name)).toBeInTheDocument()
+      expect(screen.getByText(mockCohorts[0].name)).toBeInTheDocument(),
     );
 
     expect(screen.getByText(mockCohorts[1].name)).toBeInTheDocument();

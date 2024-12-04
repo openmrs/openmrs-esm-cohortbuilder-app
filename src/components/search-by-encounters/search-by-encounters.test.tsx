@@ -1,13 +1,11 @@
 import React from "react";
-
-import { openmrsFetch } from "@openmrs/esm-framework";
-import { render, cleanup, fireEvent, waitFor } from "@testing-library/react";
+import { render, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-
+import { openmrsFetch } from "@openmrs/esm-framework";
 import translations from "../../../translations/en.json";
 import { useLocations } from "../../cohort-builder.resources";
-import SearchByEncounters from "./search-by-encounters.component";
 import { useForms, useEncounterTypes } from "./search-by-encounters.resources";
+import SearchByEncounters from "./search-by-encounters.component";
 
 const mockLocations = [
   {
@@ -140,7 +138,6 @@ jest.mock("../../cohort-builder.resources", () => {
 });
 
 describe("Test the search by encounters component", () => {
-  afterEach(cleanup);
   it("should be able to select input values", async () => {
     // @ts-ignore
     useForms.mockImplementation(() => ({
@@ -174,7 +171,7 @@ describe("Test the search by encounters component", () => {
 
     const submit = jest.fn();
     const { getByTestId, getByText } = render(
-      <SearchByEncounters onSubmit={submit} />
+      <SearchByEncounters onSubmit={submit} />,
     );
 
     fireEvent.click(getByText(translations.selectEncounterTypes));
@@ -195,7 +192,7 @@ describe("Test the search by encounters component", () => {
     await waitFor(async () => {
       expect(submit).toBeCalledWith(
         expectedQuery,
-        `Patients with Encounter of Types ${mockEncounterTypes[4].label} at ${mockLocations[2].label} from ${mockForms[1].label} at least 10 times  and at most 20 times`
+        `Patients with Encounter of Types ${mockEncounterTypes[4].label} at ${mockLocations[2].label} from ${mockForms[1].label} at least 10 times  and at most 20 times`,
       );
     });
   });

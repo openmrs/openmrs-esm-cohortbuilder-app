@@ -3,14 +3,13 @@ import classNames from "classnames";
 import { Tab, Tabs, TabList, TabPanels, TabPanel } from "@carbon/react";
 import { showToast, useLayoutType } from "@openmrs/esm-framework";
 import { useTranslation } from "react-i18next";
-
 import {
   getCohortMembers,
   getDataSet,
   search,
 } from "./cohort-builder.resources";
-import styles from "./cohort-builder.scss";
 import { addToHistory } from "./cohort-builder.utils";
+import { type Patient, type SearchParams } from "./types";
 import Composition from "./components/composition/composition.component";
 import SavedCohorts from "./components/saved-cohorts/saved-cohorts.component";
 import SavedQueries from "./components/saved-queries/saved-queries.component";
@@ -23,7 +22,7 @@ import SearchByLocation from "./components/search-by-location/search-by-location
 import SearchByPersonAttributes from "./components/search-by-person-attributes/search-by-person-attributes.component";
 import SearchHistory from "./components/search-history/search-history.component";
 import SearchResultsTable from "./components/search-results-table/search-results-table.component";
-import { Patient, SearchParams } from "./types";
+import styles from "./cohort-builder.scss";
 
 interface TabItem {
   name: string;
@@ -38,41 +37,40 @@ const CohortBuilder: React.FC = () => {
 
   const runSearch = (
     searchParams: SearchParams,
-    queryDescription: string
+    queryDescription: string,
   ): Promise<boolean> => {
-    return new Promise(async (resolve) => {
+    return new Promise((resolve) => {
       setPatients([]);
-      try {
-        const {
-          data: { rows },
-        } = await search(searchParams);
-        rows.map((patient: Patient) => {
-          patient.id = patient.patientId.toString();
-          patient.name = `${patient.firstname} ${patient.lastname}`;
+      search(searchParams)
+        .then(({ data: { rows } }) => {
+          rows.map((patient: Patient) => {
+            patient.id = patient.patientId.toString();
+            patient.name = `${patient.firstname} ${patient.lastname}`;
+          });
+          setPatients(rows);
+          addToHistory(queryDescription, rows, searchParams.query);
+          showToast({
+            title: t("success", "Success!"),
+            kind: "success",
+            critical: true,
+            description: t(
+              "searchIsCompleted",
+              `Search is completed with ${rows.length} result(s)`,
+              { numOfResults: rows.length },
+            ),
+          });
+          setIsHistoryUpdated(true);
+          resolve(true);
+        })
+        .catch((error) => {
+          showToast({
+            title: t("error", "Error"),
+            kind: "error",
+            critical: true,
+            description: error?.message,
+          });
+          resolve(true);
         });
-        setPatients(rows);
-        addToHistory(queryDescription, rows, searchParams.query);
-        showToast({
-          title: t("success", "Success!"),
-          kind: "success",
-          critical: true,
-          description: t(
-            "searchIsCompleted",
-            `Search is completed with ${rows.length} result(s)`,
-            { numOfResults: rows.length }
-          ),
-        });
-        setIsHistoryUpdated(true);
-        resolve(true);
-      } catch (error) {
-        showToast({
-          title: t("error", "Error"),
-          kind: "error",
-          critical: true,
-          description: error?.message,
-        });
-        resolve(true);
-      }
     });
   };
 
@@ -87,7 +85,7 @@ const CohortBuilder: React.FC = () => {
         description: t(
           "searchIsCompleted",
           `Search is completed with ${patients.length} result(s)`,
-          { numOfResults: patients.length }
+          { numOfResults: patients.length },
         ),
       });
     } catch (error) {
@@ -111,7 +109,7 @@ const CohortBuilder: React.FC = () => {
         description: t(
           "searchIsCompleted",
           `Search is completed with ${patients.length} result(s)`,
-          { numOfResults: patients.length }
+          { numOfResults: patients.length },
         ),
       });
     } catch (error) {
@@ -172,12 +170,12 @@ const CohortBuilder: React.FC = () => {
       className={classNames(
         "omrs-main-content",
         styles.mainContainer,
-        styles.cohortBuilder
+        styles.cohortBuilder,
       )}
     >
       <div
         className={classNames(
-          isLayoutTablet ? styles.tabletContainer : styles.desktopContainer
+          isLayoutTablet ? styles.tabletContainer : styles.desktopContainer,
         )}
       >
         <p className={styles.title}>{t("cohortBuilder", "Cohort Builder")}</p>

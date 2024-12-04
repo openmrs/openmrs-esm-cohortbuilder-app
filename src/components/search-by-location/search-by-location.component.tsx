@@ -1,14 +1,12 @@
 import React, { useState } from "react";
-
 import { Column, Dropdown, MultiSelect } from "@carbon/react";
 import { showToast } from "@openmrs/esm-framework";
 import { useTranslation } from "react-i18next";
-
 import { useLocations } from "../../cohort-builder.resources";
-import { DropdownValue, SearchByProps } from "../../types";
+import { type DropdownValue, type SearchByProps } from "../../types";
+import { getQueryDetails, getDescription } from "./search-by-location.utils";
 import SearchButtonSet from "../search-button-set/search-button-set";
 import styles from "./search-by-location.style.scss";
-import { getQueryDetails, getDescription } from "./search-by-location.utils";
 
 const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
@@ -33,7 +31,7 @@ const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [selectedLocations, setSelectedLocations] =
     useState<DropdownValue[]>(null);
   const [selectedMethod, setSelectedMethod] = useState<DropdownValue>(
-    methods[0]
+    methods[0],
   );
   const [isLoading, setIsLoading] = useState(false);
 
@@ -55,7 +53,7 @@ const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
     setIsLoading(true);
     await onSubmit(
       getQueryDetails(selectedMethod.value, selectedLocations),
-      getDescription(selectedMethod.label, selectedLocations)
+      getDescription(selectedMethod.label, selectedLocations),
     );
     setIsLoading(false);
   };

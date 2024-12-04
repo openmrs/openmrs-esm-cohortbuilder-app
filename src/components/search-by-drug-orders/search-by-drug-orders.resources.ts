@@ -1,9 +1,8 @@
 import { useMemo } from "react";
-
-import { openmrsFetch, restBaseUrl } from "@openmrs/esm-framework";
 import useSWRImmutable from "swr/immutable";
+import { openmrsFetch, restBaseUrl } from "@openmrs/esm-framework";
 
-import { DropdownValue, Response } from "../../types";
+import { type DropdownValue, type Response } from "../../types";
 
 /**
  * @returns Drugs

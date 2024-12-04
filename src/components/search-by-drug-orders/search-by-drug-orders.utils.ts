@@ -1,7 +1,6 @@
 import { formatDate } from "@openmrs/esm-framework";
-
 import { composeJson } from "../../cohort-builder.utils";
-import { DrugOrderDetails } from "./../../types/index";
+import { type DrugOrderDetails } from "./../../types/index";
 
 export const getDescription = ({
   selectedDrugs,

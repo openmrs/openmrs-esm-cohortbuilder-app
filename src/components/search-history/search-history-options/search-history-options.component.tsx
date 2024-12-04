@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import { useTranslation } from "react-i18next";
 import {
   Button,
   ComposedModal,
@@ -11,10 +11,12 @@ import {
   TextInput,
 } from "@carbon/react";
 import { showToast } from "@openmrs/esm-framework";
-import { useTranslation } from "react-i18next";
-
 import { downloadCSV } from "../../../cohort-builder.utils";
-import { Cohort, Patient, SearchHistoryItem } from "../../../types";
+import {
+  type Cohort,
+  type Patient,
+  type SearchHistoryItem,
+} from "../../../types";
 import { createCohort, createQuery } from "./search-history-options.resources";
 
 enum Option {
@@ -68,9 +70,9 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({
     const cohortMembers: number[] = [];
     const { patients } = searchItem;
     patients.forEach((patient: Patient) =>
-      cohortMembers.push(parseInt(patient.id))
+      cohortMembers.push(parseInt(patient.id)),
     );
-    let cohort: Cohort = {
+    const cohort: Cohort = {
       display: cohortName,
       memberIds: cohortMembers,
       description: cohortDescription,
@@ -272,7 +274,7 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({
               `Are you sure you want to delete ${searchItem?.description} from the search history?`,
               {
                 searchItemName: searchItem?.description,
-              }
+              },
             )}
           </p>
         </ModalHeader>

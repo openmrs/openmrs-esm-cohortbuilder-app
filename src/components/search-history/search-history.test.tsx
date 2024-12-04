@@ -1,7 +1,5 @@
 import React from "react";
-
-import { render, cleanup, screen } from "@testing-library/react";
-
+import { render, screen } from "@testing-library/react";
 import translations from "../../../translations/en.json";
 import SearchHistory from "./search-history.component";
 import * as utils from "./search-history.utils";
@@ -79,14 +77,16 @@ const mockSearchHistory = [
 ];
 
 describe("Test the search history component", () => {
-  afterEach(cleanup);
   it("should render a message when there's no history to display", async () => {
     render(
-      <SearchHistory isHistoryUpdated={false} setIsHistoryUpdated={jest.fn()} />
+      <SearchHistory
+        isHistoryUpdated={false}
+        setIsHistoryUpdated={jest.fn()}
+      />,
     );
 
     expect(
-      screen.getByText("There are no data to display")
+      screen.getByText("There are no data to display"),
     ).toBeInTheDocument();
   });
 
@@ -94,13 +94,13 @@ describe("Test the search history component", () => {
     jest.spyOn(utils, "getSearchHistory").mockReturnValue(mockSearchHistory);
 
     render(
-      <SearchHistory isHistoryUpdated={true} setIsHistoryUpdated={jest.fn()} />
+      <SearchHistory isHistoryUpdated={true} setIsHistoryUpdated={jest.fn()} />,
     );
 
     expect(screen.getByText(translations.clearHistory)).toBeInTheDocument();
     expect(screen.getByText("2")).toBeInTheDocument();
     expect(
-      screen.getByText(mockSearchHistory[0].description)
+      screen.getByText(mockSearchHistory[0].description),
     ).toBeInTheDocument();
   });
 });

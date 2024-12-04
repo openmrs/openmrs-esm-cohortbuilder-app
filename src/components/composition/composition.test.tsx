@@ -1,8 +1,6 @@
 import React from "react";
-
-import { render, cleanup, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-
+import { render, screen, waitFor } from "@testing-library/react";
 import Composition from "./composition.component";
 
 const mockCompositionQuery = {
@@ -73,11 +71,6 @@ jest.mock("./composition.utils", () => {
 });
 
 describe("Test the composition component", () => {
-  afterEach(() => {
-    cleanup();
-    jest.restoreAllMocks();
-  });
-
   it("should be throw an error when an invalid composition query is entered", async () => {
     const user = userEvent.setup();
     const submit = jest.fn();
@@ -105,8 +98,8 @@ describe("Test the composition component", () => {
     await waitFor(() =>
       expect(submit).toBeCalledWith(
         mockCompositionQuery,
-        `Composition of ${compositionQuery}`
-      )
+        `Composition of ${compositionQuery}`,
+      ),
     );
   });
 });

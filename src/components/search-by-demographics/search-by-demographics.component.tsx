@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import classNames from "classnames";
+import dayjs from "dayjs";
 import {
   DatePicker,
   DatePickerInput,
@@ -8,10 +9,8 @@ import {
   Switch,
   ContentSwitcher,
 } from "@carbon/react";
-import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
-
-import { SearchByProps } from "../../types";
+import { type SearchByProps } from "../../types";
 import SearchButtonSet from "../search-button-set/search-button-set";
 import styles from "./search-by-demographics.style.scss";
 import {
@@ -135,7 +134,7 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
               label={t("ageBetween", "Age between")}
               invalidText={t(
                 "minAgeIsNotValid",
-                "The age must be greater than 0"
+                "The age must be greater than 0",
               )}
               min={0}
               value={minAge}
@@ -150,7 +149,7 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
               label={t("and", "and")}
               invalidText={t(
                 "maxAgeIsNotValid",
-                "The age must be less than 200"
+                "The age must be less than 200",
               )}
               min={0}
               max={200}
