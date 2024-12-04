@@ -4,11 +4,11 @@
 }
 
 .searchContainer {
- display: flex;
- margin-bottom: 2rem;
+  display: flex;
+  margin-bottom: 2rem;
 }
 
-.searchBtn{
+.searchBtn {
   :global(.cds--btn) {
     min-height: 1rem;
   }

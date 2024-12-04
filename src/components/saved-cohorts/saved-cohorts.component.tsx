@@ -1,22 +1,13 @@
-import React, { useState, useEffect } from "react";
-import {
-  DataTable,
-  Table,
-  TableHead,
-  TableRow,
-  TableHeader,
-  TableBody,
-  TableCell,
-  Pagination,
-} from "@carbon/react";
-import { showToast } from "@openmrs/esm-framework";
-import { useTranslation } from "react-i18next";
-import { type DefinitionDataRow, type PaginationData } from "../../types";
-import { onDeleteCohort, getCohorts } from "./saved-cohorts.resources";
-import EmptyData from "../empty-data/empty-data.component";
-import SavedCohortsOptions from "./saved-cohorts-options/saved-cohorts-options.component";
-import mainStyles from "../../cohort-builder.scss";
-import styles from "./saved-cohorts.scss";
+import React, { useState, useEffect } from 'react';
+import { DataTable, Table, TableHead, TableRow, TableHeader, TableBody, TableCell, Pagination } from '@carbon/react';
+import { showToast } from '@openmrs/esm-framework';
+import { useTranslation } from 'react-i18next';
+import { type DefinitionDataRow, type PaginationData } from '../../types';
+import { onDeleteCohort, getCohorts } from './saved-cohorts.resources';
+import EmptyData from '../empty-data/empty-data.component';
+import SavedCohortsOptions from './saved-cohorts-options/saved-cohorts-options.component';
+import mainStyles from '../../cohort-builder.scss';
+import styles from './saved-cohorts.scss';
 
 interface SavedCohortsProps {
   onViewCohort: (queryId: string) => Promise<void>;
@@ -35,12 +26,12 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
 
   const headers = [
     {
-      key: "name",
-      header: t("name", "Name"),
+      key: 'name',
+      header: t('name', 'Name'),
     },
     {
-      key: "description",
-      header: t("description", "Description"),
+      key: 'description',
+      header: t('description', 'Description'),
     },
   ];
 
@@ -53,16 +44,16 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
     try {
       await onDeleteCohort(cohortId);
       showToast({
-        title: t("success", "Success"),
-        kind: "success",
+        title: t('success', 'Success'),
+        kind: 'success',
         critical: true,
-        description: t("cohortIsDeleted", "the cohort is deleted"),
+        description: t('cohortIsDeleted', 'the cohort is deleted'),
       });
       getTableData();
     } catch (error) {
       showToast({
-        title: t("cohortDeleteError", "Error deleting the cohort"),
-        kind: "error",
+        title: t('cohortDeleteError', 'Error deleting the cohort'),
+        kind: 'error',
         critical: true,
         description: error?.message,
       });
@@ -76,10 +67,7 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
   return (
     <div className={styles.container}>
       <p className={mainStyles.text}>
-        {t(
-          "savedCohortDescription",
-          "You can only search for Cohort Definitions that you have saved using a Name.",
-        )}
+        {t('savedCohortDescription', 'You can only search for Cohort Definitions that you have saved using a Name.')}
       </p>
       <DataTable rows={cohorts} headers={headers} useZebraStyles>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
@@ -87,9 +75,7 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
             <TableHead>
               <TableRow>
                 {headers.map((header) => (
-                  <TableHeader {...getHeaderProps({ header })}>
-                    {header.header}
-                  </TableHeader>
+                  <TableHeader {...getHeaderProps({ header })}>{header.header}</TableHeader>
                 ))}
                 <TableHeader className={mainStyles.optionHeader}></TableHeader>
               </TableRow>
@@ -118,9 +104,9 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
       </DataTable>
       {cohorts.length > 10 && (
         <Pagination
-          backwardText={t("previousPage", "Previous page")}
-          forwardText={t("nextPage", "Next page")}
-          itemsPerPageText={t("itemsPerPage:", "Items per page:")}
+          backwardText={t('previousPage', 'Previous page')}
+          forwardText={t('nextPage', 'Next page')}
+          itemsPerPageText={t('itemsPerPage:', 'Items per page:')}
           onChange={handlePagination}
           page={1}
           pageSize={10}
@@ -129,7 +115,7 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
           totalItems={cohorts.length}
         />
       )}
-      {!cohorts.length && <EmptyData displayText={t("cohorts", "cohorts")} />}
+      {!cohorts.length && <EmptyData displayText={t('cohorts', 'cohorts')} />}
     </div>
   );
 };

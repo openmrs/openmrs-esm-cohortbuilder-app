@@ -5,11 +5,11 @@
 .heading {
   @include type.type-style('productive-heading-02');
   color: $text-02;
-  margin-bottom: spacing.$spacing-05;;
+  margin-bottom: spacing.$spacing-05;
 }
 
 .heading:after {
-  content: "";
+  content: '';
   display: block;
   width: 2rem;
   padding-top: 0.188rem;
@@ -47,7 +47,7 @@
   }
 
   :global(.cds--inline-loading__text) {
-    color: white
+    color: white;
   }
 
   :global(.cds--tab--list) {
@@ -76,7 +76,8 @@
   }
 
   :global(.cds--tabs__nav-link) {
-    &:active, &:focus { 
+    &:active,
+    &:focus {
       outline: 0 !important;
       outline-offset: 0 !important;
     }
@@ -121,6 +122,6 @@
 }
 
 .text {
- font-size: 0.9rem;
- padding: 0.5rem;
+  font-size: 0.9rem;
+  padding: 0.5rem;
 }

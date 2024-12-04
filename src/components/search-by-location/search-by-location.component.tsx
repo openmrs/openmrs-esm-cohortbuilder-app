@@ -1,44 +1,41 @@
-import React, { useState } from "react";
-import { Column, Dropdown, MultiSelect } from "@carbon/react";
-import { showToast } from "@openmrs/esm-framework";
-import { useTranslation } from "react-i18next";
-import { useLocations } from "../../cohort-builder.resources";
-import { type DropdownValue, type SearchByProps } from "../../types";
-import { getQueryDetails, getDescription } from "./search-by-location.utils";
-import SearchButtonSet from "../search-button-set/search-button-set";
-import styles from "./search-by-location.style.scss";
+import React, { useState } from 'react';
+import { Column, Dropdown, MultiSelect } from '@carbon/react';
+import { showToast } from '@openmrs/esm-framework';
+import { useTranslation } from 'react-i18next';
+import { useLocations } from '../../cohort-builder.resources';
+import { type DropdownValue, type SearchByProps } from '../../types';
+import { getQueryDetails, getDescription } from './search-by-location.utils';
+import SearchButtonSet from '../search-button-set/search-button-set';
+import styles from './search-by-location.style.scss';
 
 const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
   const methods = [
     {
       id: 0,
-      label: t("anyEncounter", "Any Encounter"),
-      value: "ANY",
+      label: t('anyEncounter', 'Any Encounter'),
+      value: 'ANY',
     },
     {
       id: 1,
-      label: t("mostRecentEncounter", "Most Recent Encounter"),
-      value: "LAST",
+      label: t('mostRecentEncounter', 'Most Recent Encounter'),
+      value: 'LAST',
     },
     {
       id: 2,
-      label: t("earliestEncounter", "Earliest Encounter"),
-      value: "FIRST",
+      label: t('earliestEncounter', 'Earliest Encounter'),
+      value: 'FIRST',
     },
   ];
   const { locations, locationsError } = useLocations();
-  const [selectedLocations, setSelectedLocations] =
-    useState<DropdownValue[]>(null);
-  const [selectedMethod, setSelectedMethod] = useState<DropdownValue>(
-    methods[0],
-  );
+  const [selectedLocations, setSelectedLocations] = useState<DropdownValue[]>(null);
+  const [selectedMethod, setSelectedMethod] = useState<DropdownValue>(methods[0]);
   const [isLoading, setIsLoading] = useState(false);
 
   if (locationsError) {
     showToast({
-      title: t("error", "Error"),
-      kind: "error",
+      title: t('error', 'Error'),
+      kind: 'error',
       critical: true,
       description: locationsError?.message,
     });
@@ -67,7 +64,7 @@ const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
             data-testid="locations"
             onChange={(data) => setSelectedLocations(data.selectedItems)}
             items={locations}
-            label={t("selectLocations", "Select locations")}
+            label={t('selectLocations', 'Select locations')}
           />
         </div>
       </Column>
@@ -79,15 +76,11 @@ const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
             onChange={(data) => setSelectedMethod(data.selectedItem)}
             initialSelectedItem={methods[0]}
             items={methods}
-            label={t("selectMethod", "Select a method")}
+            label={t('selectMethod', 'Select a method')}
           />
         </Column>
       </div>
-      <SearchButtonSet
-        onHandleReset={handleResetInputs}
-        onHandleSubmit={submit}
-        isLoading={isLoading}
-      />
+      <SearchButtonSet onHandleReset={handleResetInputs} onHandleSubmit={submit} isLoading={isLoading} />
     </>
   );
 };

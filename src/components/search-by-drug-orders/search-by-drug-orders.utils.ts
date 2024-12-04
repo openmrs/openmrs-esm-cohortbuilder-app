@@ -1,6 +1,6 @@
-import { formatDate } from "@openmrs/esm-framework";
-import { composeJson } from "../../cohort-builder.utils";
-import { type DrugOrderDetails } from "./../../types/index";
+import { formatDate } from '@openmrs/esm-framework';
+import { composeJson } from '../../cohort-builder.utils';
+import { type DrugOrderDetails } from './../../types/index';
 
 export const getDescription = ({
   selectedDrugs,
@@ -11,18 +11,18 @@ export const getDescription = ({
   activatedOnOrAfter,
 }: DrugOrderDetails) => {
   let description =
-    "Patients who taking " +
+    'Patients who taking ' +
     selectedDrugs
       .map((drug) => drug.label)
-      .join(", ")
-      .replace(/,(?=[^,]*$)/, " and");
+      .join(', ')
+      .replace(/,(?=[^,]*$)/, ' and');
 
   if (selectedCareSetting) {
     description += ` from ${selectedCareSetting.label}`;
   }
 
   if (activeOnOrAfter) {
-    const date = formatDate(new Date(activeOnOrAfter), { mode: "standard" });
+    const date = formatDate(new Date(activeOnOrAfter), { mode: 'standard' });
     if (activeOnOrBefore) {
       description += ` from ${date}`;
     } else {
@@ -31,7 +31,7 @@ export const getDescription = ({
   }
 
   if (activeOnOrBefore) {
-    const date = formatDate(new Date(activeOnOrBefore), { mode: "standard" });
+    const date = formatDate(new Date(activeOnOrBefore), { mode: 'standard' });
     if (activeOnOrAfter) {
       description += ` to ${date}`;
     } else {
@@ -40,7 +40,7 @@ export const getDescription = ({
   }
 
   if (activatedOnOrAfter) {
-    const date = formatDate(new Date(activatedOnOrAfter), { mode: "standard" });
+    const date = formatDate(new Date(activatedOnOrAfter), { mode: 'standard' });
     if (activatedOnOrBefore) {
       description += ` from ${date}`;
     } else {
@@ -50,7 +50,7 @@ export const getDescription = ({
 
   if (activatedOnOrBefore) {
     const date = formatDate(new Date(activatedOnOrBefore), {
-      mode: "standard",
+      mode: 'standard',
     });
     if (activatedOnOrAfter) {
       description += ` to ${date}`;
@@ -73,42 +73,42 @@ export const getQueryDetails = ({
   const searchParams = { drugOrderSearch: [] };
   if (activeOnOrAfter) {
     searchParams.drugOrderSearch.push({
-      name: "activeOnOrAfter",
+      name: 'activeOnOrAfter',
       value: activeOnOrAfter,
     });
   }
 
   if (activatedOnOrAfter) {
     searchParams.drugOrderSearch.push({
-      name: "activatedOnOrAfter",
+      name: 'activatedOnOrAfter',
       value: activatedOnOrAfter,
     });
   }
 
   if (activatedOnOrBefore) {
     searchParams.drugOrderSearch.push({
-      name: "activatedOnOrBefore",
+      name: 'activatedOnOrBefore',
       value: activatedOnOrBefore,
     });
   }
 
   if (selectedCareSetting) {
     searchParams.drugOrderSearch.push({
-      name: "careSetting",
+      name: 'careSetting',
       value: selectedCareSetting.value,
     });
   }
 
   if (selectedDrugs.length) {
     searchParams.drugOrderSearch.push({
-      name: "drugs",
+      name: 'drugs',
       value: selectedDrugs.map((form) => form.value),
     });
   }
 
   if (activeOnOrBefore) {
     searchParams.drugOrderSearch.push({
-      name: "activeOnOrBefore",
+      name: 'activeOnOrBefore',
       value: activeOnOrBefore,
     });
   }

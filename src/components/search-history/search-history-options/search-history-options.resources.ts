@@ -1,20 +1,14 @@
-import {
-  type FetchResponse,
-  openmrsFetch,
-  restBaseUrl,
-} from "@openmrs/esm-framework";
-import { type Cohort, type Query } from "../../../types";
+import { type FetchResponse, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import { type Cohort, type Query } from '../../../types';
 
 /**
  * @returns Cohort
  * @param cohort
  */
-export async function createCohort(
-  cohort: Cohort,
-): Promise<FetchResponse<Cohort>> {
+export async function createCohort(cohort: Cohort): Promise<FetchResponse<Cohort>> {
   return await openmrsFetch(`${restBaseUrl}/cohort`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: cohort,
   });
 }
@@ -25,8 +19,8 @@ export async function createCohort(
  */
 export async function createQuery(query: Query): Promise<FetchResponse<Query>> {
   return await openmrsFetch(`${restBaseUrl}/reportingrest/adhocdataset`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: query,
   });
 }

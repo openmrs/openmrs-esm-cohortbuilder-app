@@ -1,16 +1,13 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
-import { Column, Dropdown, TextInput } from "@carbon/react";
-import { useTranslation } from "react-i18next";
-import { showToast } from "@openmrs/esm-framework";
-import { type SearchByProps } from "../../types";
-import SearchButtonSet from "../search-button-set/search-button-set";
-import { usePersonAttributes } from "./search-by-person-attributes.resource";
-import styles from "./search-by-person-attributes.style.scss";
-import {
-  getQueryDetails,
-  getSearchByAttributesDescription,
-} from "./search-by-person-attributes.utils";
+import { Column, Dropdown, TextInput } from '@carbon/react';
+import { useTranslation } from 'react-i18next';
+import { showToast } from '@openmrs/esm-framework';
+import { type SearchByProps } from '../../types';
+import SearchButtonSet from '../search-button-set/search-button-set';
+import { usePersonAttributes } from './search-by-person-attributes.resource';
+import styles from './search-by-person-attributes.style.scss';
+import { getQueryDetails, getSearchByAttributesDescription } from './search-by-person-attributes.utils';
 
 const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
@@ -21,8 +18,8 @@ const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
 
   if (personAttributesError) {
     showToast({
-      title: t("error", "Error"),
-      kind: "error",
+      title: t('error', 'Error'),
+      kind: 'error',
       critical: true,
       description: personAttributesError?.message,
     });
@@ -40,10 +37,7 @@ const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
     );
     await onSubmit(
       getQueryDetails(selectedAttributeId, selectedAttributeValues),
-      getSearchByAttributesDescription(
-        selectedPersonAttribute?.label,
-        selectedAttributeValues,
-      ),
+      getSearchByAttributesDescription(selectedPersonAttribute?.label, selectedAttributeValues),
     );
     setIsLoading(false);
   };
@@ -57,31 +51,22 @@ const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
             data-testid="personAttributes"
             onChange={(data) => setSelectedAttributeId(data.selectedItem.value)}
             items={personAttributes}
-            label={t("selectAttribute", "Select a person attribute")}
+            label={t('selectAttribute', 'Select a person attribute')}
           />
         </div>
       </Column>
       <div className={styles.column}>
         <Column>
           <TextInput
-            id={"selectedAttributeValues"}
-            data-testid={"selectedAttributeValues"}
+            id={'selectedAttributeValues'}
+            data-testid={'selectedAttributeValues'}
             disabled={!selectedAttributeId}
-            labelText={t(
-              "selectedAttributeValues",
-              "Enter Comma Delimited Values",
-            )}
-            onChange={(e) =>
-              setSelectedAttributeValues(e.target.value.trim().split(","))
-            }
+            labelText={t('selectedAttributeValues', 'Enter Comma Delimited Values')}
+            onChange={(e) => setSelectedAttributeValues(e.target.value.trim().split(','))}
           />
         </Column>
       </div>
-      <SearchButtonSet
-        onHandleReset={handleResetInputs}
-        onHandleSubmit={submit}
-        isLoading={isLoading}
-      />
+      <SearchButtonSet onHandleReset={handleResetInputs} onHandleSubmit={submit} isLoading={isLoading} />
     </>
   );
 };

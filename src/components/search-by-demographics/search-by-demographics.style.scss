@@ -1,35 +1,35 @@
 @use '@carbon/styles/scss/spacing';
-@import "~@openmrs/esm-styleguide/src/vars";
+@import '~@openmrs/esm-styleguide/src/vars';
 
 .contentSwitcher {
   height: spacing.$spacing-08;
 }
 
 .column {
- padding-top: 1.5rem;
- display: flex;
+  padding-top: 1.5rem;
+  display: flex;
 }
 
 .text {
   padding-right: 1rem;
   font-size: 0.75rem;
   color: #525252;
- }
+}
 
 .switch {
   width: 60%;
   padding-right: 1rem;
 }
 
-.genderContainer{
+.genderContainer {
   display: flex;
   align-items: end;
 }
 
 .ageContainer {
-   display: flex;
-   justify-content: space-between;
-   width: 34%;
+  display: flex;
+  justify-content: space-between;
+  width: 34%;
 }
 
 .age {

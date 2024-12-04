@@ -1,5 +1,5 @@
-import { composeJson } from "../../cohort-builder.utils";
-import { type DropdownValue } from "../../types";
+import { composeJson } from '../../cohort-builder.utils';
+import { type DropdownValue } from '../../types';
 
 interface EnrollmentsSearchParams {
   enrolledOnOrAfter: string;
@@ -21,27 +21,27 @@ export const getQueryDetails = ({
   const searchParameter = {
     patientsWithEnrollment: [
       {
-        name: "programs",
+        name: 'programs',
         value: selectedPrograms?.map((location) => location.value),
       },
       enrolledOnOrAfter && {
-        name: "enrolledOnOrAfter",
+        name: 'enrolledOnOrAfter',
         value: enrolledOnOrAfter,
       },
       enrolledOnOrBefore && {
-        name: "enrolledOnOrBefore",
+        name: 'enrolledOnOrBefore',
         value: enrolledOnOrBefore,
       },
       completedOnOrAfter && {
-        name: "completedOnOrAfter",
+        name: 'completedOnOrAfter',
         value: completedOnOrAfter,
       },
       completedOnOrBefore && {
-        name: "completedOnOrBefore",
+        name: 'completedOnOrBefore',
         value: completedOnOrBefore,
       },
       {
-        name: "locationList",
+        name: 'locationList',
         value: selectedLocations?.map((location) => location.value),
       },
     ],
@@ -51,18 +51,11 @@ export const getQueryDetails = ({
   return queryDetails;
 };
 
-export const getDescription = ({
-  selectedPrograms,
-  selectedLocations,
-}: EnrollmentsSearchParams) => {
-  let description = `Patients enrolled in ${selectedPrograms
-    ?.map((location) => location.label)
-    .join(", ")}`;
+export const getDescription = ({ selectedPrograms, selectedLocations }: EnrollmentsSearchParams) => {
+  let description = `Patients enrolled in ${selectedPrograms?.map((location) => location.label).join(', ')}`;
 
   if (selectedLocations?.length) {
-    description =
-      description +
-      ` at ${selectedLocations?.map((location) => location.label).join(", ")}`;
+    description = description + ` at ${selectedLocations?.map((location) => location.label).join(', ')}`;
   }
 
   return description;

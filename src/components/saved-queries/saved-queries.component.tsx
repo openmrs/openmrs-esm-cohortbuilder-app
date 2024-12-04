@@ -1,22 +1,13 @@
-import React, { useState, useEffect } from "react";
-import {
-  DataTable,
-  Table,
-  TableHead,
-  TableRow,
-  TableHeader,
-  TableBody,
-  TableCell,
-  Pagination,
-} from "@carbon/react";
-import { showToast } from "@openmrs/esm-framework";
-import { useTranslation } from "react-i18next";
-import { type DefinitionDataRow, type PaginationData } from "../../types";
-import { deleteDataSet, getQueries } from "./saved-queries.resources";
-import EmptyData from "../empty-data/empty-data.component";
-import SavedQueriesOptions from "./saved-queries-options/saved-queries-options.component";
-import mainStyles from "../../cohort-builder.scss";
-import styles from "./saved-queries.scss";
+import React, { useState, useEffect } from 'react';
+import { DataTable, Table, TableHead, TableRow, TableHeader, TableBody, TableCell, Pagination } from '@carbon/react';
+import { showToast } from '@openmrs/esm-framework';
+import { useTranslation } from 'react-i18next';
+import { type DefinitionDataRow, type PaginationData } from '../../types';
+import { deleteDataSet, getQueries } from './saved-queries.resources';
+import EmptyData from '../empty-data/empty-data.component';
+import SavedQueriesOptions from './saved-queries-options/saved-queries-options.component';
+import mainStyles from '../../cohort-builder.scss';
+import styles from './saved-queries.scss';
 
 interface SavedQueriesProps {
   onViewQuery: (queryId: string) => Promise<void>;
@@ -37,16 +28,16 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
     try {
       await deleteDataSet(queryId);
       showToast({
-        title: t("success", "Success"),
-        kind: "success",
+        title: t('success', 'Success'),
+        kind: 'success',
         critical: true,
-        description: t("queryIsDeleted", "the query is deleted"),
+        description: t('queryIsDeleted', 'the query is deleted'),
       });
       getTableData();
     } catch (error) {
       showToast({
-        title: t("queryDeleteError", "Error saving the query"),
-        kind: "error",
+        title: t('queryDeleteError', 'Error saving the query'),
+        kind: 'error',
         critical: true,
         description: error?.message,
       });
@@ -59,12 +50,12 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
 
   const headers = [
     {
-      key: "name",
-      header: t("name", "Name"),
+      key: 'name',
+      header: t('name', 'Name'),
     },
     {
-      key: "description",
-      header: t("description", "Description"),
+      key: 'description',
+      header: t('description', 'Description'),
     },
   ];
 
@@ -76,10 +67,7 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
   return (
     <div className={styles.container}>
       <p className={mainStyles.text}>
-        {t(
-          "savedQueryDescription",
-          "You can only search for Query Definitions that you have saved using a Name.",
-        )}
+        {t('savedQueryDescription', 'You can only search for Query Definitions that you have saved using a Name.')}
       </p>
       <DataTable rows={queries} headers={headers} useZebraStyles>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
@@ -87,9 +75,7 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
             <TableHead>
               <TableRow>
                 {headers.map((header) => (
-                  <TableHeader {...getHeaderProps({ header })}>
-                    {header.header}
-                  </TableHeader>
+                  <TableHeader {...getHeaderProps({ header })}>{header.header}</TableHeader>
                 ))}
                 <TableHeader className={mainStyles.optionHeader}></TableHeader>
               </TableRow>
@@ -104,11 +90,7 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
                       <TableCell key={index}>{cell.value}</TableCell>
                     ))}
                     <TableCell className={mainStyles.optionCell}>
-                      <SavedQueriesOptions
-                        query={queries[index]}
-                        onViewQuery={onViewQuery}
-                        deleteQuery={deleteQuery}
-                      />
+                      <SavedQueriesOptions query={queries[index]} onViewQuery={onViewQuery} deleteQuery={deleteQuery} />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -118,9 +100,9 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
       </DataTable>
       {queries.length > 10 && (
         <Pagination
-          backwardText={t("previousPage", "Previous page")}
-          forwardText={t("nextPage", "Next page")}
-          itemsPerPageText={t("itemsPerPage:", "Items per page:")}
+          backwardText={t('previousPage', 'Previous page')}
+          forwardText={t('nextPage', 'Next page')}
+          itemsPerPageText={t('itemsPerPage:', 'Items per page:')}
           onChange={handlePagination}
           page={1}
           pageSize={10}
@@ -129,7 +111,7 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
           totalItems={queries.length}
         />
       )}
-      {!queries.length && <EmptyData displayText={t("queries", "queries")} />}
+      {!queries.length && <EmptyData displayText={t('queries', 'queries')} />}
     </div>
   );
 };

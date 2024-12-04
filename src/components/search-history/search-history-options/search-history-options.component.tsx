@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   ComposedModal,
@@ -9,15 +9,11 @@ import {
   OverflowMenu,
   OverflowMenuItem,
   TextInput,
-} from "@carbon/react";
-import { showToast } from "@openmrs/esm-framework";
-import { downloadCSV } from "../../../cohort-builder.utils";
-import {
-  type Cohort,
-  type Patient,
-  type SearchHistoryItem,
-} from "../../../types";
-import { createCohort, createQuery } from "./search-history-options.resources";
+} from '@carbon/react';
+import { showToast } from '@openmrs/esm-framework';
+import { downloadCSV } from '../../../cohort-builder.utils';
+import { type Cohort, type Patient, type SearchHistoryItem } from '../../../types';
+import { createCohort, createQuery } from './search-history-options.resources';
 
 enum Option {
   SAVE_COHORT,
@@ -31,19 +27,14 @@ interface SearchHistoryOptions {
   updateSearchHistory: (selectedSearchItem: SearchHistoryItem) => void;
 }
 
-const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({
-  searchItem,
-  updateSearchHistory,
-}) => {
+const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({ searchItem, updateSearchHistory }) => {
   const { t } = useTranslation();
-  const [cohortName, setCohortName] = useState("");
-  const [cohortDescription, setCohortDescription] = useState("");
-  const [queryName, setQueryName] = useState("");
-  const [queryDescription, setQueryDescription] = useState("");
-  const [isDeleteCohortModalVisible, setIsDeleteCohortModalVisible] =
-    useState(false);
-  const [isSaveCohortModalVisible, setIsSaveCohortModalVisible] =
-    useState(false);
+  const [cohortName, setCohortName] = useState('');
+  const [cohortDescription, setCohortDescription] = useState('');
+  const [queryName, setQueryName] = useState('');
+  const [queryDescription, setQueryDescription] = useState('');
+  const [isDeleteCohortModalVisible, setIsDeleteCohortModalVisible] = useState(false);
+  const [isSaveCohortModalVisible, setIsSaveCohortModalVisible] = useState(false);
   const [isSaveQueryModalVisible, setIsSaveQueryModalVisible] = useState(false);
 
   const handleOption = async (option: Option) => {
@@ -69,9 +60,7 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({
   const saveCohort = async () => {
     const cohortMembers: number[] = [];
     const { patients } = searchItem;
-    patients.forEach((patient: Patient) =>
-      cohortMembers.push(parseInt(patient.id)),
-    );
+    patients.forEach((patient: Patient) => cohortMembers.push(parseInt(patient.id)));
     const cohort: Cohort = {
       display: cohortName,
       memberIds: cohortMembers,
@@ -81,19 +70,19 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({
 
     try {
       await createCohort(cohort);
-      setCohortName("");
-      setCohortDescription("");
+      setCohortName('');
+      setCohortDescription('');
       setIsSaveCohortModalVisible(false);
       showToast({
-        title: t("success", "Success"),
-        kind: "success",
+        title: t('success', 'Success'),
+        kind: 'success',
         critical: true,
-        description: "the cohort is saved",
+        description: 'the cohort is saved',
       });
     } catch (error) {
       showToast({
-        title: t("cohortCreateError", "Error creating the cohort"),
-        kind: "error",
+        title: t('cohortCreateError', 'Error creating the cohort'),
+        kind: 'error',
         critical: true,
         description: error?.message,
       });
@@ -105,15 +94,15 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({
       updateSearchHistory(searchItem);
       setIsDeleteCohortModalVisible(false);
       showToast({
-        title: t("success", "Success"),
-        kind: "success",
+        title: t('success', 'Success'),
+        kind: 'success',
         critical: true,
-        description: "the search item is deleted",
+        description: 'the search item is deleted',
       });
     } catch (error) {
       showToast({
-        title: t("searchItemDeleteError", "Error deleting the cohort"),
-        kind: "error",
+        title: t('searchItemDeleteError', 'Error deleting the cohort'),
+        kind: 'error',
         critical: true,
         description: error?.message,
       });
@@ -126,19 +115,19 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({
       parameters.name = queryName;
       parameters.description = queryDescription;
       await createQuery(parameters);
-      setQueryName("");
-      setQueryDescription("");
+      setQueryName('');
+      setQueryDescription('');
       setIsSaveQueryModalVisible(false);
       showToast({
-        title: t("success", "Success"),
-        kind: "success",
+        title: t('success', 'Success'),
+        kind: 'success',
         critical: true,
-        description: "the query is saved",
+        description: 'the query is saved',
       });
     } catch (error) {
       showToast({
-        title: t("queryDeleteError", "Error saving the query"),
-        kind: "error",
+        title: t('queryDeleteError', 'Error saving the query'),
+        kind: 'error',
         critical: true,
         description: error?.message,
       });
@@ -147,39 +136,29 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({
 
   return (
     <>
-      <OverflowMenu
-        ariaLabel="overflow-menu"
-        size="md"
-        flipped
-        direction="top"
-        data-testid="options"
-      >
+      <OverflowMenu ariaLabel="overflow-menu" size="md" flipped direction="top" data-testid="options">
         <OverflowMenuItem
           data-testid="save-cohort"
-          itemText={t("saveCohort", "Save Cohort")}
+          itemText={t('saveCohort', 'Save Cohort')}
           onClick={() => handleOption(Option.SAVE_COHORT)}
         />
         <OverflowMenuItem
           data-testid="save-query"
-          itemText={t("saveQuery", "Save Query")}
+          itemText={t('saveQuery', 'Save Query')}
           onClick={() => handleOption(Option.SAVE_QUERY)}
         />
         <OverflowMenuItem
-          itemText={t("downloadResults", "Download Results")}
+          itemText={t('downloadResults', 'Download Results')}
           onClick={() => handleOption(Option.DOWNLOAD)}
         />
         <OverflowMenuItem
           data-testid="deleteFromHistory"
-          itemText={t("deleteFromHistory", "Delete from history")}
+          itemText={t('deleteFromHistory', 'Delete from history')}
           onClick={() => handleOption(Option.DELETE)}
         />
       </OverflowMenu>
 
-      <ComposedModal
-        size={"sm"}
-        open={isSaveCohortModalVisible}
-        onClose={() => setIsSaveCohortModalVisible(false)}
-      >
+      <ComposedModal size={'sm'} open={isSaveCohortModalVisible} onClose={() => setIsSaveCohortModalVisible(false)}>
         <ModalHeader>
           <p>Save Cohort</p>
         </ModalHeader>
@@ -187,7 +166,7 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({
           <TextInput
             data-modal-primary-focus
             required
-            labelText={t("saveName", "Enter a name")}
+            labelText={t('saveName', 'Enter a name')}
             data-testid="cohort-name"
             id="cohort-name"
             onChange={(e) => setCohortName(e.target.value)}
@@ -197,7 +176,7 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({
           <TextInput
             data-modal-primary-focus
             required
-            labelText={t("saveDescription", "Enter a description")}
+            labelText={t('saveDescription', 'Enter a description')}
             data-testid="cohort-description"
             id="cohort-description"
             onChange={(e) => setCohortDescription(e.target.value)}
@@ -205,33 +184,22 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({
           />
         </ModalBody>
         <ModalFooter>
-          <Button
-            kind="secondary"
-            onClick={() => setIsSaveCohortModalVisible(false)}
-          >
-            {t("cancel", "Cancel")}
+          <Button kind="secondary" onClick={() => setIsSaveCohortModalVisible(false)}>
+            {t('cancel', 'Cancel')}
           </Button>
-          <Button
-            data-testid="cohort-save-button"
-            kind="primary"
-            onClick={saveCohort}
-          >
-            {t("save", "Save")}
+          <Button data-testid="cohort-save-button" kind="primary" onClick={saveCohort}>
+            {t('save', 'Save')}
           </Button>
         </ModalFooter>
       </ComposedModal>
-      <ComposedModal
-        size={"sm"}
-        open={isSaveQueryModalVisible}
-        onClose={() => setIsSaveQueryModalVisible(false)}
-      >
+      <ComposedModal size={'sm'} open={isSaveQueryModalVisible} onClose={() => setIsSaveQueryModalVisible(false)}>
         <ModalHeader>
           <p>Save Query</p>
         </ModalHeader>
         <ModalBody hasForm>
           <TextInput
             required
-            labelText={t("saveName", "Enter a name")}
+            labelText={t('saveName', 'Enter a name')}
             id="query-name"
             data-testid="query-name"
             onChange={(e) => setQueryName(e.target.value)}
@@ -240,37 +208,26 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({
           <br />
           <TextInput
             required
-            labelText={t("saveDescription", "Enter a description")}
+            labelText={t('saveDescription', 'Enter a description')}
             id="query-description"
             onChange={(e) => setQueryDescription(e.target.value)}
             value={queryDescription}
           />
         </ModalBody>
         <ModalFooter>
-          <Button
-            kind="secondary"
-            onClick={() => setIsSaveQueryModalVisible(false)}
-          >
-            {t("cancel", "Cancel")}
+          <Button kind="secondary" onClick={() => setIsSaveQueryModalVisible(false)}>
+            {t('cancel', 'Cancel')}
           </Button>
-          <Button
-            data-testid="query-save-button"
-            kind="primary"
-            onClick={saveQuery}
-          >
-            {t("save", "Save")}
+          <Button data-testid="query-save-button" kind="primary" onClick={saveQuery}>
+            {t('save', 'Save')}
           </Button>
         </ModalFooter>
       </ComposedModal>
-      <ComposedModal
-        size={"sm"}
-        open={isDeleteCohortModalVisible}
-        onClose={() => setIsDeleteCohortModalVisible(false)}
-      >
+      <ComposedModal size={'sm'} open={isDeleteCohortModalVisible} onClose={() => setIsDeleteCohortModalVisible(false)}>
         <ModalHeader>
           <p>
             {t(
-              "deleteHistoryItem",
+              'deleteHistoryItem',
               `Are you sure you want to delete ${searchItem?.description} from the search history?`,
               {
                 searchItemName: searchItem?.description,
@@ -281,8 +238,8 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({
         <ModalFooter
           danger
           onRequestSubmit={handleDeleteSearchItem}
-          primaryButtonText={t("delete", "Delete")}
-          secondaryButtonText={t("cancel", "Cancel")}
+          primaryButtonText={t('delete', 'Delete')}
+          secondaryButtonText={t('cancel', 'Cancel')}
         />
       </ComposedModal>
     </>

@@ -1,47 +1,36 @@
-import React, { useState } from "react";
-import {
-  DataTable,
-  Table,
-  TableHead,
-  TableRow,
-  TableHeader,
-  TableBody,
-  TableCell,
-  Pagination,
-} from "@carbon/react";
-import { useTranslation } from "react-i18next";
-import type { PaginationData, Patient } from "../../types";
-import EmptyData from "../empty-data/empty-data.component";
-import mainStyle from "../../cohort-builder.scss";
-import styles from "./search-results-table.scss";
+import React, { useState } from 'react';
+import { DataTable, Table, TableHead, TableRow, TableHeader, TableBody, TableCell, Pagination } from '@carbon/react';
+import { useTranslation } from 'react-i18next';
+import type { PaginationData, Patient } from '../../types';
+import EmptyData from '../empty-data/empty-data.component';
+import mainStyle from '../../cohort-builder.scss';
+import styles from './search-results-table.scss';
 
 interface SearchResultsTableProps {
   patients: Patient[];
 }
 
-const SearchResultsTable: React.FC<SearchResultsTableProps> = ({
-  patients,
-}) => {
+const SearchResultsTable: React.FC<SearchResultsTableProps> = ({ patients }) => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const { t } = useTranslation();
 
   const headers = [
     {
-      key: "id",
-      header: t("openmrsId", "OpenMRS ID"),
+      key: 'id',
+      header: t('openmrsId', 'OpenMRS ID'),
     },
     {
-      key: "name",
-      header: t("name", "Name"),
+      key: 'name',
+      header: t('name', 'Name'),
     },
     {
-      key: "age",
-      header: t("age", "Age"),
+      key: 'age',
+      header: t('age', 'Age'),
     },
     {
-      key: "gender",
-      header: t("gender", "Gender"),
+      key: 'gender',
+      header: t('gender', 'Gender'),
     },
   ];
 
@@ -52,18 +41,14 @@ const SearchResultsTable: React.FC<SearchResultsTableProps> = ({
 
   return (
     <div className={styles.container}>
-      <p className={mainStyle.heading}>
-        {t("searchResults", "Search Results")}
-      </p>
+      <p className={mainStyle.heading}>{t('searchResults', 'Search Results')}</p>
       <DataTable rows={patients} headers={headers} useZebraStyles>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
           <Table {...getTableProps()}>
             <TableHead>
               <TableRow>
                 {headers.map((header) => (
-                  <TableHeader {...getHeaderProps({ header })}>
-                    {header.header}
-                  </TableHeader>
+                  <TableHeader {...getHeaderProps({ header })}>{header.header}</TableHeader>
                 ))}
               </TableRow>
             </TableHead>
@@ -84,9 +69,9 @@ const SearchResultsTable: React.FC<SearchResultsTableProps> = ({
       </DataTable>
       {patients.length > 10 && (
         <Pagination
-          backwardText={t("previousPage", "Previous page")}
-          forwardText={t("nextPage", "Next page")}
-          itemsPerPageText={t("itemsPerPage:", "Items per page:")}
+          backwardText={t('previousPage', 'Previous page')}
+          forwardText={t('nextPage', 'Next page')}
+          itemsPerPageText={t('itemsPerPage:', 'Items per page:')}
           onChange={handlePagination}
           page={1}
           pageSize={10}
@@ -95,7 +80,7 @@ const SearchResultsTable: React.FC<SearchResultsTableProps> = ({
           totalItems={patients.length}
         />
       )}
-      {!patients.length && <EmptyData displayText={t("data", "data")} />}
+      {!patients.length && <EmptyData displayText={t('data', 'data')} />}
     </div>
   );
 };

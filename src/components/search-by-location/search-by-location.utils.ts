@@ -1,16 +1,13 @@
-import { composeJson } from "../../cohort-builder.utils";
-import { type DropdownValue } from "../../types";
+import { composeJson } from '../../cohort-builder.utils';
+import { type DropdownValue } from '../../types';
 
-export const getQueryDetails = (
-  method: string,
-  selectedLocations: DropdownValue[],
-) => {
+export const getQueryDetails = (method: string, selectedLocations: DropdownValue[]) => {
   const locations = [];
   selectedLocations?.map((location) => locations.push(location.value));
   const searchParameter = {
     encounterSearchAdvanced: [
-      { name: "locationList", value: locations },
-      { name: "timeQualifier", value: method },
+      { name: 'locationList', value: locations },
+      { name: 'timeQualifier', value: method },
     ],
   };
   const queryDetails = composeJson(searchParameter);
@@ -18,22 +15,17 @@ export const getQueryDetails = (
   return queryDetails;
 };
 
-export const getDescription = (
-  method: string,
-  selectedLocations: DropdownValue[],
-) => {
-  let description = `Patients in ${selectedLocations
-    ?.map((location) => location.label)
-    .join(", ")}`;
+export const getDescription = (method: string, selectedLocations: DropdownValue[]) => {
+  let description = `Patients in ${selectedLocations?.map((location) => location.label).join(', ')}`;
   switch (method) {
-    case "FIRST":
-      description += " (by method EARLIEST_ENCOUNTER).";
+    case 'FIRST':
+      description += ' (by method EARLIEST_ENCOUNTER).';
       break;
-    case "LAST":
-      description += " (by method LATEST_ENCOUNTER).";
+    case 'LAST':
+      description += ' (by method LATEST_ENCOUNTER).';
       break;
     default:
-      description += " (by method ANY_ENCOUNTER).";
+      description += ' (by method ANY_ENCOUNTER).';
       break;
   }
   return description;

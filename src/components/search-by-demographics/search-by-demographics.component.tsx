@@ -1,29 +1,19 @@
-import React, { useState } from "react";
-import classNames from "classnames";
-import dayjs from "dayjs";
-import {
-  DatePicker,
-  DatePickerInput,
-  Column,
-  NumberInput,
-  Switch,
-  ContentSwitcher,
-} from "@carbon/react";
-import { useTranslation } from "react-i18next";
-import { type SearchByProps } from "../../types";
-import SearchButtonSet from "../search-button-set/search-button-set";
-import styles from "./search-by-demographics.style.scss";
-import {
-  getDescription,
-  getQueryDetails,
-} from "./search-by-demographics.utils";
+import React, { useState } from 'react';
+import classNames from 'classnames';
+import dayjs from 'dayjs';
+import { DatePicker, DatePickerInput, Column, NumberInput, Switch, ContentSwitcher } from '@carbon/react';
+import { useTranslation } from 'react-i18next';
+import { type SearchByProps } from '../../types';
+import SearchButtonSet from '../search-button-set/search-button-set';
+import styles from './search-by-demographics.style.scss';
+import { getDescription, getQueryDetails } from './search-by-demographics.utils';
 
 const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
-  const [livingStatus, setLivingStatus] = useState("alive");
-  const [gender, setGender] = useState("all");
-  const [birthDayStartDate, setBirthDayStartDate] = useState("");
-  const [birthDayEndDate, setBirthDayEndDate] = useState("");
+  const [livingStatus, setLivingStatus] = useState('alive');
+  const [gender, setGender] = useState('all');
+  const [birthDayStartDate, setBirthDayStartDate] = useState('');
+  const [birthDayEndDate, setBirthDayEndDate] = useState('');
   const [minAge, setMinAge] = useState(0);
   const [maxAge, setMaxAge] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,39 +21,39 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
   const genders = [
     {
       id: 0,
-      label: t("all", "All"),
-      value: "all",
+      label: t('all', 'All'),
+      value: 'all',
     },
     {
       id: 1,
-      label: t("males", "Male"),
-      value: "males",
+      label: t('males', 'Male'),
+      value: 'males',
     },
     {
       id: 3,
-      label: t("females", "Female"),
-      value: "females",
+      label: t('females', 'Female'),
+      value: 'females',
     },
   ];
 
   const livingStatuses = [
     {
       id: 0,
-      label: t("alive", "Alive"),
-      value: "alive",
+      label: t('alive', 'Alive'),
+      value: 'alive',
     },
     {
       id: 1,
-      label: t("dead", "Dead"),
-      value: "dead",
+      label: t('dead', 'Dead'),
+      value: 'dead',
     },
   ];
 
   const reset = () => {
     setMaxAge(0);
     setMinAge(0);
-    setBirthDayEndDate("");
-    setBirthDayStartDate("");
+    setBirthDayEndDate('');
+    setBirthDayStartDate('');
   };
 
   const submit = async () => {
@@ -83,9 +73,7 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
   return (
     <>
       <Column>
-        <p className={classNames(styles.text, styles.genderTitle)}>
-          {t("gender", "Gender")}
-        </p>
+        <p className={classNames(styles.text, styles.genderTitle)}>{t('gender', 'Gender')}</p>
         <div className={styles.genderContainer}>
           <div className={styles.switch}>
             <ContentSwitcher
@@ -95,12 +83,7 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
               onChange={({ index }) => setGender(genders[index].value)}
             >
               {genders.map((gender) => (
-                <Switch
-                  data-testid={gender.label}
-                  key={gender.id}
-                  name={gender.value}
-                  text={gender.label}
-                />
+                <Switch data-testid={gender.label} key={gender.id} name={gender.value} text={gender.label} />
               ))}
             </ContentSwitcher>
           </div>
@@ -109,16 +92,10 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
               selectedIndex={livingStatuses[0].id}
               className={styles.contentSwitcher}
               size="lg"
-              onChange={({ index }) =>
-                setLivingStatus(livingStatuses[index].value)
-              }
+              onChange={({ index }) => setLivingStatus(livingStatuses[index].value)}
             >
               {livingStatuses.map((livingStatus) => (
-                <Switch
-                  key={livingStatus.id}
-                  name={livingStatus.value}
-                  text={livingStatus.label}
-                />
+                <Switch key={livingStatus.id} name={livingStatus.value} text={livingStatus.label} />
               ))}
             </ContentSwitcher>
           </div>
@@ -131,11 +108,8 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
               hideSteppers={true}
               id="minAge"
               data-testid="minAge"
-              label={t("ageBetween", "Age between")}
-              invalidText={t(
-                "minAgeIsNotValid",
-                "The age must be greater than 0",
-              )}
+              label={t('ageBetween', 'Age between')}
+              invalidText={t('minAgeIsNotValid', 'The age must be greater than 0')}
               min={0}
               value={minAge}
               onChange={(event, { value }) => setMinAge(value)}
@@ -146,11 +120,8 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
               id="maxAge"
               hideSteppers={true}
               data-testid="maxAge"
-              label={t("and", "and")}
-              invalidText={t(
-                "maxAgeIsNotValid",
-                "The age must be less than 200",
-              )}
+              label={t('and', 'and')}
+              invalidText={t('maxAgeIsNotValid', 'The age must be less than 200')}
               min={0}
               max={200}
               value={maxAge}
@@ -168,11 +139,8 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
           >
             <DatePickerInput
               id="startDate"
-              labelText={t("birthDate", "Birth date between")}
-              value={
-                birthDayStartDate &&
-                dayjs(birthDayStartDate).format("DD-MM-YYYY")
-              }
+              labelText={t('birthDate', 'Birth date between')}
+              value={birthDayStartDate && dayjs(birthDayStartDate).format('DD-MM-YYYY')}
               placeholder="DD-MM-YYYY"
               size="md"
             />
@@ -186,21 +154,15 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
           >
             <DatePickerInput
               id="endDate"
-              labelText={t("and", "and")}
-              value={
-                birthDayEndDate && dayjs(birthDayEndDate).format("DD-MM-YYYY")
-              }
+              labelText={t('and', 'and')}
+              value={birthDayEndDate && dayjs(birthDayEndDate).format('DD-MM-YYYY')}
               placeholder="DD-MM-YYYY"
               size="md"
             />
           </DatePicker>
         </Column>
       </div>
-      <SearchButtonSet
-        isLoading={isLoading}
-        onHandleSubmit={submit}
-        onHandleReset={reset}
-      />
+      <SearchButtonSet isLoading={isLoading} onHandleSubmit={submit} onHandleReset={reset} />
     </>
   );
 };

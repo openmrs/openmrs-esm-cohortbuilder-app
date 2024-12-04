@@ -1,6 +1,6 @@
-import dayjs from "dayjs";
+import dayjs from 'dayjs';
 
-import { composeJson } from "../../cohort-builder.utils";
+import { composeJson } from '../../cohort-builder.utils';
 
 interface DemographicsSearchParams {
   gender: string;
@@ -35,27 +35,20 @@ export const getDescription = ({
   birthDayEndDate,
   livingStatus,
 }: Demographics) => {
-  let description =
-    gender != "all"
-      ? `${gender === "males" ? "Male" : "Female"} Patients`
-      : "All Patients";
+  let description = gender != 'all' ? `${gender === 'males' ? 'Male' : 'Female'} Patients` : 'All Patients';
   if (minAge || maxAge) {
     if (minAge && maxAge) {
       description += ` with ages between ${minAge} and ${maxAge}`;
     } else {
-      description += minAge
-        ? ` with minimum age of ${minAge}`
-        : ` with maximum age of ${maxAge}`;
+      description += minAge ? ` with minimum age of ${minAge}` : ` with maximum age of ${maxAge}`;
     }
-    description += " years";
+    description += ' years';
   }
-  if (birthDayStartDate != "" || birthDayEndDate != "") {
+  if (birthDayStartDate != '' || birthDayEndDate != '') {
     if (birthDayStartDate && birthDayEndDate) {
       description += ` and birthdate between ${birthDayStartDate} and ${birthDayEndDate}`;
     } else {
-      description += minAge
-        ? ` and born before ${birthDayStartDate}`
-        : ` and born before ${birthDayEndDate}`;
+      description += minAge ? ` and born before ${birthDayStartDate}` : ` and born before ${birthDayEndDate}`;
     }
   }
   if (livingStatus) {
@@ -76,53 +69,44 @@ export const getQueryDetails = ({
 
   if (minAge && maxAge) {
     searchParameters.ageRangeOnDate = [
-      { name: "minAge", value: minAge },
-      { name: "maxAge", value: maxAge },
+      { name: 'minAge', value: minAge },
+      { name: 'maxAge', value: maxAge },
     ];
   } else {
     if (minAge) {
-      searchParameters.atLeastAgeOnDate = [{ name: "minAge", value: minAge }];
+      searchParameters.atLeastAgeOnDate = [{ name: 'minAge', value: minAge }];
     } else {
-      searchParameters.upToAgeOnDate = [{ name: "maxAge", value: maxAge }];
+      searchParameters.upToAgeOnDate = [{ name: 'maxAge', value: maxAge }];
     }
   }
   if (birthDayStartDate && birthDayEndDate) {
     searchParameters.bornDuringPeriod = [
-      { name: "startDate", dataType: "date", value: birthDayStartDate },
-      { name: "endDate", dataType: "date", value: birthDayEndDate },
+      { name: 'startDate', dataType: 'date', value: birthDayStartDate },
+      { name: 'endDate', dataType: 'date', value: birthDayEndDate },
     ];
   }
 
   const today = dayjs().format();
-  searchParameters.diedDuringPeriod = [
-    { name: "endDate", dataType: "date", value: today, livingStatus },
-  ];
+  searchParameters.diedDuringPeriod = [{ name: 'endDate', dataType: 'date', value: today, livingStatus }];
 
   const queryDetails = composeJson(searchParameters);
 
-  if (searchParameters.gender === "all") {
-    const rowFilterWithAllGenders = ["males", "females", "unknownGender"].map(
-      (gender) => {
-        return {
-          type: "org.openmrs.module.reporting.dataset.definition.PatientDataSetDefinition",
-          key: `reporting.library.cohortDefinition.builtIn.${gender}`,
-        };
-      }
-    );
+  if (searchParameters.gender === 'all') {
+    const rowFilterWithAllGenders = ['males', 'females', 'unknownGender'].map((gender) => {
+      return {
+        type: 'org.openmrs.module.reporting.dataset.definition.PatientDataSetDefinition',
+        key: `reporting.library.cohortDefinition.builtIn.${gender}`,
+      };
+    });
     let {
       query: { rowFilters, customRowFilterCombination },
     } = queryDetails;
-    rowFilters =
-      rowFilters.length > 0
-        ? [...rowFilters, ...rowFilterWithAllGenders]
-        : rowFilterWithAllGenders;
+    rowFilters = rowFilters.length > 0 ? [...rowFilters, ...rowFilterWithAllGenders] : rowFilterWithAllGenders;
     const filters = rowFilters;
     const filterCombination = customRowFilterCombination;
     customRowFilterCombination = filterCombination
-      ? `(${filters.length - 2} OR ${filters.length - 1} OR ${
-          filters.length
-        }) AND ${filterCombination}`
-      : "(1 OR 2 OR 3)";
+      ? `(${filters.length - 2} OR ${filters.length - 1} OR ${filters.length}) AND ${filterCombination}`
+      : '(1 OR 2 OR 3)';
   }
 
   return queryDetails;

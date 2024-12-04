@@ -1,9 +1,4 @@
-import React, {
-  type Dispatch,
-  type SetStateAction,
-  useEffect,
-  useState,
-} from "react";
+import React, { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 import {
   Button,
   ComposedModal,
@@ -17,30 +12,26 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@carbon/react";
-import { useTranslation } from "react-i18next";
-import mainStyles from "../../cohort-builder.scss";
-import { type PaginationData, type SearchHistoryItem } from "../../types";
-import { getSearchHistory } from "./search-history.utils";
-import EmptyData from "../empty-data/empty-data.component";
-import SearchHistoryOptions from "./search-history-options/search-history-options.component";
-import styles from "./search-history.style.scss";
+} from '@carbon/react';
+import { useTranslation } from 'react-i18next';
+import mainStyles from '../../cohort-builder.scss';
+import { type PaginationData, type SearchHistoryItem } from '../../types';
+import { getSearchHistory } from './search-history.utils';
+import EmptyData from '../empty-data/empty-data.component';
+import SearchHistoryOptions from './search-history-options/search-history-options.component';
+import styles from './search-history.style.scss';
 
 interface SearchHistoryProps {
   isHistoryUpdated: boolean;
   setIsHistoryUpdated: Dispatch<SetStateAction<boolean>>;
 }
 
-const SearchHistory: React.FC<SearchHistoryProps> = ({
-  isHistoryUpdated,
-  setIsHistoryUpdated,
-}) => {
+const SearchHistory: React.FC<SearchHistoryProps> = ({ isHistoryUpdated, setIsHistoryUpdated }) => {
   const { t } = useTranslation();
   const [searchResults, setSearchResults] = useState<SearchHistoryItem[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [isClearHistoryModalVisible, setIsClearHistoryModalVisible] =
-    useState(false);
+  const [isClearHistoryModalVisible, setIsClearHistoryModalVisible] = useState(false);
 
   useEffect(() => {
     if (isHistoryUpdated) {
@@ -56,49 +47,40 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({
 
   const headers = [
     {
-      key: "id",
-      header: "#",
+      key: 'id',
+      header: '#',
     },
     {
-      key: "description",
-      header: t("query", "Query"),
+      key: 'description',
+      header: t('query', 'Query'),
     },
     {
-      key: "results",
-      header: t("results", "Results"),
+      key: 'results',
+      header: t('results', 'Results'),
     },
   ];
 
   const clearHistory = () => {
-    window.sessionStorage.removeItem("openmrsHistory");
+    window.sessionStorage.removeItem('openmrsHistory');
     setSearchResults([]);
     setIsClearHistoryModalVisible(false);
   };
 
   const updateSearchHistory = (selectedSearchItem: SearchHistoryItem) => {
     const updatedSearchResults = [...searchResults].filter(
-      (searchResult, index) =>
-        index != searchResults.indexOf(selectedSearchItem),
+      (searchResult, index) => index != searchResults.indexOf(selectedSearchItem),
     );
     setSearchResults(updatedSearchResults);
-    window.sessionStorage.setItem(
-      "openmrsHistory",
-      JSON.stringify(updatedSearchResults),
-    );
+    window.sessionStorage.setItem('openmrsHistory', JSON.stringify(updatedSearchResults));
   };
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <p className={mainStyles.heading}>
-          {t("searchHistory", "Search History")}
-        </p>
+        <p className={mainStyles.heading}>{t('searchHistory', 'Search History')}</p>
         {searchResults.length > 0 && (
-          <Button
-            kind="danger--tertiary"
-            onClick={() => setIsClearHistoryModalVisible(true)}
-          >
-            {t("clearHistory", "Clear Search History")}
+          <Button kind="danger--tertiary" onClick={() => setIsClearHistoryModalVisible(true)}>
+            {t('clearHistory', 'Clear Search History')}
           </Button>
         )}
       </div>
@@ -108,9 +90,7 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({
             <TableHead>
               <TableRow>
                 {headers.map((header) => (
-                  <TableHeader {...getHeaderProps({ header })}>
-                    {header.header}
-                  </TableHeader>
+                  <TableHeader {...getHeaderProps({ header })}>{header.header}</TableHeader>
                 ))}
                 <TableHeader className={mainStyles.optionHeader}></TableHeader>
               </TableRow>
@@ -138,9 +118,9 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({
       </DataTable>
       {searchResults.length > 10 && (
         <Pagination
-          backwardText={t("previousPage", "Previous page")}
-          forwardText={t("nextPage", "Next page")}
-          itemsPerPageText={t("itemsPerPage:", "Items per page:")}
+          backwardText={t('previousPage', 'Previous page')}
+          forwardText={t('nextPage', 'Next page')}
+          itemsPerPageText={t('itemsPerPage:', 'Items per page:')}
           onChange={handlePagination}
           page={1}
           pageSize={10}
@@ -149,25 +129,16 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({
           totalItems={searchResults.length}
         />
       )}
-      {!searchResults.length && <EmptyData displayText={t("data", "data")} />}
-      <ComposedModal
-        size={"sm"}
-        open={isClearHistoryModalVisible}
-        onClose={() => setIsClearHistoryModalVisible(false)}
-      >
+      {!searchResults.length && <EmptyData displayText={t('data', 'data')} />}
+      <ComposedModal size={'sm'} open={isClearHistoryModalVisible} onClose={() => setIsClearHistoryModalVisible(false)}>
         <ModalHeader>
-          <p>
-            {t(
-              "clearHistoryMsg",
-              "Are you sure you want to clear the search history?",
-            )}
-          </p>
+          <p>{t('clearHistoryMsg', 'Are you sure you want to clear the search history?')}</p>
         </ModalHeader>
         <ModalFooter
           danger
           onRequestSubmit={clearHistory}
-          primaryButtonText={t("clear", "Clear")}
-          secondaryButtonText={t("cancel", "Cancel")}
+          primaryButtonText={t('clear', 'Clear')}
+          secondaryButtonText={t('cancel', 'Cancel')}
         />
       </ComposedModal>
     </div>

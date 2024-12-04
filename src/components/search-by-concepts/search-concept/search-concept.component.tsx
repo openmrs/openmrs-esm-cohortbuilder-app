@@ -1,16 +1,10 @@
-import React, {
-  type Dispatch,
-  type SetStateAction,
-  useState,
-  useRef,
-  useEffect,
-} from "react";
-import { useTranslation } from "react-i18next";
-import debounce from "lodash-es/debounce";
-import { Button, Column, CodeSnippetSkeleton, Search } from "@carbon/react";
-import { type Concept } from "../../../types";
-import { getConcepts } from "./search-concept.resource";
-import styles from "./search-concept.style.css";
+import React, { type Dispatch, type SetStateAction, useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import debounce from 'lodash-es/debounce';
+import { Button, Column, CodeSnippetSkeleton, Search } from '@carbon/react';
+import { type Concept } from '../../../types';
+import { getConcepts } from './search-concept.resource';
+import styles from './search-concept.style.css';
 
 interface SearchConceptProps {
   concept: Concept;
@@ -19,15 +13,10 @@ interface SearchConceptProps {
   setSearchText: Dispatch<SetStateAction<String>>;
 }
 
-export const SearchConcept: React.FC<SearchConceptProps> = ({
-  concept,
-  searchText,
-  setConcept,
-  setSearchText,
-}) => {
+export const SearchConcept: React.FC<SearchConceptProps> = ({ concept, searchText, setConcept, setSearchText }) => {
   const { t } = useTranslation();
   const [searchResults, setSearchResults] = useState<Concept[]>([]);
-  const [searchError, setSearchError] = useState("");
+  const [searchError, setSearchError] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [isSearchResultsEmpty, setIsSearchResultsEmpty] = useState(false);
 
@@ -84,10 +73,10 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({
     <div>
       <Column className={styles.column}>
         <Search
-          closeButtonLabelText={t("clearSearch", "Clear search")}
+          closeButtonLabelText={t('clearSearch', 'Clear search')}
           id="concept-search"
-          labelText={t("searchConcepts", "Search Concepts")}
-          placeholder={t("searchConcepts", "Search Concepts")}
+          labelText={t('searchConcepts', 'Search Concepts')}
+          placeholder={t('searchConcepts', 'Search Concepts')}
           onChange={handleWithDebounce}
           onClear={onSearchClear}
           size="lg"
@@ -99,10 +88,7 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({
           ) : (
             searchResults.map((concept: Concept) => (
               <div key={concept.uuid}>
-                <Button
-                  kind="ghost"
-                  onClick={() => handleConceptClick(concept)}
-                >
+                <Button kind="ghost" onClick={() => handleConceptClick(concept)}>
                   {concept.name}
                 </Button>
                 <br />
@@ -112,15 +98,11 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({
         </div>
         {concept && (
           <p className={styles.text}>
-            {t("whoseAnswer", "Patients with observations whose answer is ")}
+            {t('whoseAnswer', 'Patients with observations whose answer is ')}
             <span className={styles.concept}>{concept.name}</span>
           </p>
         )}
-        {isSearchResultsEmpty && (
-          <p className={styles.text}>
-            {t("noSearchItems", "There are no search items")}
-          </p>
-        )}
+        {isSearchResultsEmpty && <p className={styles.text}>{t('noSearchItems', 'There are no search items')}</p>}
         {searchError && <span>{searchError}</span>}
       </Column>
     </div>

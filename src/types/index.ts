@@ -80,10 +80,7 @@ export interface DropdownValue {
 }
 
 export interface SearchByProps {
-  onSubmit: (
-    searchParams: SearchParams,
-    queryDescription: string
-  ) => Promise<boolean>;
+  onSubmit: (searchParams: SearchParams, queryDescription: string) => Promise<boolean>;
 }
 
 export interface Response {

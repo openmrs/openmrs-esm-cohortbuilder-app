@@ -1,7 +1,7 @@
-import { type SearchHistoryItem } from "../../types";
+import { type SearchHistoryItem } from '../../types';
 
 export const getSearchHistory = () => {
-  const history = JSON.parse(window.sessionStorage.getItem("openmrsHistory"));
+  const history = JSON.parse(window.sessionStorage.getItem('openmrsHistory'));
   const searchHistory: SearchHistoryItem[] = [];
   history?.map((historyItem, index) =>
     searchHistory.push({

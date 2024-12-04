@@ -1,17 +1,14 @@
-import { composeJson } from "../../cohort-builder.utils";
+import { composeJson } from '../../cohort-builder.utils';
 
-export const getQueryDetails = (
-  attributeId: string,
-  attributeValues: string[]
-) => {
+export const getQueryDetails = (attributeId: string, attributeValues: string[]) => {
   const searchParameters = {
     personWithAttribute: [
       {
-        name: "attributeType",
+        name: 'attributeType',
         value: attributeId,
       },
       {
-        name: "values",
+        name: 'values',
         value: attributeValues,
       },
     ],
@@ -21,22 +18,13 @@ export const getQueryDetails = (
   return queryDetails;
 };
 
-export const getSearchByAttributesDescription = (
-  attributeId: string,
-  selectedAttributeValues: string[]
-) => {
-  let description = "Patients";
+export const getSearchByAttributesDescription = (attributeId: string, selectedAttributeValues: string[]) => {
+  let description = 'Patients';
   const attributeValues =
-    selectedAttributeValues.length > 0
-      ? selectedAttributeValues.join(", ").replace(/,(?=[^,]*$)/, " or")
-      : "";
+    selectedAttributeValues.length > 0 ? selectedAttributeValues.join(', ').replace(/,(?=[^,]*$)/, ' or') : '';
 
-  description += attributeId
-    ? ` with${attributeValues ? "" : " any"} ${attributeId}`
-    : attributeId;
+  description += attributeId ? ` with${attributeValues ? '' : ' any'} ${attributeId}` : attributeId;
 
-  description += attributeValues
-    ? ` equal to ${attributeValues.length > 1 && "either"} ${attributeValues}`
-    : "";
+  description += attributeValues ? ` equal to ${attributeValues.length > 1 && 'either'} ${attributeValues}` : '';
   return description;
 };
