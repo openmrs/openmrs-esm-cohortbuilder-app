@@ -3,4 +3,4 @@
 
 set -e  # die on error
 
-npx pretty-quick --staged
+npx lint-staged
