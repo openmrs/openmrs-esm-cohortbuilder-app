@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { DataTable, Table, TableHead, TableRow, TableHeader, TableBody, TableCell, Pagination } from '@carbon/react';
 import { showToast } from '@openmrs/esm-framework';
 import { useTranslation } from 'react-i18next';
-import { type DefinitionDataRow, type PaginationData } from '../../types';
+import type { DefinitionDataRow, PaginationData } from '../../types';
 import { onDeleteCohort, getCohorts } from './saved-cohorts.resources';
 import EmptyData from '../empty-data/empty-data.component';
 import SavedCohortsOptions from './saved-cohorts-options/saved-cohorts-options.component';

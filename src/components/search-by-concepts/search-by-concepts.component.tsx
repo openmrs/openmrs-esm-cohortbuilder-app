@@ -3,7 +3,7 @@ import { DatePicker, DatePickerInput, Column, Dropdown, NumberInput, Switch, Con
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { composeJson, queryDescriptionBuilder } from '../../cohort-builder.utils';
-import { type Concept, type SearchByProps } from '../../types';
+import type { Concept, SearchByProps } from '../../types';
 import { SearchConcept } from './search-concept/search-concept.component';
 import SearchButtonSet from '../search-button-set/search-button-set';
 import styles from './search-by-concepts.style.scss';

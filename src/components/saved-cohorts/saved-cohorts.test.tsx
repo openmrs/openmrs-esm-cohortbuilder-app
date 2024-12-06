@@ -1,7 +1,7 @@
 import React from 'react';
 import { openmrsFetch } from '@openmrs/esm-framework';
 import { render, screen, waitFor } from '@testing-library/react';
-import { type DefinitionDataRow } from '../../types';
+import type { DefinitionDataRow } from '../../types';
 import { getCohorts } from './saved-cohorts.resources';
 import SavedCohorts from './saved-cohorts.component';
 

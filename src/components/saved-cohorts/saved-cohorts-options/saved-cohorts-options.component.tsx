@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ComposedModal, ModalFooter, ModalHeader, OverflowMenu, OverflowMenuItem } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { showToast } from '@openmrs/esm-framework';
-import { type DefinitionDataRow } from '../../../types';
+import type { DefinitionDataRow } from '../../../types';
 
 enum Options {
   VIEW,

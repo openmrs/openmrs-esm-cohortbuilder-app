@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import dayjs from 'dayjs';
 import { DatePicker, DatePickerInput, Column, NumberInput, MultiSelect } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
-
 import { showToast } from '@openmrs/esm-framework';
 import { useLocations } from '../../cohort-builder.resources';
-import { type SearchByProps, type DropdownValue } from '../../types';
+import type { SearchByProps, DropdownValue } from '../../types';
 import { getDescription, getQueryDetails } from './search-by-encounters.utils';
 import { useEncounterTypes, useForms } from './search-by-encounters.resources';
 import SearchButtonSet from '../search-button-set/search-button-set';

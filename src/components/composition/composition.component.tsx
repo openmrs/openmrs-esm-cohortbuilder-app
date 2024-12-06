@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { TextInput } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { showNotification } from '@openmrs/esm-framework';
-import { type SearchByProps } from '../../types';
+import type { SearchByProps } from '../../types';
 import { createCompositionQuery, isCompositionValid } from './composition.utils';
 import SearchButtonSet from '../search-button-set/search-button-set';
 import styles from './composition.style.css';

@@ -1,5 +1,5 @@
 import { type FetchResponse, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
-import { type Concept, type DataType } from '../../../types';
+import type { Concept, DataType } from '../../../types';
 
 interface ConceptResponse {
   uuid: string;

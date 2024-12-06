@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { DataTable, Table, TableHead, TableRow, TableHeader, TableBody, TableCell, Pagination } from '@carbon/react';
 import { showToast } from '@openmrs/esm-framework';
 import { useTranslation } from 'react-i18next';
-import { type DefinitionDataRow, type PaginationData } from '../../types';
+import type { DefinitionDataRow, PaginationData } from '../../types';
 import { deleteDataSet, getQueries } from './saved-queries.resources';
 import EmptyData from '../empty-data/empty-data.component';
 import SavedQueriesOptions from './saved-queries-options/saved-queries-options.component';

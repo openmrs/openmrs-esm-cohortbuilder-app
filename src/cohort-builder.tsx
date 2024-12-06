@@ -5,7 +5,7 @@ import { showToast, useLayoutType } from '@openmrs/esm-framework';
 import { useTranslation } from 'react-i18next';
 import { getCohortMembers, getDataSet, search } from './cohort-builder.resources';
 import { addToHistory } from './cohort-builder.utils';
-import { type Patient, type SearchParams } from './types';
+import type { Patient, SearchParams } from './types';
 import Composition from './components/composition/composition.component';
 import SavedCohorts from './components/saved-cohorts/saved-cohorts.component';
 import SavedQueries from './components/saved-queries/saved-queries.component';

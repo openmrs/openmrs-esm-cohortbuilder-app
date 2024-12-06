@@ -1,5 +1,5 @@
 import { type FetchResponse, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
-import { type Response, type DefinitionDataRow } from '../../types';
+import type { DefinitionDataRow, Response } from '../../types';
 
 /**
  * @returns Queries

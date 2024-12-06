@@ -1,5 +1,5 @@
 import { addColumnsToDisplay } from '../../cohort-builder.utils';
-import { type Query } from '../../types';
+import type { Query } from '../../types';
 
 export const isCompositionValid = (search: string) => {
   const matches = search.match(/and|or|not|\d+|\)|\(|union|intersection|!|\+/gi);

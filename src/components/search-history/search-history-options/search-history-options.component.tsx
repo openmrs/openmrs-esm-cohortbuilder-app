@@ -12,7 +12,7 @@ import {
 } from '@carbon/react';
 import { showToast } from '@openmrs/esm-framework';
 import { downloadCSV } from '../../../cohort-builder.utils';
-import { type Cohort, type Patient, type SearchHistoryItem } from '../../../types';
+import type { Cohort, Patient, SearchHistoryItem } from '../../../types';
 import { createCohort, createQuery } from './search-history-options.resources';
 
 enum Option {

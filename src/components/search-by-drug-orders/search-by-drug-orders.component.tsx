@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { Column, DatePicker, DatePickerInput, Dropdown, MultiSelect } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { showToast } from '@openmrs/esm-framework';
-import { type DropdownValue, type DrugOrderDetails, type SearchByProps } from '../../types';
+import type { DropdownValue, DrugOrderDetails, SearchByProps } from '../../types';
 import { getDescription, getQueryDetails } from './search-by-drug-orders.utils';
 import { useCareSettings, useDrugs } from './search-by-drug-orders.resources';
 import SearchButtonSet from '../search-button-set/search-button-set';
