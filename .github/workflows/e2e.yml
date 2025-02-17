@@ -40,8 +40,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
-      
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json', 'e2e/support/bamboo/playwright.Dockerfile') }}
+
       - name: Install Playwright Browsers
         if: steps.cache-playwright.outputs.cache-hit != 'true'
         run: npx playwright install chromium --with-deps
