@@ -12,52 +12,52 @@ jobs:
   main:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: 📥 Checkout repo
         uses: actions/checkout@v4
 
-      - name: Copy test environment variables
+      - name: 📋 Copy test environment variables
         run: cp example.env .env
 
-      - name: Setup node
+      - name: ⚙️ Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
-      - name: Cache dependencies
+      - name: 💾 Cache dependencies
         id: cache-dependencies
         uses: actions/cache@v4
         with:
           path: '**/node_modules'
           key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
 
-      - name: Install dependencies
+      - name: 📦 Install dependencies
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: yarn install --immutable
 
-      - name: Cache Playwright browsers
+      - name: 🎭 Cache Playwright browsers
         id: cache-playwright
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json', 'e2e/support/bamboo/playwright.Dockerfile') }}
 
-      - name: Install Playwright Browsers
+      - name: 🌐 Install Playwright Browsers
         if: steps.cache-playwright.outputs.cache-hit != 'true'
         run: npx playwright install chromium --with-deps
 
-      - name: Build app
+      - name: 🏗️ Build app
         run: yarn run build
 
-      - name: Run dev server
+      - name: 🚀 Run dev server
         run: bash e2e/support/github/run-e2e-docker-env.sh
 
-      - name: Wait for OpenMRS instance to start
+      - name: ⏳ Wait for OpenMRS instance to start
         run: while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:8080/openmrs/login.htm)" != "200" ]]; do sleep 10; done
 
-      - name: Run E2E tests
+      - name: 🧪 Run E2E tests
         run: yarn playwright test
 
-      - name: Stop dev server
+      - name: 🛑 Stop dev server
         if: '!cancelled()'
         run: docker stop $(docker ps -a -q)
 
