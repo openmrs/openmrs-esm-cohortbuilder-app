@@ -1,9 +1,7 @@
 import React from 'react';
-
+import userEvent from '@testing-library/user-event';
 import { openmrsFetch } from '@openmrs/esm-framework';
-import { render, fireEvent, waitFor } from '@testing-library/react';
-
-import translations from '../../../translations/en.json';
+import { render, screen, waitFor } from '@testing-library/react';
 import { useLocations } from '../../cohort-builder.resources';
 import SearchByLocation from './search-by-location.component';
 
@@ -79,27 +77,33 @@ jest.mock('../../cohort-builder.resources', () => {
   };
 });
 
+const mockUseLocations = jest.mocked(useLocations);
+
 describe('Test the search by location component', () => {
   it('should be able to select input values', async () => {
-    // @ts-ignore
-    useLocations.mockImplementation(() => ({
+    const user = userEvent.setup();
+
+    mockUseLocations.mockImplementation(() => ({
       locations: mockLocations,
       isLoading: false,
       locationsError: undefined,
     }));
     mockOpenmrsFetch.mockReturnValueOnce({ data: { results: mockLocations } });
 
-    const submit = jest.fn();
-    const { getByTestId, getByTitle, getByText } = render(<SearchByLocation onSubmit={submit} />);
+    const mockSubmit = jest.fn();
+    render(<SearchByLocation onSubmit={mockSubmit} />);
 
-    fireEvent.click(getByText(translations.selectLocations));
-    fireEvent.click(getByText(mockLocations[2].label));
-    fireEvent.click(getByTitle('Any Encounter'));
-    fireEvent.click(getByText('Most Recent Encounter'));
-    fireEvent.click(getByTestId('search-btn'));
+    await user.click(screen.getByText(/select locations/i));
+    await user.click(screen.getByText(mockLocations[2].label));
+    await user.click(screen.getByTitle('Any Encounter'));
+    await user.click(screen.getByText('Most Recent Encounter'));
+    await user.click(screen.getByTestId('search-btn'));
 
     await waitFor(() => {
-      expect(submit).toBeCalledWith(expectedQuery, `Patients in ${mockLocations[2].label} (by method ANY_ENCOUNTER).`);
+      expect(mockSubmit).toBeCalledWith(
+        expectedQuery,
+        `Patients in ${mockLocations[2].label} (by method ANY_ENCOUNTER).`,
+      );
     });
   });
 });

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { Column, DatePicker, DatePickerInput, MultiSelect } from '@carbon/react';
 import dayjs from 'dayjs';
-import { showToast } from '@openmrs/esm-framework';
+import { Column, DatePicker, DatePickerInput, MultiSelect } from '@carbon/react';
+import { showSnackbar } from '@openmrs/esm-framework';
 import { useTranslation } from 'react-i18next';
 import { useLocations } from '../../cohort-builder.resources';
 import { type DropdownValue, type SearchByProps } from '../../types';
 import { usePrograms } from './search-by-enrollments.resources';
-import SearchButtonSet from '../search-button-set/search-button-set';
 import { getQueryDetails, getDescription } from './search-by-enrollments.utils';
+import SearchButtonSet from '../search-button-set/search-button-set';
 import styles from './search-by-enrollments.style.scss';
 
 const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
@@ -23,20 +23,20 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   if (programsError) {
-    showToast({
+    showSnackbar({
       title: t('error', 'Error'),
       kind: 'error',
-      critical: true,
-      description: programsError?.message,
+      isLowContrast: false,
+      subtitle: programsError?.message,
     });
   }
 
   if (locationsError) {
-    showToast({
+    showSnackbar({
       title: t('error', 'Error'),
       kind: 'error',
-      critical: true,
-      description: locationsError?.message,
+      isLowContrast: false,
+      subtitle: locationsError?.message,
     });
   }
 

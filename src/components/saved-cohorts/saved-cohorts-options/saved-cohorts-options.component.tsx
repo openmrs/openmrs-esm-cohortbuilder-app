@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
-import { ComposedModal, ModalFooter, ModalHeader, OverflowMenu, OverflowMenuItem } from '@carbon/react';
+import React from 'react';
+import { OverflowMenu, OverflowMenuItem } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
-import { showToast } from '@openmrs/esm-framework';
+import { showModal, showSnackbar } from '@openmrs/esm-framework';
 import type { DefinitionDataRow } from '../../../types';
+import styles from './saved-cohort-options.scss';
 
-enum Options {
-  VIEW,
-  DELETE,
-}
+const Options = {
+  VIEW: 'view',
+  DELETE: 'delete',
+} as const;
 
 interface SavedCohortsOptionsProps {
   cohort: DefinitionDataRow;
@@ -17,64 +18,66 @@ interface SavedCohortsOptionsProps {
 
 const SavedCohortsOptions: React.FC<SavedCohortsOptionsProps> = ({ cohort, onViewCohort, onDeleteCohort }) => {
   const { t } = useTranslation();
-  const [isDeleteCohortModalVisible, setIsDeleteCohortModalVisible] = useState(false);
 
   const handleViewCohort = async () => {
     try {
       await onViewCohort(cohort.id);
     } catch (error) {
-      showToast({
+      showSnackbar({
         title: t('cohortViewError', 'Error viewing the cohort'),
         kind: 'error',
-        critical: true,
-        description: error?.message,
+        isLowContrast: true,
+        subtitle: error?.message,
       });
     }
   };
 
-  const handleOption = async (option: Options) => {
+  const handleMenuItemClick = async (option: (typeof Options)[keyof typeof Options]) => {
     switch (option) {
       case Options.VIEW:
         handleViewCohort();
         break;
       case Options.DELETE:
-        setIsDeleteCohortModalVisible(true);
+        launchDeleteCohortModal(cohort.id);
         break;
     }
   };
 
+  const launchDeleteCohortModal = (cohortId: string) => {
+    const dispose = showModal('delete-cohort-modal', {
+      closeModal: () => dispose(),
+      cohortId,
+      onDeleteCohort: handleDeleteCohort,
+      size: 'sm',
+    });
+  };
+
   const handleDeleteCohort = async () => {
     await onDeleteCohort(cohort.id);
-    setIsDeleteCohortModalVisible(false);
   };
 
   return (
-    <>
-      <OverflowMenu ariaLabel="overflow-menu" size="md" flipped direction="bottom" data-testid="options">
-        <OverflowMenuItem data-testid="view" itemText={t('view', 'View')} onClick={() => handleOption(Options.VIEW)} />
-        <OverflowMenuItem
-          data-testid="delete"
-          itemText={t('delete', 'Delete')}
-          onClick={() => handleOption(Options.DELETE)}
-        />
-      </OverflowMenu>
-
-      <ComposedModal size={'sm'} open={isDeleteCohortModalVisible} onClose={() => setIsDeleteCohortModalVisible(false)}>
-        <ModalHeader>
-          <p>
-            {t('deleteItem', `Are you sure you want to delete ${cohort?.name}?`, {
-              itemName: cohort?.name,
-            })}
-          </p>
-        </ModalHeader>
-        <ModalFooter
-          danger
-          onRequestSubmit={handleDeleteCohort}
-          primaryButtonText={t('delete', 'Delete')}
-          secondaryButtonText={t('cancel', 'Cancel')}
-        />
-      </ComposedModal>
-    </>
+    <OverflowMenu
+      aria-label={t('savedCohortsOptions', 'Saved cohorts options')}
+      flipped
+      direction="bottom"
+      data-testid="options"
+    >
+      <OverflowMenuItem
+        className={styles.menuItem}
+        data-testid="view"
+        itemText={t('view', 'View')}
+        onClick={() => handleMenuItemClick(Options.VIEW)}
+      />
+      <OverflowMenuItem
+        className={styles.menuItem}
+        data-testid="delete"
+        hasDivider
+        isDelete
+        itemText={t('delete', 'Delete')}
+        onClick={() => handleMenuItemClick(Options.DELETE)}
+      />
+    </OverflowMenu>
   );
 };
 

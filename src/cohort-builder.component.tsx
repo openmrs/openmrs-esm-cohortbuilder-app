@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { Tab, Tabs, TabList, TabPanels, TabPanel } from '@carbon/react';
-import { showToast, useLayoutType } from '@openmrs/esm-framework';
+import { Tab, Tabs, TabPanels, TabPanel, TabList } from '@carbon/react';
+import { showSnackbar, useLayoutType } from '@openmrs/esm-framework';
 import { useTranslation } from 'react-i18next';
 import { getCohortMembers, getDataSet, search } from './cohort-builder.resources';
 import { addToHistory } from './cohort-builder.utils';
@@ -42,11 +42,11 @@ const CohortBuilder: React.FC = () => {
           });
           setPatients(rows);
           addToHistory(queryDescription, rows, searchParams.query);
-          showToast({
+          showSnackbar({
             title: t('success', 'Success!'),
             kind: 'success',
-            critical: true,
-            description: t('searchIsCompleted', `Search is completed with ${rows.length} result(s)`, {
+            isLowContrast: true,
+            subtitle: t('searchIsCompleted', `Search is completed with ${rows.length} result(s)`, {
               numOfResults: rows.length,
             }),
           });
@@ -54,11 +54,11 @@ const CohortBuilder: React.FC = () => {
           resolve(true);
         })
         .catch((error) => {
-          showToast({
+          showSnackbar({
             title: t('error', 'Error'),
             kind: 'error',
-            critical: true,
-            description: error?.message,
+            isLowContrast: false,
+            subtitle: error?.message,
           });
           resolve(true);
         });
@@ -69,20 +69,20 @@ const CohortBuilder: React.FC = () => {
     try {
       const patients = await getDataSet(queryId);
       setPatients(patients);
-      showToast({
+      showSnackbar({
         title: t('success', 'Success!'),
         kind: 'success',
-        critical: true,
-        description: t('searchIsCompleted', `Search is completed with ${patients.length} result(s)`, {
+        isLowContrast: true,
+        subtitle: t('searchIsCompleted', `Search is completed with ${patients.length} result(s)`, {
           numOfResults: patients.length,
         }),
       });
     } catch (error) {
-      showToast({
+      showSnackbar({
         title: t('error', 'Error'),
         kind: 'error',
-        critical: true,
-        description: error?.message,
+        isLowContrast: false,
+        subtitle: error?.message,
       });
     }
   };
@@ -91,20 +91,20 @@ const CohortBuilder: React.FC = () => {
     try {
       const patients = await getCohortMembers(cohortId);
       setPatients(patients);
-      showToast({
+      showSnackbar({
         title: t('success', 'Success!'),
         kind: 'success',
-        critical: true,
-        description: t('searchIsCompleted', `Search is completed with ${patients.length} result(s)`, {
+        isLowContrast: true,
+        subtitle: t('searchIsCompleted', `Search is completed with ${patients.length} result(s)`, {
           numOfResults: patients.length,
         }),
       });
     } catch (error) {
-      showToast({
+      showSnackbar({
         title: t('error', 'Error'),
         kind: 'error',
-        critical: true,
-        description: error?.message,
+        isLowContrast: false,
+        subtitle: error?.message,
       });
     }
   };
@@ -153,7 +153,7 @@ const CohortBuilder: React.FC = () => {
   ];
 
   return (
-    <div className={classNames('omrs-main-content', styles.mainContainer, styles.cohortBuilder)}>
+    <div className={classNames(styles.mainContainer, styles.cohortBuilder)}>
       <div className={classNames(isLayoutTablet ? styles.tabletContainer : styles.desktopContainer)}>
         <p className={styles.title}>{t('cohortBuilder', 'Cohort Builder')}</p>
         <div className={styles.tabContainer}>

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
-import { DatePicker, DatePickerInput, Column, NumberInput, Switch, ContentSwitcher } from '@carbon/react';
+import { Column, ContentSwitcher, DatePicker, DatePickerInput, NumberInput, Switch } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { type SearchByProps } from '../../types';
+import { getDescription, getQueryDetails } from './search-by-demographics.utils';
 import SearchButtonSet from '../search-button-set/search-button-set';
 import styles from './search-by-demographics.style.scss';
-import { getDescription, getQueryDetails } from './search-by-demographics.utils';
 
 const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
@@ -105,27 +105,27 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
         <Column className={styles.age}>
           <Column>
             <NumberInput
-              hideSteppers={true}
-              id="minAge"
               data-testid="minAge"
-              label={t('ageBetween', 'Age between')}
+              hideSteppers
+              id="minAge"
               invalidText={t('minAgeIsNotValid', 'The age must be greater than 0')}
+              label={t('ageBetween', 'Age between')}
               min={0}
-              value={minAge}
               onChange={(event, { value }) => setMinAge(value)}
+              value={minAge}
             />
           </Column>
           <Column>
             <NumberInput
-              id="maxAge"
-              hideSteppers={true}
               data-testid="maxAge"
-              label={t('and', 'and')}
+              hideSteppers
+              id="maxAge"
               invalidText={t('maxAgeIsNotValid', 'The age must be less than 200')}
-              min={0}
+              label={t('and', 'and')}
               max={200}
-              value={maxAge}
+              min={0}
               onChange={(event, { value }) => setMaxAge(value)}
+              value={maxAge}
             />
           </Column>
         </Column>
@@ -140,24 +140,24 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
             <DatePickerInput
               id="startDate"
               labelText={t('birthDate', 'Birth date between')}
-              value={birthDayStartDate && dayjs(birthDayStartDate).format('DD-MM-YYYY')}
               placeholder="DD-MM-YYYY"
               size="md"
+              value={birthDayStartDate && dayjs(birthDayStartDate).format('DD-MM-YYYY')}
             />
           </DatePicker>
         </Column>
         <Column>
           <DatePicker
-            datePickerType="single"
             allowInput={false}
+            datePickerType="single"
             onChange={(date) => setBirthDayEndDate(dayjs(date[0]).format())}
           >
             <DatePickerInput
               id="endDate"
               labelText={t('and', 'and')}
-              value={birthDayEndDate && dayjs(birthDayEndDate).format('DD-MM-YYYY')}
               placeholder="DD-MM-YYYY"
               size="md"
+              value={birthDayEndDate && dayjs(birthDayEndDate).format('DD-MM-YYYY')}
             />
           </DatePicker>
         </Column>

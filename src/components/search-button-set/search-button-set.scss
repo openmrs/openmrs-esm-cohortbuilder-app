@@ -1,0 +1,21 @@
+@use '@carbon/layout';
+@use '@carbon/type';
+
+.container {
+  padding-bottom: layout.$spacing-03;
+  padding-top: layout.$spacing-05;
+}
+
+.buttonSet {
+  justify-content: end;
+}
+
+.button {
+  :global(.cds--inline-loading) {
+    min-height: layout.$spacing-05 !important;
+  }
+
+  :global(.cds--inline-loading__text) {
+    @include type.type-style('body-01');
+  }
+}

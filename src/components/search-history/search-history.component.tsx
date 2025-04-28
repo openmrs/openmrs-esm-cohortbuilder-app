@@ -1,10 +1,7 @@
 import React, { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 import {
   Button,
-  ComposedModal,
   DataTable,
-  ModalFooter,
-  ModalHeader,
   Pagination,
   Table,
   TableBody,
@@ -14,12 +11,13 @@ import {
   TableRow,
 } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
-import mainStyles from '../../cohort-builder.scss';
 import { type PaginationData, type SearchHistoryItem } from '../../types';
 import { getSearchHistory } from './search-history.utils';
 import EmptyData from '../empty-data/empty-data.component';
 import SearchHistoryOptions from './search-history-options/search-history-options.component';
+import mainStyles from '../../cohort-builder.scss';
 import styles from './search-history.style.scss';
+import { showModal } from '@openmrs/esm-framework';
 
 interface SearchHistoryProps {
   isHistoryUpdated: boolean;
@@ -31,7 +29,6 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ isHistoryUpdated, setIsHi
   const [searchResults, setSearchResults] = useState<SearchHistoryItem[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [isClearHistoryModalVisible, setIsClearHistoryModalVisible] = useState(false);
 
   useEffect(() => {
     if (isHistoryUpdated) {
@@ -63,7 +60,6 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ isHistoryUpdated, setIsHi
   const clearHistory = () => {
     window.sessionStorage.removeItem('openmrsHistory');
     setSearchResults([]);
-    setIsClearHistoryModalVisible(false);
   };
 
   const updateSearchHistory = (selectedSearchItem: SearchHistoryItem) => {
@@ -74,13 +70,21 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ isHistoryUpdated, setIsHi
     window.sessionStorage.setItem('openmrsHistory', JSON.stringify(updatedSearchResults));
   };
 
+  const launchClearSearchHistoryModal = () => {
+    const dispose = showModal('clear-search-history-modal', {
+      closeModal: () => dispose(),
+      onClearHistory: clearHistory,
+      size: 'sm',
+    });
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <p className={mainStyles.heading}>{t('searchHistory', 'Search History')}</p>
         {searchResults.length > 0 && (
-          <Button kind="danger--tertiary" onClick={() => setIsClearHistoryModalVisible(true)}>
-            {t('clearHistory', 'Clear Search History')}
+          <Button kind="danger--tertiary" onClick={launchClearSearchHistoryModal}>
+            {t('clearSearchHistory', 'Clear search history')}
           </Button>
         )}
       </div>
@@ -120,7 +124,7 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ isHistoryUpdated, setIsHi
         <Pagination
           backwardText={t('previousPage', 'Previous page')}
           forwardText={t('nextPage', 'Next page')}
-          itemsPerPageText={t('itemsPerPage:', 'Items per page:')}
+          itemsPerPageText={t('itemsPerPage', 'Items per page:')}
           onChange={handlePagination}
           page={1}
           pageSize={10}
@@ -130,17 +134,6 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ isHistoryUpdated, setIsHi
         />
       )}
       {!searchResults.length && <EmptyData displayText={t('data', 'data')} />}
-      <ComposedModal size={'sm'} open={isClearHistoryModalVisible} onClose={() => setIsClearHistoryModalVisible(false)}>
-        <ModalHeader>
-          <p>{t('clearHistoryMsg', 'Are you sure you want to clear the search history?')}</p>
-        </ModalHeader>
-        <ModalFooter
-          danger
-          onRequestSubmit={clearHistory}
-          primaryButtonText={t('clear', 'Clear')}
-          secondaryButtonText={t('cancel', 'Cancel')}
-        />
-      </ComposedModal>
     </div>
   );
 };

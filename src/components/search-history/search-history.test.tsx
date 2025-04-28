@@ -1,10 +1,12 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import translations from '../../../translations/en.json';
 import SearchHistory from './search-history.component';
-import * as utils from './search-history.utils';
 
-jest.mock('./search-history.utils.ts');
+const mockGetSearchHistory = jest.fn();
+
+jest.mock('./search-history.utils.ts', () => ({
+  getSearchHistory: () => mockSearchHistory,
+}));
 
 const mockSearchHistory = [
   {
@@ -84,11 +86,9 @@ describe('Test the search history component', () => {
   });
 
   it('should display the search history', async () => {
-    jest.spyOn(utils, 'getSearchHistory').mockReturnValue(mockSearchHistory);
-
     render(<SearchHistory isHistoryUpdated={true} setIsHistoryUpdated={jest.fn()} />);
 
-    expect(screen.getByText(translations.clearHistory)).toBeInTheDocument();
+    expect(screen.getByText(/clear search history/i)).toBeInTheDocument();
     expect(screen.getByText('2')).toBeInTheDocument();
     expect(screen.getByText(mockSearchHistory[0].description)).toBeInTheDocument();
   });

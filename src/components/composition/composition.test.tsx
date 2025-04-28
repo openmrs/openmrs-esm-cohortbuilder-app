@@ -1,6 +1,7 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor } from '@testing-library/react';
+import { showSnackbar } from '@openmrs/esm-framework';
 import Composition from './composition.component';
 
 const mockCompositionQuery = {
@@ -65,34 +66,74 @@ jest.mock('./composition.utils', () => {
   return {
     ...original,
     createCompositionQuery: jest.fn().mockImplementation(() => mockCompositionQuery),
+    isCompositionValid: jest.fn().mockImplementation((query) => query === '1 and 2'),
   };
 });
 
-describe('Test the composition component', () => {
-  it('should be throw an error when an invalid composition query is entered', async () => {
+describe('Composition', () => {
+  it('should show error notification when an invalid composition query is entered', async () => {
     const user = userEvent.setup();
-    const submit = jest.fn();
-    render(<Composition onSubmit={submit} />);
+    const mockSubmit = jest.fn();
+    render(<Composition onSubmit={mockSubmit} />);
 
-    const compositionInput = screen.getByTestId('composition-query');
+    const compositionInput = screen.getByRole('textbox', { name: /composition/i });
     await user.click(compositionInput);
-    await waitFor(() => user.type(compositionInput, 'random text'));
+    await user.type(compositionInput, 'random text');
+    await user.click(screen.getByRole('button', { name: /search/i }));
 
-    await waitFor(() => user.click(screen.getByTestId('search-btn')));
-    await waitFor(() => expect(submit).not.toBeCalled());
+    expect(mockSubmit).not.toHaveBeenCalled();
+    expect(showSnackbar).toHaveBeenCalledWith({
+      title: 'Error!',
+      kind: 'error',
+      isLowContrast: true,
+      subtitle: 'Composition is not valid',
+    });
   });
 
-  it('should be to search a composition query', async () => {
+  it('should submit a valid composition query', async () => {
     const compositionQuery = '1 and 2';
-
     const user = userEvent.setup();
-    const submit = jest.fn();
-    render(<Composition onSubmit={submit} />);
-    const compositionInput = screen.getByTestId('composition-query');
-    await user.click(compositionInput);
-    await waitFor(() => user.type(compositionInput, compositionQuery));
+    const mockSubmit = jest.fn();
+    render(<Composition onSubmit={mockSubmit} />);
 
-    await waitFor(() => user.click(screen.getByTestId('search-btn')));
-    await waitFor(() => expect(submit).toBeCalledWith(mockCompositionQuery, `Composition of ${compositionQuery}`));
+    const compositionInput = screen.getByRole('textbox', { name: /composition/i });
+    await user.click(compositionInput);
+    await user.type(compositionInput, compositionQuery);
+    await user.click(screen.getByRole('button', { name: /search/i }));
+
+    expect(mockSubmit).toHaveBeenCalledWith(mockCompositionQuery, `Composition of ${compositionQuery}`);
+  });
+
+  it('should handle reset functionality', async () => {
+    const user = userEvent.setup();
+    const mockSubmit = jest.fn().mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 100)));
+    render(<Composition onSubmit={mockSubmit} />);
+
+    // Test loading state
+    const compositionInput = screen.getByRole('textbox', { name: /composition/i });
+    await user.click(compositionInput);
+    await user.type(compositionInput, '1 and 2');
+    await user.click(screen.getByRole('button', { name: /search/i }));
+
+    // Wait for submit to complete
+    await waitFor(() => {
+      expect(mockSubmit).toHaveBeenCalled();
+    });
+
+    // Test reset functionality
+    await user.click(screen.getByRole('button', { name: /reset/i }));
+    expect(compositionInput).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: /description/i })).toHaveValue('');
+  });
+
+  it('should automatically update the description when composition changes', async () => {
+    const user = userEvent.setup();
+    render(<Composition onSubmit={jest.fn()} />);
+
+    const compositionInput = screen.getByRole('textbox', { name: /composition/i });
+    await user.click(compositionInput);
+    await user.type(compositionInput, '1 and 2');
+
+    expect(screen.getByRole('textbox', { name: /description/i })).toHaveValue('Composition of 1 and 2');
   });
 });

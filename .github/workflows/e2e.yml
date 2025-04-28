@@ -61,6 +61,12 @@ jobs:
         if: '!cancelled()'
         run: docker stop $(docker ps -a -q)
 
+      - name: 📝 Capture Server Logs
+        if: always()
+        uses: jwalton/gh-docker-logs@v2
+        with:
+          dest: './logs'
+
       - name: 📤 Upload report
         uses: actions/upload-artifact@v4
         if: '!cancelled()'
@@ -68,4 +74,13 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+          overwrite: true
+
+      - name: 📤 Upload Logs as Artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: server-logs
+          path: './logs'
+          retention-days: 2
           overwrite: true

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DataTable, Table, TableHead, TableRow, TableHeader, TableBody, TableCell, Pagination } from '@carbon/react';
-import { showToast } from '@openmrs/esm-framework';
 import { useTranslation } from 'react-i18next';
+import { showSnackbar } from '@openmrs/esm-framework';
 import type { DefinitionDataRow, PaginationData } from '../../types';
 import { deleteDataSet, getQueries } from './saved-queries.resources';
 import EmptyData from '../empty-data/empty-data.component';
@@ -14,9 +14,9 @@ interface SavedQueriesProps {
 }
 
 const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
+  const { t } = useTranslation();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const { t } = useTranslation();
   const [queries, setQueries] = useState<DefinitionDataRow[]>([]);
 
   const getTableData = async () => {
@@ -27,19 +27,19 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
   const deleteQuery = async (queryId: string) => {
     try {
       await deleteDataSet(queryId);
-      showToast({
+      showSnackbar({
         title: t('success', 'Success'),
         kind: 'success',
-        critical: true,
-        description: t('queryIsDeleted', 'the query is deleted'),
+        isLowContrast: true,
+        subtitle: t('queryIsDeleted', 'the query is deleted'),
       });
       getTableData();
     } catch (error) {
-      showToast({
-        title: t('queryDeleteError', 'Error saving the query'),
+      showSnackbar({
+        title: t('error', 'Error'),
         kind: 'error',
-        critical: true,
-        description: error?.message,
+        isLowContrast: false,
+        subtitle: error?.message,
       });
     }
   };
@@ -102,7 +102,7 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
         <Pagination
           backwardText={t('previousPage', 'Previous page')}
           forwardText={t('nextPage', 'Next page')}
-          itemsPerPageText={t('itemsPerPage:', 'Items per page:')}
+          itemsPerPageText={t('itemsPerPage', 'Items per page:')}
           onChange={handlePagination}
           page={1}
           pageSize={10}

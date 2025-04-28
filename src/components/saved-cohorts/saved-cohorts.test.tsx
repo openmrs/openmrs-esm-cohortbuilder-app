@@ -1,8 +1,8 @@
 import React from 'react';
 import { openmrsFetch } from '@openmrs/esm-framework';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import type { DefinitionDataRow } from '../../types';
-import { getCohorts } from './saved-cohorts.resources';
+import { useCohorts } from './saved-cohorts.resources';
 import SavedCohorts from './saved-cohorts.component';
 
 const mockCohorts: DefinitionDataRow[] = [
@@ -19,24 +19,26 @@ const mockCohorts: DefinitionDataRow[] = [
 ];
 
 const mockOpenmrsFetch = openmrsFetch as jest.Mock;
+const mockUseCohorts = jest.mocked(useCohorts);
 
-jest.mock('./saved-cohorts.resources', () => {
-  const original = jest.requireActual('./saved-cohorts.resources');
-  return {
-    ...original,
-    getCohorts: jest.fn(),
-  };
-});
+jest.mock('./saved-cohorts.resources', () => ({
+  useCohorts: jest.fn(),
+  onDeleteCohort: jest.fn(),
+}));
 
-describe('Test the saved cohorts component', () => {
+describe('SavedCohorts', () => {
   it('should be able to search for a cohort', async () => {
-    // @ts-ignore
-    getCohorts.mockImplementation(() => mockCohorts);
+    mockUseCohorts.mockReturnValue({
+      cohorts: mockCohorts,
+      isLoading: false,
+      isValidating: false,
+    });
     mockOpenmrsFetch.mockReturnValue({ data: { results: mockCohorts } });
 
     render(<SavedCohorts onViewCohort={jest.fn()} />);
-    await waitFor(() => expect(screen.getByText(mockCohorts[0].name)).toBeInTheDocument());
 
+    await screen.findByRole('table');
+    expect(screen.getByText(mockCohorts[0].name)).toBeInTheDocument();
     expect(screen.getByText(mockCohorts[1].name)).toBeInTheDocument();
   });
 });

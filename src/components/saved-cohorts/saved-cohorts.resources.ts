@@ -1,27 +1,26 @@
+import { useMemo } from 'react';
+import useSWR from 'swr';
 import { type FetchResponse, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import type { Cohort, DefinitionDataRow } from '../../types';
 
-/**
- * @returns Cohorts
- */
-export async function getCohorts(): Promise<DefinitionDataRow[]> {
-  const response: FetchResponse<{ results: Cohort[] }> = await openmrsFetch(`${restBaseUrl}/cohort?v=full`, {
-    method: 'GET',
-  });
+export function useCohorts() {
+  const url = `${restBaseUrl}/cohort?v=full`;
 
-  const cohorts: DefinitionDataRow[] = [];
-  if (response.data.results.length > 0) {
-    response.data.results.map((cohort: Cohort) => {
-      const cohortData: DefinitionDataRow = {
-        id: cohort.uuid,
-        name: cohort.name,
-        description: cohort.description,
-      };
-      cohorts.push(cohortData);
-    });
-  }
+  const { data, isLoading, isValidating } = useSWR<{ data: { results: Array<Cohort> } }, Error>(url, openmrsFetch);
 
-  return cohorts;
+  const mappedCohorts: Array<DefinitionDataRow> = useMemo(() => {
+    return data?.data?.results?.map((cohort) => ({
+      id: cohort.uuid,
+      name: cohort.name,
+      description: cohort.description,
+    }));
+  }, [data]);
+
+  return {
+    cohorts: mappedCohorts ?? [],
+    isLoading,
+    isValidating,
+  };
 }
 
 export const onDeleteCohort = async (cohort: string) => {

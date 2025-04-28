@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import dayjs from 'dayjs';
 import { DatePicker, DatePickerInput, Column, NumberInput, MultiSelect } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
-import { showToast } from '@openmrs/esm-framework';
+import { showSnackbar } from '@openmrs/esm-framework';
 import { useLocations } from '../../cohort-builder.resources';
 import type { SearchByProps, DropdownValue } from '../../types';
 import { getDescription, getQueryDetails } from './search-by-encounters.utils';
@@ -25,29 +25,29 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   if (locationsError) {
-    showToast({
+    showSnackbar({
       title: t('error', 'Error'),
       kind: 'error',
-      critical: true,
-      description: locationsError?.message,
+      isLowContrast: false,
+      subtitle: locationsError?.message,
     });
   }
 
   if (formsError) {
-    showToast({
+    showSnackbar({
       title: t('error', 'Error'),
       kind: 'error',
-      critical: true,
-      description: formsError?.message,
+      isLowContrast: false,
+      subtitle: formsError?.message,
     });
   }
 
   if (encounterTypesError) {
-    showToast({
+    showSnackbar({
       title: t('error', 'Error'),
       kind: 'error',
-      critical: true,
-      description: encounterTypesError?.message,
+      isLowContrast: false,
+      subtitle: encounterTypesError?.message,
     });
   }
 
@@ -79,7 +79,6 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
         <div>
           <MultiSelect
             id="encounters"
-            data-testid="encounters"
             onChange={(data) => setSelectedEncounterTypes(data.selectedItems)}
             items={encounterTypes}
             label={t('selectEncounterTypes', 'Select encounter types')}
@@ -96,7 +95,6 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
 
       <MultiSelect
         id="locations"
-        data-testid="locations"
         onChange={(data) => setEncounterLocations(data.selectedItems)}
         items={locations}
         label={t('selectLocations', 'Select locations')}
@@ -105,7 +103,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
         <Column className={styles.encounterRange}>
           <div className={styles.multipleInputs}>
             <NumberInput
-              hideSteppers={true}
+              hideSteppers
               id="atLeastCount"
               data-testid="atLeastCount"
               label={t('atLeast', 'at least')}
@@ -117,7 +115,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
           </div>
           <div className={styles.multipleInputs}>
             <NumberInput
-              hideSteppers={true}
+              hideSteppers
               id="atMostCount"
               data-testid="atMostCount"
               label={t('upto', 'upto this many')}

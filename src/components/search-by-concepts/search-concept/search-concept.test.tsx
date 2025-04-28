@@ -1,11 +1,23 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor } from '@testing-library/react';
 import { type Concept } from '../../../types';
+import { getConcepts } from './search-concept.resource';
 import { SearchConcept } from './search-concept.component';
-import * as apis from './search-concept.resource';
 
-jest.mock('./search-concept.resource.ts');
+const mockGetConcepts = jest.mocked(getConcepts);
+
+jest.mock('./search-concept.resource.ts', () => {
+  const mockGetConcepts = jest.fn().mockImplementation((searchTerm) => {
+    if (searchTerm === 'blood sugar') {
+      return Promise.resolve(concepts);
+    }
+    return Promise.resolve([]);
+  });
+  return {
+    getConcepts: mockGetConcepts,
+  };
+});
 
 const concepts: Concept[] = [
   {
@@ -41,7 +53,8 @@ const concepts: Concept[] = [
 describe('Test the concept search component', () => {
   it('should be able to search for a concept', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apis, 'getConcepts').mockResolvedValue(concepts);
+    mockGetConcepts.mockResolvedValue(concepts);
+
     let searchText = '';
     const setSearchText = jest.fn().mockImplementation((search: string) => (searchText = search));
     render(
@@ -51,21 +64,22 @@ describe('Test the concept search component', () => {
     await waitFor(() => user.click(searchInput));
     await waitFor(() => user.type(searchInput, 'blood s'));
 
-    await waitFor(() => expect(jest.spyOn(apis, 'getConcepts')).toBeCalledWith(searchText));
+    await waitFor(() => expect(mockGetConcepts).toBeCalledWith(searchText));
     expect(screen.getByText(concepts[0].name)).toBeInTheDocument();
     expect(screen.getByText(concepts[1].name)).toBeInTheDocument();
   });
 
   it('should be able to clear the current search value', async () => {
     const user = userEvent.setup();
-    const { getByLabelText, getByPlaceholderText } = render(
-      <SearchConcept concept={null} setConcept={jest.fn()} searchText={''} setSearchText={jest.fn()} />,
-    );
-    const searchInput = getByPlaceholderText('Search Concepts');
-    await waitFor(() => user.click(searchInput));
-    await waitFor(() => user.type(searchInput, 'blood'));
-    const clearButton = getByLabelText('Clear search');
-    await waitFor(() => user.click(clearButton));
-    expect(searchInput.getAttribute('value')).toEqual('');
+
+    render(<SearchConcept concept={null} setConcept={jest.fn()} searchText={''} setSearchText={jest.fn()} />);
+
+    const searchInput = screen.getByPlaceholderText('Search Concepts');
+    await user.click(searchInput);
+    await user.type(searchInput, 'blood');
+
+    const clearButton = screen.getByLabelText('Clear search');
+    await user.click(clearButton);
+    expect(searchInput).toHaveValue('');
   });
 });

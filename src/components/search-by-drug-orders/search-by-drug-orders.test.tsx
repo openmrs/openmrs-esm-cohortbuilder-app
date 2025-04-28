@@ -1,11 +1,9 @@
 import React from 'react';
-
+import userEvent from '@testing-library/user-event';
 import { openmrsFetch } from '@openmrs/esm-framework';
-import { render, fireEvent, waitFor } from '@testing-library/react';
-
-import translations from '../../../translations/en.json';
-import SearchByDrugOrder from './search-by-drug-orders.component';
+import { render, screen } from '@testing-library/react';
 import { useCareSettings, useDrugs } from './search-by-drug-orders.resources';
+import SearchByDrugOrder from './search-by-drug-orders.component';
 
 const mockCareSettings = [
   {
@@ -78,7 +76,7 @@ const expectedQuery = {
         key: 'reporting.library.cohortDefinition.builtIn.drugOrderSearch',
         parameterValues: {
           careSetting: mockCareSettings[2].value,
-          drugs: [mockDrugs[0].value, mockDrugs[1].value],
+          drugs: [mockDrugs[1].value, mockDrugs[2].value],
         },
         type: 'org.openmrs.module.reporting.dataset.definition.PatientDataSetDefinition',
       },
@@ -97,61 +95,47 @@ jest.mock('./search-by-drug-orders.resources', () => {
 });
 
 const mockOpenmrsFetch = openmrsFetch as jest.Mock;
+const mockUseCareSettings = jest.mocked(useCareSettings);
+const mockUseDrugs = jest.mocked(useDrugs);
 
 describe('Test the search by drug orders component', () => {
   it('should be able to select input values', async () => {
-    // @ts-ignore
-    useCareSettings.mockImplementation(() => ({
+    const user = userEvent.setup();
+
+    mockUseCareSettings.mockImplementation(() => ({
       careSettings: mockCareSettings,
       isLoading: false,
       careSettingsError: undefined,
     }));
+
     mockOpenmrsFetch.mockReturnValueOnce({
       data: { results: mockCareSettings },
     });
 
-    // @ts-ignore
-    useDrugs.mockImplementation(() => ({
+    mockUseDrugs.mockImplementation(() => ({
       drugs: mockDrugs,
       isLoading: false,
       drugsError: undefined,
     }));
+
     mockOpenmrsFetch.mockReturnValueOnce({
       data: { results: mockCareSettings },
     });
 
-    const submit = jest.fn();
-    const { getByTestId, getByTitle, getByText } = render(<SearchByDrugOrder onSubmit={submit} />);
+    const mockSubmit = jest.fn();
 
-    waitFor(() => {
-      fireEvent.click(getByText(translations.selectDrugs));
-    });
+    render(<SearchByDrugOrder onSubmit={mockSubmit} />);
 
-    waitFor(() => {
-      fireEvent.click(getByText(mockDrugs[1].label));
-    });
+    await user.click(screen.getByText(/select drugs/i));
+    await user.click(screen.getByText(mockDrugs[1].label));
+    await user.click(screen.getByText(mockDrugs[2].label));
+    await user.click(screen.getByTitle(mockCareSettings[0].label));
+    await user.click(screen.getByText(mockCareSettings[2].label));
+    await user.click(screen.getByTestId('search-btn'));
 
-    waitFor(() => {
-      fireEvent.click(getByText(mockDrugs[2].label));
-    });
-
-    waitFor(() => {
-      fireEvent.click(getByTitle(mockCareSettings[0].label));
-    });
-
-    waitFor(() => {
-      fireEvent.click(getByText(mockCareSettings[2].label));
-    });
-
-    waitFor(() => {
-      fireEvent.click(getByTestId('search-btn'));
-    });
-
-    await waitFor(() => {
-      expect(submit).toBeCalledWith(
-        expectedQuery,
-        `Patients who taking ${mockDrugs[1].label} and ${mockDrugs[2].label} from Pharmacy`,
-      );
-    });
+    expect(mockSubmit).toBeCalledWith(
+      expectedQuery,
+      `Patients who taking ${mockDrugs[1].label} and ${mockDrugs[2].label} from Pharmacy`,
+    );
   });
 });

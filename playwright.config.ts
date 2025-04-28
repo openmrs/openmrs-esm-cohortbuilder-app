@@ -1,6 +1,8 @@
 import { devices, type PlaywrightTestConfig } from '@playwright/test';
-import * as dotenv from 'dotenv';
-dotenv.config();
+import { config as dotenvConfig } from 'dotenv';
+import { resolve } from 'node:path';
+dotenvConfig({ path: resolve(process.cwd(), '.env') });
+dotenvConfig();
 
 // See https://playwright.dev/docs/test-configuration.
 const config: PlaywrightTestConfig = {
@@ -18,6 +20,7 @@ const config: PlaywrightTestConfig = {
     baseURL: `${process.env.E2E_BASE_URL}/spa/`,
     locale: 'en-US',
     storageState: 'e2e/storageState.json',
+    trace: 'retain-on-failure',
     video: 'retain-on-failure',
   },
   projects: [

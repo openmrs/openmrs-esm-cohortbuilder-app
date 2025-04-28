@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import dayjs from 'dayjs';
 import { Column, DatePicker, DatePickerInput, Dropdown, MultiSelect } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
-import { showToast } from '@openmrs/esm-framework';
+import { showSnackbar } from '@openmrs/esm-framework';
 import type { DropdownValue, DrugOrderDetails, SearchByProps } from '../../types';
 import { getDescription, getQueryDetails } from './search-by-drug-orders.utils';
 import { useCareSettings, useDrugs } from './search-by-drug-orders.resources';
@@ -22,20 +22,20 @@ const SearchByDrugOrder: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   if (drugsError) {
-    showToast({
+    showSnackbar({
       title: t('error', 'Error'),
       kind: 'error',
-      critical: true,
-      description: drugsError?.message,
+      isLowContrast: false,
+      subtitle: drugsError?.message,
     });
   }
 
   if (careSettingsError) {
-    showToast({
+    showSnackbar({
       title: t('error', 'Error'),
       kind: 'error',
-      critical: true,
-      description: careSettingsError?.message,
+      isLowContrast: false,
+      subtitle: careSettingsError?.message,
     });
   }
 
@@ -84,6 +84,7 @@ const SearchByDrugOrder: React.FC<SearchByProps> = ({ onSubmit }) => {
             initialSelectedItem={careSettings[0]}
             items={careSettings}
             label={t('selectCareSettings', 'Select a care setting')}
+            titleText=""
           />
         </Column>
       </div>

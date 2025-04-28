@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import SearchResultsTable from './search-results-table.component';
 
 const mockPatients = [
@@ -25,18 +25,20 @@ const mockPatients = [
 
 describe('Test the search results component', () => {
   it("should render a message when there's no results to display", async () => {
-    const { getByText } = render(<SearchResultsTable patients={[]} />);
-    expect(getByText('There are no data to display')).toBeInTheDocument();
+    render(<SearchResultsTable patients={[]} />);
+
+    expect(screen.getByText('There are no data to display')).toBeInTheDocument();
   });
 
   it('should display the search results', () => {
-    const { getAllByRole } = render(<SearchResultsTable patients={mockPatients} />);
-    const rows = getAllByRole('row');
-    const cells = getAllByRole('cell');
+    render(<SearchResultsTable patients={mockPatients} />);
+
+    const rows = screen.getAllByRole('row');
+    const cells = screen.getAllByRole('cell');
     expect(rows).toHaveLength(mockPatients.length + 1);
-    expect(cells[1].textContent).toBe(mockPatients[0].name);
-    expect(cells[5].textContent).toBe(mockPatients[1].name);
-    expect(cells[0].textContent).toBe(mockPatients[0].id);
-    expect(cells[4].textContent).toBe(mockPatients[1].id);
+    expect(cells[1]).toHaveTextContent(mockPatients[0].name);
+    expect(cells[5]).toHaveTextContent(mockPatients[1].name);
+    expect(cells[0]).toHaveTextContent(mockPatients[0].id);
+    expect(cells[4]).toHaveTextContent(mockPatients[1].id);
   });
 });

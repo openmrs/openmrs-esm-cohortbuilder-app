@@ -22,5 +22,31 @@
       "online": true,
       "offline": true
     }
+  ],
+  "modals": [
+    {
+      "name": "clear-search-history-modal",
+      "component": "clearSearchHistoryModal"
+    },
+    {
+      "name": "clear-item-from-search-history-modal",
+      "component": "clearItemFromSearchHistoryModal"
+    },
+    {
+      "name": "delete-cohort-modal",
+      "component": "deleteCohortModal"
+    },
+    {
+      "name": "delete-query-modal",
+      "component": "deleteQueryModal"
+    },
+    {
+      "name": "save-cohort-modal",
+      "component": "saveCohortModal"
+    },
+    {
+      "name": "save-query-modal",
+      "component": "saveQueryModal"
+    }
   ]
 }

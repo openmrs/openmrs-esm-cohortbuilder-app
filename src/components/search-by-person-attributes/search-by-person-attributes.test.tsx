@@ -1,12 +1,14 @@
 import React from 'react';
-
-import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-
+import { render, screen } from '@testing-library/react';
+import { usePersonAttributes } from './search-by-person-attributes.resource';
 import SearchByPersonAttributes from './search-by-person-attributes.component';
-import * as apis from './search-by-person-attributes.resource';
 
-jest.mock('./search-by-person-attributes.resource.ts');
+const mockUsePersonAttributes = jest.mocked(usePersonAttributes);
+
+jest.mock('./search-by-person-attributes.resource.ts', () => ({
+  usePersonAttributes: jest.fn(),
+}));
 
 const personAttributes = [
   {
@@ -108,19 +110,20 @@ const expectedQuery = {
 describe('Test the search by person attributes component', () => {
   it('should be able to select input values', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apis, 'usePersonAttributes').mockReturnValue({
+    mockUsePersonAttributes.mockReturnValue({
       personAttributes,
       isLoading: false,
       personAttributesError: undefined,
     });
-    const submit = jest.fn();
-    render(<SearchByPersonAttributes onSubmit={submit} />);
-    expect(jest.spyOn(apis, 'usePersonAttributes'));
-    await waitFor(() => user.click(screen.getByText('Open menu')));
-    await waitFor(() => user.click(screen.getByText("Mother's Name")));
-    await waitFor(() => user.click(screen.getByTestId('selectedAttributeValues')));
-    await waitFor(() => user.type(screen.getByTestId('selectedAttributeValues'), 'janet,irina'));
-    await waitFor(() => user.click(screen.getByTestId('search-btn')));
-    expect(submit).toBeCalledWith(expectedQuery, "Patients with Mother's Name equal to either janet or irina");
+    const mockSubmit = jest.fn();
+    render(<SearchByPersonAttributes onSubmit={mockSubmit} />);
+
+    await user.click(screen.getByText('Open menu'));
+    await user.click(screen.getByText("Mother's Name"));
+    await user.click(screen.getByTestId('selectedAttributeValues'));
+    await user.type(screen.getByTestId('selectedAttributeValues'), 'janet,irina');
+    await user.click(screen.getByText('Search'));
+
+    expect(mockSubmit).toBeCalledWith(expectedQuery, "Patients with Mother's Name equal to either janet or irina");
   });
 });

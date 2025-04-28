@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-
 import { Column, Dropdown, TextInput } from '@carbon/react';
+import { showSnackbar } from '@openmrs/esm-framework';
 import { useTranslation } from 'react-i18next';
-import { showToast } from '@openmrs/esm-framework';
+
 import { type SearchByProps } from '../../types';
 import SearchButtonSet from '../search-button-set/search-button-set';
 import { usePersonAttributes } from './search-by-person-attributes.resource';
@@ -17,11 +17,11 @@ const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   if (personAttributesError) {
-    showToast({
+    showSnackbar({
       title: t('error', 'Error'),
       kind: 'error',
-      critical: true,
-      description: personAttributesError?.message,
+      isLowContrast: false,
+      subtitle: personAttributesError?.message,
     });
   }
 
@@ -52,6 +52,7 @@ const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
             onChange={(data) => setSelectedAttributeId(data.selectedItem.value)}
             items={personAttributes}
             label={t('selectAttribute', 'Select a person attribute')}
+            titleText=""
           />
         </div>
       </Column>

@@ -7,6 +7,11 @@
         "dist"
       ]
     },
+    "extract-translations": {
+      "outputs": [
+        "translations"
+      ]
+    },
     "lint": {},
     "test": {},
     "test:watch": {

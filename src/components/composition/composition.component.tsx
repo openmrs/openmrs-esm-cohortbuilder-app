@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { TextInput } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
-import { showNotification } from '@openmrs/esm-framework';
+import { showSnackbar } from '@openmrs/esm-framework';
 import type { SearchByProps } from '../../types';
 import { createCompositionQuery, isCompositionValid } from './composition.utils';
 import SearchButtonSet from '../search-button-set/search-button-set';
 import styles from './composition.style.css';
 
 const Composition: React.FC<SearchByProps> = ({ onSubmit }) => {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [compositionQuery, setCompositionQuery] = useState('');
   const [description, setDescription] = useState('');
-  const { t } = useTranslation();
 
   const handleResetInputs = () => {
     setDescription('');
@@ -30,21 +30,21 @@ const Composition: React.FC<SearchByProps> = ({ onSubmit }) => {
         const searchParams = createCompositionQuery(compositionQuery);
         await onSubmit(searchParams, description);
       } else {
-        showNotification({
+        showSnackbar({
           title: t('error', 'Error!'),
           kind: 'error',
-          critical: true,
-          description: t('invalidComposition', 'Composition is not valid'),
+          isLowContrast: true,
+          subtitle: t('invalidComposition', 'Composition is not valid'),
         });
       }
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
-      showNotification({
+      showSnackbar({
         title: t('error', 'Error!'),
         kind: 'error',
-        critical: true,
-        description: t('invalidComposition', 'Composition is not valid'),
+        isLowContrast: true,
+        subtitle: t('invalidComposition', 'Composition is not valid'),
       });
     }
   };
@@ -52,8 +52,6 @@ const Composition: React.FC<SearchByProps> = ({ onSubmit }) => {
   return (
     <>
       <TextInput
-        data-modal-primary-focus
-        required
         labelText={t('composition', 'Composition')}
         data-testid="composition-query"
         id="composition-query"
@@ -62,8 +60,6 @@ const Composition: React.FC<SearchByProps> = ({ onSubmit }) => {
       />
       <br />
       <TextInput
-        data-modal-primary-focus
-        required
         labelText={t('description', 'Description')}
         data-testid="composition-description"
         id="composition-description"

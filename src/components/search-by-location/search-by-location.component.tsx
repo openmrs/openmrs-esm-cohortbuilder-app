@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Column, Dropdown, MultiSelect } from '@carbon/react';
-import { showToast } from '@openmrs/esm-framework';
+import { showSnackbar } from '@openmrs/esm-framework';
+
 import { useTranslation } from 'react-i18next';
 import { useLocations } from '../../cohort-builder.resources';
 import { type DropdownValue, type SearchByProps } from '../../types';
@@ -33,11 +34,11 @@ const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   if (locationsError) {
-    showToast({
+    showSnackbar({
       title: t('error', 'Error'),
       kind: 'error',
-      critical: true,
-      description: locationsError?.message,
+      isLowContrast: false,
+      subtitle: locationsError?.message,
     });
   }
 
@@ -77,6 +78,7 @@ const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
             initialSelectedItem={methods[0]}
             items={methods}
             label={t('selectMethod', 'Select a method')}
+            titleText=""
           />
         </Column>
       </div>

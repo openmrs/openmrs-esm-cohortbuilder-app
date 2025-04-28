@@ -1,11 +1,15 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor } from '@testing-library/react';
 import { openmrsFetch } from '@openmrs/esm-framework';
-import translations from '../../../translations/en.json';
 import { useLocations } from '../../cohort-builder.resources';
 import { useForms, useEncounterTypes } from './search-by-encounters.resources';
 import SearchByEncounters from './search-by-encounters.component';
+
+const mockUseEncounterTypes = jest.mocked(useEncounterTypes);
+const mockUseForms = jest.mocked(useForms);
+const mockUseLocations = jest.mocked(useLocations);
+const mockOpenmrsFetch = openmrsFetch as jest.Mock;
 
 const mockLocations = [
   {
@@ -105,8 +109,8 @@ const expectedQuery = {
       {
         key: 'reporting.library.cohortDefinition.builtIn.encounterSearchAdvanced',
         parameterValues: {
-          atLeastCount: '10',
-          atMostCount: '20',
+          atLeastCount: 10,
+          atMostCount: 20,
           encounterTypeList: [mockEncounterTypes[4].value],
           formList: [mockForms[1].value],
           locationList: [mockLocations[2].value],
@@ -117,8 +121,6 @@ const expectedQuery = {
     type: 'org.openmrs.module.reporting.dataset.definition.PatientDataSetDefinition',
   },
 };
-
-const mockOpenmrsFetch = openmrsFetch as jest.Mock;
 
 jest.mock('./search-by-encounters.resources', () => {
   const original = jest.requireActual('./search-by-encounters.resources');
@@ -139,59 +141,75 @@ jest.mock('../../cohort-builder.resources', () => {
 
 describe('Test the search by encounters component', () => {
   it('should be able to select input values', async () => {
-    // @ts-ignore
-    useForms.mockImplementation(() => ({
+    const user = userEvent.setup();
+
+    mockUseForms.mockImplementation(() => ({
       forms: mockForms,
       isLoading: false,
       formsError: undefined,
     }));
+
     mockOpenmrsFetch.mockReturnValueOnce({
       data: { results: mockForms },
     });
 
-    // @ts-ignore
-    useEncounterTypes.mockImplementation(() => ({
+    mockUseEncounterTypes.mockImplementation(() => ({
       encounterTypes: mockEncounterTypes,
       isLoading: false,
       encounterTypesError: undefined,
     }));
+
     mockOpenmrsFetch.mockReturnValueOnce({
       data: { results: mockEncounterTypes },
     });
 
-    // @ts-ignore
-    useLocations.mockImplementation(() => ({
+    mockUseLocations.mockImplementation(() => ({
       locations: mockLocations,
       isLoading: false,
       locationsError: undefined,
     }));
+
     mockOpenmrsFetch.mockReturnValueOnce({
       data: { results: mockLocations },
     });
 
-    const submit = jest.fn();
-    const { getByTestId, getByText } = render(<SearchByEncounters onSubmit={submit} />);
+    const mockSubmit = jest.fn();
 
-    fireEvent.click(getByText(translations.selectEncounterTypes));
-    fireEvent.click(getByText(mockEncounterTypes[4].label));
-    fireEvent.click(getByText(translations.selectForms));
-    fireEvent.click(getByText(mockForms[1].label));
-    fireEvent.click(getByText(translations.selectLocations));
-    fireEvent.click(getByText(mockLocations[2].label));
+    render(<SearchByEncounters onSubmit={mockSubmit} />);
 
-    const atLeastCountInput = getByTestId('atLeastCount');
-    const atMostCountInput = getByTestId('atMostCount');
-    fireEvent.click(atLeastCountInput);
-    await userEvent.type(atLeastCountInput, '10');
-    fireEvent.click(atMostCountInput);
-    await userEvent.type(atMostCountInput, '20');
+    await user.click(screen.getByText(/select encounter types/i));
+    await user.click(screen.getByText(/vitals/i));
+    await user.click(screen.getByText(/select forms/i));
+    await user.click(screen.getByText(/poc patient consent v1.2/i));
 
-    fireEvent.click(getByTestId('search-btn'));
-    await waitFor(async () => {
-      expect(submit).toBeCalledWith(
-        expectedQuery,
-        `Patients with Encounter of Types ${mockEncounterTypes[4].label} at ${mockLocations[2].label} from ${mockForms[1].label} at least 10 times  and at most 20 times`,
-      );
+    const locationsDropdown = screen.getByText(/select locations/i);
+    await user.click(locationsDropdown);
+
+    // Wait for and click the location option
+    await waitFor(() => {
+      const locationOption = screen.getByText(/pharmacy/i);
+      expect(locationOption).toBeInTheDocument();
+      return locationOption;
+    }).then(async (locationOption) => {
+      await user.click(locationOption);
     });
+
+    const atLeastCountInput = screen.getByRole('spinbutton', { name: /at least/i });
+    const atMostCountInput = screen.getByRole('spinbutton', { name: /upto this many/i });
+
+    await user.click(atLeastCountInput);
+    await user.clear(atLeastCountInput);
+    await user.type(atLeastCountInput, '10');
+
+    await user.click(atMostCountInput);
+    await user.clear(atMostCountInput);
+    await user.type(atMostCountInput, '20');
+
+    await user.click(screen.getByRole('button', { name: /search/i }));
+
+    expect(mockSubmit).toBeCalledWith(
+      expectedQuery,
+      `Patients with Encounter of Types Vitals at Pharmacy from POC Patient Consent v1.2 at least 10 times  and at most 20 times`,
+    );
   });
 });

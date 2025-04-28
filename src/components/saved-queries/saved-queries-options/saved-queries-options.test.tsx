@@ -1,8 +1,11 @@
 import React from 'react';
-import { screen, render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { screen, render } from '@testing-library/react';
+import { showModal } from '@openmrs/esm-framework';
 import { type DefinitionDataRow } from '../../../types';
 import SavedQueriesOptions from './saved-queries-options.component';
+
+const mockShowModal = jest.mocked(showModal);
 
 const query: DefinitionDataRow = {
   id: '1',
@@ -21,24 +24,19 @@ const renderSavedQueriesOptions = (props = testProps) => {
 };
 
 describe('Test the saved queries options', () => {
-  it('should be able to view the saved query', async () => {
+  it('should launch the delete query modal when the delete option is clicked', async () => {
     const user = userEvent.setup();
-    const onViewQuery = jest.fn();
-    renderSavedQueriesOptions({ ...testProps, onViewQuery });
+    renderSavedQueriesOptions();
 
-    await waitFor(() => user.click(screen.getByTestId('options')));
-    await waitFor(() => user.click(screen.getByTestId('view')));
-    expect(onViewQuery).toBeCalledWith(query.id);
-  });
+    await user.click(screen.getByRole('button', { name: /options/i }));
+    await user.click(screen.getByText(/delete/i));
 
-  it('should be able delete a query', async () => {
-    const user = userEvent.setup();
-    const deleteQuery = jest.fn();
-    renderSavedQueriesOptions({ ...testProps, deleteQuery });
-
-    await waitFor(() => user.click(screen.getByTestId('options')));
-    await waitFor(() => user.click(screen.getByTestId('delete')));
-    await waitFor(() => user.click(screen.getByText('Delete')));
-    expect(deleteQuery).toBeCalledWith(query.id);
+    expect(mockShowModal).toHaveBeenCalledWith('delete-query-modal', {
+      closeModal: expect.any(Function),
+      onDelete: expect.any(Function),
+      queryName: query.name,
+      queryId: query.id,
+      size: 'sm',
+    });
   });
 });

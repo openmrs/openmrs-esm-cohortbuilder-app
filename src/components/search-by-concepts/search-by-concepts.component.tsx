@@ -58,7 +58,7 @@ const types = {
 
 const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
-  const [concept, setConcept] = useState<Concept>(null);
+  const [concept, setConcept] = useState<Concept | null>(null);
   const [lastDays, setLastDays] = useState(0);
   const [lastMonths, setLastMonths] = useState(0);
   const [operatorValue, setOperatorValue] = useState(0);
@@ -120,7 +120,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
     },
   ];
 
-  const reset = () => {
+  const handleReset = () => {
     setConcept(null);
     setLastDays(0);
     setSearchText('');
@@ -138,7 +138,10 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
     }
   };
 
-  const submit = async () => {
+  const handleSubmit = async () => {
+    if (!concept) {
+      return;
+    }
     setIsLoading(true);
     const observations: Observation = {
       modifier: '',
@@ -186,6 +189,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
                     items={whichObservation}
                     className={styles.timeModifier}
                     label=""
+                    titleText=""
                   />
                 </div>
               </div>
@@ -207,7 +211,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
                 </div>
                 <div className={styles.multipleInputs}>
                   <NumberInput
-                    hideSteppers={true}
+                    hideSteppers
                     id="operator-value"
                     invalidText={t('numberIsNotValid', 'Number is not valid')}
                     label={t('valueIn', 'Enter a value in ') + concept.units}
@@ -229,13 +233,14 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
               initialSelectedItem={observationOptions[0]}
               items={observationOptions}
               label=""
+              titleText=""
             />
           </Column>
         )}
         <Column className={styles.dateRange}>
           <Column>
             <NumberInput
-              hideSteppers={true}
+              hideSteppers
               id="last-months"
               data-testid="last-months"
               label={t('withinTheLast', 'Within the last months')}
@@ -248,7 +253,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
           </Column>
           <Column>
             <NumberInput
-              hideSteppers={true}
+              hideSteppers
               label={t('lastDays', 'and / or days')}
               id="last-days"
               data-testid="last-days"
@@ -293,7 +298,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
           </Column>
         </div>
       </div>
-      <SearchButtonSet isLoading={isLoading} onHandleSubmit={submit} onHandleReset={reset} />
+      <SearchButtonSet isLoading={isLoading} onHandleSubmit={handleSubmit} onHandleReset={handleReset} />
     </>
   );
 };

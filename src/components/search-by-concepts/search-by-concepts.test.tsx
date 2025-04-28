@@ -1,12 +1,21 @@
 import React from 'react';
-import { render, waitFor, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import dayjs from 'dayjs';
 import { type Concept } from '../../types';
+import { getConcepts } from './search-concept/search-concept.resource';
 import SearchByConcepts from './search-by-concepts.component';
-import * as apis from './search-concept/search-concept.resource';
 
-jest.mock('./search-concept/search-concept.resource.ts');
+const mockGetConcepts = jest.mocked(getConcepts);
+
+jest.mock('./search-concept/search-concept.resource.ts', () => ({
+  getConcepts: jest.fn().mockImplementation((searchTerm) => {
+    if (searchTerm === 'blood sugar') {
+      return Promise.resolve(concepts);
+    }
+    return Promise.resolve([]);
+  }),
+}));
 
 const expectedQuery = {
   query: {
@@ -87,32 +96,34 @@ const concepts: Concept[] = [
 describe('Test the search by concept component', () => {
   it('should be able to select input values', async () => {
     const user = userEvent.setup();
-    jest.spyOn(apis, 'getConcepts').mockResolvedValue(concepts);
-    const submit = jest.fn();
-    render(<SearchByConcepts onSubmit={submit} />);
+    const mockSubmit = jest.fn();
+
+    render(<SearchByConcepts onSubmit={mockSubmit} />);
+
     const searchInput = screen.getByPlaceholderText('Search Concepts');
     const lastDaysInput = screen.getByTestId('last-days');
     const lastMonthsInput = screen.getByTestId('last-months');
 
-    await waitFor(() => user.click(searchInput));
-    await waitFor(() => user.type(searchInput, 'blood sugar'));
-    await waitFor(() => expect(jest.spyOn(apis, 'getConcepts')).toBeCalledWith('blood sugar'));
+    await user.click(searchInput);
+    await user.type(searchInput, 'blood sugar');
 
-    await waitFor(() => user.click(screen.getByText('BLOOD SUGAR')));
-    await waitFor(() => user.click(lastDaysInput));
-    await waitFor(() => user.clear(lastDaysInput));
-    await waitFor(() => user.type(lastDaysInput, '15'));
-    await waitFor(() => user.click(lastMonthsInput));
-    await waitFor(() => user.clear(lastMonthsInput));
-    await waitFor(() => user.type(lastMonthsInput, '4'));
-    await waitFor(() => user.click(screen.getByText('Any')));
+    await waitFor(() => {
+      expect(mockGetConcepts).toBeCalledWith('blood sugar');
+    });
+
+    await user.click(screen.getByText('BLOOD SUGAR'));
+    await user.click(lastDaysInput);
+    await user.clear(lastDaysInput);
+    await user.type(lastDaysInput, '15');
+    await user.click(lastMonthsInput);
+    await user.clear(lastMonthsInput);
+    await user.type(lastMonthsInput, '4');
+    await user.click(screen.getByText('Any'));
 
     const date = dayjs().subtract(15, 'days').subtract(4, 'months');
     expectedQuery.query.rowFilters[0].parameterValues.onOrBefore = date.format();
-    await waitFor(() => user.click(screen.getByTestId('search-btn')));
 
-    await waitFor(() => {
-      expect(submit).toBeCalledWith(expectedQuery, 'Patients with ANY BLOOD SUGAR  until ' + date.format('D/M/YYYY'));
-    });
+    await user.click(screen.getByTestId('search-btn'));
+    expect(mockSubmit).toBeCalledWith(expectedQuery, 'Patients with ANY BLOOD SUGAR  until ' + date.format('D/M/YYYY'));
   });
 });

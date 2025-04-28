@@ -1,12 +1,10 @@
 import React from 'react';
-
+import userEvent from '@testing-library/user-event';
 import { openmrsFetch } from '@openmrs/esm-framework';
-import { render, fireEvent, waitFor } from '@testing-library/react';
-
-import translations from '../../../translations/en.json';
+import { render, screen } from '@testing-library/react';
 import { useLocations } from '../../cohort-builder.resources';
-import SearchByEnrollments from './search-by-enrollments.component';
 import { usePrograms } from './search-by-enrollments.resources';
+import SearchByEnrollments from './search-by-enrollments.component';
 
 const mockLocations = [
   {
@@ -84,12 +82,15 @@ const expectedQuery = {
 };
 
 const mockOpenmrsFetch = openmrsFetch as jest.Mock;
+const mockUseLocations = jest.mocked(useLocations);
+const mockUsePrograms = jest.mocked(usePrograms);
 
 jest.mock('./search-by-enrollments.resources', () => {
   const original = jest.requireActual('./search-by-enrollments.resources');
   return {
     ...original,
     usePrograms: jest.fn(),
+    useLocations: jest.fn(),
   };
 });
 
@@ -103,8 +104,9 @@ jest.mock('../../cohort-builder.resources', () => {
 
 describe('Test the search by enrollments component', () => {
   it('should be able to select input values', async () => {
-    // @ts-ignore
-    useLocations.mockImplementation(() => ({
+    const user = userEvent.setup();
+
+    mockUseLocations.mockImplementation(() => ({
       locations: mockLocations,
       isLoading: false,
       locationsError: undefined,
@@ -113,44 +115,28 @@ describe('Test the search by enrollments component', () => {
       data: { results: mockLocations },
     });
 
-    // @ts-ignore
-    usePrograms.mockImplementation(() => ({
+    mockUsePrograms.mockImplementation(() => ({
       programs: mockPrograms,
       isLoading: false,
       programsError: undefined,
     }));
+
     mockOpenmrsFetch.mockReturnValueOnce({
       data: { results: mockPrograms },
     });
 
-    const submit = jest.fn();
-    const { getByTestId, getByText } = render(<SearchByEnrollments onSubmit={submit} />);
+    const mockSubmit = jest.fn();
+    render(<SearchByEnrollments onSubmit={mockSubmit} />);
 
-    waitFor(() => {
-      fireEvent.click(getByText(translations.selectLocations));
-    });
+    await user.click(screen.getByText(/select locations/i));
+    await user.click(screen.getByText(mockLocations[2].label));
+    await user.click(screen.getByText(/select programs/i));
+    await user.click(screen.getByText(mockPrograms[0].label));
+    await user.click(screen.getByTestId('search-btn'));
 
-    waitFor(() => {
-      fireEvent.click(getByText(mockLocations[2].label));
-    });
-
-    waitFor(() => {
-      fireEvent.click(getByText(translations.selectPrograms));
-    });
-
-    waitFor(() => {
-      fireEvent.click(getByText(mockPrograms[0].label));
-    });
-
-    waitFor(() => {
-      fireEvent.click(getByTestId('search-btn'));
-    });
-
-    await waitFor(() => {
-      expect(submit).toBeCalledWith(
-        expectedQuery,
-        `Patients enrolled in ${mockPrograms[0].label} at ${mockLocations[2].label}`,
-      );
-    });
+    expect(mockSubmit).toBeCalledWith(
+      expectedQuery,
+      `Patients enrolled in ${mockPrograms[0].label} at ${mockLocations[2].label}`,
+    );
   });
 });

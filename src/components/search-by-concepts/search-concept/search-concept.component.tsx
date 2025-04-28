@@ -76,10 +76,9 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({ concept, searchTex
           closeButtonLabelText={t('clearSearch', 'Clear search')}
           id="concept-search"
           labelText={t('searchConcepts', 'Search Concepts')}
-          placeholder={t('searchConcepts', 'Search Concepts')}
           onChange={handleWithDebounce}
           onClear={onSearchClear}
-          size="lg"
+          placeholder={t('searchConcepts', 'Search Concepts')}
           value={searchText}
         />
         <div className={styles.search}>

@@ -71,7 +71,7 @@ const SearchResultsTable: React.FC<SearchResultsTableProps> = ({ patients }) => 
         <Pagination
           backwardText={t('previousPage', 'Previous page')}
           forwardText={t('nextPage', 'Next page')}
-          itemsPerPageText={t('itemsPerPage:', 'Items per page:')}
+          itemsPerPageText={t('itemsPerPage', 'Items per page:')}
           onChange={handlePagination}
           page={1}
           pageSize={10}

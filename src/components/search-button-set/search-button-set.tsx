@@ -1,9 +1,7 @@
 import React from 'react';
-
-import { Button, ButtonSet, Column, InlineLoading } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
-
-import styles from './search-button-set.css';
+import { Button, ButtonSet, Column, InlineLoading } from '@carbon/react';
+import styles from './search-button-set.scss';
 
 interface SearchButtonSet {
   isLoading: boolean;
@@ -17,10 +15,16 @@ const SearchButtonSet: React.FC<SearchButtonSet> = ({ isLoading, onHandleSubmit,
   return (
     <Column sm={2} md={{ offset: 4 }} className={styles.container}>
       <ButtonSet className={styles.buttonSet}>
-        <Button kind="secondary" onClick={onHandleReset} data-testid="reset-btn">
+        <Button className={styles.button} kind="secondary" onClick={onHandleReset} data-testid="reset-btn">
           {t('reset', 'Reset')}
         </Button>
-        <Button kind="primary" onClick={onHandleSubmit} data-testid="search-btn">
+        <Button
+          className={styles.button}
+          kind="primary"
+          disabled={isLoading}
+          onClick={onHandleSubmit}
+          data-testid="search-btn"
+        >
           {isLoading ? <InlineLoading description={t('loading', 'Loading')} /> : t('search', 'Search')}
         </Button>
       </ButtonSet>

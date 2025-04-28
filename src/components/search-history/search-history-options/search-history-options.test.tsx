@@ -1,12 +1,10 @@
 import React from 'react';
-
-import { screen, render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { type Cohort, type Query } from '../../../types';
+import { screen, render } from '@testing-library/react';
+import { showModal } from '@openmrs/esm-framework';
 import SearchHistoryOptions from './search-history-options.component';
-import * as apis from './search-history-options.resources';
 
-jest.mock('./search-history-options.resources');
+const mockShowModal = jest.mocked(showModal);
 
 const searchHistoryItem = {
   description: 'Patients with NO Chronic viral hepatitis',
@@ -82,44 +80,44 @@ const testProps = {
 };
 
 describe('Test the search history options', () => {
-  it('should be able to save the search history item as a cohort', async () => {
+  it('should launch the save cohort modal when the save cohort option is clicked', async () => {
     const user = userEvent.setup();
-    const cohort: Cohort = {
-      memberIds: [2, 3],
-      description: 'Patients with NO Chronic viral hepatitis',
-      name: 'Chronic viral hepatitis cohort',
-      display: 'Chronic viral hepatitis cohort',
-    };
 
     render(<SearchHistoryOptions {...testProps} />);
 
-    await waitFor(() => user.click(screen.getByTestId('options')));
-    await waitFor(() => user.click(screen.getByTestId('save-cohort')));
-    await waitFor(() => user.type(screen.getByTestId('cohort-name'), 'Chronic viral hepatitis cohort'));
-    await waitFor(() => user.click(screen.getByTestId('cohort-save-button')));
-    await waitFor(() => expect(jest.spyOn(apis, 'createCohort')).toBeCalledWith(cohort));
+    await user.click(screen.getByRole('button', { name: /options/i }));
+    await user.click(screen.getByText(/save cohort/i));
+    expect(mockShowModal).toHaveBeenCalledWith('save-cohort-modal', {
+      closeModal: expect.any(Function),
+      onSave: expect.any(Function),
+      size: 'sm',
+    });
   });
 
-  it('should be able to save the search history item as a query', async () => {
+  it('should launch the save query modal when the save query option is clicked', async () => {
     const user = userEvent.setup();
-    const query: Query = searchHistoryItem.parameters;
     render(<SearchHistoryOptions {...testProps} />);
 
-    await waitFor(() => user.click(screen.getByTestId('options')));
-    await waitFor(() => user.click(screen.getByTestId('save-query')));
-    await waitFor(() => user.type(screen.getByTestId('query-name'), 'Chronic viral hepatitis query'));
-    await waitFor(() => user.click(screen.getByTestId('query-save-button')));
-    expect(jest.spyOn(apis, 'createQuery')).toBeCalledWith(query);
+    await user.click(screen.getByRole('button', { name: /options/i }));
+    await user.click(screen.getByText(/save query/i));
+    expect(mockShowModal).toHaveBeenCalledWith('save-query-modal', {
+      closeModal: expect.any(Function),
+      onSaveQuery: expect.any(Function),
+      size: 'sm',
+    });
   });
 
-  it('should be able delete search history item', async () => {
+  it('should launch the delete confirmation modal when the delete option is clicked', async () => {
     const user = userEvent.setup();
-    const updateSearchHistory = jest.fn();
-    render(<SearchHistoryOptions searchItem={searchHistoryItem} updateSearchHistory={updateSearchHistory} />);
+    render(<SearchHistoryOptions {...testProps} />);
 
-    await waitFor(() => user.click(screen.getByTestId('options')));
-    await waitFor(() => user.click(screen.getByTestId('deleteFromHistory')));
-    await waitFor(() => user.click(screen.getByText('Delete')));
-    expect(updateSearchHistory).toBeCalledWith(searchHistoryItem);
+    await user.click(screen.getByRole('button', { name: /options/i }));
+    await user.click(screen.getByText(/delete/i));
+    expect(mockShowModal).toHaveBeenCalledWith('clear-search-history-modal', {
+      closeModal: expect.any(Function),
+      onClear: expect.any(Function),
+      searchItemName: searchHistoryItem.description,
+      size: 'sm',
+    });
   });
 });

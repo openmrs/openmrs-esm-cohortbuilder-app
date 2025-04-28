@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { DataTable, Table, TableHead, TableRow, TableHeader, TableBody, TableCell, Pagination } from '@carbon/react';
-import { showToast } from '@openmrs/esm-framework';
+import React, { useState } from 'react';
+import { DataTable, Pagination, Table, TableHead, TableRow, TableHeader, TableBody, TableCell } from '@carbon/react';
+import { showSnackbar } from '@openmrs/esm-framework';
 import { useTranslation } from 'react-i18next';
-import type { DefinitionDataRow, PaginationData } from '../../types';
-import { onDeleteCohort, getCohorts } from './saved-cohorts.resources';
+import { onDeleteCohort, useCohorts } from './saved-cohorts.resources';
+import type { PaginationData } from '../../types';
 import EmptyData from '../empty-data/empty-data.component';
 import SavedCohortsOptions from './saved-cohorts-options/saved-cohorts-options.component';
 import mainStyles from '../../cohort-builder.scss';
@@ -14,15 +14,10 @@ interface SavedCohortsProps {
 }
 
 const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
+  const { t } = useTranslation();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [cohorts, setCohorts] = useState<DefinitionDataRow[]>([]);
-  const { t } = useTranslation();
-
-  const getTableData = async () => {
-    const cohorts = await getCohorts();
-    setCohorts(cohorts);
-  };
+  const { cohorts } = useCohorts();
 
   const headers = [
     {
@@ -43,26 +38,21 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
   const handleDeleteCohort = async (cohortId: string) => {
     try {
       await onDeleteCohort(cohortId);
-      showToast({
-        title: t('success', 'Success'),
+      showSnackbar({
+        title: t('cohortDeleted', 'Cohort deleted'),
         kind: 'success',
-        critical: true,
-        description: t('cohortIsDeleted', 'the cohort is deleted'),
+        isLowContrast: true,
+        subtitle: t('cohortDeleted', 'Cohort deleted'),
       });
-      getTableData();
     } catch (error) {
-      showToast({
-        title: t('cohortDeleteError', 'Error deleting the cohort'),
+      showSnackbar({
+        title: t('error', 'Error'),
         kind: 'error',
-        critical: true,
-        description: error?.message,
+        isLowContrast: false,
+        subtitle: error?.message,
       });
     }
   };
-
-  useEffect(() => {
-    getTableData();
-  }, []);
 
   return (
     <div className={styles.container}>
@@ -102,11 +92,11 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
           </Table>
         )}
       </DataTable>
-      {cohorts.length > 10 && (
+      {cohorts?.length > 10 && (
         <Pagination
           backwardText={t('previousPage', 'Previous page')}
           forwardText={t('nextPage', 'Next page')}
-          itemsPerPageText={t('itemsPerPage:', 'Items per page:')}
+          itemsPerPageText={t('itemsPerPage', 'Items per page:')}
           onChange={handlePagination}
           page={1}
           pageSize={10}
@@ -115,7 +105,7 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
           totalItems={cohorts.length}
         />
       )}
-      {!cohorts.length && <EmptyData displayText={t('cohorts', 'cohorts')} />}
+      {!cohorts?.length && <EmptyData displayText={t('cohorts', 'cohorts')} />}
     </div>
   );
 };
