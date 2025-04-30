@@ -61,11 +61,13 @@ const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
       <Column>
         <div>
           <MultiSelect
+            aria-label={t('selectLocations', 'Select locations')}
             id="locations"
             data-testid="locations"
             onChange={(data) => setSelectedLocations(data.selectedItems)}
             items={locations}
             label={t('selectLocations', 'Select locations')}
+            placeholder={t('searchForALocation', 'Search for a location')}
           />
         </div>
       </Column>

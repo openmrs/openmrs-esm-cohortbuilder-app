@@ -13,20 +13,14 @@ test('search by location', async ({ page }) => {
   });
 
   await test.step('And I select the location values', async () => {
-    await cohortBuilderPage
-      .locationTabPanel()
-      .locator('div')
-      .filter({ hasText: 'Select locationsOpen menu' })
-      .nth(2)
-      .click();
-    await page.getByRole('option', { name: 'Community Outreach' }).locator('div').first().click();
     await page
-      .getByRole('button', {
-        name: 'Total items selected: 1,To clear selection, press Delete or Backspace, 1 Clear all selected items Select locations Close menu',
-      })
+      .getByLabel(/location/i, { exact: true })
+      .getByText(/select locations/i)
       .click();
-    await page.getByRole('button', { name: 'Any Encounter Open menu' }).click();
-    await page.getByRole('option', { name: 'Any Encounter' }).getByText('Any Encounter').click();
+    await page.getByText(/community outreach/i).click();
+    await page.mouse.click(0, 0);
+    await page.getByRole('combobox', { name: /any encounter/i }).click();
+    await page.getByRole('option', { name: 'Any Encounter' }).locator('div').click();
   });
 
   await test.step('Then I click the search button', async () => {

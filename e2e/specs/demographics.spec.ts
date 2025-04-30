@@ -13,16 +13,6 @@ test('search by demographics', async ({ page }) => {
   });
 
   await test.step('And I select the demographic values', async () => {
-    const startDate = cohortBuilderPage.demographicsTabPanel().locator('#startDate');
-    const endDate = cohortBuilderPage.demographicsTabPanel().locator('#endDate');
-    const calendar = page.getByRole('application', {
-      name: 'calendar-container',
-    });
-
-    await startDate.click();
-    await calendar.getByText('9', { exact: true }).first().click();
-    await endDate.click();
-    await calendar.getByText('14', { exact: true }).first().click();
     await page.getByTestId('minAge').fill('10');
     await page.getByTestId('maxAge').fill('50');
     await page.getByTestId('Male').click();

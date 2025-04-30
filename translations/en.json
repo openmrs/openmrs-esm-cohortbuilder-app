@@ -99,6 +99,7 @@
   "saving": "saving",
   "searchConcepts": "Search Concepts",
   "searchCriteria": "Search Criteria",
+  "searchForALocation": "Search for a location",
   "searchHistory": "Search History",
   "searchHistoryOptions": "Search history options",
   "searchIsCompleted": "Search is completed with {{numOfResults}} result(s)",

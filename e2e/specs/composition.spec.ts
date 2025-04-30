@@ -13,28 +13,27 @@ test('create a composition based on search history', async ({ page }) => {
   });
 
   await test.step('And I create two searches based on location', async () => {
-    await page.getByRole('button', { name: 'Select locations Open menu' }).click();
-    await page.getByText('Community Outreach').click();
-    await page.getByText('Inpatient Ward').click();
     await page
-      .getByRole('button', {
-        name: 'Total items selected: 2,To clear selection, press Delete or Backspace, 2 Clear all selected items Select locations Close menu',
-      })
+      .getByLabel(/location/i, { exact: true })
+      .getByText(/select locations/i)
       .click();
-    await page.getByRole('button', { name: 'Any Encounter Open menu' }).click();
-    await page.getByRole('option', { name: 'Any Encounter' }).getByText('Any Encounter').click();
+    await page.getByText(/community outreach/i).click();
+    await page.getByText(/inpatient ward/i).click();
+    await page.mouse.click(0, 0);
+    await page.getByRole('combobox', { name: /any encounter/i }).click();
+    await page.getByRole('option', { name: /any encounter/i }).click();
     await cohortBuilderPage.searchButton().click();
 
-    await page.getByRole('button', { name: 'Any Encounter Open menu' }).click();
-    await page.getByText('Most Recent Encounter').click();
+    await page.getByRole('combobox', { name: /any encounter/i }).click();
+    await page.getByText(/most recent encounter/i).click();
     await cohortBuilderPage.searchButton().click();
   });
 
-  await test.step('And I select composition tab', async () => {
+  await test.step('And I select the Composition tab', async () => {
     await cohortBuilderPage.compositionTab().click();
   });
 
-  await test.step('And I create to searches based on location', async () => {
+  await test.step('And I perform a search using a selected location', async () => {
     await page.getByTestId('composition-query').fill('1 and 2');
   });
 
@@ -42,7 +41,7 @@ test('create a composition based on search history', async ({ page }) => {
     await cohortBuilderPage.searchButton().click();
   });
 
-  await test.step('Then should get a success notification', async () => {
+  await test.step('Then should see a success notification', async () => {
     await expect(cohortBuilderPage.successNotification()).toBeVisible();
   });
 });

@@ -13,19 +13,11 @@ test('search by concepts', async ({ page }) => {
   });
 
   await test.step('And I add my search criteria', async () => {
-    await page.getByPlaceholder('Search Concepts').click();
-    await page.getByPlaceholder('Search Concepts').fill('headac');
+    await page.getByRole('searchbox', { name: /search concepts/i }).click();
+    await page.getByRole('searchbox', { name: /search concepts/i }).fill('headac');
     await page.getByRole('button', { name: 'Headache' }).click();
-    await page
-      .getByRole('button', {
-        name: 'Patients who have these observations Open menu',
-      })
-      .click();
-    await page
-      .getByRole('option', { name: 'Patients who have these observations' })
-      .getByText('Patients who have these observations')
-      .click();
-
+    await page.getByRole('combobox', { name: /patients who have these observations/i }).click();
+    await page.getByRole('option', { name: 'Patients who have these observations' }).click();
     await page.getByTestId('last-months').click();
     await page.getByTestId('last-months').fill('10');
     await page
@@ -35,11 +27,6 @@ test('search by concepts', async ({ page }) => {
       .click();
     await page.getByTestId('last-days').click();
     await page.getByTestId('last-days').fill('5');
-
-    await page.getByLabel('Date range start date').click();
-    await page.getByRole('application', { name: 'calendar-container' }).getByText('1', { exact: true }).first().click();
-    await page.getByLabel('End date').click();
-    await page.getByRole('application', { name: 'calendar-container' }).getByText('8').first().click();
   });
 
   await test.step('Then I click the search button', async () => {

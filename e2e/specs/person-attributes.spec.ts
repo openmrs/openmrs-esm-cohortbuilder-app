@@ -13,7 +13,7 @@ test('search by person attributes', async ({ page }) => {
   });
 
   await test.step('And I select email attribute', async () => {
-    await page.getByRole('button', { name: 'Select a person attribute Open menu' }).click();
+    await page.getByRole('combobox', { name: 'Select a person attribute' }).click();
     await page.getByText('email').click();
   });
 
