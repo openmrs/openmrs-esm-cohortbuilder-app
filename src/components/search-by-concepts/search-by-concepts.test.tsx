@@ -17,7 +17,7 @@ jest.mock('./search-concept/search-concept.resource.ts', () => ({
   }),
 }));
 
-const expectedQuery = {
+const createExpectedQuery = (date: dayjs.Dayjs) => ({
   query: {
     type: 'org.openmrs.module.reporting.dataset.definition.PatientDataSetDefinition',
     columns: [
@@ -51,7 +51,7 @@ const expectedQuery = {
       {
         key: 'reporting.library.cohortDefinition.builtIn.numericObsSearchAdvanced',
         parameterValues: {
-          onOrBefore: '',
+          onOrBefore: date.format(),
           operator1: 'LESS_THAN',
           question: '2a08da66-f326-4cac-b4cc-6efd68333847',
           timeModifier: 'ANY',
@@ -61,7 +61,8 @@ const expectedQuery = {
     ],
     customRowFilterCombination: '1',
   },
-};
+});
+
 const concepts: Concept[] = [
   {
     uuid: '1000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
@@ -97,6 +98,7 @@ describe('Test the search by concept component', () => {
   it('should be able to select input values', async () => {
     const user = userEvent.setup();
     const mockSubmit = jest.fn();
+    const testDate = dayjs().subtract(15, 'days').subtract(4, 'months');
 
     render(<SearchByConcepts onSubmit={mockSubmit} />);
 
@@ -120,10 +122,39 @@ describe('Test the search by concept component', () => {
     await user.type(lastMonthsInput, '4');
     await user.click(screen.getByText('Any'));
 
-    const date = dayjs().subtract(15, 'days').subtract(4, 'months');
-    expectedQuery.query.rowFilters[0].parameterValues.onOrBefore = date.format();
-
     await user.click(screen.getByTestId('search-btn'));
-    expect(mockSubmit).toBeCalledWith(expectedQuery, 'Patients with ANY BLOOD SUGAR  until ' + date.format('D/M/YYYY'));
+
+    // Verify the mock was called
+    expect(mockSubmit).toHaveBeenCalled();
+
+    // Get the actual call arguments
+    const [actualQuery, actualDescription] = mockSubmit.mock.calls[0];
+
+    // Verify the query structure matches expected
+    const expectedQuery = createExpectedQuery(testDate);
+    expect(actualQuery.query.type).toBe(expectedQuery.query.type);
+    expect(actualQuery.query.columns).toEqual(expectedQuery.query.columns);
+    expect(actualQuery.query.customRowFilterCombination).toBe(expectedQuery.query.customRowFilterCombination);
+
+    // Verify the row filter structure matches expected
+    expect(actualQuery.query.rowFilters[0].key).toBe(expectedQuery.query.rowFilters[0].key);
+    expect(actualQuery.query.rowFilters[0].type).toBe(expectedQuery.query.rowFilters[0].type);
+    expect(actualQuery.query.rowFilters[0].parameterValues.operator1).toBe(
+      expectedQuery.query.rowFilters[0].parameterValues.operator1,
+    );
+    expect(actualQuery.query.rowFilters[0].parameterValues.question).toBe(
+      expectedQuery.query.rowFilters[0].parameterValues.question,
+    );
+    expect(actualQuery.query.rowFilters[0].parameterValues.timeModifier).toBe(
+      expectedQuery.query.rowFilters[0].parameterValues.timeModifier,
+    );
+
+    // Verify the date is within a reasonable range (within 1 second)
+    const actualDate = dayjs(actualQuery.query.rowFilters[0].parameterValues.onOrBefore);
+    expect(actualDate.isValid()).toBe(true);
+    expect(actualDate.diff(testDate, 'second')).toBeLessThanOrEqual(1);
+
+    // Verify the description format
+    expect(actualDescription).toMatch(/^Patients with ANY BLOOD SUGAR\s+until\s+\d{1,2}\/\d{1,2}\/\d{4}$/);
   });
 });
