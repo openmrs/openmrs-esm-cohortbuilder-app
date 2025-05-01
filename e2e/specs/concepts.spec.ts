@@ -15,7 +15,7 @@ test('search by concepts', async ({ page }) => {
   await test.step('And I add my search criteria', async () => {
     await page.getByRole('searchbox', { name: /search concepts/i }).click();
     await page.getByRole('searchbox', { name: /search concepts/i }).fill('headac');
-    await page.getByRole('button', { name: 'Headache' }).click();
+    await page.getByRole('menuitem', { name: 'Headache' }).click();
     await page.getByRole('combobox', { name: /patients who have these observations/i }).click();
     await page.getByRole('option', { name: 'Patients who have these observations' }).click();
     await page.getByTestId('last-months').click();

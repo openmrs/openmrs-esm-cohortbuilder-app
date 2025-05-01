@@ -1,0 +1,59 @@
+@use '@carbon/colors';
+@use '@carbon/layout';
+
+.searchContainer {
+  position: relative;
+  width: 100%;
+}
+
+.search {
+  position: absolute;
+  z-index: 2;
+  background: #f0eeee;
+  width: 100%;
+  max-height: 400px;
+  overflow: auto;
+}
+
+.loader {
+  padding: layout.$spacing-04 layout.$spacing-03;
+}
+
+.concept {
+  padding: layout.$spacing-04;
+  border-bottom: 1px solid colors.$gray-20;
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+}
+
+.conceptList {
+  background: colors.$white-0;
+  max-height: 14rem;
+  overflow-y: auto;
+  border: 1px solid colors.$gray-20;
+  border-top: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.conceptList li:hover {
+  background-color: colors.$gray-20;
+  cursor: pointer;
+}
+
+.text {
+  display: block;
+  padding-top: 1.5rem;
+}
+
+.notification {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translate(-50%, -50%);
+  margin: 0 auto;
+  z-index: 1;
+}

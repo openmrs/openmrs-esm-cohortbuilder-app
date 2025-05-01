@@ -1,10 +1,10 @@
 import React, { type Dispatch, type SetStateAction, useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import debounce from 'lodash-es/debounce';
-import { Button, Column, CodeSnippetSkeleton, Search } from '@carbon/react';
+import { Column, InlineLoading, Search, Tile } from '@carbon/react';
 import { type Concept } from '../../../types';
 import { getConcepts } from './search-concept.resource';
-import styles from './search-concept.style.css';
+import styles from './search-concept.scss';
 
 interface SearchConceptProps {
   concept: Concept;
@@ -72,36 +72,49 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({ concept, searchTex
   return (
     <div>
       <Column className={styles.column}>
-        <Search
-          closeButtonLabelText={t('clearSearch', 'Clear search')}
-          id="concept-search"
-          labelText={t('searchConcepts', 'Search Concepts')}
-          onChange={handleWithDebounce}
-          onClear={onSearchClear}
-          placeholder={t('searchConcepts', 'Search Concepts')}
-          value={searchText}
-        />
-        <div className={styles.search}>
-          {isSearching ? (
-            <CodeSnippetSkeleton type="multi" />
-          ) : (
-            searchResults.map((concept: Concept) => (
-              <div key={concept.uuid}>
-                <Button kind="ghost" onClick={() => handleConceptClick(concept)}>
-                  {concept.name}
-                </Button>
-                <br />
-              </div>
-            ))
-          )}
+        <div className={styles.searchContainer}>
+          <Search
+            closeButtonLabelText={t('clearSearch', 'Clear search')}
+            id="concept-search"
+            labelText={t('searchConcepts', 'Search Concepts')}
+            onChange={handleWithDebounce}
+            onClear={onSearchClear}
+            placeholder={t('searchConcepts', 'Search Concepts')}
+            value={searchText}
+          />
+          <div className={styles.search}>
+            {isSearching ? (
+              <InlineLoading className={styles.loader} description={t('searching', 'Searching') + '...'} />
+            ) : (
+              <ul className={styles.conceptList}>
+                {searchResults?.map((concept, index) => (
+                  <li
+                    role="menuitem"
+                    className={styles.concept}
+                    key={index}
+                    onClick={() => handleConceptClick(concept)}
+                  >
+                    {concept.name}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
         {concept && (
-          <p className={styles.text}>
-            {t('whoseAnswer', 'Patients with observations whose answer is ')}
-            <span className={styles.concept}>{concept.name}</span>
-          </p>
+          <span className={styles.text}>
+            {t('patientsWithObservationsWhoseAnswerIs', 'Patients with observations whose answer is')}
+            <strong> "{concept.name}".</strong>
+          </span>
         )}
-        {isSearchResultsEmpty && <p className={styles.text}>{t('noSearchItems', 'There are no search items')}</p>}
+        {searchText && isSearchResultsEmpty && (
+          <Tile>
+            <span>
+              {t('noMatchingConcepts', 'No concepts were found that match')}
+              <strong> "{searchText}".</strong>
+            </span>
+          </Tile>
+        )}
         {searchError && <span>{searchError}</span>}
       </Column>
     </div>

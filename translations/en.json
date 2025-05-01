@@ -72,10 +72,11 @@
   "mostRecentEncounter": "Most Recent Encounter",
   "name": "Name",
   "nextPage": "Next page",
+  "noMatchingConcepts": "No concepts were found that match",
   "none": "None",
-  "noSearchItems": "There are no search items",
   "numberIsNotValid": "Number is not valid",
   "openmrsId": "OpenMRS ID",
+  "patientsWithObservationsWhoseAnswerIs": "Patients with observations whose answer is",
   "personAttributes": "Person Attributes",
   "previousPage": "Previous page",
   "queries": "queries",
@@ -102,6 +103,7 @@
   "searchForALocation": "Search for a location",
   "searchHistory": "Search History",
   "searchHistoryOptions": "Search history options",
+  "searching": "Searching",
   "searchIsCompleted": "Search is completed with {{numOfResults}} result(s)",
   "searchItemDeleteError": "Error deleting the search item",
   "searchResults": "Search Results",
@@ -123,6 +125,5 @@
   "view": "View",
   "whatObservations": "What observations",
   "whatValues": "What values",
-  "whoseAnswer": "Patients with observations whose answer is ",
   "withinTheLast": "Within the last"
 }

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import { Tab, Tabs, TabPanels, TabPanel, TabList } from '@carbon/react';
-import { showSnackbar, useLayoutType } from '@openmrs/esm-framework';
 import { useTranslation } from 'react-i18next';
+import { showSnackbar, useLayoutType } from '@openmrs/esm-framework';
 import { getCohortMembers, getDataSet, search } from './cohort-builder.resources';
 import { addToHistory } from './cohort-builder.utils';
 import type { Patient, SearchParams } from './types';
@@ -167,7 +167,9 @@ const CohortBuilder: React.FC = () => {
             >
               <TabList aria-label="navigation">
                 {tabs.map((tab: TabItem, index: number) => (
-                  <Tab key={index}>{tab.name}</Tab>
+                  <Tab className={styles.tab} key={index}>
+                    {tab.name}
+                  </Tab>
                 ))}
               </TabList>
               <TabPanels>
