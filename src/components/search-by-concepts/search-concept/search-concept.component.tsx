@@ -1,5 +1,5 @@
 import React, { type Dispatch, type SetStateAction, useState, useRef, useEffect } from 'react';
-import debounce from 'lodash-es/debounce';
+import { debounce } from 'lodash-es';
 import { useTranslation } from 'react-i18next';
 import { Column, InlineLoading, Search, Tile } from '@carbon/react';
 import { type Concept } from '../../../types';

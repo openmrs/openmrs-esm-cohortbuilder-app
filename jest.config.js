@@ -4,7 +4,7 @@
 module.exports = {
   clearMocks: true,
   transform: {
-    '^.+\\.[jt]sx?$': ['@swc/jest'],
+    '^.+\\.m?[jt]sx?$': ['@swc/jest'],
   },
   transformIgnorePatterns: ['/node_modules/(?!@openmrs|.+\\.pnp\\.[^\\/]+$)'],
   moduleNameMapper: {
