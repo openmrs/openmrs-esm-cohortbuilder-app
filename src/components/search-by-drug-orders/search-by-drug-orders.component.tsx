@@ -94,11 +94,11 @@ const SearchByDrugOrder: React.FC<SearchByProps> = ({ onSubmit }) => {
             datePickerType="single"
             allowInput={false}
             onChange={(date) => setActiveOnOrAfter(dayjs(date[0]).format())}
+            value={activeOnOrAfter && dayjs(activeOnOrAfter).format('DD-MM-YYYY')}
           >
             <DatePickerInput
               id="activeOnOrAfter"
               labelText={t('using', 'Using between')}
-              value={activeOnOrAfter && dayjs(activeOnOrAfter).format('DD-MM-YYYY')}
               placeholder="DD-MM-YYYY"
               size="md"
             />
@@ -109,14 +109,9 @@ const SearchByDrugOrder: React.FC<SearchByProps> = ({ onSubmit }) => {
             datePickerType="single"
             allowInput={false}
             onChange={(date) => setActiveOnOrBefore(dayjs(date[0]).format())}
+            value={activeOnOrBefore && dayjs(activeOnOrBefore).format('DD-MM-YYYY')}
           >
-            <DatePickerInput
-              id="activeOnOrBefore"
-              value={activeOnOrBefore && dayjs(activeOnOrBefore).format('DD-MM-YYYY')}
-              labelText={t('to', 'to')}
-              placeholder="DD-MM-YYYY"
-              size="md"
-            />
+            <DatePickerInput id="activeOnOrBefore" labelText={t('to', 'to')} placeholder="DD-MM-YYYY" size="md" />
           </DatePicker>
         </Column>
       </div>
@@ -126,11 +121,11 @@ const SearchByDrugOrder: React.FC<SearchByProps> = ({ onSubmit }) => {
             datePickerType="single"
             allowInput={false}
             onChange={(date) => setActivatedOnOrAfter(dayjs(date[0]).format())}
+            value={activatedOnOrAfter && dayjs(activatedOnOrAfter).format('DD-MM-YYYY')}
           >
             <DatePickerInput
               id="activatedOnOrAfter"
               labelText={t('used', 'Used between')}
-              value={activatedOnOrAfter && dayjs(activatedOnOrAfter).format('DD-MM-YYYY')}
               placeholder="DD-MM-YYYY"
               size="md"
             />
@@ -141,14 +136,9 @@ const SearchByDrugOrder: React.FC<SearchByProps> = ({ onSubmit }) => {
             datePickerType="single"
             allowInput={false}
             onChange={(date) => setActivatedOnOrBefore(dayjs(date[0]).format())}
+            value={activatedOnOrBefore && dayjs(activatedOnOrBefore).format('DD-MM-YYYY')}
           >
-            <DatePickerInput
-              id="activatedOnOrBefore"
-              value={activatedOnOrBefore && dayjs(activatedOnOrBefore).format('DD-MM-YYYY')}
-              labelText={t('and', 'and')}
-              placeholder="DD-MM-YYYY"
-              size="md"
-            />
+            <DatePickerInput id="activatedOnOrBefore" labelText={t('and', 'and')} placeholder="DD-MM-YYYY" size="md" />
           </DatePicker>
         </Column>
       </div>

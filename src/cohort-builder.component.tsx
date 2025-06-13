@@ -159,12 +159,7 @@ const CohortBuilder: React.FC = () => {
         <div className={styles.tabContainer}>
           <p className={styles.heading}>{t('searchCriteria', 'Search Criteria')}</p>
           <div className={styles.tab}>
-            <Tabs
-              className={classNames(styles.verticalTabs, {
-                [styles.tabletTab]: isLayoutTablet,
-                [styles.desktopTab]: !isLayoutTablet,
-              })}
-            >
+            <Tabs>
               <TabList aria-label="navigation">
                 {tabs.map((tab: TabItem, index: number) => (
                   <Tab className={styles.tab} key={index}>

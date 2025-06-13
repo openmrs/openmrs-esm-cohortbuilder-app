@@ -111,7 +111,7 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
               invalidText={t('minAgeIsNotValid', 'The age must be greater than 0')}
               label={t('ageBetween', 'Age between')}
               min={0}
-              onChange={(event, { value }) => setMinAge(value)}
+              onChange={(event, { value }) => setMinAge(Number(value))}
               value={minAge}
             />
           </Column>
@@ -124,7 +124,7 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
               label={t('and', 'and')}
               max={200}
               min={0}
-              onChange={(event, { value }) => setMaxAge(value)}
+              onChange={(event, { value }) => setMaxAge(Number(value))}
               value={maxAge}
             />
           </Column>
@@ -136,13 +136,13 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
             datePickerType="single"
             allowInput={false}
             onChange={(date) => setBirthDayStartDate(dayjs(date[0]).format())}
+            value={birthDayStartDate && dayjs(birthDayStartDate).format('DD-MM-YYYY')}
           >
             <DatePickerInput
               id="startDate"
               labelText={t('birthDate', 'Birth date between')}
               placeholder="DD-MM-YYYY"
               size="md"
-              value={birthDayStartDate && dayjs(birthDayStartDate).format('DD-MM-YYYY')}
             />
           </DatePicker>
         </Column>
@@ -151,14 +151,9 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
             allowInput={false}
             datePickerType="single"
             onChange={(date) => setBirthDayEndDate(dayjs(date[0]).format())}
+            value={birthDayEndDate && dayjs(birthDayEndDate).format('DD-MM-YYYY')}
           >
-            <DatePickerInput
-              id="endDate"
-              labelText={t('and', 'and')}
-              placeholder="DD-MM-YYYY"
-              size="md"
-              value={birthDayEndDate && dayjs(birthDayEndDate).format('DD-MM-YYYY')}
-            />
+            <DatePickerInput id="endDate" labelText={t('and', 'and')} placeholder="DD-MM-YYYY" size="md" />
           </DatePicker>
         </Column>
       </div>

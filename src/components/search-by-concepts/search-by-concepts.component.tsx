@@ -218,7 +218,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
                     min={0}
                     size="sm"
                     value={operatorValue}
-                    onChange={(event, { value }) => setOperatorValue(value)}
+                    onChange={(event, { value }) => setOperatorValue(Number(value))}
                   />
                 </div>
               </div>
@@ -247,7 +247,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
               invalidText={t('numberIsNotValid', 'Number is not valid')}
               min={0}
               value={lastMonths}
-              onChange={(event, { value }) => setLastMonths(value)}
+              onChange={(event, { value }) => setLastMonths(Number(value))}
             />
           </Column>
           <Column>
@@ -259,7 +259,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
               invalidText={t('numberIsNotValid', 'Number is not valid')}
               min={0}
               value={lastDays}
-              onChange={(event, { value }) => setLastDays(value)}
+              onChange={(event, { value }) => setLastDays(Number(value))}
             />
           </Column>
         </Column>
@@ -269,10 +269,10 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
               datePickerType="single"
               allowInput={false}
               onChange={(date) => setOnOrAfter(dayjs(date[0]).format())}
+              value={onOrAfter && dayjs(onOrAfter).format('DD-MM-YYYY')}
             >
               <DatePickerInput
                 id="startDate"
-                value={onOrAfter && dayjs(onOrAfter).format('DD-MM-YYYY')}
                 labelText={t('dateRange', 'Date range start date')}
                 placeholder="DD-MM-YYYY"
                 size="md"
@@ -284,14 +284,9 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
               datePickerType="single"
               allowInput={false}
               onChange={(date) => setOnOrBefore(dayjs(date[0]).format())}
+              value={onOrBefore && dayjs(onOrBefore).format('DD-MM-YYYY')}
             >
-              <DatePickerInput
-                id="endDate"
-                value={onOrBefore && dayjs(onOrBefore).format('DD-MM-YYYY')}
-                labelText={t('endDate', 'End date')}
-                placeholder="DD-MM-YYYY"
-                size="md"
-              />
+              <DatePickerInput id="endDate" labelText={t('endDate', 'End date')} placeholder="DD-MM-YYYY" size="md" />
             </DatePicker>
           </Column>
         </div>

@@ -92,11 +92,11 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
             datePickerType="single"
             allowInput={false}
             onChange={(date) => setEnrolledOnOrAfter(dayjs(date[0]).format())}
+            value={enrolledOnOrAfter && dayjs(enrolledOnOrAfter).format('DD-MM-YYYY')}
           >
             <DatePickerInput
               id="enrolledOnOrAfter"
               labelText={t('enrolledBetween', 'Enrolled between')}
-              value={enrolledOnOrAfter && dayjs(enrolledOnOrAfter).format('DD-MM-YYYY')}
               placeholder="DD-MM-YYYY"
               size="md"
             />
@@ -107,14 +107,9 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
             datePickerType="single"
             allowInput={false}
             onChange={(date) => setEnrolledOnOrBefore(dayjs(date[0]).format())}
+            value={enrolledOnOrBefore && dayjs(enrolledOnOrBefore).format('DD-MM-YYYY')}
           >
-            <DatePickerInput
-              id="enrolledOnOrBefore"
-              labelText={t('and', 'and')}
-              value={enrolledOnOrBefore && dayjs(enrolledOnOrBefore).format('DD-MM-YYYY')}
-              placeholder="DD-MM-YYYY"
-              size="md"
-            />
+            <DatePickerInput id="enrolledOnOrBefore" labelText={t('and', 'and')} placeholder="DD-MM-YYYY" size="md" />
           </DatePicker>
         </Column>
       </div>
@@ -124,11 +119,11 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
             datePickerType="single"
             allowInput={false}
             onChange={(date) => setCompletedOnOrAfter(dayjs(date[0]).format())}
+            value={completedOnOrAfter && dayjs(completedOnOrAfter).format('DD-MM-YYYY')}
           >
             <DatePickerInput
               id="completedOnOrAfter"
               labelText={t('completedBetween', 'Completed between')}
-              value={completedOnOrAfter && dayjs(completedOnOrAfter).format('DD-MM-YYYY')}
               placeholder="DD-MM-YYYY"
               size="md"
             />
@@ -139,14 +134,9 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
             datePickerType="single"
             allowInput={false}
             onChange={(date) => setCompletedOnOrBefore(dayjs(date[0]).format())}
+            value={completedOnOrBefore && dayjs(completedOnOrBefore).format('DD-MM-YYYY')}
           >
-            <DatePickerInput
-              id="completedOnOrBefore"
-              labelText={t('and', 'and')}
-              value={completedOnOrBefore && dayjs(completedOnOrBefore).format('DD-MM-YYYY')}
-              placeholder="DD-MM-YYYY"
-              size="md"
-            />
+            <DatePickerInput id="completedOnOrBefore" labelText={t('and', 'and')} placeholder="DD-MM-YYYY" size="md" />
           </DatePicker>
         </Column>
       </div>

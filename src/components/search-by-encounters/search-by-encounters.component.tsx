@@ -110,7 +110,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
               min={0}
               size="sm"
               value={atLeastCount}
-              onChange={(event, { value }) => setAtLeastCount(value)}
+              onChange={(event, { value }) => setAtLeastCount(Number(value))}
             />
           </div>
           <div className={styles.multipleInputs}>
@@ -122,7 +122,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
               min={0}
               size="sm"
               value={atMostCount}
-              onChange={(event, { value }) => setAtMostCount(value)}
+              onChange={(event, { value }) => setAtMostCount(Number(value))}
             />
           </div>
         </Column>
@@ -133,14 +133,9 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
             datePickerType="single"
             allowInput={false}
             onChange={(date) => setOnOrAfter(dayjs(date[0]).format())}
+            value={onOrAfter && dayjs(onOrAfter).format('DD-MM-YYYY')}
           >
-            <DatePickerInput
-              id="onOrAfter"
-              labelText={t('from', 'From')}
-              value={onOrAfter && dayjs(onOrAfter).format('DD-MM-YYYY')}
-              placeholder="DD-MM-YYYY"
-              size="md"
-            />
+            <DatePickerInput id="onOrAfter" labelText={t('from', 'From')} placeholder="DD-MM-YYYY" size="md" />
           </DatePicker>
         </Column>
         <Column>
@@ -148,14 +143,9 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
             datePickerType="single"
             allowInput={false}
             onChange={(date) => setOnOrBefore(dayjs(date[0]).format())}
+            value={onOrBefore && dayjs(onOrBefore).format('DD-MM-YYYY')}
           >
-            <DatePickerInput
-              id="onOrBefore"
-              value={onOrBefore && dayjs(onOrBefore).format('DD-MM-YYYY')}
-              labelText={t('to', 'to')}
-              placeholder="DD-MM-YYYY"
-              size="md"
-            />
+            <DatePickerInput id="onOrBefore" labelText={t('to', 'to')} placeholder="DD-MM-YYYY" size="md" />
           </DatePicker>
         </Column>
       </div>
