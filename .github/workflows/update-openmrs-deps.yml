@@ -6,8 +6,8 @@ name: 'Check for OpenMRS Dependency Updates'
 on:
   workflow_dispatch:
   schedule:
-    # Runs every hour at minute 30
-    - cron: '30 * * * *'
+    # Runs every 4 hours
+    - cron: '0 */4 * * *'
 
 jobs:
   check-for-updates:
@@ -22,10 +22,8 @@ jobs:
 
     steps:
       # Step 1: Check out repository
-      - name: 📥 Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 1   # Shallow clone for better performance
 
       # Step 2: Setup Node.js environment
       - name: 🟢 Setup Node.js
@@ -73,6 +71,7 @@ jobs:
             > This PR was automatically generated and will be automatically merged if checks pass.
           branch: 'chore/update-openmrs-deps'
           author: 'OpenMRS Bot <infrastructure@openmrs.org>'
+          committer: 'OpenMRS Bot <infrastructure@openmrs.org>'
           token: ${{ secrets.OMRS_BOT_GH_TOKEN }}
           labels: |
             dependencies
@@ -91,4 +90,4 @@ jobs:
         if: steps.cpr.outputs.pull-request-operation == 'created' || steps.cpr.outputs.pull-request-operation == 'updated'
         run: gh pr merge --auto --squash "${{ steps.cpr.outputs.pull-request-number }}"
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.OMRS_BOT_GH_TOKEN }}
