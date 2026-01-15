@@ -9,6 +9,7 @@ module.exports = {
   transformIgnorePatterns: ['/node_modules/(?!@openmrs|.+\\.pnp\\.[^\\/]+$)'],
   moduleNameMapper: {
     '\\.(s?css)$': 'identity-obj-proxy',
+    '^.+\\.svg$': '<rootDir>/__mocks__/svg.js',
     '@openmrs/esm-framework': '@openmrs/esm-framework/mock',
     '^dexie$': require.resolve('dexie'),
     '^lodash-es/(.*)$': 'lodash/$1',
