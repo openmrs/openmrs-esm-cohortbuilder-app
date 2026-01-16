@@ -1,6 +1,6 @@
 import React from 'react';
 import { Layer, Tile } from '@carbon/react';
-import EmptyDataIllustration from './empty-data-illustration.svg';
+import { EmptyCardIllustration } from '@openmrs/esm-framework';
 import styles from './empty-data.style.scss';
 
 export interface EmptyDataProps {
@@ -11,7 +11,7 @@ const EmptyData: React.FC<EmptyDataProps> = (props) => {
   return (
     <Layer>
       <Tile className={styles.tile}>
-        <img src={EmptyDataIllustration} alt="" />
+        <EmptyCardIllustration />
         <p className={styles.content}>There are no {props.displayText.toLowerCase()} to display</p>
       </Tile>
     </Layer>
