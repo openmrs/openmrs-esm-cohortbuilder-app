@@ -1,6 +1,6 @@
 {
   "name": "@openmrs/esm-cohort-builder-app",
-  "version": "4.0.4",
+  "version": "4.0.5",
   "license": "MPL-2.0",
   "description": "O3 frontend module for managing cohorts",
   "browser": "dist/openmrs-esm-cohort-builder-app.js",
@@ -45,7 +45,7 @@
     "url": "https://github.com/openmrs/openmrs-esm-cohortbuilder/issues"
   },
   "peerDependencies": {
-    "@openmrs/esm-framework": "*",
+    "@openmrs/esm-framework": "9.x",
     "react": "18.x",
     "react-dom": "18.x",
     "react-i18next": "11.x"
@@ -101,7 +101,7 @@
     "swc-loader": "^0.2.3",
     "turbo": "^2.5.2",
     "typescript": "^4.9.5",
-    "webpack": "^5.99.9",
+    "webpack": "5.99.9",
     "webpack-cli": "^6.0.1"
   },
   "lint-staged": {

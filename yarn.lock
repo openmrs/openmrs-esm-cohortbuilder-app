@@ -3221,11 +3221,11 @@ __metadata:
     swc-loader: "npm:^0.2.3"
     turbo: "npm:^2.5.2"
     typescript: "npm:^4.9.5"
-    webpack: "npm:^5.99.9"
+    webpack: "npm:5.99.9"
     webpack-cli: "npm:^6.0.1"
     zod: "npm:^3.24.3"
   peerDependencies:
-    "@openmrs/esm-framework": "*"
+    "@openmrs/esm-framework": 9.x
     react: 18.x
     react-dom: 18.x
     react-i18next: 11.x
