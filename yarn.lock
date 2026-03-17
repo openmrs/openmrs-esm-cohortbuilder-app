@@ -3193,7 +3193,6 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^7.9.0"
     "@typescript-eslint/parser": "npm:^7.9.0"
     classnames: "npm:^2.3.2"
-    css-loader: "npm:^6.7.3"
     dayjs: "npm:^1.11.7"
     dotenv: "npm:^16.3.1"
     eslint: "npm:^8.50.0"
@@ -3218,11 +3217,8 @@ __metadata:
     react-dom: "npm:^18.3.1"
     react-hook-form: "npm:^7.56.1"
     react-i18next: "npm:^11.18.6"
-    swc-loader: "npm:^0.2.3"
     turbo: "npm:^2.5.2"
     typescript: "npm:^4.9.5"
-    webpack: "npm:5.99.9"
-    webpack-cli: "npm:^6.0.1"
     zod: "npm:^3.24.3"
   peerDependencies:
     "@openmrs/esm-framework": 9.x
@@ -8912,24 +8908,6 @@ __metadata:
   peerDependencies:
     webpack: ^4.27.0 || ^5.0.0
   checksum: 10/ce7cb59b7a98e0836abf52e594574215a842b0e4788dc46fc48273ad8d02be2f73e481effb6a444f939487cdf7db780439f2d233a8ce523010d3e13bbc8557e0
-  languageName: node
-  linkType: hard
-
-"css-loader@npm:^6.7.3":
-  version: 6.7.3
-  resolution: "css-loader@npm:6.7.3"
-  dependencies:
-    icss-utils: "npm:^5.1.0"
-    postcss: "npm:^8.4.19"
-    postcss-modules-extract-imports: "npm:^3.0.0"
-    postcss-modules-local-by-default: "npm:^4.0.0"
-    postcss-modules-scope: "npm:^3.0.0"
-    postcss-modules-values: "npm:^4.0.0"
-    postcss-value-parser: "npm:^4.2.0"
-    semver: "npm:^7.3.8"
-  peerDependencies:
-    webpack: ^5.0.0
-  checksum: 10/24c983839ce7bf462cfd97acb1b20e9dd569cd40d13f2a61da2602e1098c69e18fe3d8adb06dc82deb6379151fb38f387ffccfb7428cf7dce1565279c1e81beb
   languageName: node
   linkType: hard
 
@@ -15825,7 +15803,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:8.5.6, postcss@npm:^8.2.15, postcss@npm:^8.4.19":
+"postcss@npm:8.5.6, postcss@npm:^8.2.15":
   version: 8.5.6
   resolution: "postcss@npm:8.5.6"
   dependencies:
@@ -18175,7 +18153,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"swc-loader@npm:0.2.6, swc-loader@npm:^0.2.3, swc-loader@npm:^0.2.6":
+"swc-loader@npm:0.2.6, swc-loader@npm:^0.2.6":
   version: 0.2.6
   resolution: "swc-loader@npm:0.2.6"
   dependencies:
@@ -19269,7 +19247,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-cli@npm:6.0.1, webpack-cli@npm:^6.0.1":
+"webpack-cli@npm:6.0.1":
   version: 6.0.1
   resolution: "webpack-cli@npm:6.0.1"
   dependencies:
