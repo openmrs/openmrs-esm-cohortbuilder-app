@@ -1,4 +1,5 @@
 import React from 'react';
+import { vi, describe, it, expect } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import dayjs from 'dayjs';
@@ -6,10 +7,10 @@ import { type Concept } from '../../types';
 import { getConcepts } from './search-concept/search-concept.resource';
 import SearchByConcepts from './search-by-concepts.component';
 
-const mockGetConcepts = jest.mocked(getConcepts);
+const mockGetConcepts = vi.mocked(getConcepts);
 
-jest.mock('./search-concept/search-concept.resource.ts', () => ({
-  getConcepts: jest.fn().mockImplementation((searchTerm) => {
+vi.mock('./search-concept/search-concept.resource.ts', () => ({
+  getConcepts: vi.fn().mockImplementation((searchTerm) => {
     if (searchTerm === 'blood sugar') {
       return Promise.resolve(concepts);
     }
@@ -97,7 +98,7 @@ const concepts: Concept[] = [
 describe('Test the search by concept component', () => {
   it('should be able to select input values', async () => {
     const user = userEvent.setup();
-    const mockSubmit = jest.fn();
+    const mockSubmit = vi.fn();
     const testDate = dayjs().subtract(15, 'days').subtract(4, 'months');
 
     render(<SearchByConcepts onSubmit={mockSubmit} />);

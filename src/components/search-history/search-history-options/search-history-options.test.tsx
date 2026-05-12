@@ -1,10 +1,11 @@
 import React from 'react';
+import { vi, describe, it, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { screen, render } from '@testing-library/react';
 import { showModal } from '@openmrs/esm-framework';
 import SearchHistoryOptions from './search-history-options.component';
 
-const mockShowModal = jest.mocked(showModal);
+const mockShowModal = vi.mocked(showModal);
 
 const searchHistoryItem = {
   description: 'Patients with NO Chronic viral hepatitis',
@@ -76,7 +77,7 @@ const searchHistoryItem = {
 
 const testProps = {
   searchItem: searchHistoryItem,
-  updateSearchHistory: jest.fn(),
+  updateSearchHistory: vi.fn(),
 };
 
 describe('Test the search history options', () => {

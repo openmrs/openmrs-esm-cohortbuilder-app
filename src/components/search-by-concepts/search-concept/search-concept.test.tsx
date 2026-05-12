@@ -1,14 +1,15 @@
 import React from 'react';
+import { vi, describe, it, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor } from '@testing-library/react';
 import { type Concept } from '../../../types';
 import { getConcepts } from './search-concept.resource';
 import { SearchConcept } from './search-concept.component';
 
-const mockGetConcepts = jest.mocked(getConcepts);
+const mockGetConcepts = vi.mocked(getConcepts);
 
-jest.mock('./search-concept.resource.ts', () => {
-  const mockGetConcepts = jest.fn().mockImplementation((searchTerm) => {
+vi.mock('./search-concept.resource.ts', () => {
+  const mockGetConcepts = vi.fn().mockImplementation((searchTerm) => {
     if (searchTerm === 'blood sugar') {
       return Promise.resolve(concepts);
     }
@@ -56,9 +57,9 @@ describe('Test the concept search component', () => {
     mockGetConcepts.mockResolvedValue(concepts);
 
     let searchText = '';
-    const setSearchText = jest.fn().mockImplementation((search: string) => (searchText = search));
+    const setSearchText = vi.fn().mockImplementation((search: string) => (searchText = search));
     render(
-      <SearchConcept concept={null} setConcept={jest.fn()} searchText={searchText} setSearchText={setSearchText} />,
+      <SearchConcept concept={null} setConcept={vi.fn()} searchText={searchText} setSearchText={setSearchText} />,
     );
     const searchInput = screen.getByPlaceholderText('Search Concepts');
     await waitFor(() => user.click(searchInput));
@@ -72,7 +73,7 @@ describe('Test the concept search component', () => {
   it('should be able to clear the current search value', async () => {
     const user = userEvent.setup();
 
-    render(<SearchConcept concept={null} setConcept={jest.fn()} searchText={''} setSearchText={jest.fn()} />);
+    render(<SearchConcept concept={null} setConcept={vi.fn()} searchText={''} setSearchText={vi.fn()} />);
 
     const searchInput = screen.getByPlaceholderText('Search Concepts');
     await user.click(searchInput);

@@ -1,8 +1,10 @@
 import React from 'react';
+import { vi, describe, it, expect, type Mock } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { openmrsFetch } from '@openmrs/esm-framework';
 import { render, screen, waitFor } from '@testing-library/react';
 import { useLocations } from '../../cohort-builder.resources';
+import type * as CohortBuilderResources from '../../cohort-builder.resources';
 import SearchByLocation from './search-by-location.component';
 
 const mockLocations = [
@@ -67,17 +69,17 @@ const expectedQuery = {
   },
 };
 
-const mockOpenmrsFetch = openmrsFetch as jest.Mock;
+const mockOpenmrsFetch = openmrsFetch as Mock;
 
-jest.mock('../../cohort-builder.resources', () => {
-  const original = jest.requireActual('../../cohort-builder.resources');
+vi.mock('../../cohort-builder.resources', async (importOriginal) => {
+  const original = await importOriginal<typeof CohortBuilderResources>();
   return {
     ...original,
-    useLocations: jest.fn(),
+    useLocations: vi.fn(),
   };
 });
 
-const mockUseLocations = jest.mocked(useLocations);
+const mockUseLocations = vi.mocked(useLocations);
 
 describe('Test the search by location component', () => {
   it('should be able to select input values', async () => {
@@ -90,7 +92,7 @@ describe('Test the search by location component', () => {
     }));
     mockOpenmrsFetch.mockReturnValueOnce({ data: { results: mockLocations } });
 
-    const mockSubmit = jest.fn();
+    const mockSubmit = vi.fn();
     render(<SearchByLocation onSubmit={mockSubmit} />);
 
     await user.click(screen.getByText(/select locations/i));

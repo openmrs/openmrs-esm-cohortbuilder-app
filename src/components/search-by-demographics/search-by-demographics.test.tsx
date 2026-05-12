@@ -1,4 +1,5 @@
 import React from 'react';
+import { vi, describe, it, expect } from 'vitest';
 import dayjs from 'dayjs';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
@@ -62,7 +63,7 @@ const expectedQuery = {
 describe('Test the search by demographics component', () => {
   it('should be able to select input values', async () => {
     const user = userEvent.setup();
-    const mockSubmit = jest.fn();
+    const mockSubmit = vi.fn();
 
     render(<SearchByDemographics onSubmit={mockSubmit} />);
 
