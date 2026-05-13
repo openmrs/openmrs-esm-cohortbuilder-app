@@ -1,15 +1,18 @@
 import React from 'react';
+import { vi, describe, it, expect, type Mock } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor } from '@testing-library/react';
 import { openmrsFetch } from '@openmrs/esm-framework';
 import { useLocations } from '../../cohort-builder.resources';
+import type * as CohortBuilderResources from '../../cohort-builder.resources';
 import { useForms, useEncounterTypes } from './search-by-encounters.resources';
+import type * as SearchByEncountersResources from './search-by-encounters.resources';
 import SearchByEncounters from './search-by-encounters.component';
 
-const mockUseEncounterTypes = jest.mocked(useEncounterTypes);
-const mockUseForms = jest.mocked(useForms);
-const mockUseLocations = jest.mocked(useLocations);
-const mockOpenmrsFetch = openmrsFetch as jest.Mock;
+const mockUseEncounterTypes = vi.mocked(useEncounterTypes);
+const mockUseForms = vi.mocked(useForms);
+const mockUseLocations = vi.mocked(useLocations);
+const mockOpenmrsFetch = openmrsFetch as Mock;
 
 const mockLocations = [
   {
@@ -122,20 +125,20 @@ const expectedQuery = {
   },
 };
 
-jest.mock('./search-by-encounters.resources', () => {
-  const original = jest.requireActual('./search-by-encounters.resources');
+vi.mock('./search-by-encounters.resources', async (importOriginal) => {
+  const original = await importOriginal<typeof SearchByEncountersResources>();
   return {
     ...original,
-    useForms: jest.fn(),
-    useEncounterTypes: jest.fn(),
+    useForms: vi.fn(),
+    useEncounterTypes: vi.fn(),
   };
 });
 
-jest.mock('../../cohort-builder.resources', () => {
-  const original = jest.requireActual('../../cohort-builder.resources');
+vi.mock('../../cohort-builder.resources', async (importOriginal) => {
+  const original = await importOriginal<typeof CohortBuilderResources>();
   return {
     ...original,
-    useLocations: jest.fn(),
+    useLocations: vi.fn(),
   };
 });
 
@@ -173,7 +176,7 @@ describe('Test the search by encounters component', () => {
       data: { results: mockLocations },
     });
 
-    const mockSubmit = jest.fn();
+    const mockSubmit = vi.fn();
 
     render(<SearchByEncounters onSubmit={mockSubmit} />);
 

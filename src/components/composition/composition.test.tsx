@@ -1,7 +1,9 @@
 import React from 'react';
+import { vi, describe, it, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor } from '@testing-library/react';
 import { showSnackbar } from '@openmrs/esm-framework';
+import type * as CompositionUtils from './composition.utils';
 import Composition from './composition.component';
 
 const mockCompositionQuery = {
@@ -61,19 +63,19 @@ const mockCompositionQuery = {
   },
 };
 
-jest.mock('./composition.utils', () => {
-  const original = jest.requireActual('./composition.utils');
+vi.mock('./composition.utils', async (importOriginal) => {
+  const original = await importOriginal<typeof CompositionUtils>();
   return {
     ...original,
-    createCompositionQuery: jest.fn().mockImplementation(() => mockCompositionQuery),
-    isCompositionValid: jest.fn().mockImplementation((query) => query === '1 and 2'),
+    createCompositionQuery: vi.fn().mockImplementation(() => mockCompositionQuery),
+    isCompositionValid: vi.fn().mockImplementation((query) => query === '1 and 2'),
   };
 });
 
 describe('Composition', () => {
   it('should show error notification when an invalid composition query is entered', async () => {
     const user = userEvent.setup();
-    const mockSubmit = jest.fn();
+    const mockSubmit = vi.fn();
     render(<Composition onSubmit={mockSubmit} />);
 
     const compositionInput = screen.getByRole('textbox', { name: /composition/i });
@@ -93,7 +95,7 @@ describe('Composition', () => {
   it('should submit a valid composition query', async () => {
     const compositionQuery = '1 and 2';
     const user = userEvent.setup();
-    const mockSubmit = jest.fn();
+    const mockSubmit = vi.fn();
     render(<Composition onSubmit={mockSubmit} />);
 
     const compositionInput = screen.getByRole('textbox', { name: /composition/i });
@@ -106,7 +108,7 @@ describe('Composition', () => {
 
   it('should handle reset functionality', async () => {
     const user = userEvent.setup();
-    const mockSubmit = jest.fn().mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 100)));
+    const mockSubmit = vi.fn().mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 100)));
     render(<Composition onSubmit={mockSubmit} />);
 
     // Test loading state
@@ -128,7 +130,7 @@ describe('Composition', () => {
 
   it('should automatically update the description when composition changes', async () => {
     const user = userEvent.setup();
-    render(<Composition onSubmit={jest.fn()} />);
+    render(<Composition onSubmit={vi.fn()} />);
 
     const compositionInput = screen.getByRole('textbox', { name: /composition/i });
     await user.click(compositionInput);

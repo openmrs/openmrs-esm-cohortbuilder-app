@@ -1,11 +1,12 @@
 import React from 'react';
+import { vi, describe, it, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { screen, render } from '@testing-library/react';
 import { showModal } from '@openmrs/esm-framework';
 import { type DefinitionDataRow } from '../../../types';
 import SavedQueriesOptions from './saved-queries-options.component';
 
-const mockShowModal = jest.mocked(showModal);
+const mockShowModal = vi.mocked(showModal);
 
 const query: DefinitionDataRow = {
   id: '1',
@@ -15,8 +16,8 @@ const query: DefinitionDataRow = {
 
 const testProps = {
   query: query,
-  onViewQuery: jest.fn(),
-  deleteQuery: jest.fn(),
+  onViewQuery: vi.fn(),
+  deleteQuery: vi.fn(),
 };
 
 const renderSavedQueriesOptions = (props = testProps) => {

@@ -1,9 +1,12 @@
 import React from 'react';
+import { vi, describe, it, expect, type Mock } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { openmrsFetch } from '@openmrs/esm-framework';
 import { render, screen } from '@testing-library/react';
 import { useLocations } from '../../cohort-builder.resources';
+import type * as CohortBuilderResources from '../../cohort-builder.resources';
 import { usePrograms } from './search-by-enrollments.resources';
+import type * as SearchByEnrollmentsResources from './search-by-enrollments.resources';
 import SearchByEnrollments from './search-by-enrollments.component';
 
 const mockLocations = [
@@ -81,24 +84,24 @@ const expectedQuery = {
   },
 };
 
-const mockOpenmrsFetch = openmrsFetch as jest.Mock;
-const mockUseLocations = jest.mocked(useLocations);
-const mockUsePrograms = jest.mocked(usePrograms);
+const mockOpenmrsFetch = openmrsFetch as Mock;
+const mockUseLocations = vi.mocked(useLocations);
+const mockUsePrograms = vi.mocked(usePrograms);
 
-jest.mock('./search-by-enrollments.resources', () => {
-  const original = jest.requireActual('./search-by-enrollments.resources');
+vi.mock('./search-by-enrollments.resources', async (importOriginal) => {
+  const original = await importOriginal<typeof SearchByEnrollmentsResources>();
   return {
     ...original,
-    usePrograms: jest.fn(),
-    useLocations: jest.fn(),
+    usePrograms: vi.fn(),
+    useLocations: vi.fn(),
   };
 });
 
-jest.mock('../../cohort-builder.resources', () => {
-  const original = jest.requireActual('../../cohort-builder.resources');
+vi.mock('../../cohort-builder.resources', async (importOriginal) => {
+  const original = await importOriginal<typeof CohortBuilderResources>();
   return {
     ...original,
-    useLocations: jest.fn(),
+    useLocations: vi.fn(),
   };
 });
 
@@ -125,7 +128,7 @@ describe('Test the search by enrollments component', () => {
       data: { results: mockPrograms },
     });
 
-    const mockSubmit = jest.fn();
+    const mockSubmit = vi.fn();
     render(<SearchByEnrollments onSubmit={mockSubmit} />);
 
     await user.click(screen.getByText(/select locations/i));

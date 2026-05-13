@@ -1,13 +1,14 @@
 import React from 'react';
+import { vi, describe, it, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
 import { usePersonAttributes } from './search-by-person-attributes.resource';
 import SearchByPersonAttributes from './search-by-person-attributes.component';
 
-const mockUsePersonAttributes = jest.mocked(usePersonAttributes);
+const mockUsePersonAttributes = vi.mocked(usePersonAttributes);
 
-jest.mock('./search-by-person-attributes.resource.ts', () => ({
-  usePersonAttributes: jest.fn(),
+vi.mock('./search-by-person-attributes.resource.ts', () => ({
+  usePersonAttributes: vi.fn(),
 }));
 
 const personAttributes = [
@@ -115,7 +116,7 @@ describe('Test the search by person attributes component', () => {
       isLoading: false,
       personAttributesError: undefined,
     });
-    const mockSubmit = jest.fn();
+    const mockSubmit = vi.fn();
     render(<SearchByPersonAttributes onSubmit={mockSubmit} />);
 
     await user.click(screen.getByText('Open menu'));
