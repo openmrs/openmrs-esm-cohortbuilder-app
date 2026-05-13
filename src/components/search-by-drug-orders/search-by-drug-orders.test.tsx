@@ -1,8 +1,10 @@
 import React from 'react';
+import { vi, describe, it, expect, type Mock } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { openmrsFetch } from '@openmrs/esm-framework';
 import { render, screen } from '@testing-library/react';
 import { useCareSettings, useDrugs } from './search-by-drug-orders.resources';
+import type * as SearchByDrugOrdersResources from './search-by-drug-orders.resources';
 import SearchByDrugOrder from './search-by-drug-orders.component';
 
 const mockCareSettings = [
@@ -85,18 +87,18 @@ const expectedQuery = {
   },
 };
 
-jest.mock('./search-by-drug-orders.resources', () => {
-  const original = jest.requireActual('./search-by-drug-orders.resources');
+vi.mock('./search-by-drug-orders.resources', async (importOriginal) => {
+  const original = await importOriginal<typeof SearchByDrugOrdersResources>();
   return {
     ...original,
-    useCareSettings: jest.fn(),
-    useDrugs: jest.fn(),
+    useCareSettings: vi.fn(),
+    useDrugs: vi.fn(),
   };
 });
 
-const mockOpenmrsFetch = openmrsFetch as jest.Mock;
-const mockUseCareSettings = jest.mocked(useCareSettings);
-const mockUseDrugs = jest.mocked(useDrugs);
+const mockOpenmrsFetch = openmrsFetch as Mock;
+const mockUseCareSettings = vi.mocked(useCareSettings);
+const mockUseDrugs = vi.mocked(useDrugs);
 
 describe('Test the search by drug orders component', () => {
   it('should be able to select input values', async () => {
@@ -122,7 +124,7 @@ describe('Test the search by drug orders component', () => {
       data: { results: mockCareSettings },
     });
 
-    const mockSubmit = jest.fn();
+    const mockSubmit = vi.fn();
 
     render(<SearchByDrugOrder onSubmit={mockSubmit} />);
 

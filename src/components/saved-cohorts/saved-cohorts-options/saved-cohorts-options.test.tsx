@@ -1,11 +1,12 @@
 import React from 'react';
+import { vi, describe, it, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor } from '@testing-library/react';
 import { showModal } from '@openmrs/esm-framework';
 import { type DefinitionDataRow } from '../../../types';
 import SavedCohortsOptions from './saved-cohorts-options.component';
 
-const mockShowModal = jest.mocked(showModal);
+const mockShowModal = vi.mocked(showModal);
 
 const cohort: DefinitionDataRow = {
   id: '1',
@@ -16,8 +17,8 @@ const cohort: DefinitionDataRow = {
 describe('Test the saved cohorts options', () => {
   it('should be able to view saved cohorts', async () => {
     const user = userEvent.setup();
-    const mockOnViewCohort = jest.fn();
-    render(<SavedCohortsOptions cohort={cohort} onViewCohort={mockOnViewCohort} onDeleteCohort={jest.fn()} />);
+    const mockOnViewCohort = vi.fn();
+    render(<SavedCohortsOptions cohort={cohort} onViewCohort={mockOnViewCohort} onDeleteCohort={vi.fn()} />);
 
     await user.click(screen.getByRole('button', { name: /options/i }));
     await waitFor(() => {
@@ -33,8 +34,8 @@ describe('Test the saved cohorts options', () => {
 
   it('should be able to delete a cohort', async () => {
     const user = userEvent.setup();
-    const mockOnDeleteCohort = jest.fn();
-    render(<SavedCohortsOptions cohort={cohort} onViewCohort={jest.fn()} onDeleteCohort={mockOnDeleteCohort} />);
+    const mockOnDeleteCohort = vi.fn();
+    render(<SavedCohortsOptions cohort={cohort} onViewCohort={vi.fn()} onDeleteCohort={mockOnDeleteCohort} />);
 
     await user.click(screen.getByRole('button', { name: /options/i }));
     await waitFor(() => {
