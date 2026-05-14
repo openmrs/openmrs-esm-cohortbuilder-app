@@ -2121,7 +2121,6 @@ __metadata:
     "@testing-library/user-event": "npm:^14.4.3"
     "@types/react": "npm:^18.3.21"
     "@types/react-dom": "npm:^18.3.0"
-    "@types/webpack-env": "npm:^1.18.0"
     "@typescript-eslint/eslint-plugin": "npm:^7.9.0"
     "@typescript-eslint/parser": "npm:^7.9.0"
     "@vitest/coverage-v8": "npm:^4.1.2"
@@ -5713,13 +5712,6 @@ __metadata:
   version: 2.0.7
   resolution: "@types/trusted-types@npm:2.0.7"
   checksum: 10/8e4202766a65877efcf5d5a41b7dd458480b36195e580a3b1085ad21e948bc417d55d6f8af1fd2a7ad008015d4117d5fdfe432731157da3c68678487174e4ba3
-  languageName: node
-  linkType: hard
-
-"@types/webpack-env@npm:^1.18.0":
-  version: 1.18.0
-  resolution: "@types/webpack-env@npm:1.18.0"
-  checksum: 10/dce226f63157a8792a5e0f01c86655489ac228c7082578a38b5fa230ba13ab6b1c31fb333368c739c0d359ca5bc58586e5116a468ea91a099c59e965d09c6d74
   languageName: node
   linkType: hard
 
