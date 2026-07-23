@@ -153,32 +153,42 @@ const CohortBuilder: React.FC = () => {
   ];
 
   return (
-    <div className={classNames(styles.mainContainer, styles.cohortBuilder)}>
+    <main className={classNames(styles.mainContainer, styles.cohortBuilder)}>
       <div className={classNames(isLayoutTablet ? styles.tabletContainer : styles.desktopContainer)}>
-        <p className={styles.title}>{t('cohortBuilder', 'Cohort Builder')}</p>
-        <div className={styles.tabContainer}>
-          <p className={styles.heading}>{t('searchCriteria', 'Search Criteria')}</p>
+        <header>
+          <h1 className={styles.title}>{t('cohortBuilder', 'Cohort Builder')}</h1>
+        </header>
+        <section className={styles.tabContainer} aria-labelledby="search-criteria-heading">
+          <h2 id="search-criteria-heading" className={styles.heading}>
+            {t('searchCriteria', 'Search Criteria')}
+          </h2>
           <div className={styles.tab}>
             <Tabs>
-              <TabList aria-label="navigation">
+              <TabList aria-label={t('searchCriteriaNavigation', 'Search criteria navigation')}>
                 {tabs.map((tab: TabItem, index: number) => (
-                  <Tab className={styles.tab} key={index}>
+                  <Tab className={styles.tab} key={index} id={`search-tab-${index}`}>
                     {tab.name}
                   </Tab>
                 ))}
               </TabList>
               <TabPanels>
                 {tabs.map((tab: TabItem, index: number) => (
-                  <TabPanel key={index}>{tab.component}</TabPanel>
+                  <TabPanel key={index} aria-labelledby={`search-tab-${index}`}>
+                    {tab.component}
+                  </TabPanel>
                 ))}
               </TabPanels>
             </Tabs>
           </div>
-        </div>
-        <SearchResultsTable patients={patients} />
-        <SearchHistory isHistoryUpdated={isHistoryUpdated} setIsHistoryUpdated={setIsHistoryUpdated} />
+        </section>
+        <section>
+          <SearchResultsTable patients={patients} />
+        </section>
+        <section>
+          <SearchHistory isHistoryUpdated={isHistoryUpdated} setIsHistoryUpdated={setIsHistoryUpdated} />
+        </section>
       </div>
-    </div>
+    </main>
   );
 };
 

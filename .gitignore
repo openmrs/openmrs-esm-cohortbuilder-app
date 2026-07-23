@@ -65,9 +65,10 @@ typings/
 
 dist/
 
-# Intellij integration
+# IDE integration
 *.iml
 .idea/*
+.vscode/*
 
 # ignores for Yarn v3 w/o PNP
 .pnp.*

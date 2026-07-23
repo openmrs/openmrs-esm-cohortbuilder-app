@@ -19,3 +19,19 @@
     @include type.type-style('body-01');
   }
 }
+
+.errorMessage {
+  color: var(--cds-support-error);
+  margin-bottom: layout.$spacing-03;
+  padding: layout.$spacing-03;
+  border-left: 3px solid var(--cds-support-error);
+  background-color: var(--cds-support-error-hover);
+  border-radius: 4px;
+  
+  @include type.type-style('body-01');
+  
+  &::before {
+    content: '⚠ ';
+    font-weight: bold;
+  }
+}

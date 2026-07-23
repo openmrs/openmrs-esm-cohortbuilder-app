@@ -7,6 +7,7 @@ import { type SearchByProps } from '../../types';
 import { getDescription, getQueryDetails } from './search-by-demographics.utils';
 import SearchButtonSet from '../search-button-set/search-button-set';
 import styles from './search-by-demographics.style.scss';
+import '../../cohort-builder.scss';
 
 const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
@@ -17,6 +18,7 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [minAge, setMinAge] = useState(0);
   const [maxAge, setMaxAge] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string>('');
 
   const genders = [
     {
@@ -54,26 +56,35 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
     setMinAge(0);
     setBirthDayEndDate('');
     setBirthDayStartDate('');
+    setSubmitError('');
   };
 
   const submit = async () => {
     setIsLoading(true);
-    const demographics = {
-      gender,
-      minAge,
-      maxAge,
-      birthDayStartDate,
-      birthDayEndDate,
-      livingStatus,
-    };
-    await onSubmit(getQueryDetails(demographics), getDescription(demographics));
-    setIsLoading(false);
+    setSubmitError('');
+    
+    try {
+      const demographics = {
+        gender,
+        minAge,
+        maxAge,
+        birthDayStartDate,
+        birthDayEndDate,
+        livingStatus,
+      };
+      await onSubmit(getQueryDetails(demographics), getDescription(demographics));
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : t('searchError', 'An error occurred while searching');
+      setSubmitError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <>
-      <Column>
-        <p className={classNames(styles.text, styles.genderTitle)}>{t('gender', 'Gender')}</p>
+    <div role="tabpanel">
+      <fieldset>
+        <legend className={classNames(styles.text, styles.genderTitle)}>{t('gender', 'Gender')}</legend>
         <div className={styles.genderContainer}>
           <div className={styles.switch}>
             <ContentSwitcher
@@ -81,11 +92,22 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
               className={styles.contentSwitcher}
               size="lg"
               onChange={({ index }) => setGender(genders[index].value)}
+              aria-label={t('selectGender', 'Select gender')}
+              aria-describedby="gender-help"
             >
               {genders.map((gender) => (
-                <Switch data-testid={gender.label} key={gender.id} name={gender.value} text={gender.label} />
+                <Switch 
+                  data-testid={gender.label} 
+                  key={gender.id} 
+                  name={gender.value} 
+                  text={gender.label}
+                  aria-label={`${t('gender', 'Gender')}: ${gender.label}`}
+                />
               ))}
             </ContentSwitcher>
+            <div id="gender-help" className="sr-only">
+              {t('genderHelp', 'Choose to search for all patients, only males, or only females')}
+            </div>
           </div>
           <div className={styles.switch}>
             <ContentSwitcher
@@ -93,15 +115,26 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
               className={styles.contentSwitcher}
               size="lg"
               onChange={({ index }) => setLivingStatus(livingStatuses[index].value)}
+              aria-label={t('selectLivingStatus', 'Select living status')}
+              aria-describedby="living-status-help"
             >
               {livingStatuses.map((livingStatus) => (
-                <Switch key={livingStatus.id} name={livingStatus.value} text={livingStatus.label} />
+                <Switch 
+                  key={livingStatus.id} 
+                  name={livingStatus.value} 
+                  text={livingStatus.label}
+                  aria-label={`${t('livingStatus', 'Living status')}: ${livingStatus.label}`}
+                />
               ))}
             </ContentSwitcher>
+            <div id="living-status-help" className="sr-only">
+              {t('livingStatusHelp', 'Choose to search for living patients or deceased patients')}
+            </div>
           </div>
         </div>
-      </Column>
-      <div className={styles.column}>
+      </fieldset>
+      <fieldset className={styles.column} aria-labelledby="age-range-legend">
+        <legend id="age-range-legend" className="sr-only">{t('ageRange', 'Age Range')}</legend>
         <Column className={styles.age}>
           <Column>
             <NumberInput
@@ -113,6 +146,7 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
               min={0}
               onChange={(event, { value }) => setMinAge(Number(value))}
               value={minAge}
+              aria-describedby="age-range-description"
             />
           </Column>
           <Column>
@@ -126,11 +160,16 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
               min={0}
               onChange={(event, { value }) => setMaxAge(Number(value))}
               value={maxAge}
+              aria-describedby="age-range-description"
             />
           </Column>
         </Column>
-      </div>
-      <div className={styles.column}>
+        <div id="age-range-description" className="sr-only">
+          {t('ageRangeHelp', 'Enter minimum and maximum ages to filter patients by age range. Leave blank to include all ages.')}
+        </div>
+      </fieldset>
+      <fieldset className={styles.column} aria-labelledby="birth-date-legend">
+        <legend id="birth-date-legend" className="sr-only">{t('birthDateRange', 'Birth Date Range')}</legend>
         <Column>
           <DatePicker
             datePickerType="single"
@@ -143,6 +182,7 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
               labelText={t('birthDate', 'Birth date between')}
               placeholder="DD-MM-YYYY"
               size="md"
+              aria-describedby="birth-date-description"
             />
           </DatePicker>
         </Column>
@@ -153,12 +193,26 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
             onChange={(date) => setBirthDayEndDate(dayjs(date[0]).format())}
             value={birthDayEndDate && dayjs(birthDayEndDate).format('DD-MM-YYYY')}
           >
-            <DatePickerInput id="endDate" labelText={t('and', 'and')} placeholder="DD-MM-YYYY" size="md" />
+            <DatePickerInput 
+              id="endDate" 
+              labelText={t('and', 'and')} 
+              placeholder="DD-MM-YYYY" 
+              size="md"
+              aria-describedby="birth-date-description"
+            />
           </DatePicker>
         </Column>
-      </div>
-      <SearchButtonSet isLoading={isLoading} onHandleSubmit={submit} onHandleReset={reset} />
-    </>
+        <div id="birth-date-description" className="sr-only">
+          {t('birthDateHelp', 'Select a date range to filter patients by birth date. Leave blank to include all birth dates.')}
+        </div>
+      </fieldset>
+      <SearchButtonSet 
+        isLoading={isLoading} 
+        onHandleSubmit={submit} 
+        onHandleReset={reset} 
+        submitError={submitError}
+      />
+    </div>
   );
 };
 

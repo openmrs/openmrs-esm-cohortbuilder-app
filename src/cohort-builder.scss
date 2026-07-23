@@ -2,6 +2,46 @@
 @use '@carbon/type';
 @use '@openmrs/esm-styleguide/src/vars' as *;
 
+// Screen reader only class for accessibility - using :global for CSS modules compatibility
+:global(.sr-only) {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+// Focus management for accessibility
+.focus-visible {
+  outline: 2px solid var(--cds-focus) !important;
+  outline-offset: 2px !important;
+}
+
+// Error message styling for accessibility
+.error-message {
+  color: var(--cds-support-error);
+  margin-top: spacing.$spacing-03;
+  font-size: 0.875rem;
+  
+  &::before {
+    content: '⚠ ';
+    font-weight: bold;
+  }
+}
+
+// Loading announcement styling
+.loading-announcement {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
 .heading {
   @include type.type-style('productive-heading-02');
   color: $text-02;

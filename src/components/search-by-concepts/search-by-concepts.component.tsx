@@ -7,6 +7,7 @@ import type { Concept, SearchByProps } from '../../types';
 import { SearchConcept } from './search-concept/search-concept.component';
 import SearchButtonSet from '../search-button-set/search-button-set';
 import styles from './search-by-concepts.style.scss';
+import '../../cohort-builder.scss';
 
 const operators = [
   {
@@ -68,6 +69,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [onOrBefore, setOnOrBefore] = useState('');
   const [searchText, setSearchText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string>('');
 
   const observationOptions = [
     {
@@ -130,6 +132,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
     setOperatorValue(0);
     setOperator('LESS_THAN');
     setTimeModifier('ANY');
+    setSubmitError('');
   };
 
   const getOnOrBefore = () => {
@@ -140,35 +143,45 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
 
   const handleSubmit = async () => {
     if (!concept) {
+      setSubmitError(t('conceptRequired', 'Please select a concept before searching'));
       return;
     }
+    
     setIsLoading(true);
-    const observations: Observation = {
-      modifier: '',
-      operator1: operator,
-      value1: operatorValue > 0 ? operatorValue.toString() : '',
-      question: concept.uuid,
-      onOrBefore: getOnOrBefore() || onOrBefore,
-      onOrAfter,
-      timeModifier,
-    };
-    const dataType = types[concept.hl7Abbrev];
-    const params = { [dataType]: [] };
-    Object.keys(observations).forEach((key) => {
-      observations[key] !== ''
-        ? params[dataType].push({
-            name: key === 'modifier' ? (['CWE', 'TS'].includes(concept.hl7Abbrev) ? 'values' : 'value1') : key,
-            value:
-              key === 'modifier' && ['CWE', 'TS'].includes(concept.hl7Abbrev) ? [observations[key]] : observations[key],
-          })
-        : '';
-    });
-    await onSubmit(composeJson(params), queryDescriptionBuilder(observations, concept.name));
-    setIsLoading(false);
+    setSubmitError('');
+    
+    try {
+      const observations: Observation = {
+        modifier: '',
+        operator1: operator,
+        value1: operatorValue > 0 ? operatorValue.toString() : '',
+        question: concept.uuid,
+        onOrBefore: getOnOrBefore() || onOrBefore,
+        onOrAfter,
+        timeModifier,
+      };
+      const dataType = types[concept.hl7Abbrev];
+      const params = { [dataType]: [] };
+      Object.keys(observations).forEach((key) => {
+        observations[key] !== ''
+          ? params[dataType].push({
+              name: key === 'modifier' ? (['CWE', 'TS'].includes(concept.hl7Abbrev) ? 'values' : 'value1') : key,
+              value:
+                key === 'modifier' && ['CWE', 'TS'].includes(concept.hl7Abbrev) ? [observations[key]] : observations[key],
+            })
+          : '';
+      });
+      await onSubmit(composeJson(params), queryDescriptionBuilder(observations, concept.name));
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : t('searchError', 'An error occurred while searching');
+      setSubmitError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <>
+    <div role="tabpanel">
       <div>
         <SearchConcept
           setConcept={setConcept}
@@ -178,10 +191,13 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
         />
         {concept?.hl7Abbrev === 'NM' ? (
           <>
-            <Column className={styles.column}>
+            <fieldset className={styles.column}>
+              <legend className="sr-only">{t('observationSelection', 'Observation Selection')}</legend>
               <div style={{ display: 'flex' }}>
                 <div className={styles.multipleInputs}>
-                  <p style={{ paddingRight: 20 }}>{t('whatObservations', 'What observations')}</p>
+                  <label htmlFor="timeModifier" className={styles.value} id="observation-label">
+                    {t('whatObservations', 'What observations')}
+                  </label>
                   <Dropdown
                     id="timeModifier"
                     onChange={(data) => setTimeModifier(data.selectedItem.value)}
@@ -190,24 +206,43 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
                     className={styles.timeModifier}
                     label=""
                     titleText=""
+                    aria-labelledby="observation-label"
+                    aria-describedby="observation-help"
                   />
+                  <div id="observation-help" className="sr-only">
+                    {t('observationHelp', 'Select which type of observations to include in your search')}
+                  </div>
                 </div>
               </div>
-            </Column>
-            <Column className={styles.column}>
-              <p className={styles.value}>{t('whatValues', 'What values')}</p>
-              <div className={styles.whatValuesInputs}>
+            </fieldset>
+            <fieldset className={styles.column}>
+              <legend className={styles.value}>{t('whatValues', 'What values')}</legend>
+              <div className={styles.whatValuesInputs} role="group" aria-labelledby="values-legend" aria-describedby="values-help">
+                <div id="values-legend" className="sr-only">{t('valueSelection', 'Value selection')}</div>
+                <div id="values-help" className="sr-only">
+                  {t('valuesHelp', 'Select a comparison operator and enter a numeric value to filter observations')}
+                </div>
                 <div className={styles.operators}>
                   <ContentSwitcher
                     selectedIndex={operators[0].id}
                     className={styles.contentSwitcher}
                     size="lg"
                     onChange={({ index }) => setOperator(operators[index].value)}
+                    aria-label={t('selectOperator', 'Select comparison operator')}
+                    aria-describedby="operator-help"
                   >
                     {operators.map((operator) => (
-                      <Switch key={operator.id} name={operator.value} text={operator.label} />
+                      <Switch 
+                        key={operator.id} 
+                        name={operator.value} 
+                        text={operator.label}
+                        aria-label={`${t('operator', 'Operator')}: ${operator.label}`}
+                      />
                     ))}
                   </ContentSwitcher>
+                  <div id="operator-help" className="sr-only">
+                    {t('operatorHelp', 'Choose how to compare the observation values: less than, equal to, greater than, etc.')}
+                  </div>
                 </div>
                 <div className={styles.multipleInputs}>
                   <NumberInput
@@ -219,13 +254,18 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
                     size="sm"
                     value={operatorValue}
                     onChange={(event, { value }) => setOperatorValue(Number(value))}
+                    aria-describedby="value-help"
                   />
+                  <div id="value-help" className="sr-only">
+                    {t('valueInputHelp', `Enter the numeric value to compare against. Unit: ${concept.units || 'none'}`)}
+                  </div>
                 </div>
               </div>
-            </Column>
+            </fieldset>
           </>
         ) : (
-          <Column className={styles.column}>
+          <fieldset className={styles.column} role="group" aria-labelledby="observation-filter-legend">
+            <legend id="observation-filter-legend" className="sr-only">{t('observationFilter', 'Observation Filter Options')}</legend>
             <Dropdown
               id="timeModifier"
               data-testid="timeModifier"
@@ -234,10 +274,16 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
               items={observationOptions}
               label=""
               titleText=""
+              aria-label={t('selectObservationType', 'Select observation type')}
+              aria-describedby="observation-type-help"
             />
-          </Column>
+            <div id="observation-type-help" className="sr-only">
+              {t('observationTypeHelp', 'Choose whether to search for patients who have or do not have these observations')}
+            </div>
+          </fieldset>
         )}
-        <Column className={styles.dateRange}>
+        <fieldset className={styles.dateRange} aria-labelledby="time-range-legend">
+          <legend id="time-range-legend" className="sr-only">{t('timeRangeSelection', 'Time Range Selection')}</legend>
           <Column>
             <NumberInput
               hideSteppers
@@ -248,7 +294,11 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
               min={0}
               value={lastMonths}
               onChange={(event, { value }) => setLastMonths(Number(value))}
+              aria-describedby="months-help"
             />
+            <div id="months-help" className="sr-only">
+              {t('monthsHelp', 'Enter number of months to look back from today')}
+            </div>
           </Column>
           <Column>
             <NumberInput
@@ -260,39 +310,64 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
               min={0}
               value={lastDays}
               onChange={(event, { value }) => setLastDays(Number(value))}
+              aria-describedby="days-help"
             />
+            <div id="days-help" className="sr-only">
+              {t('daysHelp', 'Enter additional days to look back, combined with months above')}
+            </div>
           </Column>
-        </Column>
-        <div className={styles.dateRange}>
-          <Column>
-            <DatePicker
-              datePickerType="single"
-              allowInput={false}
-              onChange={(date) => setOnOrAfter(dayjs(date[0]).format())}
-              value={onOrAfter && dayjs(onOrAfter).format('DD-MM-YYYY')}
-            >
-              <DatePickerInput
-                id="startDate"
-                labelText={t('dateRange', 'Date range start date')}
-                placeholder="DD-MM-YYYY"
-                size="md"
-              />
-            </DatePicker>
-          </Column>
-          <Column>
-            <DatePicker
-              datePickerType="single"
-              allowInput={false}
-              onChange={(date) => setOnOrBefore(dayjs(date[0]).format())}
-              value={onOrBefore && dayjs(onOrBefore).format('DD-MM-YYYY')}
-            >
-              <DatePickerInput id="endDate" labelText={t('endDate', 'End date')} placeholder="DD-MM-YYYY" size="md" />
-            </DatePicker>
-          </Column>
-        </div>
+        </fieldset>
+        <fieldset className={styles.dateRange} role="group" aria-labelledby="specific-date-legend">
+          <legend id="specific-date-legend" className="sr-only">{t('specificDateRange', 'Specific Date Range Selection')}</legend>
+          <div className={styles.dateRange}>
+            <Column>
+              <DatePicker
+                datePickerType="single"
+                allowInput={false}
+                onChange={(date) => setOnOrAfter(dayjs(date[0]).format())}
+                value={onOrAfter && dayjs(onOrAfter).format('DD-MM-YYYY')}
+              >
+                <DatePickerInput
+                  id="startDate"
+                  labelText={t('dateRange', 'Date range start date')}
+                  placeholder="DD-MM-YYYY"
+                  size="md"
+                  aria-describedby="start-date-help"
+                />
+              </DatePicker>
+              <div id="start-date-help" className="sr-only">
+                {t('startDateHelp', 'Select the earliest date to include observations from')}
+              </div>
+            </Column>
+            <Column>
+              <DatePicker
+                datePickerType="single"
+                allowInput={false}
+                onChange={(date) => setOnOrBefore(dayjs(date[0]).format())}
+                value={onOrBefore && dayjs(onOrBefore).format('DD-MM-YYYY')}
+              >
+                <DatePickerInput 
+                  id="endDate" 
+                  labelText={t('endDate', 'End date')} 
+                  placeholder="DD-MM-YYYY" 
+                  size="md"
+                  aria-describedby="end-date-help" 
+                />
+              </DatePicker>
+              <div id="end-date-help" className="sr-only">
+                {t('endDateHelp', 'Select the latest date to include observations from')}
+              </div>
+            </Column>
+          </div>
+        </fieldset>
       </div>
-      <SearchButtonSet isLoading={isLoading} onHandleSubmit={handleSubmit} onHandleReset={handleReset} />
-    </>
+      <SearchButtonSet 
+        isLoading={isLoading} 
+        onHandleSubmit={handleSubmit} 
+        onHandleReset={handleReset} 
+        submitError={submitError}
+      />
+    </div>
   );
 };
 
