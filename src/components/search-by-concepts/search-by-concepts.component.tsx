@@ -155,13 +155,13 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
     const dataType = types[concept.hl7Abbrev];
     const params = { [dataType]: [] };
     Object.keys(observations).forEach((key) => {
-      observations[key] !== ''
-        ? params[dataType].push({
-            name: key === 'modifier' ? (['CWE', 'TS'].includes(concept.hl7Abbrev) ? 'values' : 'value1') : key,
-            value:
-              key === 'modifier' && ['CWE', 'TS'].includes(concept.hl7Abbrev) ? [observations[key]] : observations[key],
-          })
-        : '';
+      if (observations[key] !== '') {
+        params[dataType].push({
+          name: key === 'modifier' ? (['CWE', 'TS'].includes(concept.hl7Abbrev) ? 'values' : 'value1') : key,
+          value:
+            key === 'modifier' && ['CWE', 'TS'].includes(concept.hl7Abbrev) ? [observations[key]] : observations[key],
+        });
+      }
     });
     await onSubmit(composeJson(params), queryDescriptionBuilder(observations, concept.name));
     setIsLoading(false);
