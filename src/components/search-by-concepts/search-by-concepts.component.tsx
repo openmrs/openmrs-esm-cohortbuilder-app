@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { DatePicker, DatePickerInput, Column, Dropdown, NumberInput, Switch, ContentSwitcher } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
@@ -69,7 +69,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [searchText, setSearchText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const observationOptions = [
+  const observationOptions = useMemo(() => [
     {
       id: 'option-0',
       label: t('haveObservations', 'Patients who have these observations'),
@@ -80,9 +80,9 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
       label: t('haveNoObservations', 'Patients who do not have these observations'),
       value: 'NO',
     },
-  ];
+  ], [t]);
 
-  const whichObservation = [
+  const whichObservation = useMemo(() => [
     {
       id: 'option-0',
       label: t('any', 'Any'),
@@ -118,9 +118,9 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
       label: t('average', 'Average'),
       value: 'AVG',
     },
-  ];
+  ], [t]);
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setConcept(null);
     setLastDays(0);
     setSearchText('');
@@ -130,15 +130,15 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
     setOperatorValue(0);
     setOperator('LESS_THAN');
     setTimeModifier('ANY');
-  };
+  }, []);
 
-  const getOnOrBefore = () => {
+  const getOnOrBefore = useCallback(() => {
     if (lastDays > 0 || lastMonths > 0) {
       return dayjs().subtract(lastDays, 'days').subtract(lastMonths, 'months').format();
     }
-  };
+  }, [lastDays, lastMonths]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     if (!concept) {
       return;
     }
@@ -165,7 +165,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
     });
     await onSubmit(composeJson(params), queryDescriptionBuilder(observations, concept.name));
     setIsLoading(false);
-  };
+  }, [concept, operator, operatorValue, getOnOrBefore, onOrBefore, onOrAfter, timeModifier, onSubmit]);
 
   return (
     <>

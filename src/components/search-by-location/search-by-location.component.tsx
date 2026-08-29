@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Column, Dropdown, MultiSelect } from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
 
@@ -11,7 +11,7 @@ import styles from './search-by-location.style.scss';
 
 const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
-  const methods = [
+  const methods = useMemo(() => [
     {
       id: 0,
       label: t('anyEncounter', 'Any Encounter'),
@@ -27,7 +27,7 @@ const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
       label: t('earliestEncounter', 'Earliest Encounter'),
       value: 'FIRST',
     },
-  ];
+  ], [t]);
   const { locations, locationsError } = useLocations();
   const [selectedLocations, setSelectedLocations] = useState<DropdownValue[]>(null);
   const [selectedMethod, setSelectedMethod] = useState<DropdownValue>(methods[0]);
@@ -42,19 +42,19 @@ const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
     });
   }
 
-  const handleResetInputs = () => {
+  const handleResetInputs = useCallback(() => {
     setSelectedLocations(null);
     setSelectedMethod(null);
-  };
+  }, []);
 
-  const submit = async () => {
+  const submit = useCallback(async () => {
     setIsLoading(true);
     await onSubmit(
       getQueryDetails(selectedMethod.value, selectedLocations),
       getDescription(selectedMethod.label, selectedLocations),
     );
     setIsLoading(false);
-  };
+  }, [selectedMethod, selectedLocations, onSubmit]);
 
   return (
     <>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import { Column, ContentSwitcher, DatePicker, DatePickerInput, NumberInput, Switch } from '@carbon/react';
@@ -18,7 +18,7 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [maxAge, setMaxAge] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  const genders = [
+  const genders = useMemo(() => [
     {
       id: 0,
       label: t('all', 'All'),
@@ -34,9 +34,9 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
       label: t('females', 'Female'),
       value: 'females',
     },
-  ];
+  ], [t]);
 
-  const livingStatuses = [
+  const livingStatuses = useMemo(() => [
     {
       id: 0,
       label: t('alive', 'Alive'),
@@ -47,16 +47,16 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
       label: t('dead', 'Dead'),
       value: 'dead',
     },
-  ];
+  ], [t]);
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setMaxAge(0);
     setMinAge(0);
     setBirthDayEndDate('');
     setBirthDayStartDate('');
-  };
+  }, []);
 
-  const submit = async () => {
+  const submit = useCallback(async () => {
     setIsLoading(true);
     const demographics = {
       gender,
@@ -68,7 +68,7 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
     };
     await onSubmit(getQueryDetails(demographics), getDescription(demographics));
     setIsLoading(false);
-  };
+  }, [gender, minAge, maxAge, birthDayStartDate, birthDayEndDate, livingStatus, onSubmit]);
 
   return (
     <>
