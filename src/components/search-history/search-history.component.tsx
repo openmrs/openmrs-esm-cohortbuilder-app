@@ -13,6 +13,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { type PaginationData, type SearchHistoryItem } from '../../types';
 import { getSearchHistory } from './search-history.utils';
+import { safelyRemoveSessionStorage, safelySetSessionStorage, STORAGE_KEY } from '../../session-storage.utils';
 import EmptyData from '../empty-data/empty-data.component';
 import SearchHistoryOptions from './search-history-options/search-history-options.component';
 import mainStyles from '../../cohort-builder.scss';
@@ -58,7 +59,7 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ isHistoryUpdated, setIsHi
   ];
 
   const clearHistory = () => {
-    window.sessionStorage.removeItem('openmrsHistory');
+    safelyRemoveSessionStorage(STORAGE_KEY);
     setSearchResults([]);
   };
 
@@ -67,7 +68,7 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ isHistoryUpdated, setIsHi
       (searchResult, index) => index != searchResults.indexOf(selectedSearchItem),
     );
     setSearchResults(updatedSearchResults);
-    window.sessionStorage.setItem('openmrsHistory', JSON.stringify(updatedSearchResults));
+    safelySetSessionStorage(STORAGE_KEY, updatedSearchResults);
   };
 
   const launchClearSearchHistoryModal = () => {

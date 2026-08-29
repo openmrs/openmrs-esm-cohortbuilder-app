@@ -1,4 +1,5 @@
 import { addColumnsToDisplay } from '../../cohort-builder.utils';
+import { getHistoryFromStorage } from '../../session-storage.utils';
 import type { Query } from '../../types';
 
 export const isCompositionValid = (search: string) => {
@@ -23,8 +24,12 @@ export const createCompositionQuery = (compositionQuery: string) => {
 
   searchTokens.forEach((eachToken) => {
     if (eachToken.match(/\d/)) {
-      const history = JSON.parse(window.sessionStorage.getItem('openmrsHistory'));
+      const history = getHistoryFromStorage();
       const operandQuery = history[parseInt(eachToken) - 1];
+
+      if (!operandQuery?.parameters) {
+        return;
+      }
 
       const jsonRequestObject = operandQuery.parameters;
       jsonRequestObject.customRowFilterCombination = formatFilterCombination(
