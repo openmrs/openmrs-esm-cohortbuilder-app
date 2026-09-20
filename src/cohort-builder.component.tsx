@@ -22,7 +22,7 @@ import styles from './cohort-builder.scss';
 
 interface TabItem {
   name: string;
-  component: JSX.Element;
+  component: React.JSX.Element;
 }
 
 const CohortBuilder: React.FC = () => {
