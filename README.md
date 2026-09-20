@@ -1,4 +1,4 @@
-![Node.js CI](https://github.com/openmrs/openmrs-esm-template-app/workflows/Node.js%20CI/badge.svg)
+![OpenMRS CI](https://github.com/openmrs/openmrs-esm-cohortbuilder-app/actions/workflows/node.js.yml/badge.svg)
 
 👋 New to our project? Be sure to review the ![OpenMRS 3 Frontend Developer Documentation](https://openmrs.atlassian.net/wiki/x/IABBHg) 🧑‍🏫
 
