@@ -45,6 +45,7 @@
     "url": "https://github.com/openmrs/openmrs-esm-cohortbuilder/issues"
   },
   "peerDependencies": {
+    "@carbon/react": "1.x",
     "@openmrs/esm-framework": "10.x",
     "react": "18.x",
     "react-dom": "18.x",
