@@ -29,6 +29,7 @@ test('search by enrollments', async ({ page }) => {
     await page.locator('#enrolledOnOrBefore').click();
     await page.locator('#enrolledOnOrBefore').fill('30-07-2023');
     await page.locator('#enrolledOnOrBefore').press('Tab');
+    await page.mouse.click(0, 0);
   });
 
   await test.step('Then I click the search button', async () => {
