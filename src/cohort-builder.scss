@@ -23,9 +23,10 @@
   justify-content: center;
 }
 
-.title {
-  padding: 1rem;
-  font-size: 1.2rem;
+.header {
+  background-color: $ui-02;
+  border-bottom: 1px solid $ui-03;
+  margin-bottom: spacing.$spacing-05;
 }
 
 .desktopContainer {

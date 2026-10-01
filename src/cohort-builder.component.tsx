@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import classNames from 'classnames';
 import { Tab, Tabs, TabPanels, TabPanel, TabList } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
-import { showSnackbar, useLayoutType } from '@openmrs/esm-framework';
+import { CohortsPictogram, PageHeader, PageHeaderContent, showSnackbar, useLayoutType } from '@openmrs/esm-framework';
 import { getCohortMembers, getDataSet, search } from './cohort-builder.resources';
 import { addToHistory } from './cohort-builder.utils';
 import type { Patient, SearchParams } from './types';
@@ -153,30 +153,34 @@ const CohortBuilder: React.FC = () => {
   ];
 
   return (
-    <div className={classNames(styles.mainContainer, styles.cohortBuilder)}>
-      <div className={classNames(isLayoutTablet ? styles.tabletContainer : styles.desktopContainer)}>
-        <p className={styles.title}>{t('cohortBuilder', 'Cohort Builder')}</p>
-        <div className={styles.tabContainer}>
-          <p className={styles.heading}>{t('searchCriteria', 'Search Criteria')}</p>
-          <div className={styles.tab}>
-            <Tabs>
-              <TabList aria-label="navigation">
-                {tabs.map((tab: TabItem, index: number) => (
-                  <Tab className={styles.tab} key={index}>
-                    {tab.name}
-                  </Tab>
-                ))}
-              </TabList>
-              <TabPanels>
-                {tabs.map((tab: TabItem, index: number) => (
-                  <TabPanel key={index}>{tab.component}</TabPanel>
-                ))}
-              </TabPanels>
-            </Tabs>
+    <div>
+      <PageHeader className={styles.header}>
+        <PageHeaderContent illustration={<CohortsPictogram />} title={t('cohortBuilder', 'Cohort Builder')} />
+      </PageHeader>
+      <div className={classNames(styles.mainContainer, styles.cohortBuilder)}>
+        <div className={classNames(isLayoutTablet ? styles.tabletContainer : styles.desktopContainer)}>
+          <div className={styles.tabContainer}>
+            <p className={styles.heading}>{t('searchCriteria', 'Search Criteria')}</p>
+            <div className={styles.tab}>
+              <Tabs>
+                <TabList aria-label="navigation">
+                  {tabs.map((tab: TabItem, index: number) => (
+                    <Tab className={styles.tab} key={index}>
+                      {tab.name}
+                    </Tab>
+                  ))}
+                </TabList>
+                <TabPanels>
+                  {tabs.map((tab: TabItem, index: number) => (
+                    <TabPanel key={index}>{tab.component}</TabPanel>
+                  ))}
+                </TabPanels>
+              </Tabs>
+            </div>
           </div>
+          <SearchResultsTable patients={patients} />
+          <SearchHistory isHistoryUpdated={isHistoryUpdated} setIsHistoryUpdated={setIsHistoryUpdated} />
         </div>
-        <SearchResultsTable patients={patients} />
-        <SearchHistory isHistoryUpdated={isHistoryUpdated} setIsHistoryUpdated={setIsHistoryUpdated} />
       </div>
     </div>
   );
