@@ -63,7 +63,7 @@ jobs:
 
       - name: 📝 Capture Server Logs
         if: always()
-        uses: jwalton/gh-docker-logs@v2
+        uses: openmrs/openmrs-contrib-gha-workflows/.github/actions/capture-docker-logs@main
         with:
           dest: './logs'
 
