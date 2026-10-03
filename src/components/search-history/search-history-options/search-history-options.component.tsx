@@ -1,9 +1,11 @@
 import React from 'react';
 import { useTranslation, type TFunction } from 'react-i18next';
 import { OverflowMenu, OverflowMenuItem } from '@carbon/react';
+import { useSWRConfig } from 'swr';
 import { showModal, showSnackbar } from '@openmrs/esm-framework';
 import { downloadCSV } from '../../../cohort-builder.utils';
 import type { Cohort, Patient, SearchHistoryItem } from '../../../types';
+import { savedQueriesKey } from '../../saved-queries/saved-queries.resources';
 import { createCohort, createQuery } from './search-history-options.resources';
 import styles from './search-history-options.scss';
 
@@ -58,6 +60,7 @@ const createCohortFromSearchItem = async (
 
 const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({ searchItem, updateSearchHistory }) => {
   const { t } = useTranslation();
+  const { mutate } = useSWRConfig();
   const handleOption = async (option: OptionType) => {
     const { patients, description } = searchItem;
     switch (option) {
@@ -101,6 +104,7 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({ searchItem, upda
       parameters.name = queryName;
       parameters.description = queryDescription;
       await createQuery(parameters);
+      await mutate(savedQueriesKey);
       showSnackbar({
         title: t('success', 'Success'),
         kind: 'success',

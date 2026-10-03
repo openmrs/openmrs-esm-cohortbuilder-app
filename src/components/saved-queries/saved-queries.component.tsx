@@ -1,9 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { DataTable, Table, TableHead, TableRow, TableHeader, TableBody, TableCell, Pagination } from '@carbon/react';
+import React, { useState } from 'react';
+import {
+  DataTable,
+  DataTableSkeleton,
+  InlineNotification,
+  Table,
+  TableHead,
+  TableRow,
+  TableHeader,
+  TableBody,
+  TableCell,
+  Pagination,
+} from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { showSnackbar } from '@openmrs/esm-framework';
-import type { DefinitionDataRow, PaginationData } from '../../types';
-import { deleteDataSet, getQueries } from './saved-queries.resources';
+import type { PaginationData } from '../../types';
+import { deleteDataSet, useQueries } from './saved-queries.resources';
 import EmptyData from '../empty-data/empty-data.component';
 import SavedQueriesOptions from './saved-queries-options/saved-queries-options.component';
 import mainStyles from '../../cohort-builder.scss';
@@ -17,12 +28,9 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
   const { t } = useTranslation();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [queries, setQueries] = useState<DefinitionDataRow[]>([]);
-
-  const getTableData = async () => {
-    const queries = await getQueries();
-    setQueries(queries);
-  };
+  const { queries, error, isLoading, mutate } = useQueries();
+  // The list can shrink after a delete, so keep the current page within range.
+  const currentPage = Math.min(page, Math.max(1, Math.ceil(queries.length / pageSize)));
 
   const deleteQuery = async (queryId: string) => {
     try {
@@ -33,7 +41,7 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
         isLowContrast: true,
         subtitle: t('queryIsDeleted', 'the query is deleted'),
       });
-      getTableData();
+      await mutate();
     } catch (error) {
       showSnackbar({
         title: t('error', 'Error'),
@@ -43,10 +51,6 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
       });
     }
   };
-
-  useEffect(() => {
-    getTableData();
-  }, []);
 
   const headers = [
     {
@@ -69,6 +73,16 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
       <p className={mainStyles.text}>
         {t('savedQueryDescription', 'You can only search for Query Definitions that you have saved using a Name.')}
       </p>
+      {isLoading && <DataTableSkeleton headers={headers} rowCount={3} showHeader={false} showToolbar={false} />}
+      {error && (
+        <InlineNotification
+          kind="error"
+          lowContrast
+          hideCloseButton
+          title={t('errorLoadingQueries', 'Error loading saved queries')}
+          subtitle={error.message}
+        />
+      )}
       <DataTable rows={queries} headers={headers} useZebraStyles>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
           <Table {...getTableProps()}>
@@ -82,7 +96,7 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
             </TableHead>
             <TableBody>
               {rows
-                .slice((page - 1) * pageSize)
+                .slice((currentPage - 1) * pageSize)
                 .slice(0, pageSize)
                 .map((row, index: number) => (
                   <TableRow {...getRowProps({ row })} key={index}>
@@ -91,7 +105,7 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
                     ))}
                     <TableCell className={mainStyles.optionCell}>
                       <SavedQueriesOptions
-                        query={queries[(page - 1) * pageSize + index]}
+                        query={queries[(currentPage - 1) * pageSize + index]}
                         onViewQuery={onViewQuery}
                         deleteQuery={deleteQuery}
                       />
@@ -108,8 +122,8 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
           forwardText={t('nextPage', 'Next page')}
           itemsPerPageText={t('itemsPerPage', 'Items per page:')}
           onChange={handlePagination}
-          page={1}
-          pageSize={10}
+          page={currentPage}
+          pageSize={pageSize}
           pageSizes={[10, 20, 30, 40, 50]}
           size="md"
           totalItems={queries.length}

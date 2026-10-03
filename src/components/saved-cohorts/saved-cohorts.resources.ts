@@ -6,7 +6,10 @@ import type { Cohort, DefinitionDataRow } from '../../types';
 export function useCohorts() {
   const url = `${restBaseUrl}/cohort?v=full`;
 
-  const { data, isLoading, isValidating } = useSWR<{ data: { results: Array<Cohort> } }, Error>(url, openmrsFetch);
+  const { data, error, isLoading, isValidating, mutate } = useSWR<{ data: { results: Array<Cohort> } }, Error>(
+    url,
+    openmrsFetch,
+  );
 
   const mappedCohorts: Array<DefinitionDataRow> = useMemo(() => {
     return data?.data?.results?.map((cohort) => ({
@@ -18,8 +21,10 @@ export function useCohorts() {
 
   return {
     cohorts: mappedCohorts ?? [],
+    error,
     isLoading,
     isValidating,
+    mutate,
   };
 }
 

@@ -2,13 +2,24 @@ import React from 'react';
 import { vi, describe, it, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { screen, render } from '@testing-library/react';
+import type * as SWR from 'swr';
 import { showModal } from '@openmrs/esm-framework';
+import { savedQueriesKey } from '../../saved-queries/saved-queries.resources';
 import { createQuery } from './search-history-options.resources';
 import type * as SearchHistoryOptionsResources from './search-history-options.resources';
 import SearchHistoryOptions from './search-history-options.component';
 
 const mockShowModal = vi.mocked(showModal);
 const mockCreateQuery = vi.mocked(createQuery);
+const mockMutate = vi.fn();
+
+vi.mock('swr', async (importOriginal) => {
+  const original = await importOriginal<typeof SWR>();
+  return {
+    ...original,
+    useSWRConfig: () => ({ ...original.useSWRConfig(), mutate: mockMutate }),
+  };
+});
 
 vi.mock('./search-history-options.resources', async (importOriginal) => {
   const original = await importOriginal<typeof SearchHistoryOptionsResources>();
@@ -150,5 +161,22 @@ describe('Test the search history options', () => {
       searchItemName: searchHistoryItem.description,
       size: 'sm',
     });
+  });
+  it('should refresh the saved queries list after saving a query', async () => {
+    const user = userEvent.setup();
+    mockCreateQuery.mockResolvedValue(undefined);
+    render(<SearchHistoryOptions {...testProps} />);
+
+    await user.click(screen.getByRole('button', { name: /options/i }));
+    await user.click(screen.getByText(/save query/i));
+
+    const [, modalProps] = mockShowModal.mock.calls.find(([modalName]) => modalName === 'save-query-modal');
+    const { onSaveQuery } = modalProps as {
+      onSaveQuery: (data: { queryName: string; queryDescription: string }) => Promise<void>;
+    };
+    await onSaveQuery({ queryName: 'Male patients', queryDescription: 'All male patients' });
+
+    expect(mockCreateQuery).toHaveBeenCalled();
+    expect(mockMutate).toHaveBeenCalledWith(savedQueriesKey);
   });
 });

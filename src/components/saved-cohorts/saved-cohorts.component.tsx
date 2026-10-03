@@ -1,5 +1,16 @@
 import React, { useState } from 'react';
-import { DataTable, Pagination, Table, TableHead, TableRow, TableHeader, TableBody, TableCell } from '@carbon/react';
+import {
+  DataTable,
+  DataTableSkeleton,
+  InlineNotification,
+  Pagination,
+  Table,
+  TableHead,
+  TableRow,
+  TableHeader,
+  TableBody,
+  TableCell,
+} from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
 import { useTranslation } from 'react-i18next';
 import { onDeleteCohort, useCohorts } from './saved-cohorts.resources';
@@ -17,7 +28,9 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
   const { t } = useTranslation();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const { cohorts } = useCohorts();
+  const { cohorts, error, isLoading, mutate } = useCohorts();
+  // The list can shrink after a delete, so keep the current page within range.
+  const currentPage = Math.min(page, Math.max(1, Math.ceil(cohorts.length / pageSize)));
 
   const headers = [
     {
@@ -44,6 +57,7 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
         isLowContrast: true,
         subtitle: t('cohortDeleted', 'Cohort deleted'),
       });
+      await mutate();
     } catch (error) {
       showSnackbar({
         title: t('error', 'Error'),
@@ -59,6 +73,16 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
       <p className={mainStyles.text}>
         {t('savedCohortDescription', 'You can only search for Cohort Definitions that you have saved using a Name.')}
       </p>
+      {isLoading && <DataTableSkeleton headers={headers} rowCount={3} showHeader={false} showToolbar={false} />}
+      {error && (
+        <InlineNotification
+          kind="error"
+          lowContrast
+          hideCloseButton
+          title={t('errorLoadingCohorts', 'Error loading saved cohorts')}
+          subtitle={error.message}
+        />
+      )}
       <DataTable rows={cohorts} headers={headers} useZebraStyles>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
           <Table {...getTableProps()}>
@@ -72,7 +96,7 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
             </TableHead>
             <TableBody>
               {rows
-                .slice((page - 1) * pageSize)
+                .slice((currentPage - 1) * pageSize)
                 .slice(0, pageSize)
                 .map((row, index: number) => (
                   <TableRow {...getRowProps({ row })} key={index}>
@@ -81,7 +105,7 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
                     ))}
                     <TableCell className={mainStyles.optionCell}>
                       <SavedCohortsOptions
-                        cohort={cohorts[(page - 1) * pageSize + index]}
+                        cohort={cohorts[(currentPage - 1) * pageSize + index]}
                         onViewCohort={onViewCohort}
                         onDeleteCohort={handleDeleteCohort}
                       />
@@ -98,14 +122,14 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
           forwardText={t('nextPage', 'Next page')}
           itemsPerPageText={t('itemsPerPage', 'Items per page:')}
           onChange={handlePagination}
-          page={1}
-          pageSize={10}
+          page={currentPage}
+          pageSize={pageSize}
           pageSizes={[10, 20, 30, 40, 50]}
           size="md"
           totalItems={cohorts.length}
         />
       )}
-      {!cohorts?.length && <EmptyData displayText={t('cohorts', 'cohorts')} />}
+      {!isLoading && !error && !cohorts?.length && <EmptyData displayText={t('cohorts', 'cohorts')} />}
     </div>
   );
 };
