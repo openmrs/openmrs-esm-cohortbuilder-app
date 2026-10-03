@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { Column, DatePicker, DatePickerInput, Dropdown, MultiSelect } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
@@ -17,30 +17,24 @@ const SearchByDrugOrder: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [activeOnOrBefore, setActiveOnOrBefore] = useState('');
   const [activatedOnOrAfter, setActivatedOnOrAfter] = useState('');
   const [activatedOnOrBefore, setActivatedOnOrBefore] = useState('');
-  const [selectedDrugs, setSelectedDrugs] = useState<DropdownValue[]>(null);
+  const [selectedDrugs, setSelectedDrugs] = useState<DropdownValue[]>([]);
   const [selectedCareSetting, setSelectedCareSetting] = useState<DropdownValue>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  if (drugsError) {
-    showSnackbar({
-      title: t('error', 'Error'),
-      kind: 'error',
-      isLowContrast: false,
-      subtitle: drugsError?.message,
-    });
-  }
-
-  if (careSettingsError) {
-    showSnackbar({
-      title: t('error', 'Error'),
-      kind: 'error',
-      isLowContrast: false,
-      subtitle: careSettingsError?.message,
-    });
-  }
+  useEffect(() => {
+    const error = drugsError ?? careSettingsError;
+    if (error) {
+      showSnackbar({
+        title: t('error', 'Error'),
+        kind: 'error',
+        isLowContrast: false,
+        subtitle: error?.message,
+      });
+    }
+  }, [careSettingsError, drugsError, t]);
 
   const handleResetInputs = () => {
-    setSelectedDrugs(null);
+    setSelectedDrugs([]);
     setSelectedCareSetting(null);
     setActiveOnOrAfter('');
     setActiveOnOrBefore('');
@@ -58,8 +52,11 @@ const SearchByDrugOrder: React.FC<SearchByProps> = ({ onSubmit }) => {
       activatedOnOrAfter,
       activatedOnOrBefore,
     };
-    await onSubmit(getQueryDetails(drugOrderParams), getDescription(drugOrderParams));
-    setIsLoading(false);
+    try {
+      await onSubmit(getQueryDetails(drugOrderParams), getDescription(drugOrderParams));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -70,6 +67,7 @@ const SearchByDrugOrder: React.FC<SearchByProps> = ({ onSubmit }) => {
             id="drugs"
             data-testid="drugs"
             onChange={(data) => setSelectedDrugs(data.selectedItems)}
+            selectedItems={selectedDrugs}
             items={drugs}
             label={t('selectDrugs', 'Select drugs')}
           />
@@ -81,7 +79,7 @@ const SearchByDrugOrder: React.FC<SearchByProps> = ({ onSubmit }) => {
             id="careSettings"
             data-testid="careSettings"
             onChange={(data) => setSelectedCareSetting(data.selectedItem)}
-            initialSelectedItem={careSettings[0]}
+            selectedItem={selectedCareSetting}
             items={careSettings}
             label={t('selectCareSettings', 'Select a care setting')}
             titleText=""

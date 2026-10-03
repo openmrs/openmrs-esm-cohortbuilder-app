@@ -2,7 +2,7 @@ import React from 'react';
 import { vi, describe, it, expect, type Mock } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { openmrsFetch } from '@openmrs/esm-framework';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { useLocations } from '../../cohort-builder.resources';
 import type * as CohortBuilderResources from '../../cohort-builder.resources';
 import { usePrograms } from './search-by-enrollments.resources';
@@ -141,5 +141,30 @@ describe('Test the search by enrollments component', () => {
       expectedQuery,
       `Patients enrolled in ${mockPrograms[0].label} at ${mockLocations[2].label}`,
     );
+  });
+  it('should clear both selections on reset', async () => {
+    const user = userEvent.setup();
+    mockUsePrograms.mockImplementation(() => ({ programs: mockPrograms, isLoading: false, programsError: undefined }));
+    mockUseLocations.mockImplementation(() => ({
+      locations: mockLocations,
+      isLoading: false,
+      locationsError: undefined,
+    }));
+    const mockSubmit = vi.fn().mockResolvedValue(true);
+    render(<SearchByEnrollments onSubmit={mockSubmit} />);
+
+    await user.click(screen.getByText(/select locations/i));
+    await user.click(screen.getByText(mockLocations[2].label));
+    await user.click(screen.getByText(/select programs/i));
+    await user.click(screen.getByText(mockPrograms[0].label));
+    expect(screen.getAllByTitle(/clear all selected items/i)).toHaveLength(2);
+
+    await user.click(screen.getByTestId('reset-btn'));
+
+    expect(screen.queryByTitle(/clear all selected items/i)).not.toBeInTheDocument();
+    await user.click(screen.getByTestId('search-btn'));
+    await waitFor(() => expect(mockSubmit).toHaveBeenCalledTimes(1));
+    expect(mockSubmit.mock.calls[0][1]).not.toContain(mockPrograms[0].label);
+    expect(mockSubmit.mock.calls[0][1]).not.toContain(mockLocations[2].label);
   });
 });

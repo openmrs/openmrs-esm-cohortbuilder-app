@@ -2,7 +2,7 @@ import React from 'react';
 import { vi, describe, it, expect, type Mock } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { openmrsFetch } from '@openmrs/esm-framework';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { useCareSettings, useDrugs } from './search-by-drug-orders.resources';
 import type * as SearchByDrugOrdersResources from './search-by-drug-orders.resources';
 import SearchByDrugOrder from './search-by-drug-orders.component';
@@ -131,7 +131,7 @@ describe('Test the search by drug orders component', () => {
     await user.click(screen.getByText(/select drugs/i));
     await user.click(screen.getByText(mockDrugs[1].label));
     await user.click(screen.getByText(mockDrugs[2].label));
-    await user.click(screen.getByTitle(mockCareSettings[0].label));
+    await user.click(screen.getByText(/select a care setting/i));
     await user.click(screen.getByText(mockCareSettings[2].label));
     await user.click(screen.getByTestId('search-btn'));
 
@@ -139,5 +139,25 @@ describe('Test the search by drug orders component', () => {
       expectedQuery,
       `Patients who taking ${mockDrugs[1].label} and ${mockDrugs[2].label} from Pharmacy`,
     );
+  });
+  it('should still search after the inputs are reset', async () => {
+    const user = userEvent.setup();
+    mockUseCareSettings.mockImplementation(() => ({
+      careSettings: mockCareSettings,
+      isLoading: false,
+      careSettingsError: undefined,
+    }));
+    mockUseDrugs.mockImplementation(() => ({ drugs: mockDrugs, isLoading: false, drugsError: undefined }));
+    const mockSubmit = vi.fn().mockResolvedValue(true);
+    render(<SearchByDrugOrder onSubmit={mockSubmit} />);
+
+    await user.click(screen.getByText(/select drugs/i));
+    await user.click(screen.getByText(mockDrugs[1].label));
+    await user.click(screen.getByTestId('reset-btn'));
+    await user.click(screen.getByTestId('search-btn'));
+
+    await waitFor(() => expect(mockSubmit).toHaveBeenCalledTimes(1));
+    expect(mockSubmit.mock.calls[0][1]).not.toContain(mockDrugs[1].label);
+    expect(screen.getByTestId('search-btn')).toBeEnabled();
   });
 });

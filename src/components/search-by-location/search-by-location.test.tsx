@@ -104,8 +104,31 @@ describe('Test the search by location component', () => {
     await waitFor(() => {
       expect(mockSubmit).toBeCalledWith(
         expectedQuery,
-        `Patients in ${mockLocations[2].label} (by method ANY_ENCOUNTER).`,
+        `Patients in ${mockLocations[2].label} (by method LATEST_ENCOUNTER).`,
       );
     });
+  });
+  it('should still search after the inputs are reset', async () => {
+    const user = userEvent.setup();
+    mockUseLocations.mockImplementation(() => ({
+      locations: mockLocations,
+      isLoading: false,
+      locationsError: undefined,
+    }));
+    const mockSubmit = vi.fn().mockResolvedValue(true);
+    render(<SearchByLocation onSubmit={mockSubmit} />);
+
+    await user.click(screen.getByTitle('Any Encounter'));
+    await user.click(screen.getByText('Most Recent Encounter'));
+    await user.click(screen.getByTestId('reset-btn'));
+
+    expect(screen.getByTitle('Any Encounter')).toBeInTheDocument();
+
+    await user.click(screen.getByTestId('search-btn'));
+
+    await waitFor(() =>
+      expect(mockSubmit).toHaveBeenCalledWith(expect.anything(), 'Patients in  (by method ANY_ENCOUNTER).'),
+    );
+    expect(screen.getByTestId('search-btn')).toBeEnabled();
   });
 });
