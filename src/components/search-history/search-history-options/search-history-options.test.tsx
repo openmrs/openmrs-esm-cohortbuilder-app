@@ -3,9 +3,20 @@ import { vi, describe, it, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { screen, render } from '@testing-library/react';
 import { showModal } from '@openmrs/esm-framework';
+import { createQuery } from './search-history-options.resources';
+import type * as SearchHistoryOptionsResources from './search-history-options.resources';
 import SearchHistoryOptions from './search-history-options.component';
 
 const mockShowModal = vi.mocked(showModal);
+const mockCreateQuery = vi.mocked(createQuery);
+
+vi.mock('./search-history-options.resources', async (importOriginal) => {
+  const original = await importOriginal<typeof SearchHistoryOptionsResources>();
+  return {
+    ...original,
+    createQuery: vi.fn(),
+  };
+});
 
 const searchHistoryItem = {
   description: 'Patients with NO Chronic viral hepatitis',
@@ -106,6 +117,25 @@ describe('Test the search history options', () => {
       onSaveQuery: expect.any(Function),
       size: 'sm',
     });
+  });
+
+  it('should save the query with the name and description entered in the modal', async () => {
+    const user = userEvent.setup();
+    mockCreateQuery.mockResolvedValue(undefined);
+    render(<SearchHistoryOptions {...testProps} />);
+
+    await user.click(screen.getByRole('button', { name: /options/i }));
+    await user.click(screen.getByText(/save query/i));
+
+    const [, modalProps] = mockShowModal.mock.calls.find(([modalName]) => modalName === 'save-query-modal');
+    const { onSaveQuery } = modalProps as {
+      onSaveQuery: (data: { queryName: string; queryDescription: string }) => Promise<void>;
+    };
+    await onSaveQuery({ queryName: 'Male patients', queryDescription: 'All male patients' });
+
+    expect(mockCreateQuery).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Male patients', description: 'All male patients' }),
+    );
   });
 
   it('should launch the delete confirmation modal when the delete option is clicked', async () => {
