@@ -18,6 +18,7 @@ const DeleteQueryModal: React.FC<DeleteQueryModalProps> = ({ closeModal, queryNa
     setIsDeletingQuery(true);
     await onDelete(queryId);
     setIsDeletingQuery(false);
+    closeModal();
   };
 
   return (

@@ -1,5 +1,6 @@
 import React from 'react';
 import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest';
+import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
 import { openmrsFetch } from '@openmrs/esm-framework';
 import { type DefinitionDataRow } from '../../types';
@@ -54,5 +55,27 @@ describe('Test the saved queries component', () => {
       expect(nameCell).toBeInTheDocument();
       expect(screen.getByText(query.description)).toBeInTheDocument();
     }
+  });
+
+  it('should act on the query shown in the row when the table is paginated', async () => {
+    const user = userEvent.setup();
+    const onViewQuery = vi.fn().mockResolvedValue(undefined);
+    const queries: DefinitionDataRow[] = Array.from({ length: 11 }, (_, i) => ({
+      id: `query-${i + 1}`,
+      name: `Query ${i + 1}`,
+      description: `Description ${i + 1}`,
+    }));
+    mockGetQueries.mockResolvedValue(queries);
+
+    render(<SavedQueries onViewQuery={onViewQuery} />);
+
+    await screen.findByText('Query 1');
+    await user.click(screen.getByRole('button', { name: /next page/i }));
+    expect(screen.getByText('Query 11')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /options/i }));
+    await user.click(screen.getByText(/view/i));
+
+    expect(onViewQuery).toHaveBeenCalledWith('query-11');
   });
 });

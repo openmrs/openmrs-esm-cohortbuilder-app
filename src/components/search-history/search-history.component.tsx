@@ -110,7 +110,7 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ isHistoryUpdated, setIsHi
                     ))}
                     <TableCell className={mainStyles.optionCell}>
                       <SearchHistoryOptions
-                        searchItem={searchResults[index]}
+                        searchItem={searchResults[(page - 1) * pageSize + index]}
                         updateSearchHistory={updateSearchHistory}
                       />
                     </TableCell>
