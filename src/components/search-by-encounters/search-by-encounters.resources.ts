@@ -1,26 +1,20 @@
-import useSWRImmutable from 'swr/immutable';
-import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import { restBaseUrl, useOpenmrsFetchAll } from '@openmrs/esm-framework';
 import type { DropdownValue, Response } from '../../types';
 
 /**
- * @returns Locations
+ * @returns Forms
  */
 export const useForms = () => {
-  const { data, error } = useSWRImmutable<{
-    data: { results: Response[] };
-  }>(`${restBaseUrl}/form`, openmrsFetch);
+  const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/form`);
 
-  const forms: DropdownValue[] = [];
-  data?.data.results.map((form: Response, index: number) => {
-    forms.push({
-      id: index,
-      label: form.display,
-      value: form.uuid,
-    });
-  });
+  const forms: DropdownValue[] = (data ?? []).map((form, index) => ({
+    id: index,
+    label: form.display,
+    value: form.uuid,
+  }));
 
   return {
-    isLoading: !data && !error,
+    isLoading,
     forms,
     formsError: error,
   };
@@ -30,20 +24,16 @@ export const useForms = () => {
  * @returns EncounterTypes
  */
 export const useEncounterTypes = () => {
-  const { data, error } = useSWRImmutable<{
-    data: { results: Response[] };
-  }>(`${restBaseUrl}/encountertype`, openmrsFetch);
+  const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/encountertype`);
 
-  const encounterTypes: DropdownValue[] = [];
-  data?.data.results.map((encounterType: Response, index: number) => {
-    encounterTypes.push({
-      id: index,
-      label: encounterType.display,
-      value: encounterType.uuid,
-    });
-  });
+  const encounterTypes: DropdownValue[] = (data ?? []).map((encounterType, index) => ({
+    id: index,
+    label: encounterType.display,
+    value: encounterType.uuid,
+  }));
+
   return {
-    isLoading: !data && !error,
+    isLoading,
     encounterTypes,
     encounterTypesError: error,
   };
