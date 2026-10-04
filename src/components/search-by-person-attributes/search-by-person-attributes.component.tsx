@@ -12,7 +12,7 @@ import { getQueryDetails, getSearchByAttributesDescription } from './search-by-p
 const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
   const { personAttributes, personAttributesError } = usePersonAttributes();
-  const [selectedAttributeValues, setSelectedAttributeValues] = useState<string[]>([]);
+  const [attributeValuesInput, setAttributeValuesInput] = useState('');
   const [selectedAttributeId, setSelectedAttributeId] = useState<string>(null);
   const [isLoading, setIsLoading] = useState(false);
   const selectedAttribute =
@@ -31,11 +31,12 @@ const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
 
   const handleResetInputs = () => {
     setSelectedAttributeId(null);
-    setSelectedAttributeValues([]);
+    setAttributeValuesInput('');
   };
 
   const submit = async () => {
     setIsLoading(true);
+    const selectedAttributeValues = attributeValuesInput ? attributeValuesInput.trim().split(',') : [];
     try {
       await onSubmit(
         getQueryDetails(selectedAttributeId, selectedAttributeValues),
@@ -68,8 +69,8 @@ const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
             data-testid={'selectedAttributeValues'}
             disabled={!selectedAttributeId}
             labelText={t('selectedAttributeValues', 'Enter Comma Delimited Values')}
-            value={selectedAttributeValues.join(',')}
-            onChange={(e) => setSelectedAttributeValues(e.target.value.trim().split(','))}
+            value={attributeValuesInput}
+            onChange={(e) => setAttributeValuesInput(e.target.value)}
           />
         </Column>
       </div>
