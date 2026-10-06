@@ -93,4 +93,18 @@ describe('SavedCohorts', () => {
     expect(screen.getByText('Cohort 1')).toBeInTheDocument();
     expect(screen.getByText('Cohort 10')).toBeInTheDocument();
   });
+  it('should only render the loading skeleton while the cohorts are loading', () => {
+    mockUseCohorts.mockReturnValue({
+      cohorts: [],
+      isLoading: true,
+      isValidating: true,
+      error: undefined,
+      mutate: vi.fn(),
+    });
+
+    render(<SavedCohorts onViewCohort={vi.fn()} />);
+
+    expect(screen.getAllByRole('columnheader', { name: 'Name' })).toHaveLength(1);
+    expect(screen.queryByText(/there are no cohorts to display/i)).not.toBeInTheDocument();
+  });
 });

@@ -99,4 +99,13 @@ describe('Test the saved queries component', () => {
     expect(screen.getByText('Query 1')).toBeInTheDocument();
     expect(screen.getByText('Query 10')).toBeInTheDocument();
   });
+
+  it('should only render the loading skeleton while the queries are loading', () => {
+    mockUseQueries.mockReturnValue({ queries: [], error: undefined, isLoading: true, mutate: vi.fn() });
+
+    render(<SavedQueries onViewQuery={vi.fn()} />);
+
+    expect(screen.getAllByRole('columnheader', { name: 'Name' })).toHaveLength(1);
+    expect(screen.queryByText(/there are no queries to display/i)).not.toBeInTheDocument();
+  });
 });

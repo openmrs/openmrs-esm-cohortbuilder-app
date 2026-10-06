@@ -73,7 +73,6 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
       <p className={mainStyles.text}>
         {t('savedCohortDescription', 'You can only search for Cohort Definitions that you have saved using a Name.')}
       </p>
-      {isLoading && <DataTableSkeleton headers={headers} rowCount={3} showHeader={false} showToolbar={false} />}
       {error && (
         <InlineNotification
           kind="error"
@@ -83,39 +82,43 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
           subtitle={error.message}
         />
       )}
-      <DataTable rows={cohorts} headers={headers} useZebraStyles>
-        {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
-          <Table {...getTableProps()}>
-            <TableHead>
-              <TableRow>
-                {headers.map((header) => (
-                  <TableHeader {...getHeaderProps({ header })}>{header.header}</TableHeader>
-                ))}
-                <TableHeader className={mainStyles.optionHeader}></TableHeader>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {rows
-                .slice((currentPage - 1) * pageSize)
-                .slice(0, pageSize)
-                .map((row, index: number) => (
-                  <TableRow {...getRowProps({ row })} key={index}>
-                    {row.cells.map((cell, index: number) => (
-                      <TableCell key={index}>{cell.value}</TableCell>
-                    ))}
-                    <TableCell className={mainStyles.optionCell}>
-                      <SavedCohortsOptions
-                        cohort={cohorts[(currentPage - 1) * pageSize + index]}
-                        onViewCohort={onViewCohort}
-                        onDeleteCohort={handleDeleteCohort}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-        )}
-      </DataTable>
+      {isLoading ? (
+        <DataTableSkeleton headers={headers} rowCount={3} showHeader={false} showToolbar={false} />
+      ) : (
+        <DataTable rows={cohorts} headers={headers} useZebraStyles>
+          {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
+            <Table {...getTableProps()}>
+              <TableHead>
+                <TableRow>
+                  {headers.map((header) => (
+                    <TableHeader {...getHeaderProps({ header })}>{header.header}</TableHeader>
+                  ))}
+                  <TableHeader className={mainStyles.optionHeader}></TableHeader>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {rows
+                  .slice((currentPage - 1) * pageSize)
+                  .slice(0, pageSize)
+                  .map((row, index: number) => (
+                    <TableRow {...getRowProps({ row })} key={index}>
+                      {row.cells.map((cell, index: number) => (
+                        <TableCell key={index}>{cell.value}</TableCell>
+                      ))}
+                      <TableCell className={mainStyles.optionCell}>
+                        <SavedCohortsOptions
+                          cohort={cohorts[(currentPage - 1) * pageSize + index]}
+                          onViewCohort={onViewCohort}
+                          onDeleteCohort={handleDeleteCohort}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          )}
+        </DataTable>
+      )}
       {cohorts?.length > 10 && (
         <Pagination
           backwardText={t('previousPage', 'Previous page')}

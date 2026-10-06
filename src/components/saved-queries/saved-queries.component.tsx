@@ -73,7 +73,6 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
       <p className={mainStyles.text}>
         {t('savedQueryDescription', 'You can only search for Query Definitions that you have saved using a Name.')}
       </p>
-      {isLoading && <DataTableSkeleton headers={headers} rowCount={3} showHeader={false} showToolbar={false} />}
       {error && (
         <InlineNotification
           kind="error"
@@ -83,39 +82,43 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
           subtitle={error.message}
         />
       )}
-      <DataTable rows={queries} headers={headers} useZebraStyles>
-        {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
-          <Table {...getTableProps()}>
-            <TableHead>
-              <TableRow>
-                {headers.map((header) => (
-                  <TableHeader {...getHeaderProps({ header })}>{header.header}</TableHeader>
-                ))}
-                <TableHeader className={mainStyles.optionHeader}></TableHeader>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {rows
-                .slice((currentPage - 1) * pageSize)
-                .slice(0, pageSize)
-                .map((row, index: number) => (
-                  <TableRow {...getRowProps({ row })} key={index}>
-                    {row.cells.map((cell, index) => (
-                      <TableCell key={index}>{cell.value}</TableCell>
-                    ))}
-                    <TableCell className={mainStyles.optionCell}>
-                      <SavedQueriesOptions
-                        query={queries[(currentPage - 1) * pageSize + index]}
-                        onViewQuery={onViewQuery}
-                        deleteQuery={deleteQuery}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-        )}
-      </DataTable>
+      {isLoading ? (
+        <DataTableSkeleton headers={headers} rowCount={3} showHeader={false} showToolbar={false} />
+      ) : (
+        <DataTable rows={queries} headers={headers} useZebraStyles>
+          {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
+            <Table {...getTableProps()}>
+              <TableHead>
+                <TableRow>
+                  {headers.map((header) => (
+                    <TableHeader {...getHeaderProps({ header })}>{header.header}</TableHeader>
+                  ))}
+                  <TableHeader className={mainStyles.optionHeader}></TableHeader>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {rows
+                  .slice((currentPage - 1) * pageSize)
+                  .slice(0, pageSize)
+                  .map((row, index: number) => (
+                    <TableRow {...getRowProps({ row })} key={index}>
+                      {row.cells.map((cell, index) => (
+                        <TableCell key={index}>{cell.value}</TableCell>
+                      ))}
+                      <TableCell className={mainStyles.optionCell}>
+                        <SavedQueriesOptions
+                          query={queries[(currentPage - 1) * pageSize + index]}
+                          onViewQuery={onViewQuery}
+                          deleteQuery={deleteQuery}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          )}
+        </DataTable>
+      )}
       {queries.length > 10 && (
         <Pagination
           backwardText={t('previousPage', 'Previous page')}
@@ -129,7 +132,7 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
           totalItems={queries.length}
         />
       )}
-      {!queries.length && <EmptyData displayText={t('queries', 'queries')} />}
+      {!isLoading && !error && !queries.length && <EmptyData displayText={t('queries', 'queries')} />}
     </div>
   );
 };
