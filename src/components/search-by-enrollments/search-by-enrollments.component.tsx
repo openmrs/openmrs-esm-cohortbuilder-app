@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import dayjs from 'dayjs';
 import { Column, DatePicker, DatePickerInput, MultiSelect } from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
@@ -40,15 +40,15 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
     });
   }
 
-  const handleResetInputs = () => {
+  const handleResetInputs = useCallback(() => {
     setSelectedPrograms(null);
     setEnrolledOnOrAfter('');
     setEnrolledOnOrBefore('');
     setCompletedOnOrAfter('');
     setCompletedOnOrBefore('');
-  };
+  }, []);
 
-  const submit = async () => {
+  const submit = useCallback(async () => {
     setIsLoading(true);
     const searchParams = {
       enrolledOnOrAfter,
@@ -60,7 +60,7 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
     };
     await onSubmit(getQueryDetails(searchParams), getDescription(searchParams));
     setIsLoading(false);
-  };
+  }, [enrolledOnOrAfter, enrolledOnOrBefore, completedOnOrAfter, completedOnOrBefore, selectedPrograms, selectedLocations, onSubmit]);
 
   return (
     <>
