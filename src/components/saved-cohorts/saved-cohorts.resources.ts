@@ -3,11 +3,12 @@ import useSWR from 'swr';
 import { type FetchResponse, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import type { Cohort, DefinitionDataRow } from '../../types';
 
-export function useCohorts() {
-  const url = `${restBaseUrl}/cohort?v=full`;
+/** SWR key for the saved cohorts list, so other components can revalidate it after saving a cohort. */
+export const savedCohortsKey = `${restBaseUrl}/cohort?v=full`;
 
+export function useCohorts() {
   const { data, error, isLoading, isValidating, mutate } = useSWR<{ data: { results: Array<Cohort> } }, Error>(
-    url,
+    savedCohortsKey,
     openmrsFetch,
   );
 

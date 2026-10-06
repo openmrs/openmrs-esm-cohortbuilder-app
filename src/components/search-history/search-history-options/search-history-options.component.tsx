@@ -1,10 +1,11 @@
 import React from 'react';
 import { useTranslation, type TFunction } from 'react-i18next';
 import { OverflowMenu, OverflowMenuItem } from '@carbon/react';
-import { useSWRConfig } from 'swr';
+import { useSWRConfig, type ScopedMutator } from 'swr';
 import { showModal, showSnackbar } from '@openmrs/esm-framework';
 import { downloadCSV } from '../../../cohort-builder.utils';
 import type { Cohort, Patient, SearchHistoryItem } from '../../../types';
+import { savedCohortsKey } from '../../saved-cohorts/saved-cohorts.resources';
 import { savedQueriesKey } from '../../saved-queries/saved-queries.resources';
 import { createCohort, createQuery } from './search-history-options.resources';
 import styles from './search-history-options.scss';
@@ -28,6 +29,7 @@ const createCohortFromSearchItem = async (
   description: string,
   searchItem: SearchHistoryItem,
   t: TFunction,
+  mutate: ScopedMutator,
 ) => {
   const cohortMembers: number[] = [];
   const { patients } = searchItem;
@@ -42,6 +44,7 @@ const createCohortFromSearchItem = async (
 
   try {
     await createCohort(cohort);
+    await mutate(savedCohortsKey);
     showSnackbar({
       title: t('success', 'Success'),
       kind: 'success',
@@ -141,7 +144,8 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({ searchItem, upda
   const launchSaveCohortModal = () => {
     const dispose = showModal('save-cohort-modal', {
       closeModal: () => dispose(),
-      onSave: (name: string, description: string) => createCohortFromSearchItem(name, description, searchItem, t),
+      onSave: (name: string, description: string) =>
+        createCohortFromSearchItem(name, description, searchItem, t, mutate),
       size: 'sm',
     });
   };

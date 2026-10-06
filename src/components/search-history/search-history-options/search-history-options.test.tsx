@@ -4,12 +4,14 @@ import userEvent from '@testing-library/user-event';
 import { screen, render } from '@testing-library/react';
 import type * as SWR from 'swr';
 import { showModal } from '@openmrs/esm-framework';
+import { savedCohortsKey } from '../../saved-cohorts/saved-cohorts.resources';
 import { savedQueriesKey } from '../../saved-queries/saved-queries.resources';
-import { createQuery } from './search-history-options.resources';
+import { createCohort, createQuery } from './search-history-options.resources';
 import type * as SearchHistoryOptionsResources from './search-history-options.resources';
 import SearchHistoryOptions from './search-history-options.component';
 
 const mockShowModal = vi.mocked(showModal);
+const mockCreateCohort = vi.mocked(createCohort);
 const mockCreateQuery = vi.mocked(createQuery);
 const mockMutate = vi.fn();
 
@@ -25,6 +27,7 @@ vi.mock('./search-history-options.resources', async (importOriginal) => {
   const original = await importOriginal<typeof SearchHistoryOptionsResources>();
   return {
     ...original,
+    createCohort: vi.fn(),
     createQuery: vi.fn(),
   };
 });
@@ -178,5 +181,21 @@ describe('Test the search history options', () => {
 
     expect(mockCreateQuery).toHaveBeenCalled();
     expect(mockMutate).toHaveBeenCalledWith(savedQueriesKey);
+  });
+
+  it('should refresh the saved cohorts list after saving a cohort', async () => {
+    const user = userEvent.setup();
+    mockCreateCohort.mockResolvedValue(undefined);
+    render(<SearchHistoryOptions {...testProps} />);
+
+    await user.click(screen.getByRole('button', { name: /options/i }));
+    await user.click(screen.getByText(/save cohort/i));
+
+    const [, modalProps] = mockShowModal.mock.calls.find(([modalName]) => modalName === 'save-cohort-modal');
+    const { onSave } = modalProps as { onSave: (name: string, description: string) => Promise<void> };
+    await onSave('Male patients', 'All male patients');
+
+    expect(mockCreateCohort).toHaveBeenCalled();
+    expect(mockMutate).toHaveBeenCalledWith(savedCohortsKey);
   });
 });
