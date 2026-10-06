@@ -6,7 +6,7 @@ import type { DropdownValue, Response } from '../../types';
  * @returns Drugs
  */
 export function useDrugs() {
-  const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/drug`);
+  const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/drug`, { immutable: true });
 
   const results = useMemo(() => {
     const drugs: DropdownValue[] = (data ?? []).map((drug, index) => ({
@@ -28,7 +28,7 @@ export function useDrugs() {
  * @returns CareSettings
  */
 export function useCareSettings() {
-  const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/caresetting`);
+  const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/caresetting`, { immutable: true });
 
   const results = useMemo(() => {
     const careSettings: DropdownValue[] = (data ?? []).map((careSetting, index) => ({

@@ -9,7 +9,9 @@ interface ProgramsResponse extends Response {
  * @returns Programs
  */
 export function usePrograms() {
-  const { data, error, isLoading } = useOpenmrsFetchAll<ProgramsResponse>(`${restBaseUrl}/program`);
+  const { data, error, isLoading } = useOpenmrsFetchAll<ProgramsResponse>(`${restBaseUrl}/program`, {
+    immutable: true,
+  });
 
   const programs: DropdownValue[] = (data ?? []).map((program, index) => ({
     id: index,
