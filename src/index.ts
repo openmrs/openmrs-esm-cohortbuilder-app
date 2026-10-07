@@ -8,7 +8,7 @@ import deleteQueryModalComponent from './components/saved-queries/saved-queries-
 import saveCohortModalComponent from './components/search-history/search-history-options/save-cohort.modal';
 import saveQueryModalComponent from './components/search-history/search-history-options/save-query.modal';
 
-const moduleName = '@openmrs/esm-cohort-builder';
+const moduleName = '@openmrs/esm-cohort-builder-app';
 
 const options = {
   featureName: 'cohort-builder',
