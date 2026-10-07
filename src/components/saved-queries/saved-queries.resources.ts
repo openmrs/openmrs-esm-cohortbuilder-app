@@ -1,5 +1,20 @@
+import useSWR from 'swr';
 import { type FetchResponse, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import type { DefinitionDataRow, Response } from '../../types';
+
+/** SWR key for the saved queries list, so other components can revalidate it after saving a query. */
+export const savedQueriesKey = 'cohort-builder:saved-queries';
+
+export function useQueries() {
+  const { data, error, isLoading, mutate } = useSWR<DefinitionDataRow[], Error>(savedQueriesKey, getQueries);
+
+  return {
+    queries: data ?? [],
+    error,
+    isLoading,
+    mutate,
+  };
+}
 
 /**
  * @returns Queries
