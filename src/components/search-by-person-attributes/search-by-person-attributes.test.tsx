@@ -127,4 +127,26 @@ describe('Test the search by person attributes component', () => {
 
     expect(mockSubmit).toBeCalledWith(expectedQuery, "Patients with Mother's Name equal to either janet or irina");
   });
+
+  it('should keep spaces typed into the attribute values', async () => {
+    const user = userEvent.setup();
+    mockUsePersonAttributes.mockReturnValue({
+      personAttributes,
+      isLoading: false,
+      personAttributesError: undefined,
+    });
+    const mockSubmit = vi.fn();
+    render(<SearchByPersonAttributes onSubmit={mockSubmit} />);
+
+    await user.click(screen.getByText('Open menu'));
+    await user.click(screen.getByText("Mother's Name"));
+    await user.type(screen.getByTestId('selectedAttributeValues'), 'Mary Jane');
+
+    expect(screen.getByTestId('selectedAttributeValues')).toHaveValue('Mary Jane');
+
+    await user.click(screen.getByText('Search'));
+
+    expect(mockSubmit).toHaveBeenCalledTimes(1);
+    expect(mockSubmit.mock.calls[0][0].query.rowFilters[0].parameterValues.values).toEqual(['Mary Jane']);
+  });
 });

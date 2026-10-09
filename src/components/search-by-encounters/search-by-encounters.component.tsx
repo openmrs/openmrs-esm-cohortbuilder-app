@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { DatePicker, DatePickerInput, Column, NumberInput, MultiSelect } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
@@ -24,34 +24,22 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [onOrAfter, setOnOrAfter] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  if (locationsError) {
-    showSnackbar({
-      title: t('error', 'Error'),
-      kind: 'error',
-      isLowContrast: false,
-      subtitle: locationsError?.message,
-    });
-  }
-
-  if (formsError) {
-    showSnackbar({
-      title: t('error', 'Error'),
-      kind: 'error',
-      isLowContrast: false,
-      subtitle: formsError?.message,
-    });
-  }
-
-  if (encounterTypesError) {
-    showSnackbar({
-      title: t('error', 'Error'),
-      kind: 'error',
-      isLowContrast: false,
-      subtitle: encounterTypesError?.message,
-    });
-  }
+  useEffect(() => {
+    const error = locationsError ?? formsError ?? encounterTypesError;
+    if (error) {
+      showSnackbar({
+        title: t('error', 'Error'),
+        kind: 'error',
+        isLowContrast: false,
+        subtitle: error?.message,
+      });
+    }
+  }, [encounterTypesError, formsError, locationsError, t]);
 
   const reset = () => {
+    setSelectedEncounterTypes([]);
+    setEncounterForms([]);
+    setEncounterLocations([]);
     setAtLeastCount(0);
     setAtMostCount(0);
     setOnOrBefore('');
@@ -69,8 +57,11 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
       onOrBefore,
       selectedEncounterTypes,
     };
-    await onSubmit(getQueryDetails(encounterDetails), getDescription(encounterDetails));
-    setIsLoading(false);
+    try {
+      await onSubmit(getQueryDetails(encounterDetails), getDescription(encounterDetails));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -80,6 +71,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
           <MultiSelect
             id="encounters"
             onChange={(data) => setSelectedEncounterTypes(data.selectedItems)}
+            selectedItems={selectedEncounterTypes}
             items={encounterTypes}
             label={t('selectEncounterTypes', 'Select encounter types')}
           />
@@ -89,6 +81,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
         id="forms"
         data-testid="forms"
         onChange={(data) => setEncounterForms(data.selectedItems)}
+        selectedItems={encounterForms}
         items={forms}
         label={t('selectForms', 'Select forms')}
       />
@@ -96,6 +89,7 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
       <MultiSelect
         id="locations"
         onChange={(data) => setEncounterLocations(data.selectedItems)}
+        selectedItems={encounterLocations}
         items={locations}
         label={t('selectLocations', 'Select locations')}
       />

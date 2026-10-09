@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { Column, DatePicker, DatePickerInput, MultiSelect } from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
@@ -18,30 +18,25 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [enrolledOnOrBefore, setEnrolledOnOrBefore] = useState('');
   const [completedOnOrAfter, setCompletedOnOrAfter] = useState('');
   const [completedOnOrBefore, setCompletedOnOrBefore] = useState('');
-  const [selectedLocations, setSelectedLocations] = useState<DropdownValue[]>(null);
-  const [selectedPrograms, setSelectedPrograms] = useState<DropdownValue[]>(null);
+  const [selectedLocations, setSelectedLocations] = useState<DropdownValue[]>([]);
+  const [selectedPrograms, setSelectedPrograms] = useState<DropdownValue[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  if (programsError) {
-    showSnackbar({
-      title: t('error', 'Error'),
-      kind: 'error',
-      isLowContrast: false,
-      subtitle: programsError?.message,
-    });
-  }
-
-  if (locationsError) {
-    showSnackbar({
-      title: t('error', 'Error'),
-      kind: 'error',
-      isLowContrast: false,
-      subtitle: locationsError?.message,
-    });
-  }
+  useEffect(() => {
+    const error = programsError ?? locationsError;
+    if (error) {
+      showSnackbar({
+        title: t('error', 'Error'),
+        kind: 'error',
+        isLowContrast: false,
+        subtitle: error?.message,
+      });
+    }
+  }, [locationsError, programsError, t]);
 
   const handleResetInputs = () => {
-    setSelectedPrograms(null);
+    setSelectedPrograms([]);
+    setSelectedLocations([]);
     setEnrolledOnOrAfter('');
     setEnrolledOnOrBefore('');
     setCompletedOnOrAfter('');
@@ -58,8 +53,11 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
       selectedPrograms,
       selectedLocations,
     };
-    await onSubmit(getQueryDetails(searchParams), getDescription(searchParams));
-    setIsLoading(false);
+    try {
+      await onSubmit(getQueryDetails(searchParams), getDescription(searchParams));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -70,6 +68,7 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
             id="programs"
             data-testid="programs"
             onChange={(data) => setSelectedPrograms(data.selectedItems)}
+            selectedItems={selectedPrograms}
             items={programs}
             label={t('selectPrograms', 'Select programs')}
           />
@@ -81,6 +80,7 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
             id="locations"
             data-testid="locations"
             onChange={(data) => setSelectedLocations(data.selectedItems)}
+            selectedItems={selectedLocations}
             items={locations}
             label={t('selectLocations', 'Select locations')}
           />
