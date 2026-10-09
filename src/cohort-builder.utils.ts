@@ -1,4 +1,6 @@
+import { showToast } from '@openmrs/esm-framework';
 import type { Column, Patient, Query } from './types';
+import { getHistoryFromStorage, saveHistoryToStorage, safelyRemoveSessionStorage, STORAGE_KEY } from './session-storage.utils';
 
 export const composeJson = (searchParameters) => {
   const query: Query = {
@@ -106,16 +108,43 @@ export const addColumnsToDisplay = () => {
   return columnValues;
 };
 
-export const addToHistory = (description: string, patients: Patient[], parameters: {}) => {
-  const oldHistory = JSON.parse(window.sessionStorage.getItem('openmrsHistory'));
-  let newHistory = [];
+const MAX_HISTORY_ITEMS = 50;
+const MAX_PATIENTS_PER_SEARCH = 100;
 
-  if (oldHistory) {
-    newHistory = [...oldHistory, { description, patients, parameters }];
-  } else {
-    newHistory = [{ description, patients, parameters }];
+/**
+ * Adds a search entry to the session history with LRU eviction and quota handling.
+ * @param description - Human-readable description of the search
+ * @param patients - Array of patient results
+ * @param parameters - Search parameters used
+ * @returns true if successfully saved, false otherwise
+ */
+export const addToHistory = (description: string, patients: Patient[], parameters: {}): boolean => {
+  try {
+    if (!Array.isArray(patients) || typeof parameters !== 'object' || parameters === null) {
+      return false;
+    }
+
+    const limitedPatients = patients.slice(0, MAX_PATIENTS_PER_SEARCH);
+    const oldHistory = getHistoryFromStorage();
+
+    const newEntry = {
+      description,
+      patients: limitedPatients,
+      parameters,
+      timestamp: new Date().toISOString(),
+    };
+
+    const newHistory = [...oldHistory, newEntry].slice(-MAX_HISTORY_ITEMS);
+
+    return saveHistoryToStorage(newHistory);
+  } catch (error) {
+    showToast({
+      title: 'History Error',
+      kind: 'error',
+      description: 'Could not save search to history, but your search completed successfully.',
+    });
+    return false;
   }
-  window.sessionStorage.setItem('openmrsHistory', JSON.stringify(newHistory));
 };
 
 export const formatDate = (dateString: string) => {
