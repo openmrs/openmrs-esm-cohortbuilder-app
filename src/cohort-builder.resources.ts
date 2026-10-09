@@ -1,5 +1,4 @@
-import useSWRImmutable from 'swr/immutable';
-import { openmrsFetch, restBaseUrl, type FetchResponse } from '@openmrs/esm-framework';
+import { openmrsFetch, restBaseUrl, useOpenmrsFetchAll, type FetchResponse } from '@openmrs/esm-framework';
 import type { Patient, SearchParams, DropdownValue, Response } from './types';
 
 /**
@@ -26,21 +25,16 @@ export const search = async (searchParams: SearchParams) => {
  * @returns Locations
  */
 export const useLocations = () => {
-  const { data, error } = useSWRImmutable<{
-    data: { results: Response[] };
-  }>(`${restBaseUrl}/location`, openmrsFetch);
+  const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/location`, { immutable: true });
 
-  const locations: DropdownValue[] = [];
-  data?.data.results.map((location: Response, index: number) => {
-    locations.push({
-      id: index,
-      label: location.display,
-      value: location.uuid,
-    });
-  });
+  const locations: DropdownValue[] = (data ?? []).map((location, index) => ({
+    id: index,
+    label: location.display,
+    value: location.uuid,
+  }));
 
   return {
-    isLoading: !data && !error,
+    isLoading,
     locations,
     locationsError: error,
   };

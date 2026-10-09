@@ -1,25 +1,22 @@
-import useSWRImmutable from 'swr/immutable';
-import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import { restBaseUrl, useOpenmrsFetchAll } from '@openmrs/esm-framework';
 import { type DropdownValue, type Response } from '../../types';
 
 /**
  * @returns PersonAttributes
  */
 export function usePersonAttributes() {
-  const { data, error } = useSWRImmutable<{
-    data: { results: Response[] };
-  }>(`${restBaseUrl}/personattributetype`, openmrsFetch);
-
-  const personAttributes: DropdownValue[] = [];
-  data?.data.results.map((personAttribute: Response, index: number) => {
-    personAttributes.push({
-      id: index,
-      label: personAttribute.display,
-      value: personAttribute.uuid,
-    });
+  const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/personattributetype`, {
+    immutable: true,
   });
+
+  const personAttributes: DropdownValue[] = (data ?? []).map((personAttribute, index) => ({
+    id: index,
+    label: personAttribute.display,
+    value: personAttribute.uuid,
+  }));
+
   return {
-    isLoading: !data && !error,
+    isLoading,
     personAttributes,
     personAttributesError: error,
   };
