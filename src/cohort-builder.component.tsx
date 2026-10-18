@@ -4,7 +4,7 @@ import { Tab, Tabs, TabPanels, TabPanel, TabList } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { CohortsPictogram, PageHeader, PageHeaderContent, showSnackbar, useLayoutType } from '@openmrs/esm-framework';
 import { getCohortMembers, getDataSet, search } from './cohort-builder.resources';
-import { addToHistory } from './cohort-builder.utils';
+import { addToHistory, getPatientName } from './cohort-builder.utils';
 import type { Patient, SearchParams } from './types';
 import Composition from './components/composition/composition.component';
 import SavedCohorts from './components/saved-cohorts/saved-cohorts.component';
@@ -38,7 +38,7 @@ const CohortBuilder: React.FC = () => {
         .then(({ data: { rows } }) => {
           rows.map((patient: Patient) => {
             patient.id = patient.patientId.toString();
-            patient.name = `${patient.firstname} ${patient.lastname}`;
+            patient.name = getPatientName(patient.firstname, patient.lastname);
           });
           setPatients(rows);
           addToHistory(queryDescription, rows, searchParams.query);

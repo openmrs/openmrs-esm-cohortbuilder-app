@@ -1,6 +1,7 @@
 import useSWRImmutable from 'swr/immutable';
 import { openmrsFetch, restBaseUrl, type FetchResponse } from '@openmrs/esm-framework';
 import type { Patient, SearchParams, DropdownValue, Response } from './types';
+import { getPatientName } from './cohort-builder.utils';
 
 /**
  * @param searchParams query details
@@ -53,7 +54,7 @@ export const getDataSet = async (queryID: string) => {
 
   const dataset = results.data.rows.map((patient: Patient) => {
     patient.id = patient.patientId.toString();
-    patient.name = `${patient.firstname} ${patient.lastname}`;
+    patient.name = getPatientName(patient.firstname, patient.lastname);
 
     return patient;
   });
@@ -159,7 +160,7 @@ async function getCohortMember(patientUuid: string): Promise<Patient | null> {
     return {
       id: patientId.toString(),
       patientId,
-      name: `${givenName} ${familyName}`,
+      name: getPatientName(givenName, familyName),
       firstname: givenName,
       lastname: familyName,
       age: person.age,

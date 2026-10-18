@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { openmrsFetch } from '@openmrs/esm-framework';
-import { getCohortMembers } from './cohort-builder.resources';
+import { getCohortMembers, getDataSet } from './cohort-builder.resources';
 
 const mockOpenmrsFetch = vi.mocked(openmrsFetch);
 const cohortUuid = 'f4c0b5a2-3c84-4c76-bb7e-6c1b1b2e5a11';
@@ -177,6 +177,18 @@ describe('getCohortMembers', () => {
     expect(fetchedPatients()).toBe(3);
   });
 
+  it('names each member with only the parts of a name they have', async () => {
+    membershipPages = [[membership(1), membership(2)]];
+    patientDetails = async (n) => ({
+      ...details(n),
+      person: { ...details(n).person, preferredName: { givenName: n === 1 ? 'Ann' : null, familyName: null } },
+    });
+
+    const patients = await getCohortMembers(cohortUuid);
+
+    expect(patients.map(({ name }) => name)).toEqual(['Ann', '']);
+  });
+
   it('fails when the cohort has active members but none can be shown', async () => {
     membershipPages = [[membership(1), membership(2)]];
     patientDetails = async () => {
@@ -190,5 +202,22 @@ describe('getCohortMembers', () => {
     membershipPages = [[membership(1, { voided: true })]];
 
     expect(await getCohortMembers(cohortUuid)).toEqual([]);
+  });
+});
+
+describe('getDataSet', () => {
+  it('names each patient with only the parts of a name they have', async () => {
+    const row = (patientId: number, firstname: string | null, lastname: string | null) => ({
+      patientId,
+      firstname,
+      lastname,
+    });
+    mockOpenmrsFetch.mockResolvedValue({
+      data: { rows: [row(1, null, null), row(2, 'Ann', null), row(3, null, 'Banda'), row(4, 'Ann', 'Banda')] },
+    } as never);
+
+    const patients = await getDataSet('query-uuid');
+
+    expect(patients.map(({ name }) => name)).toEqual(['', 'Ann', 'Banda', 'Ann Banda']);
   });
 });
