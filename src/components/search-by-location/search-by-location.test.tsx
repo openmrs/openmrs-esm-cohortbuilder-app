@@ -131,4 +131,23 @@ describe('Test the search by location component', () => {
     );
     expect(screen.getByTestId('search-btn')).toBeEnabled();
   });
+
+  it('describes a search after Reset, with no locations, as in any location', async () => {
+    const user = userEvent.setup();
+    mockUseLocations.mockImplementation(() => ({
+      locations: mockLocations,
+      isLoading: false,
+      locationsError: undefined,
+    }));
+    const mockSubmit = vi.fn();
+    render(<SearchByLocation onSubmit={mockSubmit} />);
+
+    await user.click(screen.getByText(/select locations/i));
+    await user.click(screen.getByText(mockLocations[2].label));
+    await user.keyboard('{Escape}');
+    await user.click(screen.getByTestId('reset-btn'));
+    await user.click(screen.getByTestId('search-btn'));
+
+    expect(mockSubmit.mock.calls[0][1]).toBe('Patients in any location (by method ANY_ENCOUNTER).');
+  });
 });
