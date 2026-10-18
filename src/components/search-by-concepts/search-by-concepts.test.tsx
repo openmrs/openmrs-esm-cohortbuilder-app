@@ -162,4 +162,42 @@ describe('Test the search by concept component', () => {
     // Verify the description format
     expect(actualDescription).toMatch(/^Patients with ANY BLOOD SUGAR\s+until\s+\d{1,2}\/\d{1,2}\/\d{4}$/);
   });
+
+  it.each([
+    ['Whole blood sample', 'Patients who have these observations', 'Patients who do not have these observations', 'NO'],
+    ['BLOOD SUGAR', 'Any', 'Lowest', 'MIN'],
+  ])(
+    'shows and searches with the first time modifier again after Reset, for %s',
+    async (conceptName, firstOption, otherOption) => {
+      const user = userEvent.setup();
+      const mockSubmit = vi.fn();
+      render(<SearchByConcepts onSubmit={mockSubmit} />);
+      const pickConcept = async () => {
+        await user.type(screen.getByPlaceholderText('Search Concepts'), 'blood sugar');
+        await user.click(await screen.findByText(conceptName));
+      };
+
+      await pickConcept();
+      await user.click(screen.getByTitle(firstOption));
+      await user.click(screen.getByText(otherOption));
+      await user.click(screen.getByTestId('reset-btn'));
+      await pickConcept();
+
+      expect(screen.getByTitle(firstOption)).toBeInTheDocument();
+      expect(screen.queryByTitle(otherOption)).not.toBeInTheDocument();
+      await user.click(screen.getByTestId('search-btn'));
+      expect(mockSubmit.mock.calls[0][0].query.rowFilters[0].parameterValues.timeModifier).toBe('ANY');
+    },
+  );
+
+  it('shows the first time modifier again on Reset before a concept is picked again', async () => {
+    const user = userEvent.setup();
+    render(<SearchByConcepts onSubmit={vi.fn()} />);
+
+    await user.click(screen.getByTitle('Patients who have these observations'));
+    await user.click(screen.getByText('Patients who do not have these observations'));
+    await user.click(screen.getByTestId('reset-btn'));
+
+    expect(screen.getByTitle('Patients who have these observations')).toBeInTheDocument();
+  });
 });

@@ -50,6 +50,8 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
   ];
 
   const reset = () => {
+    setGender('all');
+    setLivingStatus('alive');
     setMaxAge(0);
     setMinAge(0);
     setBirthDayEndDate('');
@@ -77,7 +79,7 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
         <div className={styles.genderContainer}>
           <div className={styles.switch}>
             <ContentSwitcher
-              selectedIndex={genders[0].id}
+              selectedIndex={genders.findIndex(({ value }) => value === gender)}
               className={styles.contentSwitcher}
               size="lg"
               onChange={({ index }) => setGender(genders[index].value)}
@@ -89,7 +91,7 @@ const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
           </div>
           <div className={styles.switch}>
             <ContentSwitcher
-              selectedIndex={livingStatuses[0].id}
+              selectedIndex={livingStatuses.findIndex(({ value }) => value === livingStatus)}
               className={styles.contentSwitcher}
               size="lg"
               onChange={({ index }) => setLivingStatus(livingStatuses[index].value)}

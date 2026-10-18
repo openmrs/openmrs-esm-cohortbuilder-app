@@ -186,7 +186,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
                   <Dropdown
                     id="timeModifier"
                     onChange={(data) => setTimeModifier(data.selectedItem.value)}
-                    initialSelectedItem={whichObservation[0]}
+                    selectedItem={whichObservation.find(({ value }) => value === timeModifier) ?? null}
                     items={whichObservation}
                     className={styles.timeModifier}
                     label=""
@@ -200,7 +200,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
               <div className={styles.whatValuesInputs}>
                 <div className={styles.operators}>
                   <ContentSwitcher
-                    selectedIndex={operators[0].id}
+                    selectedIndex={operators.findIndex(({ value }) => value === operator)}
                     className={styles.contentSwitcher}
                     size="lg"
                     onChange={({ index }) => setOperator(operators[index].value)}
@@ -231,7 +231,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
               id="timeModifier"
               data-testid="timeModifier"
               onChange={(data) => setTimeModifier(data.selectedItem.value)}
-              initialSelectedItem={observationOptions[0]}
+              selectedItem={observationOptions.find(({ value }) => value === timeModifier) ?? null}
               items={observationOptions}
               label=""
               titleText=""
