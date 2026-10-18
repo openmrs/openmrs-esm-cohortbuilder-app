@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRequire } from 'node:module';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import dayjs from 'dayjs';
 import { openmrsFetch } from '@openmrs/esm-framework';
@@ -74,6 +74,12 @@ async function untouchedSearch(Tab: (typeof tabs)[number][1]) {
   return searched;
 }
 
+/** Types into a picker the way a person does: clicking it, replacing its text and moving on. */
+async function type(input: HTMLInputElement, text: string) {
+  await userEvent.clear(input);
+  await userEvent.type(input, text);
+}
+
 /** Picks a date the way a click in the calendar does: flatpickr sets it and reports the change. */
 function pick(input: HTMLInputElement, date: Date) {
   act(() => {
@@ -139,5 +145,95 @@ describe('date pickers', () => {
     await waitFor(() => expect(dateInputs().every((input) => input.value === '')).toBe(true), { timeout: 1000 });
     await prepare(Tab);
     expect(await search(onSubmit)).toEqual(untouched);
+  });
+
+  it.each(tabs)('search with a typed date on the %s tab, as if it were picked', async (_, Tab) => {
+    const dates = [new Date(2024, 1, 1), new Date(2024, 0, 2), new Date(2024, 1, 29), new Date(2024, 11, 31)];
+    const typed = ['01-02-2024', '02-01-2024', '29-02-2024', '31-12-2024'];
+
+    const pickedSubmit = vi.fn();
+    const { unmount } = render(<Tab onSubmit={pickedSubmit} />);
+    await prepare(Tab);
+    dateInputs().forEach((input, index) => pick(input, dates[index]));
+    const picked = await search(pickedSubmit);
+    unmount();
+
+    const typedSubmit = vi.fn();
+    render(<Tab onSubmit={typedSubmit} />);
+    await prepare(Tab);
+    for (const [index, input] of dateInputs().entries()) {
+      await type(input, typed[index]);
+    }
+    expect(await search(typedSubmit)).toEqual(picked);
+    expect(dateInputs().map((input) => input.value)).toEqual(typed.slice(0, dateInputs().length));
+  });
+
+  it.each([
+    ['1-02-2024', new Date(2024, 1, 1)],
+    ['01-2-2024', new Date(2024, 1, 1)],
+    ['1-2-2024', new Date(2024, 1, 1)],
+    ['2-1-2024', new Date(2024, 0, 2)],
+    ['31-02-2024', null],
+    ['29-02-2023', null],
+    ['2024-12-31', null],
+    ['1-13-2024', null],
+  ])('reads a typed %s strictly as day-month-year', async (text, date) => {
+    const onSubmit = vi.fn();
+    render(<SearchByEncounters onSubmit={onSubmit} />);
+
+    await type(dateInputs()[0], text);
+    const [{ query }] = await search(onSubmit);
+
+    expect(dateInputs()[0]).toHaveValue(date ? dayjs(date).format('DD-MM-YYYY') : '');
+    expect(query.rowFilters[0]?.parameterValues?.onOrAfter).toEqual(date ? dayjs(date).format() : undefined);
+  });
+
+  it('takes a typed date when Enter is pressed', async () => {
+    const onSubmit = vi.fn();
+    render(<SearchByDemographics onSubmit={onSubmit} />);
+
+    await type(dateInputs()[0], '31-12-2024{Enter}');
+    await type(dateInputs()[1], '01-01-2025{Enter}');
+
+    await waitFor(() => expect(dateInputs().map((input) => input.value)).toEqual(['31-12-2024', '01-01-2025']), {
+      timeout: 1000,
+    });
+    const [{ query }] = await search(onSubmit);
+    expect(query.rowFilters.find(({ key }) => key.endsWith('bornDuringPeriod')).parameterValues).toEqual({
+      startDate: dayjs(new Date(2024, 11, 31)).format(),
+      endDate: dayjs(new Date(2025, 0, 1)).format(),
+    });
+  });
+
+  it('takes a typed date when a touch outside closes the calendar', async () => {
+    const onSubmit = vi.fn();
+    render(<SearchByDemographics onSubmit={onSubmit} />);
+
+    await type(dateInputs()[0], '31-12-2024');
+    fireEvent.touchStart(document.body);
+    await type(dateInputs()[1], '01-01-2025');
+    fireEvent.touchStart(document.body);
+
+    const [{ query }] = await search(onSubmit);
+    expect(query.rowFilters.find(({ key }) => key.endsWith('bornDuringPeriod')).parameterValues).toEqual({
+      startDate: dayjs(new Date(2024, 11, 31)).format(),
+      endDate: dayjs(new Date(2025, 0, 1)).format(),
+    });
+  });
+
+  it.each(tabs)('clear a date typed wrongly on the %s tab, and search without it', async (_, Tab) => {
+    const untouched = await untouchedSearch(Tab);
+    const onSubmit = vi.fn();
+    render(<Tab onSubmit={onSubmit} />);
+    await prepare(Tab);
+    const wrong = ['31-02-2024', '12-2024', '2024-12-31', 'soon'];
+
+    for (const [index, input] of dateInputs().entries()) {
+      pick(input, new Date(2024, 11, 31));
+      await type(input, wrong[index]);
+    }
+
+    expect(await search(onSubmit)).toEqual(untouched);
+    expect(dateInputs().every((input) => input.value === '')).toBe(true);
   });
 });
