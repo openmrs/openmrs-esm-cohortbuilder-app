@@ -121,6 +121,12 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
     },
   ];
 
+  // A numeric concept has its own time modifiers and an operator and value. Only what is shown is searched,
+  // so a modifier the shown list doesn't have falls back to its first, Any.
+  const isNumeric = concept?.hl7Abbrev === 'NM';
+  const timeModifierOptions = isNumeric ? whichObservation : observationOptions;
+  const shownTimeModifier = timeModifierOptions.find(({ value }) => value === timeModifier) ?? timeModifierOptions[0];
+
   const handleReset = () => {
     setConcept(null);
     setLastDays(0);
@@ -146,12 +152,12 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
     setIsLoading(true);
     const observations: Observation = {
       modifier: '',
-      operator1: operator,
-      value1: operatorValue > 0 ? operatorValue.toString() : '',
+      operator1: isNumeric ? operator : '',
+      value1: isNumeric && operatorValue > 0 ? operatorValue.toString() : '',
       question: concept.uuid,
       onOrBefore: getOnOrBefore() || onOrBefore,
       onOrAfter,
-      timeModifier,
+      timeModifier: shownTimeModifier.value,
     };
     const dataType = types[concept.hl7Abbrev];
     const params = { [dataType]: [] };
@@ -177,7 +183,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
           searchText={searchText}
           setSearchText={setSearchText}
         />
-        {concept?.hl7Abbrev === 'NM' ? (
+        {isNumeric ? (
           <>
             <Column className={styles.column}>
               <div style={{ display: 'flex' }}>
@@ -186,7 +192,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
                   <Dropdown
                     id="timeModifier"
                     onChange={(data) => setTimeModifier(data.selectedItem.value)}
-                    selectedItem={whichObservation.find(({ value }) => value === timeModifier) ?? null}
+                    selectedItem={shownTimeModifier}
                     items={whichObservation}
                     className={styles.timeModifier}
                     label=""
@@ -231,7 +237,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
               id="timeModifier"
               data-testid="timeModifier"
               onChange={(data) => setTimeModifier(data.selectedItem.value)}
-              selectedItem={observationOptions.find(({ value }) => value === timeModifier) ?? null}
+              selectedItem={shownTimeModifier}
               items={observationOptions}
               label=""
               titleText=""
