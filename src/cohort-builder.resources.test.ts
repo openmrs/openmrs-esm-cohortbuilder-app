@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { openmrsFetch } from '@openmrs/esm-framework';
-import { getCohortMembers, getDataSet } from './cohort-builder.resources';
+import { CohortMembersLoadError, getCohortMembers, getDataSet } from './cohort-builder.resources';
 
 const mockOpenmrsFetch = vi.mocked(openmrsFetch);
 const cohortUuid = 'f4c0b5a2-3c84-4c76-bb7e-6c1b1b2e5a11';
@@ -195,7 +195,7 @@ describe('getCohortMembers', () => {
       throw new Error('Not found');
     };
 
-    await expect(getCohortMembers(cohortUuid)).rejects.toThrow("None of the cohort's members could be loaded");
+    await expect(getCohortMembers(cohortUuid)).rejects.toThrow(CohortMembersLoadError);
   });
 
   it('shows an empty cohort as no members', async () => {

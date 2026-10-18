@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { Tab, Tabs, TabPanels, TabPanel, TabList } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { CohortsPictogram, PageHeader, PageHeaderContent, showSnackbar, useLayoutType } from '@openmrs/esm-framework';
-import { getCohortMembers, getDataSet, search } from './cohort-builder.resources';
+import { CohortMembersLoadError, getCohortMembers, getDataSet, search } from './cohort-builder.resources';
 import { addToHistory, getPatientName } from './cohort-builder.utils';
 import type { Patient, SearchParams } from './types';
 import Composition from './components/composition/composition.component';
@@ -104,7 +104,10 @@ const CohortBuilder: React.FC = () => {
         title: t('error', 'Error'),
         kind: 'error',
         isLowContrast: false,
-        subtitle: error?.message,
+        subtitle:
+          error instanceof CohortMembersLoadError
+            ? t('cohortMembersLoadFailed', "None of the cohort's members could be loaded")
+            : error?.message,
       });
     }
   };

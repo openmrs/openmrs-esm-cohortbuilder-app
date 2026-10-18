@@ -84,6 +84,14 @@ const MEMBERSHIP_PAGE_SIZE = 100;
 const MAX_MEMBERSHIP_PAGES = 1000;
 const PATIENT_FETCH_CONCURRENCY = 6;
 
+/** Thrown when a cohort has active members but none of them could be loaded. */
+export class CohortMembersLoadError extends Error {
+  constructor() {
+    super("None of the cohort's members could be loaded");
+    this.name = 'CohortMembersLoadError';
+  }
+}
+
 /**
  * webservices.rest has no cohort members endpoint, only the paged `cohort/{uuid}/membership`
  * subresource, which gives patient uuids. Each active member is then loaded for the results table.
@@ -100,7 +108,7 @@ export const getCohortMembers = async (cohortId: string): Promise<Patient[]> => 
     Boolean,
   );
   if (activePatientUuids.length > 0 && patients.length === 0) {
-    throw new Error("None of the cohort's members could be loaded");
+    throw new CohortMembersLoadError();
   }
   return patients;
 };
