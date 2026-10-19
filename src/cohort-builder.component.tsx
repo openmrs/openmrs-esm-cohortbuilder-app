@@ -93,7 +93,7 @@ const CohortBuilder: React.FC = () => {
       setPatients(patients);
       if (patients.length < total) {
         showSnackbar({
-          title: t('someCohortMembersNotLoaded', "Some of the cohort's members could not be loaded"),
+          title: t('someCohortMembersNotShown', "Some of the cohort's members could not be shown"),
           kind: 'warning',
           isLowContrast: true,
           subtitle: t('showingCohortMembers', 'Showing {{shown}} of {{count}} members', {

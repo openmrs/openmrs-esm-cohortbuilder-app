@@ -119,7 +119,7 @@ describe('viewing a saved cohort', () => {
     await viewCohort([2]);
 
     expect(showSnackbar).toHaveBeenCalledWith({
-      title: "Some of the cohort's members could not be loaded",
+      title: "Some of the cohort's members could not be shown",
       kind: 'warning',
       isLowContrast: true,
       subtitle: 'Showing 2 of 3 members',

@@ -122,7 +122,7 @@
   "selectPrograms": "Select programs",
   "showingCohortMembers_one": "Showing {{shown}} of {{count}} members",
   "showingCohortMembers_other": "Showing {{shown}} of {{count}} members",
-  "someCohortMembersNotLoaded": "Some of the cohort's members could not be loaded",
+  "someCohortMembersNotShown": "Some of the cohort's members could not be shown",
   "success": "Success",
   "to": "to",
   "upto": "upto this many",
