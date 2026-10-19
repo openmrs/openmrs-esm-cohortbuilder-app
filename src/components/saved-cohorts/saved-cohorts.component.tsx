@@ -31,6 +31,9 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
   const { cohorts, error, isLoading, mutate } = useCohorts();
   // The list can shrink after a delete, so keep the current page within range.
   const currentPage = Math.min(page, Math.max(1, Math.ceil(cohorts.length / pageSize)));
+  if (page !== currentPage) {
+    setPage(currentPage);
+  }
 
   const headers = [
     {

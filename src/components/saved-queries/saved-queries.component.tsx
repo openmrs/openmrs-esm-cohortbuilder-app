@@ -31,6 +31,9 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
   const { queries, error, isLoading, mutate } = useQueries();
   // The list can shrink after a delete, so keep the current page within range.
   const currentPage = Math.min(page, Math.max(1, Math.ceil(queries.length / pageSize)));
+  if (page !== currentPage) {
+    setPage(currentPage);
+  }
 
   const deleteQuery = async (queryId: string) => {
     try {

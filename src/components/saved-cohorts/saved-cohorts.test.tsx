@@ -92,6 +92,12 @@ describe('SavedCohorts', () => {
 
     expect(screen.getByText('Cohort 1')).toBeInTheDocument();
     expect(screen.getByText('Cohort 10')).toBeInTheDocument();
+
+    mockUseCohorts.mockReturnValue(result);
+    view.rerender(<SavedCohorts onViewCohort={vi.fn()} />);
+
+    expect(screen.getByText('Cohort 1')).toBeInTheDocument();
+    expect(screen.queryByText('Cohort 11')).not.toBeInTheDocument();
   });
   it('should only render the loading skeleton while the cohorts are loading', () => {
     mockUseCohorts.mockReturnValue({

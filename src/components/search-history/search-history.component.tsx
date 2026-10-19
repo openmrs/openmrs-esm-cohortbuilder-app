@@ -31,6 +31,9 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ isHistoryUpdated, setIsHi
   const [pageSize, setPageSize] = useState(10);
   // The list shrinks when an item is deleted, so keep the current page within range.
   const currentPage = Math.min(page, Math.max(1, Math.ceil(searchResults.length / pageSize)));
+  if (page !== currentPage) {
+    setPage(currentPage);
+  }
 
   useEffect(() => {
     if (isHistoryUpdated) {

@@ -98,6 +98,12 @@ describe('Test the saved queries component', () => {
 
     expect(screen.getByText('Query 1')).toBeInTheDocument();
     expect(screen.getByText('Query 10')).toBeInTheDocument();
+
+    mockUseQueries.mockReturnValue(result);
+    view.rerender(<SavedQueries onViewQuery={vi.fn()} />);
+
+    expect(screen.getByText('Query 1')).toBeInTheDocument();
+    expect(screen.queryByText('Query 11')).not.toBeInTheDocument();
   });
 
   it('should only render the loading skeleton while the queries are loading', () => {
