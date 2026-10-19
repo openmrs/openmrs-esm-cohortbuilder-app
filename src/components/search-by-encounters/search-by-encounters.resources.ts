@@ -5,7 +5,10 @@ import type { DropdownValue, Response } from '../../types';
  * @returns Forms
  */
 export const useForms = () => {
-  const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/form`, { immutable: true });
+  const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/form`, {
+    immutable: true,
+    swrInfiniteConfig: { revalidateFirstPage: false },
+  });
 
   const forms: DropdownValue[] = (data ?? []).map((form, index) => ({
     id: index,
@@ -24,7 +27,10 @@ export const useForms = () => {
  * @returns EncounterTypes
  */
 export const useEncounterTypes = () => {
-  const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/encountertype`, { immutable: true });
+  const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/encountertype`, {
+    immutable: true,
+    swrInfiniteConfig: { revalidateFirstPage: false },
+  });
 
   const encounterTypes: DropdownValue[] = (data ?? []).map((encounterType, index) => ({
     id: index,

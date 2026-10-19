@@ -25,7 +25,10 @@ export const search = async (searchParams: SearchParams) => {
  * @returns Locations
  */
 export const useLocations = () => {
-  const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/location`, { immutable: true });
+  const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/location`, {
+    immutable: true,
+    swrInfiniteConfig: { revalidateFirstPage: false },
+  });
 
   const locations: DropdownValue[] = (data ?? []).map((location, index) => ({
     id: index,

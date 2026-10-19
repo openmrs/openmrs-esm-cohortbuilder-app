@@ -7,6 +7,7 @@ import { type DropdownValue, type Response } from '../../types';
 export function usePersonAttributes() {
   const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/personattributetype`, {
     immutable: true,
+    swrInfiniteConfig: { revalidateFirstPage: false },
   });
 
   const personAttributes: DropdownValue[] = (data ?? []).map((personAttribute, index) => ({

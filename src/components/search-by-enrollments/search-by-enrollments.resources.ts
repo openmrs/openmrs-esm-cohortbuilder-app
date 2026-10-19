@@ -11,6 +11,7 @@ interface ProgramsResponse extends Response {
 export function usePrograms() {
   const { data, error, isLoading } = useOpenmrsFetchAll<ProgramsResponse>(`${restBaseUrl}/program`, {
     immutable: true,
+    swrInfiniteConfig: { revalidateFirstPage: false },
   });
 
   const programs: DropdownValue[] = (data ?? []).map((program, index) => ({
