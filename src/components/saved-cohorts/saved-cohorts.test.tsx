@@ -113,4 +113,18 @@ describe('SavedCohorts', () => {
     expect(screen.getAllByRole('columnheader', { name: 'Name' })).toHaveLength(1);
     expect(screen.queryByText(/there are no cohorts to display/i)).not.toBeInTheDocument();
   });
+  it('should show an error instead of the empty state when the cohorts fail to load', () => {
+    mockUseCohorts.mockReturnValue({
+      cohorts: [],
+      isLoading: false,
+      isValidating: false,
+      error: new Error('Internal server error'),
+      mutate: vi.fn(),
+    });
+
+    render(<SavedCohorts onViewCohort={vi.fn()} />);
+
+    expect(screen.getByText(/error loading saved cohorts/i)).toBeInTheDocument();
+    expect(screen.queryByText(/there are no cohorts to display/i)).not.toBeInTheDocument();
+  });
 });

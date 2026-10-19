@@ -2,13 +2,15 @@ import React from 'react';
 import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
-import { openmrsFetch } from '@openmrs/esm-framework';
+import { openmrsFetch, showModal } from '@openmrs/esm-framework';
 import { type DefinitionDataRow } from '../../types';
-import { useQueries } from './saved-queries.resources';
+import { deleteDataSet, useQueries } from './saved-queries.resources';
 import type * as SavedQueriesResources from './saved-queries.resources';
 import SavedQueries from './saved-queries.component';
 
 const mockUseQueries = vi.mocked(useQueries);
+const mockDeleteDataSet = vi.mocked(deleteDataSet);
+const mockShowModal = vi.mocked(showModal);
 const mockOpenmrsFetch = openmrsFetch as Mock;
 
 const mockQueries: DefinitionDataRow[] = [
@@ -29,6 +31,7 @@ vi.mock('./saved-queries.resources', async (importOriginal) => {
   return {
     ...original,
     useQueries: vi.fn(),
+    deleteDataSet: vi.fn(),
   };
 });
 
@@ -106,12 +109,45 @@ describe('Test the saved queries component', () => {
     expect(screen.queryByText('Query 11')).not.toBeInTheDocument();
   });
 
+  it('should refresh the list after a query is deleted', async () => {
+    const user = userEvent.setup();
+    const mutate = vi.fn();
+    mockUseQueries.mockReturnValue({ queries: mockQueries, error: undefined, isLoading: false, mutate });
+    mockDeleteDataSet.mockResolvedValue(undefined);
+
+    render(<SavedQueries onViewQuery={vi.fn()} />);
+
+    await user.click(screen.getAllByRole('button', { name: /options/i })[0]);
+    await user.click(screen.getByText(/delete/i));
+
+    const [, modalProps] = mockShowModal.mock.calls.find(([modalName]) => modalName === 'delete-query-modal');
+    const { onDelete } = modalProps as { onDelete: () => Promise<void> };
+    await onDelete();
+
+    expect(mockDeleteDataSet).toHaveBeenCalledWith(mockQueries[0].id);
+    expect(mutate).toHaveBeenCalled();
+  });
+
   it('should only render the loading skeleton while the queries are loading', () => {
     mockUseQueries.mockReturnValue({ queries: [], error: undefined, isLoading: true, mutate: vi.fn() });
 
     render(<SavedQueries onViewQuery={vi.fn()} />);
 
     expect(screen.getAllByRole('columnheader', { name: 'Name' })).toHaveLength(1);
+    expect(screen.queryByText(/there are no queries to display/i)).not.toBeInTheDocument();
+  });
+
+  it('should show an error instead of the empty state when the queries fail to load', () => {
+    mockUseQueries.mockReturnValue({
+      queries: [],
+      error: new Error('Internal server error'),
+      isLoading: false,
+      mutate: vi.fn(),
+    });
+
+    render(<SavedQueries onViewQuery={vi.fn()} />);
+
+    expect(screen.getByText(/error loading saved queries/i)).toBeInTheDocument();
     expect(screen.queryByText(/there are no queries to display/i)).not.toBeInTheDocument();
   });
 });
