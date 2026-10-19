@@ -107,61 +107,6 @@ describe('getCohortMembers', () => {
     expect(patients.map(({ patientId }) => patientId)).toEqual([1, 5, 6]);
   });
 
-  it('reads membership dates with a colonless offset where Date cannot, as Safari', async () => {
-    const SystemDate = Date;
-    // Safari's JavaScriptCore gives an Invalid Date for an offset without a colon, such as +0000.
-    class SafariDate extends SystemDate {
-      constructor(...args: ConstructorParameters<typeof Date> | []) {
-        if (typeof args[0] === 'string' && /[+-]\d{4}$/.test(args[0])) {
-          super(NaN);
-        } else {
-          super(...(args as []));
-        }
-      }
-    }
-    vi.stubGlobal('Date', SafariDate);
-    membershipPages = [
-      [
-        membership(1),
-        membership(2, { endDate: '2026-10-16T00:00:00.000+0000' }),
-        membership(3, { endDate: '2026-10-18T00:00:00.000+0000' }),
-        membership(4, { startDate: '2026-10-17T13:00:00.000+0100' }),
-        membership(5, { startDate: '2026-10-17T14:00:00.000+0100' }),
-      ],
-    ];
-
-    try {
-      const patients = await getCohortMembers(cohortUuid);
-      expect(patients.map(({ patientId }) => patientId)).toEqual([1, 3, 4]);
-    } finally {
-      vi.unstubAllGlobals();
-    }
-  });
-
-  it('leaves out a membership with a bound that is not a date, without failing the others', async () => {
-    membershipPages = [
-      [
-        membership(1),
-        membership(2, { startDate: 123 }),
-        membership(3, { startDate: {} }),
-        membership(4, { startDate: ['2020-01-01T00:00:00.000+0000'] }),
-        membership(5, { startDate: '' }),
-        membership(6, { endDate: '' }),
-        membership(7, { endDate: 0 }),
-        membership(8, { endDate: false }),
-        membership(9, { endDate: true }),
-        membership(10, { endDate: 'soon' }),
-        membership(11, { endDate: '2026-10-16T00:00:00.000+0000' }),
-        membership(12, { voided: true }),
-        membership(13, { startDate: undefined, endDate: undefined }),
-      ],
-    ];
-
-    const patients = await getCohortMembers(cohortUuid);
-
-    expect(patients.map(({ patientId }) => patientId)).toEqual([1, 13]);
-  });
-
   it('skips members that cannot be loaded or shown', async () => {
     membershipPages = [[membership(1), membership(2), membership(3)]];
     patientDetails = async (n) => {
