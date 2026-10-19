@@ -95,9 +95,10 @@ export class CohortMembersLoadError extends Error {
 /**
  * webservices.rest has no cohort members endpoint, only the paged `cohort/{uuid}/membership`
  * subresource, which gives patient uuids. Each active member is then loaded for the results table.
- * Throws when there are active members but none could be shown.
+ * Resolves to the members that could be shown and the total of active members; throws when there are
+ * active members but none could be shown.
  */
-export const getCohortMembers = async (cohortId: string): Promise<Patient[]> => {
+export const getCohortMembers = async (cohortId: string): Promise<{ patients: Patient[]; total: number }> => {
   const memberships = await getAllMemberships(cohortId);
   const now = new Date();
   const activePatientUuids = memberships
@@ -110,7 +111,7 @@ export const getCohortMembers = async (cohortId: string): Promise<Patient[]> => 
   if (activePatientUuids.length > 0 && patients.length === 0) {
     throw new CohortMembersLoadError();
   }
-  return patients;
+  return { patients, total: activePatientUuids.length };
 };
 
 async function getAllMemberships(cohortId: string) {

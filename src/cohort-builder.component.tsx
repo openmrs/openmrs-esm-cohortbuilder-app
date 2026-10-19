@@ -89,16 +89,28 @@ const CohortBuilder: React.FC = () => {
 
   const getCohortResults = async (cohortId: string) => {
     try {
-      const patients = await getCohortMembers(cohortId);
+      const { patients, total } = await getCohortMembers(cohortId);
       setPatients(patients);
-      showSnackbar({
-        title: t('searchCompleted', 'Search completed'),
-        kind: 'success',
-        isLowContrast: true,
-        subtitle: t('noOfResultsFound', '{{count}} results found', {
-          count: patients.length,
-        }),
-      });
+      if (patients.length < total) {
+        showSnackbar({
+          title: t('someCohortMembersNotLoaded', "Some of the cohort's members could not be loaded"),
+          kind: 'warning',
+          isLowContrast: true,
+          subtitle: t('showingCohortMembers', 'Showing {{shown}} of {{count}} members', {
+            shown: patients.length,
+            count: total,
+          }),
+        });
+      } else {
+        showSnackbar({
+          title: t('searchCompleted', 'Search completed'),
+          kind: 'success',
+          isLowContrast: true,
+          subtitle: t('noOfResultsFound', '{{count}} results found', {
+            count: patients.length,
+          }),
+        });
+      }
     } catch (error) {
       showSnackbar({
         title: t('error', 'Error'),

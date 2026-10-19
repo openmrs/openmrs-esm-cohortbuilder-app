@@ -45,7 +45,7 @@ describe('getCohortMembers', () => {
     const firstPage = Array.from({ length: 100 }, (_, i) => membership(i + 1));
     membershipPages = [firstPage, [membership(101)]];
 
-    const patients = await getCohortMembers(cohortUuid);
+    const { patients } = await getCohortMembers(cohortUuid);
 
     expect(patients).toHaveLength(101);
     expect(patients[100]).toEqual({
@@ -72,7 +72,7 @@ describe('getCohortMembers', () => {
       return details(n);
     };
 
-    const patients = await getCohortMembers(cohortUuid);
+    const { patients } = await getCohortMembers(cohortUuid);
 
     expect(patients).toHaveLength(300);
     expect(fetchedPatients()).toBe(300);
@@ -84,7 +84,7 @@ describe('getCohortMembers', () => {
     // A server that ignores startIndex returns the same page with a "next" link forever.
     membershipPages = Array(50).fill(samePage);
 
-    const patients = await getCohortMembers(cohortUuid);
+    const { patients } = await getCohortMembers(cohortUuid);
 
     expect(patients).toHaveLength(100);
     expect(mockOpenmrsFetch.mock.calls.filter(([url]) => url.includes('/membership'))).toHaveLength(2);
@@ -102,7 +102,7 @@ describe('getCohortMembers', () => {
       ],
     ];
 
-    const patients = await getCohortMembers(cohortUuid);
+    const { patients } = await getCohortMembers(cohortUuid);
 
     expect(patients.map(({ patientId }) => patientId)).toEqual([1, 5, 6]);
   });
@@ -116,9 +116,10 @@ describe('getCohortMembers', () => {
       return n === 3 ? { ...details(3), person: { ...details(3).person, preferredName: null } } : details(n);
     };
 
-    const patients = await getCohortMembers(cohortUuid);
+    const { patients, total } = await getCohortMembers(cohortUuid);
 
     expect(patients.map(({ patientId }) => patientId)).toEqual([1]);
+    expect(total).toBe(3);
     expect(fetchedPatients()).toBe(3);
   });
 
@@ -129,7 +130,7 @@ describe('getCohortMembers', () => {
       person: { ...details(n).person, preferredName: { givenName: n === 1 ? 'Ann' : null, familyName: null } },
     });
 
-    const patients = await getCohortMembers(cohortUuid);
+    const { patients } = await getCohortMembers(cohortUuid);
 
     expect(patients.map(({ name }) => name)).toEqual(['Ann', '']);
   });
@@ -146,7 +147,7 @@ describe('getCohortMembers', () => {
   it('shows an empty cohort as no members', async () => {
     membershipPages = [[membership(1, { voided: true })]];
 
-    expect(await getCohortMembers(cohortUuid)).toEqual([]);
+    expect(await getCohortMembers(cohortUuid)).toEqual({ patients: [], total: 0 });
   });
 });
 
