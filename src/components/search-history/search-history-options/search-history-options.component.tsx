@@ -44,13 +44,13 @@ const createCohortFromSearchItem = async (
 
   try {
     await createCohort(cohort);
-    await mutate(savedCohortsKey);
     showSnackbar({
       title: t('success', 'Success'),
       kind: 'success',
       isLowContrast: true,
       subtitle: t('cohortSaved', 'Cohort created successfully'),
     });
+    mutate(savedCohortsKey);
   } catch (error) {
     showSnackbar({
       title: t('errorCreatingCohort', 'Error creating the cohort'),
@@ -107,13 +107,13 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({ searchItem, upda
       parameters.name = queryName;
       parameters.description = queryDescription;
       await createQuery(parameters);
-      await mutate(savedQueriesKey);
       showSnackbar({
         title: t('success', 'Success'),
         kind: 'success',
         isLowContrast: true,
         subtitle: 'the query is saved',
       });
+      mutate(savedQueriesKey);
     } catch (error) {
       showSnackbar({
         title: t('queryDeleteError', 'Error saving the query'),

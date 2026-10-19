@@ -3,7 +3,7 @@ import { vi, describe, it, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { screen, render } from '@testing-library/react';
 import type * as SWR from 'swr';
-import { showModal } from '@openmrs/esm-framework';
+import { showModal, showSnackbar } from '@openmrs/esm-framework';
 import { savedCohortsKey } from '../../saved-cohorts/saved-cohorts.resources';
 import { savedQueriesKey } from '../../saved-queries/saved-queries.resources';
 import { createCohort, createQuery } from './search-history-options.resources';
@@ -11,6 +11,7 @@ import type * as SearchHistoryOptionsResources from './search-history-options.re
 import SearchHistoryOptions from './search-history-options.component';
 
 const mockShowModal = vi.mocked(showModal);
+const mockShowSnackbar = vi.mocked(showSnackbar);
 const mockCreateCohort = vi.mocked(createCohort);
 const mockCreateQuery = vi.mocked(createQuery);
 const mockMutate = vi.fn();
@@ -165,9 +166,10 @@ describe('Test the search history options', () => {
       size: 'sm',
     });
   });
-  it('should refresh the saved queries list after saving a query', async () => {
+  it('should confirm the save without waiting for the saved queries list to refresh', async () => {
     const user = userEvent.setup();
     mockCreateQuery.mockResolvedValue(undefined);
+    mockMutate.mockReturnValueOnce(new Promise(() => {}));
     render(<SearchHistoryOptions {...testProps} />);
 
     await user.click(screen.getByRole('button', { name: /options/i }));
@@ -180,12 +182,14 @@ describe('Test the search history options', () => {
     await onSaveQuery({ queryName: 'Male patients', queryDescription: 'All male patients' });
 
     expect(mockCreateQuery).toHaveBeenCalled();
+    expect(mockShowSnackbar).toHaveBeenCalledWith(expect.objectContaining({ kind: 'success' }));
     expect(mockMutate).toHaveBeenCalledWith(savedQueriesKey);
   });
 
-  it('should refresh the saved cohorts list after saving a cohort', async () => {
+  it('should confirm the save without waiting for the saved cohorts list to refresh', async () => {
     const user = userEvent.setup();
     mockCreateCohort.mockResolvedValue(undefined);
+    mockMutate.mockReturnValueOnce(new Promise(() => {}));
     render(<SearchHistoryOptions {...testProps} />);
 
     await user.click(screen.getByRole('button', { name: /options/i }));
@@ -196,6 +200,7 @@ describe('Test the search history options', () => {
     await onSave('Male patients', 'All male patients');
 
     expect(mockCreateCohort).toHaveBeenCalled();
+    expect(mockShowSnackbar).toHaveBeenCalledWith(expect.objectContaining({ kind: 'success' }));
     expect(mockMutate).toHaveBeenCalledWith(savedCohortsKey);
   });
 });
