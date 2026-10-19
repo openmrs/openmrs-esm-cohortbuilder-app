@@ -216,6 +216,30 @@ describe('date pickers', () => {
     expect(query.rowFilters[0]?.parameterValues?.onOrAfter).toEqual(dayjs(new Date(2024, 11, 31)).format());
   });
 
+  it.each([false, true])('searches with a date typed over a picked one when Tab moves on (shift: %s)', async (shift) => {
+    const onSubmit = vi.fn();
+    render(<SearchByEncounters onSubmit={onSubmit} />);
+
+    pick(dateInputs()[0], new Date(2024, 11, 31));
+    await type(dateInputs()[0], '01-01-2025');
+    await userEvent.tab({ shift });
+    const [{ query }] = await search(onSubmit);
+
+    expect(query.rowFilters[0]?.parameterValues?.onOrAfter).toEqual(dayjs(new Date(2025, 0, 1)).format());
+  });
+
+  it('clears a wrong date typed into an empty picker when Tab moves on, and searches without it', async () => {
+    const onSubmit = vi.fn();
+    render(<SearchByEncounters onSubmit={onSubmit} />);
+
+    await type(dateInputs()[0], '31-02-2024');
+    await userEvent.tab();
+    const [{ query }] = await search(onSubmit);
+
+    expect(dateInputs()[0]).toHaveValue('');
+    expect(query.rowFilters[0]?.parameterValues?.onOrAfter).toBeUndefined();
+  });
+
   it('leaves a deleted date out of the search', async () => {
     const onSubmit = vi.fn();
     render(<SearchByEncounters onSubmit={onSubmit} />);
