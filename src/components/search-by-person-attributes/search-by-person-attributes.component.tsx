@@ -18,16 +18,18 @@ const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
   const selectedAttribute =
     personAttributes.find((personAttribute) => personAttribute.value === selectedAttributeId) ?? null;
 
+  const personAttributesErrorMessage = personAttributesError?.message;
+
   useEffect(() => {
-    if (personAttributesError) {
+    if (personAttributesErrorMessage) {
       showSnackbar({
         title: t('error', 'Error'),
         kind: 'error',
         isLowContrast: false,
-        subtitle: personAttributesError?.message,
+        subtitle: personAttributesErrorMessage,
       });
     }
-  }, [personAttributesError, t]);
+  }, [personAttributesErrorMessage, t]);
 
   const handleResetInputs = () => {
     setSelectedAttributeId(null);

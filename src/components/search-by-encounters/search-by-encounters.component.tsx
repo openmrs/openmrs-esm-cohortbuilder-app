@@ -24,38 +24,44 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [onOrAfter, setOnOrAfter] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (locationsError) {
-      showSnackbar({
-        title: t('error', 'Error'),
-        kind: 'error',
-        isLowContrast: false,
-        subtitle: locationsError?.message,
-      });
-    }
-  }, [locationsError, t]);
+  const locationsErrorMessage = locationsError?.message;
 
   useEffect(() => {
-    if (formsError) {
+    if (locationsErrorMessage) {
       showSnackbar({
         title: t('error', 'Error'),
         kind: 'error',
         isLowContrast: false,
-        subtitle: formsError?.message,
+        subtitle: locationsErrorMessage,
       });
     }
-  }, [formsError, t]);
+  }, [locationsErrorMessage, t]);
+
+  const formsErrorMessage = formsError?.message;
 
   useEffect(() => {
-    if (encounterTypesError) {
+    if (formsErrorMessage) {
       showSnackbar({
         title: t('error', 'Error'),
         kind: 'error',
         isLowContrast: false,
-        subtitle: encounterTypesError?.message,
+        subtitle: formsErrorMessage,
       });
     }
-  }, [encounterTypesError, t]);
+  }, [formsErrorMessage, t]);
+
+  const encounterTypesErrorMessage = encounterTypesError?.message;
+
+  useEffect(() => {
+    if (encounterTypesErrorMessage) {
+      showSnackbar({
+        title: t('error', 'Error'),
+        kind: 'error',
+        isLowContrast: false,
+        subtitle: encounterTypesErrorMessage,
+      });
+    }
+  }, [encounterTypesErrorMessage, t]);
 
   const reset = () => {
     setSelectedEncounterTypes([]);

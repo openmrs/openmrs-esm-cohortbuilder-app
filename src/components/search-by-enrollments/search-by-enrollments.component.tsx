@@ -22,27 +22,31 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [selectedPrograms, setSelectedPrograms] = useState<DropdownValue[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (programsError) {
-      showSnackbar({
-        title: t('error', 'Error'),
-        kind: 'error',
-        isLowContrast: false,
-        subtitle: programsError?.message,
-      });
-    }
-  }, [programsError, t]);
+  const programsErrorMessage = programsError?.message;
 
   useEffect(() => {
-    if (locationsError) {
+    if (programsErrorMessage) {
       showSnackbar({
         title: t('error', 'Error'),
         kind: 'error',
         isLowContrast: false,
-        subtitle: locationsError?.message,
+        subtitle: programsErrorMessage,
       });
     }
-  }, [locationsError, t]);
+  }, [programsErrorMessage, t]);
+
+  const locationsErrorMessage = locationsError?.message;
+
+  useEffect(() => {
+    if (locationsErrorMessage) {
+      showSnackbar({
+        title: t('error', 'Error'),
+        kind: 'error',
+        isLowContrast: false,
+        subtitle: locationsErrorMessage,
+      });
+    }
+  }, [locationsErrorMessage, t]);
 
   const handleResetInputs = () => {
     setSelectedPrograms([]);

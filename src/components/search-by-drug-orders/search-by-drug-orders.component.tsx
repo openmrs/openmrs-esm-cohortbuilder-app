@@ -21,27 +21,31 @@ const SearchByDrugOrder: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [selectedCareSetting, setSelectedCareSetting] = useState<DropdownValue>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (drugsError) {
-      showSnackbar({
-        title: t('error', 'Error'),
-        kind: 'error',
-        isLowContrast: false,
-        subtitle: drugsError?.message,
-      });
-    }
-  }, [drugsError, t]);
+  const drugsErrorMessage = drugsError?.message;
 
   useEffect(() => {
-    if (careSettingsError) {
+    if (drugsErrorMessage) {
       showSnackbar({
         title: t('error', 'Error'),
         kind: 'error',
         isLowContrast: false,
-        subtitle: careSettingsError?.message,
+        subtitle: drugsErrorMessage,
       });
     }
-  }, [careSettingsError, t]);
+  }, [drugsErrorMessage, t]);
+
+  const careSettingsErrorMessage = careSettingsError?.message;
+
+  useEffect(() => {
+    if (careSettingsErrorMessage) {
+      showSnackbar({
+        title: t('error', 'Error'),
+        kind: 'error',
+        isLowContrast: false,
+        subtitle: careSettingsErrorMessage,
+      });
+    }
+  }, [careSettingsErrorMessage, t]);
 
   const handleResetInputs = () => {
     setSelectedDrugs([]);

@@ -36,16 +36,18 @@ const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [selectedMethod, setSelectedMethod] = useState<DropdownValue>(methods[0]);
   const [isLoading, setIsLoading] = useState(false);
 
+  const locationsErrorMessage = locationsError?.message;
+
   useEffect(() => {
-    if (locationsError) {
+    if (locationsErrorMessage) {
       showSnackbar({
         title: t('error', 'Error'),
         kind: 'error',
         isLowContrast: false,
-        subtitle: locationsError?.message,
+        subtitle: locationsErrorMessage,
       });
     }
-  }, [locationsError, t]);
+  }, [locationsErrorMessage, t]);
 
   const handleResetInputs = () => {
     setSelectedLocations([]);

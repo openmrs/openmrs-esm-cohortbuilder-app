@@ -130,6 +130,27 @@ describe('Test the search by enrollments component', () => {
     ]);
   });
 
+  it('should not report an error again when a retry of the request fails the same way', () => {
+    mockUsePrograms.mockReturnValue({
+      programs: mockPrograms,
+      isLoading: false,
+      programsError: new Error('Programs request failed'),
+    });
+    mockUseLocations.mockReturnValue({ locations: mockLocations, isLoading: false, locationsError: undefined });
+    const onSubmit = vi.fn();
+    const { rerender } = render(<SearchByEnrollments onSubmit={onSubmit} />);
+
+    // SWR keeps retrying a failed request and hands back a new error object each time.
+    mockUsePrograms.mockReturnValue({
+      programs: mockPrograms,
+      isLoading: false,
+      programsError: new Error('Programs request failed'),
+    });
+    rerender(<SearchByEnrollments onSubmit={onSubmit} />);
+
+    expect(showSnackbar).toHaveBeenCalledTimes(1);
+  });
+
   it('should be able to select input values', async () => {
     const user = userEvent.setup();
 
