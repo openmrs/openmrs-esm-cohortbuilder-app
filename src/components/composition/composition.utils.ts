@@ -7,7 +7,7 @@ export const isCompositionValid = (search: string) => {
 };
 
 const formatFilterCombination = (filterText: string, numberOfSearches: number) => {
-  return filterText.replace(/\d/, (theDigit) => (parseInt(theDigit) + numberOfSearches).toString());
+  return filterText.replace(/\d+/g, (filterNumber) => (parseInt(filterNumber) + numberOfSearches).toString());
 };
 
 export const createCompositionQuery = (compositionQuery: string) => {

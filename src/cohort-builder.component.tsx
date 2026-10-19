@@ -143,11 +143,11 @@ const CohortBuilder: React.FC = () => {
       component: <Composition onSubmit={runSearch} />,
     },
     {
-      name: t('savedDefinitions', 'Saved Cohorts'),
+      name: t('savedCohorts', 'Saved Cohorts'),
       component: <SavedCohorts onViewCohort={getCohortResults} />,
     },
     {
-      name: t('savedDefinitions', 'Saved Queries'),
+      name: t('savedQueries', 'Saved Queries'),
       component: <SavedQueries onViewQuery={getQueryResults} />,
     },
   ];
