@@ -36,7 +36,10 @@ const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
 
   const submit = async () => {
     setIsLoading(true);
-    const selectedAttributeValues = attributeValuesInput ? attributeValuesInput.trim().split(',') : [];
+    const selectedAttributeValues = attributeValuesInput
+      .split(',')
+      .map((value) => value.trim())
+      .filter(Boolean);
     try {
       await onSubmit(
         getQueryDetails(selectedAttributeId, selectedAttributeValues),

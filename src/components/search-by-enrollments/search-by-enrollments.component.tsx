@@ -23,16 +23,26 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const error = programsError ?? locationsError;
-    if (error) {
+    if (programsError) {
       showSnackbar({
         title: t('error', 'Error'),
         kind: 'error',
         isLowContrast: false,
-        subtitle: error?.message,
+        subtitle: programsError?.message,
       });
     }
-  }, [locationsError, programsError, t]);
+  }, [programsError, t]);
+
+  useEffect(() => {
+    if (locationsError) {
+      showSnackbar({
+        title: t('error', 'Error'),
+        kind: 'error',
+        isLowContrast: false,
+        subtitle: locationsError?.message,
+      });
+    }
+  }, [locationsError, t]);
 
   const handleResetInputs = () => {
     setSelectedPrograms([]);

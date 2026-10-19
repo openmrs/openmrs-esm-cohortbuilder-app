@@ -25,16 +25,37 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const error = locationsError ?? formsError ?? encounterTypesError;
-    if (error) {
+    if (locationsError) {
       showSnackbar({
         title: t('error', 'Error'),
         kind: 'error',
         isLowContrast: false,
-        subtitle: error?.message,
+        subtitle: locationsError?.message,
       });
     }
-  }, [encounterTypesError, formsError, locationsError, t]);
+  }, [locationsError, t]);
+
+  useEffect(() => {
+    if (formsError) {
+      showSnackbar({
+        title: t('error', 'Error'),
+        kind: 'error',
+        isLowContrast: false,
+        subtitle: formsError?.message,
+      });
+    }
+  }, [formsError, t]);
+
+  useEffect(() => {
+    if (encounterTypesError) {
+      showSnackbar({
+        title: t('error', 'Error'),
+        kind: 'error',
+        isLowContrast: false,
+        subtitle: encounterTypesError?.message,
+      });
+    }
+  }, [encounterTypesError, t]);
 
   const reset = () => {
     setSelectedEncounterTypes([]);

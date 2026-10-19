@@ -2,7 +2,7 @@ import React from 'react';
 import { vi, describe, it, expect, type Mock } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor } from '@testing-library/react';
-import { openmrsFetch } from '@openmrs/esm-framework';
+import { openmrsFetch, showSnackbar } from '@openmrs/esm-framework';
 import { useLocations } from '../../cohort-builder.resources';
 import type * as CohortBuilderResources from '../../cohort-builder.resources';
 import { useForms, useEncounterTypes } from './search-by-encounters.resources';
@@ -143,6 +143,38 @@ vi.mock('../../cohort-builder.resources', async (importOriginal) => {
 });
 
 describe('Test the search by encounters component', () => {
+  it('should report each reference-data error once when requests fail separately', () => {
+    mockUseLocations.mockReturnValue({
+      locations: mockLocations,
+      isLoading: false,
+      locationsError: new Error('Locations request failed'),
+    });
+    mockUseForms.mockReturnValue({ forms: mockForms, isLoading: false, formsError: undefined });
+    mockUseEncounterTypes.mockReturnValue({
+      encounterTypes: mockEncounterTypes,
+      isLoading: false,
+      encounterTypesError: undefined,
+    });
+    const onSubmit = vi.fn();
+    const { rerender } = render(<SearchByEncounters onSubmit={onSubmit} />);
+
+    mockUseForms.mockReturnValue({ forms: mockForms, isLoading: false, formsError: new Error('Forms request failed') });
+    rerender(<SearchByEncounters onSubmit={onSubmit} />);
+    mockUseEncounterTypes.mockReturnValue({
+      encounterTypes: mockEncounterTypes,
+      isLoading: false,
+      encounterTypesError: new Error('Encounter types request failed'),
+    });
+    rerender(<SearchByEncounters onSubmit={onSubmit} />);
+    rerender(<SearchByEncounters onSubmit={onSubmit} />);
+
+    expect(vi.mocked(showSnackbar).mock.calls.map(([notification]) => notification.subtitle)).toEqual([
+      'Locations request failed',
+      'Forms request failed',
+      'Encounter types request failed',
+    ]);
+  });
+
   it('should be able to select input values', async () => {
     const user = userEvent.setup();
 
@@ -214,5 +246,42 @@ describe('Test the search by encounters component', () => {
       expectedQuery,
       `Patients with Encounter of Types Vitals at Pharmacy from POC Patient Consent v1.2 at least 10 times  and at most 20 times`,
     );
+  });
+  it('empties the encounter types, forms and locations on Reset, and searches without them', async () => {
+    const user = userEvent.setup();
+    mockUseForms.mockImplementation(() => ({ forms: mockForms, isLoading: false, formsError: undefined }));
+    mockUseEncounterTypes.mockImplementation(() => ({
+      encounterTypes: mockEncounterTypes,
+      isLoading: false,
+      encounterTypesError: undefined,
+    }));
+    mockUseLocations.mockImplementation(() => ({
+      locations: mockLocations,
+      isLoading: false,
+      locationsError: undefined,
+    }));
+    const mockSubmit = vi.fn();
+    render(<SearchByEncounters onSubmit={mockSubmit} />);
+
+    await user.click(screen.getByText(/select encounter types/i));
+    await user.click(screen.getByText(/vitals/i));
+    await user.click(screen.getByText(/select forms/i));
+    await user.click(screen.getByText(/poc patient consent v1.2/i));
+    await user.click(screen.getByText(/select locations/i));
+    await user.click(screen.getByText(/pharmacy/i));
+    await user.keyboard('{Escape}');
+    await user.type(screen.getByRole('spinbutton', { name: /at least/i }), '3');
+    await user.click(screen.getByTestId('reset-btn'));
+
+    expect(screen.queryAllByRole('button', { name: /clear all selected items/i })).toHaveLength(0);
+    expect(screen.getByRole('spinbutton', { name: /at least/i })).toHaveValue(0);
+    await user.click(screen.getByText(/select encounter types/i));
+    await user.click(screen.getByText(/visit note/i));
+    await user.keyboard('{Escape}');
+    await user.click(screen.getByTestId('search-btn'));
+
+    expect(mockSubmit.mock.calls[0][0].query.rowFilters[0].parameterValues).toEqual({
+      encounterTypeList: [mockEncounterTypes[3].value],
+    });
   });
 });

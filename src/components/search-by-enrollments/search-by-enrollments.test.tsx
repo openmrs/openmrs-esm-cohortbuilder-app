@@ -1,7 +1,7 @@
 import React from 'react';
 import { vi, describe, it, expect, type Mock } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { openmrsFetch } from '@openmrs/esm-framework';
+import { openmrsFetch, showSnackbar } from '@openmrs/esm-framework';
 import { render, screen, waitFor } from '@testing-library/react';
 import { useLocations } from '../../cohort-builder.resources';
 import type * as CohortBuilderResources from '../../cohort-builder.resources';
@@ -106,6 +106,30 @@ vi.mock('../../cohort-builder.resources', async (importOriginal) => {
 });
 
 describe('Test the search by enrollments component', () => {
+  it('should report each reference-data error once when requests fail separately', () => {
+    mockUsePrograms.mockReturnValue({
+      programs: mockPrograms,
+      isLoading: false,
+      programsError: new Error('Programs request failed'),
+    });
+    mockUseLocations.mockReturnValue({ locations: mockLocations, isLoading: false, locationsError: undefined });
+    const onSubmit = vi.fn();
+    const { rerender } = render(<SearchByEnrollments onSubmit={onSubmit} />);
+
+    mockUseLocations.mockReturnValue({
+      locations: mockLocations,
+      isLoading: false,
+      locationsError: new Error('Locations request failed'),
+    });
+    rerender(<SearchByEnrollments onSubmit={onSubmit} />);
+    rerender(<SearchByEnrollments onSubmit={onSubmit} />);
+
+    expect(vi.mocked(showSnackbar).mock.calls.map(([notification]) => notification.subtitle)).toEqual([
+      'Programs request failed',
+      'Locations request failed',
+    ]);
+  });
+
   it('should be able to select input values', async () => {
     const user = userEvent.setup();
 

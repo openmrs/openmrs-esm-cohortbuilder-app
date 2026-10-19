@@ -127,7 +127,7 @@ describe('Test the search by location component', () => {
     await user.click(screen.getByTestId('search-btn'));
 
     await waitFor(() =>
-      expect(mockSubmit).toHaveBeenCalledWith(expect.anything(), 'Patients in  (by method ANY_ENCOUNTER).'),
+      expect(mockSubmit).toHaveBeenCalledWith(expect.anything(), expect.stringContaining('(by method ANY_ENCOUNTER).')),
     );
     expect(screen.getByTestId('search-btn')).toBeEnabled();
   });

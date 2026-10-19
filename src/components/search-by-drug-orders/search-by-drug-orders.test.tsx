@@ -1,7 +1,7 @@
 import React from 'react';
 import { vi, describe, it, expect, type Mock } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { openmrsFetch } from '@openmrs/esm-framework';
+import { openmrsFetch, showSnackbar } from '@openmrs/esm-framework';
 import { render, screen, waitFor } from '@testing-library/react';
 import { useCareSettings, useDrugs } from './search-by-drug-orders.resources';
 import type * as SearchByDrugOrdersResources from './search-by-drug-orders.resources';
@@ -101,6 +101,30 @@ const mockUseCareSettings = vi.mocked(useCareSettings);
 const mockUseDrugs = vi.mocked(useDrugs);
 
 describe('Test the search by drug orders component', () => {
+  it('should report each reference-data error once when requests fail separately', () => {
+    mockUseDrugs.mockReturnValue({ drugs: mockDrugs, isLoading: false, drugsError: new Error('Drug request failed') });
+    mockUseCareSettings.mockReturnValue({
+      careSettings: mockCareSettings,
+      isLoading: false,
+      careSettingsError: undefined,
+    });
+    const onSubmit = vi.fn();
+    const { rerender } = render(<SearchByDrugOrder onSubmit={onSubmit} />);
+
+    mockUseCareSettings.mockReturnValue({
+      careSettings: mockCareSettings,
+      isLoading: false,
+      careSettingsError: new Error('Care settings request failed'),
+    });
+    rerender(<SearchByDrugOrder onSubmit={onSubmit} />);
+    rerender(<SearchByDrugOrder onSubmit={onSubmit} />);
+
+    expect(vi.mocked(showSnackbar).mock.calls.map(([notification]) => notification.subtitle)).toEqual([
+      'Drug request failed',
+      'Care settings request failed',
+    ]);
+  });
+
   it('should be able to select input values', async () => {
     const user = userEvent.setup();
 

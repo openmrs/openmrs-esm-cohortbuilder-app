@@ -122,7 +122,7 @@ describe('Test the search by person attributes component', () => {
     await user.click(screen.getByText('Open menu'));
     await user.click(screen.getByText("Mother's Name"));
     await user.click(screen.getByTestId('selectedAttributeValues'));
-    await user.type(screen.getByTestId('selectedAttributeValues'), 'janet,irina');
+    await user.type(screen.getByTestId('selectedAttributeValues'), ' janet, , irina, ');
     await user.click(screen.getByText('Search'));
 
     expect(mockSubmit).toBeCalledWith(expectedQuery, "Patients with Mother's Name equal to either janet or irina");
@@ -148,5 +148,30 @@ describe('Test the search by person attributes component', () => {
 
     expect(mockSubmit).toHaveBeenCalledTimes(1);
     expect(mockSubmit.mock.calls[0][0].query.rowFilters[0].parameterValues.values).toEqual(['Mary Jane']);
+  });
+  it('empties the attribute and its values on Reset, and searches with only the new ones', async () => {
+    const user = userEvent.setup();
+    mockUsePersonAttributes.mockReturnValue({ personAttributes, isLoading: false, personAttributesError: undefined });
+    const mockSubmit = vi.fn();
+    render(<SearchByPersonAttributes onSubmit={mockSubmit} />);
+
+    await user.click(screen.getByText('Open menu'));
+    await user.click(screen.getByText("Mother's Name"));
+    await user.type(screen.getByTestId('selectedAttributeValues'), 'janet');
+    await user.click(screen.getByTestId('reset-btn'));
+
+    expect(screen.getByText('Select a person attribute')).toBeInTheDocument();
+    expect(screen.queryByText("Mother's Name")).not.toBeInTheDocument();
+    expect(screen.getByTestId('selectedAttributeValues')).toHaveValue('');
+    expect(screen.getByTestId('selectedAttributeValues')).toBeDisabled();
+    await user.click(screen.getByText('Open menu'));
+    await user.click(screen.getByText('Race'));
+    await user.type(screen.getByTestId('selectedAttributeValues'), 'x');
+    await user.click(screen.getByTestId('search-btn'));
+
+    expect(mockSubmit.mock.calls[0][0].query.rowFilters[0].parameterValues).toEqual({
+      attributeType: personAttributes[7].value,
+      values: ['x'],
+    });
   });
 });
