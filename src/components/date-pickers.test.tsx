@@ -205,6 +205,29 @@ describe('date pickers', () => {
     });
   });
 
+  it('searches with a typed date when Tab moves on from it', async () => {
+    const onSubmit = vi.fn();
+    render(<SearchByEncounters onSubmit={onSubmit} />);
+
+    await type(dateInputs()[0], '31-12-2024');
+    await userEvent.tab();
+    const [{ query }] = await search(onSubmit);
+
+    expect(query.rowFilters[0]?.parameterValues?.onOrAfter).toEqual(dayjs(new Date(2024, 11, 31)).format());
+  });
+
+  it('leaves a deleted date out of the search', async () => {
+    const onSubmit = vi.fn();
+    render(<SearchByEncounters onSubmit={onSubmit} />);
+
+    pick(dateInputs()[0], new Date(2024, 11, 31));
+    await userEvent.clear(dateInputs()[0]);
+    const [{ query }] = await search(onSubmit);
+
+    expect(dateInputs()[0]).toHaveValue('');
+    expect(query.rowFilters[0]?.parameterValues?.onOrAfter).toBeUndefined();
+  });
+
   it('takes a typed date when a touch outside closes the calendar', async () => {
     const onSubmit = vi.fn();
     render(<SearchByDemographics onSubmit={onSubmit} />);
