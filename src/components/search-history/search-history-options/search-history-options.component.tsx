@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation, type TFunction } from 'react-i18next';
 import { OverflowMenu, OverflowMenuItem } from '@carbon/react';
 import { showModal, showSnackbar } from '@openmrs/esm-framework';
@@ -58,20 +58,13 @@ const createCohortFromSearchItem = async (
 
 const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({ searchItem, updateSearchHistory }) => {
   const { t } = useTranslation();
-  const [cohortName, setCohortName] = useState('');
-  const [cohortDescription, setCohortDescription] = useState('');
-  const [queryName, setQueryName] = useState('');
-  const [queryDescription, setQueryDescription] = useState('');
-
   const handleOption = async (option: OptionType) => {
     const { patients, description } = searchItem;
     switch (option) {
       case Option.SAVE_COHORT:
-        setCohortDescription(description);
         launchSaveCohortModal();
         break;
       case Option.SAVE_QUERY:
-        setQueryDescription(description);
         launchSaveQueryModal();
         break;
       case Option.DOWNLOAD:
@@ -102,14 +95,12 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({ searchItem, upda
     }
   };
 
-  const handleSaveQuery = async () => {
+  const handleSaveQuery = async ({ queryName, queryDescription }: { queryName: string; queryDescription: string }) => {
     try {
       const { parameters } = searchItem;
       parameters.name = queryName;
       parameters.description = queryDescription;
       await createQuery(parameters);
-      setQueryName('');
-      setQueryDescription('');
       showSnackbar({
         title: t('success', 'Success'),
         kind: 'success',
