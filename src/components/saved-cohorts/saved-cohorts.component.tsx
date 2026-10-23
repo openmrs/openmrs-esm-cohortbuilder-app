@@ -81,7 +81,7 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
                     ))}
                     <TableCell className={mainStyles.optionCell}>
                       <SavedCohortsOptions
-                        cohort={cohorts[index]}
+                        cohort={cohorts[(page - 1) * pageSize + index]}
                         onViewCohort={onViewCohort}
                         onDeleteCohort={handleDeleteCohort}
                       />
