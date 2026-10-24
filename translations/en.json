@@ -55,6 +55,8 @@
   "enterQueryName": "Enter a name for the query",
   "error": "Error",
   "errorCreatingCohort": "Error creating the cohort",
+  "errorLoadingCohorts": "Error loading saved cohorts",
+  "errorLoadingQueries": "Error loading saved queries",
   "females": "Female",
   "from": "From",
   "gender": "Gender",
