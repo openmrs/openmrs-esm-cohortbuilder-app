@@ -125,6 +125,21 @@ describe('SavedCohorts', () => {
     render(<SavedCohorts onViewCohort={vi.fn()} />);
 
     expect(screen.getByText(/error loading saved cohorts/i)).toBeInTheDocument();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
     expect(screen.queryByText(/there are no cohorts to display/i)).not.toBeInTheDocument();
+  });
+  it('should keep showing the cohorts when a refresh fails', () => {
+    mockUseCohorts.mockReturnValue({
+      cohorts: mockCohorts,
+      isLoading: false,
+      isValidating: false,
+      error: new Error('Internal server error'),
+      mutate: vi.fn(),
+    });
+
+    render(<SavedCohorts onViewCohort={vi.fn()} />);
+
+    expect(screen.getByText(/error loading saved cohorts/i)).toBeInTheDocument();
+    expect(screen.getByText(mockCohorts[0].name)).toBeInTheDocument();
   });
 });

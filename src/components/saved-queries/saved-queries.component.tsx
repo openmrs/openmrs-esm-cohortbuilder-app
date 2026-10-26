@@ -87,7 +87,7 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
       )}
       {isLoading ? (
         <DataTableSkeleton headers={headers} rowCount={3} showHeader={false} showToolbar={false} />
-      ) : (
+      ) : !error || queries.length > 0 ? (
         <DataTable rows={queries} headers={headers} useZebraStyles>
           {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
             <Table {...getTableProps()}>
@@ -121,7 +121,7 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
             </Table>
           )}
         </DataTable>
-      )}
+      ) : null}
       {queries.length > 10 && (
         <Pagination
           backwardText={t('previousPage', 'Previous page')}

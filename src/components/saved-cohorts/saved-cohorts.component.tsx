@@ -87,7 +87,7 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
       )}
       {isLoading ? (
         <DataTableSkeleton headers={headers} rowCount={3} showHeader={false} showToolbar={false} />
-      ) : (
+      ) : !error || cohorts.length > 0 ? (
         <DataTable rows={cohorts} headers={headers} useZebraStyles>
           {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
             <Table {...getTableProps()}>
@@ -121,7 +121,7 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
             </Table>
           )}
         </DataTable>
-      )}
+      ) : null}
       {cohorts?.length > 10 && (
         <Pagination
           backwardText={t('previousPage', 'Previous page')}

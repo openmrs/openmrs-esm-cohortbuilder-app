@@ -148,6 +148,21 @@ describe('Test the saved queries component', () => {
     render(<SavedQueries onViewQuery={vi.fn()} />);
 
     expect(screen.getByText(/error loading saved queries/i)).toBeInTheDocument();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
     expect(screen.queryByText(/there are no queries to display/i)).not.toBeInTheDocument();
+  });
+
+  it('should keep showing the queries when a refresh fails', () => {
+    mockUseQueries.mockReturnValue({
+      queries: mockQueries,
+      error: new Error('Internal server error'),
+      isLoading: false,
+      mutate: vi.fn(),
+    });
+
+    render(<SavedQueries onViewQuery={vi.fn()} />);
+
+    expect(screen.getByText(/error loading saved queries/i)).toBeInTheDocument();
+    expect(screen.getByText(mockQueries[0].name)).toBeInTheDocument();
   });
 });
