@@ -47,6 +47,32 @@ describe('SavedCohorts', () => {
     expect(screen.getByText(mockCohorts[0].name)).toBeInTheDocument();
     expect(screen.getByText(mockCohorts[1].name)).toBeInTheDocument();
   });
+  it('should act on the cohort shown in the row when the table is paginated', async () => {
+    const user = userEvent.setup();
+    const onViewCohort = vi.fn().mockResolvedValue(undefined);
+    const cohorts: DefinitionDataRow[] = Array.from({ length: 11 }, (_, i) => ({
+      id: `cohort-${i + 1}`,
+      name: `Cohort ${i + 1}`,
+      description: `Description ${i + 1}`,
+    }));
+    mockUseCohorts.mockReturnValue({
+      cohorts,
+      isLoading: false,
+      isValidating: false,
+      error: undefined,
+      mutate: vi.fn(),
+    });
+
+    render(<SavedCohorts onViewCohort={onViewCohort} />);
+
+    await user.click(screen.getByRole('button', { name: /next page/i }));
+    expect(screen.getByText('Cohort 11')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /options/i }));
+    await user.click(screen.getByText(/view/i));
+
+    expect(onViewCohort).toHaveBeenCalledWith('cohort-11');
+  });
   it('should refresh the list after a cohort is deleted', async () => {
     const user = userEvent.setup();
     const mutate = vi.fn();

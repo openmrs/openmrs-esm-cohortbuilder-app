@@ -2,6 +2,7 @@ import React from 'react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
+import { showModal } from '@openmrs/esm-framework';
 import SearchHistory from './search-history.component';
 
 const mockGetSearchHistory = vi.fn();
@@ -97,6 +98,27 @@ describe('Test the search history component', () => {
     expect(screen.getByText(/clear search history/i)).toBeInTheDocument();
     expect(screen.getByText('2')).toBeInTheDocument();
     expect(screen.getByText(mockSearchHistory[0].description)).toBeInTheDocument();
+  });
+
+  it('should act on the search item shown in the row when the table is paginated', async () => {
+    const user = userEvent.setup();
+    const searchHistory = Array.from({ length: 11 }, (_, i) => ({
+      ...mockSearchHistory[0],
+      id: `${i + 1}`,
+      description: `Search ${i + 1}`,
+    }));
+    mockGetSearchHistory.mockReturnValue(searchHistory);
+
+    render(<SearchHistory isHistoryUpdated={true} setIsHistoryUpdated={vi.fn()} />);
+
+    await user.click(screen.getByRole('button', { name: /next page/i }));
+    await user.click(screen.getByRole('button', { name: /options/i }));
+    await user.click(screen.getByText(/delete from history/i));
+
+    expect(vi.mocked(showModal)).toHaveBeenCalledWith(
+      'clear-item-from-search-history-modal',
+      expect.objectContaining({ searchItemName: 'Search 11' }),
+    );
   });
 
   it('should not jump back to an out-of-range page when the history grows again', async () => {
