@@ -4,7 +4,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vites
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import dayjs from 'dayjs';
-import { openmrsFetch } from '@openmrs/esm-framework';
+import { useOpenmrsFetchAll } from '@openmrs/esm-framework';
 import SearchByConcepts from './search-by-concepts/search-by-concepts.component';
 import SearchByDemographics from './search-by-demographics/search-by-demographics.component';
 import SearchByDrugOrder from './search-by-drug-orders/search-by-drug-orders.component';
@@ -15,7 +15,7 @@ import SearchByEnrollments from './search-by-enrollments/search-by-enrollments.c
 // is `default`, so flatpickr never starts and the inputs stay empty. With "en" in place the real picker runs.
 const flatpickrLocales = createRequire(import.meta.url)('flatpickr/dist/l10n/index');
 
-const mockOpenmrsFetch = vi.mocked(openmrsFetch);
+const mockUseOpenmrsFetchAll = vi.mocked(useOpenmrsFetchAll);
 
 vi.mock('./search-by-concepts/search-concept/search-concept.resource', () => ({
   getConcepts: vi.fn().mockResolvedValue([
@@ -101,9 +101,8 @@ describe('date pickers', () => {
   beforeEach(() => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-10-17T15:30:00Z'));
-    mockOpenmrsFetch.mockImplementation(
-      async (url) =>
-        ({ data: { results: url.endsWith('/drug') ? [{ uuid: drug, display: 'Aspirin' }] : [] } } as never),
+    mockUseOpenmrsFetchAll.mockImplementation(
+      (url) => ({ data: String(url).endsWith('/drug') ? [{ uuid: drug, display: 'Aspirin' }] : [] } as never),
     );
     return () => vi.useRealTimers();
   });
@@ -216,17 +215,20 @@ describe('date pickers', () => {
     expect(query.rowFilters[0]?.parameterValues?.onOrAfter).toEqual(dayjs(new Date(2024, 11, 31)).format());
   });
 
-  it.each([false, true])('searches with a date typed over a picked one when Tab moves on (shift: %s)', async (shift) => {
-    const onSubmit = vi.fn();
-    render(<SearchByEncounters onSubmit={onSubmit} />);
+  it.each([false, true])(
+    'searches with a date typed over a picked one when Tab moves on (shift: %s)',
+    async (shift) => {
+      const onSubmit = vi.fn();
+      render(<SearchByEncounters onSubmit={onSubmit} />);
 
-    pick(dateInputs()[0], new Date(2024, 11, 31));
-    await type(dateInputs()[0], '01-01-2025');
-    await userEvent.tab({ shift });
-    const [{ query }] = await search(onSubmit);
+      pick(dateInputs()[0], new Date(2024, 11, 31));
+      await type(dateInputs()[0], '01-01-2025');
+      await userEvent.tab({ shift });
+      const [{ query }] = await search(onSubmit);
 
-    expect(query.rowFilters[0]?.parameterValues?.onOrAfter).toEqual(dayjs(new Date(2025, 0, 1)).format());
-  });
+      expect(query.rowFilters[0]?.parameterValues?.onOrAfter).toEqual(dayjs(new Date(2025, 0, 1)).format());
+    },
+  );
 
   it('clears a wrong date typed into an empty picker when Tab moves on, and searches without it', async () => {
     const onSubmit = vi.fn();
