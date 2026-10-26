@@ -47,6 +47,7 @@ describe('SavedCohorts', () => {
     expect(screen.getByText(mockCohorts[0].name)).toBeInTheDocument();
     expect(screen.getByText(mockCohorts[1].name)).toBeInTheDocument();
   });
+
   it('should act on the cohort shown in the row when the table is paginated', async () => {
     const user = userEvent.setup();
     const onViewCohort = vi.fn().mockResolvedValue(undefined);
@@ -73,6 +74,7 @@ describe('SavedCohorts', () => {
 
     expect(onViewCohort).toHaveBeenCalledWith('cohort-11');
   });
+
   it('should refresh the list after a cohort is deleted', async () => {
     const user = userEvent.setup();
     const mutate = vi.fn();
