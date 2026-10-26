@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { DatePicker, DatePickerInput, Column, Dropdown, NumberInput, Switch, ContentSwitcher } from '@carbon/react';
+import { Column, Dropdown, NumberInput, Switch, ContentSwitcher } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { composeJson, queryDescriptionBuilder } from '../../cohort-builder.utils';
 import type { Concept, SearchByProps } from '../../types';
 import { SearchConcept } from './search-concept/search-concept.component';
 import SearchButtonSet from '../search-button-set/search-button-set';
+import SearchDatePicker from '../search-date-picker/search-date-picker';
 import styles from './search-by-concepts.style.scss';
 
 const operators = [
@@ -120,6 +121,12 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
     },
   ];
 
+  // A numeric concept has its own time modifiers and an operator and value. Only what is shown is searched,
+  // so a modifier the shown list doesn't have falls back to its first, Any.
+  const isNumeric = concept?.hl7Abbrev === 'NM';
+  const timeModifierOptions = isNumeric ? whichObservation : observationOptions;
+  const shownTimeModifier = timeModifierOptions.find(({ value }) => value === timeModifier) ?? timeModifierOptions[0];
+
   const handleReset = () => {
     setConcept(null);
     setLastDays(0);
@@ -145,12 +152,12 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
     setIsLoading(true);
     const observations: Observation = {
       modifier: '',
-      operator1: operator,
-      value1: operatorValue > 0 ? operatorValue.toString() : '',
+      operator1: isNumeric ? operator : '',
+      value1: isNumeric && operatorValue > 0 ? operatorValue.toString() : '',
       question: concept.uuid,
       onOrBefore: getOnOrBefore() || onOrBefore,
       onOrAfter,
-      timeModifier,
+      timeModifier: shownTimeModifier.value,
     };
     const dataType = types[concept.hl7Abbrev];
     const params = { [dataType]: [] };
@@ -176,7 +183,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
           searchText={searchText}
           setSearchText={setSearchText}
         />
-        {concept?.hl7Abbrev === 'NM' ? (
+        {isNumeric ? (
           <>
             <Column className={styles.column}>
               <div style={{ display: 'flex' }}>
@@ -185,7 +192,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
                   <Dropdown
                     id="timeModifier"
                     onChange={(data) => setTimeModifier(data.selectedItem.value)}
-                    initialSelectedItem={whichObservation[0]}
+                    selectedItem={shownTimeModifier}
                     items={whichObservation}
                     className={styles.timeModifier}
                     label=""
@@ -199,7 +206,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
               <div className={styles.whatValuesInputs}>
                 <div className={styles.operators}>
                   <ContentSwitcher
-                    selectedIndex={operators[0].id}
+                    selectedIndex={operators.findIndex(({ value }) => value === operator)}
                     className={styles.contentSwitcher}
                     size="lg"
                     onChange={({ index }) => setOperator(operators[index].value)}
@@ -230,7 +237,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
               id="timeModifier"
               data-testid="timeModifier"
               onChange={(data) => setTimeModifier(data.selectedItem.value)}
-              initialSelectedItem={observationOptions[0]}
+              selectedItem={shownTimeModifier}
               items={observationOptions}
               label=""
               titleText=""
@@ -265,29 +272,20 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
         </Column>
         <div className={styles.dateRange}>
           <Column>
-            <DatePicker
-              datePickerType="single"
-              allowInput={false}
-              onChange={(date) => setOnOrAfter(dayjs(date[0]).format())}
-              value={onOrAfter && dayjs(onOrAfter).format('DD-MM-YYYY')}
-            >
-              <DatePickerInput
-                id="startDate"
-                labelText={t('dateRange', 'Date range start date')}
-                placeholder="DD-MM-YYYY"
-                size="md"
-              />
-            </DatePicker>
+            <SearchDatePicker
+              id="startDate"
+              labelText={t('dateRange', 'Date range start date')}
+              value={onOrAfter}
+              onChange={setOnOrAfter}
+            />
           </Column>
           <Column>
-            <DatePicker
-              datePickerType="single"
-              allowInput={false}
-              onChange={(date) => setOnOrBefore(dayjs(date[0]).format())}
-              value={onOrBefore && dayjs(onOrBefore).format('DD-MM-YYYY')}
-            >
-              <DatePickerInput id="endDate" labelText={t('endDate', 'End date')} placeholder="DD-MM-YYYY" size="md" />
-            </DatePicker>
+            <SearchDatePicker
+              id="endDate"
+              labelText={t('endDate', 'End date')}
+              value={onOrBefore}
+              onChange={setOnOrBefore}
+            />
           </Column>
         </div>
       </div>

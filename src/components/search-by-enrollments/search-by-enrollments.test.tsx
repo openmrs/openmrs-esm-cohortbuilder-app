@@ -1,8 +1,8 @@
 import React from 'react';
 import { vi, describe, it, expect, type Mock } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { openmrsFetch } from '@openmrs/esm-framework';
-import { render, screen } from '@testing-library/react';
+import { openmrsFetch, showSnackbar } from '@openmrs/esm-framework';
+import { render, screen, waitFor } from '@testing-library/react';
 import { useLocations } from '../../cohort-builder.resources';
 import type * as CohortBuilderResources from '../../cohort-builder.resources';
 import { usePrograms } from './search-by-enrollments.resources';
@@ -106,6 +106,51 @@ vi.mock('../../cohort-builder.resources', async (importOriginal) => {
 });
 
 describe('Test the search by enrollments component', () => {
+  it('should report each reference-data error once when requests fail separately', () => {
+    mockUsePrograms.mockReturnValue({
+      programs: mockPrograms,
+      isLoading: false,
+      programsError: new Error('Programs request failed'),
+    });
+    mockUseLocations.mockReturnValue({ locations: mockLocations, isLoading: false, locationsError: undefined });
+    const onSubmit = vi.fn();
+    const { rerender } = render(<SearchByEnrollments onSubmit={onSubmit} />);
+
+    mockUseLocations.mockReturnValue({
+      locations: mockLocations,
+      isLoading: false,
+      locationsError: new Error('Locations request failed'),
+    });
+    rerender(<SearchByEnrollments onSubmit={onSubmit} />);
+    rerender(<SearchByEnrollments onSubmit={onSubmit} />);
+
+    expect(vi.mocked(showSnackbar).mock.calls.map(([notification]) => notification.subtitle)).toEqual([
+      'Programs request failed',
+      'Locations request failed',
+    ]);
+  });
+
+  it('should not report an error again when a retry of the request fails the same way', () => {
+    mockUsePrograms.mockReturnValue({
+      programs: mockPrograms,
+      isLoading: false,
+      programsError: new Error('Programs request failed'),
+    });
+    mockUseLocations.mockReturnValue({ locations: mockLocations, isLoading: false, locationsError: undefined });
+    const onSubmit = vi.fn();
+    const { rerender } = render(<SearchByEnrollments onSubmit={onSubmit} />);
+
+    // SWR keeps retrying a failed request and hands back a new error object each time.
+    mockUsePrograms.mockReturnValue({
+      programs: mockPrograms,
+      isLoading: false,
+      programsError: new Error('Programs request failed'),
+    });
+    rerender(<SearchByEnrollments onSubmit={onSubmit} />);
+
+    expect(showSnackbar).toHaveBeenCalledTimes(1);
+  });
+
   it('should be able to select input values', async () => {
     const user = userEvent.setup();
 
@@ -141,5 +186,30 @@ describe('Test the search by enrollments component', () => {
       expectedQuery,
       `Patients enrolled in ${mockPrograms[0].label} at ${mockLocations[2].label}`,
     );
+  });
+  it('should clear both selections on reset', async () => {
+    const user = userEvent.setup();
+    mockUsePrograms.mockImplementation(() => ({ programs: mockPrograms, isLoading: false, programsError: undefined }));
+    mockUseLocations.mockImplementation(() => ({
+      locations: mockLocations,
+      isLoading: false,
+      locationsError: undefined,
+    }));
+    const mockSubmit = vi.fn().mockResolvedValue(true);
+    render(<SearchByEnrollments onSubmit={mockSubmit} />);
+
+    await user.click(screen.getByText(/select locations/i));
+    await user.click(screen.getByText(mockLocations[2].label));
+    await user.click(screen.getByText(/select programs/i));
+    await user.click(screen.getByText(mockPrograms[0].label));
+    expect(screen.getAllByTitle(/clear all selected items/i)).toHaveLength(2);
+
+    await user.click(screen.getByTestId('reset-btn'));
+
+    expect(screen.queryByTitle(/clear all selected items/i)).not.toBeInTheDocument();
+    await user.click(screen.getByTestId('search-btn'));
+    await waitFor(() => expect(mockSubmit).toHaveBeenCalledTimes(1));
+    expect(mockSubmit.mock.calls[0][1]).not.toContain(mockPrograms[0].label);
+    expect(mockSubmit.mock.calls[0][1]).not.toContain(mockLocations[2].label);
   });
 });

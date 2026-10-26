@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Column, Dropdown, TextInput } from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
 import { useTranslation } from 'react-i18next';
@@ -12,34 +12,44 @@ import { getQueryDetails, getSearchByAttributesDescription } from './search-by-p
 const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
   const { personAttributes, personAttributesError } = usePersonAttributes();
-  const [selectedAttributeValues, setSelectedAttributeValues] = useState([]);
+  const [attributeValuesInput, setAttributeValuesInput] = useState('');
   const [selectedAttributeId, setSelectedAttributeId] = useState<string>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const selectedAttribute =
+    personAttributes.find((personAttribute) => personAttribute.value === selectedAttributeId) ?? null;
 
-  if (personAttributesError) {
-    showSnackbar({
-      title: t('error', 'Error'),
-      kind: 'error',
-      isLowContrast: false,
-      subtitle: personAttributesError?.message,
-    });
-  }
+  const personAttributesErrorMessage = personAttributesError?.message;
+
+  useEffect(() => {
+    if (personAttributesErrorMessage) {
+      showSnackbar({
+        title: t('error', 'Error'),
+        kind: 'error',
+        isLowContrast: false,
+        subtitle: personAttributesErrorMessage,
+      });
+    }
+  }, [personAttributesErrorMessage, t]);
 
   const handleResetInputs = () => {
     setSelectedAttributeId(null);
-    setSelectedAttributeValues([]);
+    setAttributeValuesInput('');
   };
 
   const submit = async () => {
     setIsLoading(true);
-    const selectedPersonAttribute = personAttributes?.find(
-      (personAttribute) => personAttribute.value == selectedAttributeId,
-    );
-    await onSubmit(
-      getQueryDetails(selectedAttributeId, selectedAttributeValues),
-      getSearchByAttributesDescription(selectedPersonAttribute?.label, selectedAttributeValues),
-    );
-    setIsLoading(false);
+    const selectedAttributeValues = attributeValuesInput
+      .split(',')
+      .map((value) => value.trim())
+      .filter(Boolean);
+    try {
+      await onSubmit(
+        getQueryDetails(selectedAttributeId, selectedAttributeValues),
+        getSearchByAttributesDescription(selectedAttribute?.label, selectedAttributeValues),
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -49,7 +59,8 @@ const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
           <Dropdown
             id="personAttributes"
             data-testid="personAttributes"
-            onChange={(data) => setSelectedAttributeId(data.selectedItem.value)}
+            onChange={(data) => setSelectedAttributeId(data.selectedItem?.value ?? null)}
+            selectedItem={selectedAttribute}
             items={personAttributes}
             label={t('selectAttribute', 'Select a person attribute')}
             titleText=""
@@ -63,7 +74,8 @@ const SearchByPersonAttributes: React.FC<SearchByProps> = ({ onSubmit }) => {
             data-testid={'selectedAttributeValues'}
             disabled={!selectedAttributeId}
             labelText={t('selectedAttributeValues', 'Enter Comma Delimited Values')}
-            onChange={(e) => setSelectedAttributeValues(e.target.value.trim().split(','))}
+            value={attributeValuesInput}
+            onChange={(e) => setAttributeValuesInput(e.target.value)}
           />
         </Column>
       </div>

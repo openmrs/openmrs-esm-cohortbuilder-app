@@ -2,18 +2,33 @@ import React from 'react';
 import { vi, describe, it, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { screen, render } from '@testing-library/react';
-import { showModal } from '@openmrs/esm-framework';
-import { createQuery } from './search-history-options.resources';
+import type * as SWR from 'swr';
+import { showModal, showSnackbar } from '@openmrs/esm-framework';
+import { savedCohortsKey } from '../../saved-cohorts/saved-cohorts.resources';
+import { savedQueriesKey } from '../../saved-queries/saved-queries.resources';
+import { createCohort, createQuery } from './search-history-options.resources';
 import type * as SearchHistoryOptionsResources from './search-history-options.resources';
 import SearchHistoryOptions from './search-history-options.component';
 
 const mockShowModal = vi.mocked(showModal);
+const mockShowSnackbar = vi.mocked(showSnackbar);
+const mockCreateCohort = vi.mocked(createCohort);
 const mockCreateQuery = vi.mocked(createQuery);
+const mockMutate = vi.fn();
+
+vi.mock('swr', async (importOriginal) => {
+  const original = await importOriginal<typeof SWR>();
+  return {
+    ...original,
+    useSWRConfig: () => ({ ...original.useSWRConfig(), mutate: mockMutate }),
+  };
+});
 
 vi.mock('./search-history-options.resources', async (importOriginal) => {
   const original = await importOriginal<typeof SearchHistoryOptionsResources>();
   return {
     ...original,
+    createCohort: vi.fn(),
     createQuery: vi.fn(),
   };
 });
@@ -150,5 +165,42 @@ describe('Test the search history options', () => {
       searchItemName: searchHistoryItem.description,
       size: 'sm',
     });
+  });
+  it('should confirm the save without waiting for the saved queries list to refresh', async () => {
+    const user = userEvent.setup();
+    mockCreateQuery.mockResolvedValue(undefined);
+    mockMutate.mockReturnValueOnce(new Promise(() => {}));
+    render(<SearchHistoryOptions {...testProps} />);
+
+    await user.click(screen.getByRole('button', { name: /options/i }));
+    await user.click(screen.getByText(/save query/i));
+
+    const [, modalProps] = mockShowModal.mock.calls.find(([modalName]) => modalName === 'save-query-modal');
+    const { onSaveQuery } = modalProps as {
+      onSaveQuery: (data: { queryName: string; queryDescription: string }) => Promise<void>;
+    };
+    await onSaveQuery({ queryName: 'Male patients', queryDescription: 'All male patients' });
+
+    expect(mockCreateQuery).toHaveBeenCalled();
+    expect(mockShowSnackbar).toHaveBeenCalledWith(expect.objectContaining({ kind: 'success' }));
+    expect(mockMutate).toHaveBeenCalledWith(savedQueriesKey);
+  });
+
+  it('should confirm the save without waiting for the saved cohorts list to refresh', async () => {
+    const user = userEvent.setup();
+    mockCreateCohort.mockResolvedValue(undefined);
+    mockMutate.mockReturnValueOnce(new Promise(() => {}));
+    render(<SearchHistoryOptions {...testProps} />);
+
+    await user.click(screen.getByRole('button', { name: /options/i }));
+    await user.click(screen.getByText(/save cohort/i));
+
+    const [, modalProps] = mockShowModal.mock.calls.find(([modalName]) => modalName === 'save-cohort-modal');
+    const { onSave } = modalProps as { onSave: (name: string, description: string) => Promise<void> };
+    await onSave('Male patients', 'All male patients');
+
+    expect(mockCreateCohort).toHaveBeenCalled();
+    expect(mockShowSnackbar).toHaveBeenCalledWith(expect.objectContaining({ kind: 'success' }));
+    expect(mockMutate).toHaveBeenCalledWith(savedCohortsKey);
   });
 });

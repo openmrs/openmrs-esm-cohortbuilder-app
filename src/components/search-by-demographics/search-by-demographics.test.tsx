@@ -102,4 +102,27 @@ describe('Test the search by demographics component', () => {
     // Verify the description matches
     expect(actualDescription).toBe('Male Patients with ages between 10 and 20 years that are alive');
   });
+
+  it('goes back to every default on Reset', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-17T15:30:00Z'));
+    const user = userEvent.setup();
+    const untouchedSubmit = vi.fn();
+    const { unmount } = render(<SearchByDemographics onSubmit={untouchedSubmit} />);
+    await user.click(screen.getByTestId('search-btn'));
+    unmount();
+
+    const mockSubmit = vi.fn();
+    render(<SearchByDemographics onSubmit={mockSubmit} />);
+    await user.click(screen.getByRole('tab', { name: 'Female' }));
+    await user.click(screen.getByRole('tab', { name: 'Dead' }));
+    await user.type(screen.getByTestId('minAge'), '15');
+    await user.click(screen.getByTestId('reset-btn'));
+
+    expect(screen.getByRole('tab', { name: 'All' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tab', { name: 'Alive' })).toHaveAttribute('aria-selected', 'true');
+    await user.click(screen.getByTestId('search-btn'));
+    expect(mockSubmit.mock.calls[0]).toEqual(untouchedSubmit.mock.calls[0]);
+    vi.useRealTimers();
+  });
 });
