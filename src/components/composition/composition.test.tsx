@@ -68,7 +68,6 @@ vi.mock('./composition.utils', async (importOriginal) => {
   return {
     ...original,
     createCompositionQuery: vi.fn().mockImplementation(() => mockCompositionQuery),
-    isCompositionValid: vi.fn().mockImplementation((query) => query === '1 and 2'),
   };
 });
 
@@ -92,19 +91,21 @@ describe('Composition', () => {
     });
   });
 
-  it('should submit a valid composition query', async () => {
-    const compositionQuery = '1 and 2';
-    const user = userEvent.setup();
-    const mockSubmit = vi.fn();
-    render(<Composition onSubmit={mockSubmit} />);
+  it.each(['1 and 2', '(2 OR 3) AND 1', '((2 OR 3) AND 1)'])(
+    'should submit a valid composition query: %s',
+    async (compositionQuery) => {
+      const user = userEvent.setup();
+      const mockSubmit = vi.fn();
+      render(<Composition onSubmit={mockSubmit} />);
 
-    const compositionInput = screen.getByRole('textbox', { name: /composition/i });
-    await user.click(compositionInput);
-    await user.type(compositionInput, compositionQuery);
-    await user.click(screen.getByRole('button', { name: /search/i }));
+      const compositionInput = screen.getByRole('textbox', { name: /composition/i });
+      await user.click(compositionInput);
+      await user.type(compositionInput, compositionQuery);
+      await user.click(screen.getByRole('button', { name: /search/i }));
 
-    expect(mockSubmit).toHaveBeenCalledWith(mockCompositionQuery, `Composition of ${compositionQuery}`);
-  });
+      expect(mockSubmit).toHaveBeenCalledWith(mockCompositionQuery, `Composition of ${compositionQuery}`);
+    },
+  );
 
   it('should handle reset functionality', async () => {
     const user = userEvent.setup();
