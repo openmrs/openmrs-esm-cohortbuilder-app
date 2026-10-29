@@ -5,11 +5,12 @@ import styles from './search-button-set.scss';
 
 interface SearchButtonSet {
   isLoading: boolean;
+  isSearchDisabled?: boolean;
   onHandleSubmit: () => void;
   onHandleReset: () => void;
 }
 
-const SearchButtonSet: React.FC<SearchButtonSet> = ({ isLoading, onHandleSubmit, onHandleReset }) => {
+const SearchButtonSet: React.FC<SearchButtonSet> = ({ isLoading, isSearchDisabled, onHandleSubmit, onHandleReset }) => {
   const { t } = useTranslation();
 
   return (
@@ -21,7 +22,7 @@ const SearchButtonSet: React.FC<SearchButtonSet> = ({ isLoading, onHandleSubmit,
         <Button
           className={styles.button}
           kind="primary"
-          disabled={isLoading}
+          disabled={isLoading || isSearchDisabled}
           onClick={onHandleSubmit}
           data-testid="search-btn"
         >

@@ -25,6 +25,8 @@ export const getSearchByAttributesDescription = (attributeId: string, selectedAt
 
   description += attributeId ? ` with${attributeValues ? '' : ' any'} ${attributeId}` : attributeId;
 
-  description += attributeValues ? ` equal to ${attributeValues.length > 1 && 'either'} ${attributeValues}` : '';
+  description += attributeValues
+    ? ` equal to ${selectedAttributeValues.length > 1 ? 'either ' : ''}${attributeValues}`
+    : '';
   return description;
 };
