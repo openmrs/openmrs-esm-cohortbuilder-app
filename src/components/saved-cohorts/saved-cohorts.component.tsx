@@ -11,7 +11,7 @@ import {
   TableBody,
   TableCell,
 } from '@carbon/react';
-import { showSnackbar } from '@openmrs/esm-framework';
+import { showSnackbar, usePagination } from '@openmrs/esm-framework';
 import { useTranslation } from 'react-i18next';
 import { onDeleteCohort, useCohorts } from './saved-cohorts.resources';
 import type { PaginationData } from '../../types';
@@ -26,14 +26,9 @@ interface SavedCohortsProps {
 
 const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
   const { t } = useTranslation();
-  const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const { cohorts, error, isLoading, mutate } = useCohorts();
-  // The list can shrink after a delete, so keep the current page within range.
-  const currentPage = Math.min(page, Math.max(1, Math.ceil(cohorts.length / pageSize)));
-  if (page !== currentPage) {
-    setPage(currentPage);
-  }
+  const { results, currentPage, goTo } = usePagination(cohorts, pageSize);
 
   const headers = [
     {
@@ -47,7 +42,7 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
   ];
 
   const handlePagination = ({ page, pageSize }: PaginationData) => {
-    setPage(page);
+    goTo(page);
     setPageSize(pageSize);
   };
 
@@ -88,7 +83,7 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
       {isLoading ? (
         <DataTableSkeleton headers={headers} rowCount={3} showHeader={false} showToolbar={false} />
       ) : !error || cohorts.length > 0 ? (
-        <DataTable rows={cohorts} headers={headers} useZebraStyles>
+        <DataTable rows={results} headers={headers} useZebraStyles>
           {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
             <Table {...getTableProps()}>
               <TableHead>
@@ -100,23 +95,20 @@ const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows
-                  .slice((currentPage - 1) * pageSize)
-                  .slice(0, pageSize)
-                  .map((row, index: number) => (
-                    <TableRow {...getRowProps({ row })} key={index}>
-                      {row.cells.map((cell, index: number) => (
-                        <TableCell key={index}>{cell.value}</TableCell>
-                      ))}
-                      <TableCell className={mainStyles.optionCell}>
-                        <SavedCohortsOptions
-                          cohort={cohorts[(currentPage - 1) * pageSize + index]}
-                          onViewCohort={onViewCohort}
-                          onDeleteCohort={handleDeleteCohort}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                {rows.map((row, index: number) => (
+                  <TableRow {...getRowProps({ row })} key={index}>
+                    {row.cells.map((cell, index: number) => (
+                      <TableCell key={index}>{cell.value}</TableCell>
+                    ))}
+                    <TableCell className={mainStyles.optionCell}>
+                      <SavedCohortsOptions
+                        cohort={results[index]}
+                        onViewCohort={onViewCohort}
+                        onDeleteCohort={handleDeleteCohort}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           )}
