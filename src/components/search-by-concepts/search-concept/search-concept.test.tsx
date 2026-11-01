@@ -58,7 +58,9 @@ describe('Test the concept search component', () => {
 
     let searchText = '';
     const setSearchText = vi.fn().mockImplementation((search: string) => (searchText = search));
-    render(<SearchConcept concept={null} setConcept={vi.fn()} searchText={searchText} setSearchText={setSearchText} />);
+    render(
+      <SearchConcept concept={null} setConcept={vi.fn()} searchText={searchText} setSearchText={setSearchText} />,
+    );
     const searchInput = screen.getByPlaceholderText('Search Concepts');
     await waitFor(() => user.click(searchInput));
     await waitFor(() => user.type(searchInput, 'blood s'));
