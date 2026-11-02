@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
 import { usePersonAttributes } from './search-by-person-attributes.resource';
 import SearchByPersonAttributes from './search-by-person-attributes.component';
+import { getSearchByAttributesDescription } from './search-by-person-attributes.utils';
 
 const mockUsePersonAttributes = vi.mocked(usePersonAttributes);
 
@@ -173,5 +174,28 @@ describe('Test the search by person attributes component', () => {
       attributeType: personAttributes[7].value,
       values: ['x'],
     });
+  });
+
+  it('keeps Search disabled until an attribute is selected', async () => {
+    const user = userEvent.setup();
+    mockUsePersonAttributes.mockReturnValue({ personAttributes, isLoading: false, personAttributesError: undefined });
+    const mockSubmit = vi.fn();
+    render(<SearchByPersonAttributes onSubmit={mockSubmit} />);
+
+    expect(screen.getByTestId('search-btn')).toBeDisabled();
+    await user.click(screen.getByTestId('search-btn'));
+    expect(mockSubmit).not.toHaveBeenCalled();
+
+    await user.click(screen.getByText('Open menu'));
+    await user.click(screen.getByText('Race'));
+    expect(screen.getByTestId('search-btn')).toBeEnabled();
+  });
+
+  it('only says "either" when there is more than one value', () => {
+    expect(getSearchByAttributesDescription('Telephone Number', ['0712345678'])).toBe(
+      'Patients with Telephone Number equal to 0712345678',
+    );
+    expect(getSearchByAttributesDescription('Race', ['5'])).toBe('Patients with Race equal to 5');
+    expect(getSearchByAttributesDescription('Race', ['a', 'b'])).toBe('Patients with Race equal to either a or b');
   });
 });
