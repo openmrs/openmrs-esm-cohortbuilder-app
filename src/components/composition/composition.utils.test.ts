@@ -21,15 +21,13 @@ describe('isCompositionValid', () => {
     '1 UNION 2',
     '1 intersection 2',
     '1 AND NOT 2',
-    '1 + 2',
-    '1 AND ! 2',
     '10 OR 11',
     '  (1\tOR\t2)\nAND 3  ',
   ])('accepts supported composition tokens in %j', (composition) => {
     expect(isCompositionValid(composition)).toBe(true);
   });
 
-  it.each(['', '   ', '1 XOR 2', '1 AND 2abc', '(1 OR 2) AND 3?', '1and2'])(
+  it.each(['', '   ', '1 XOR 2', '1 AND 2abc', '(1 OR 2) AND 3?', '1and2', '1 + 2', '1 AND ! 2', '1+2', '1 AND !2'])(
     'rejects invalid composition tokens in %j',
     (composition) => {
       expect(isCompositionValid(composition)).toBe(false);

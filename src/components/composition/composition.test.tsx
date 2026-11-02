@@ -72,14 +72,14 @@ vi.mock('./composition.utils', async (importOriginal) => {
 });
 
 describe('Composition', () => {
-  it('should show error notification when an invalid composition query is entered', async () => {
+  it.each(['random text', '1 + 2', '1 AND ! 2'])('should reject an invalid composition query: %s', async (query) => {
     const user = userEvent.setup();
     const mockSubmit = vi.fn();
     render(<Composition onSubmit={mockSubmit} />);
 
     const compositionInput = screen.getByRole('textbox', { name: /composition/i });
     await user.click(compositionInput);
-    await user.type(compositionInput, 'random text');
+    await user.type(compositionInput, query);
     await user.click(screen.getByRole('button', { name: /search/i }));
 
     expect(mockSubmit).not.toHaveBeenCalled();

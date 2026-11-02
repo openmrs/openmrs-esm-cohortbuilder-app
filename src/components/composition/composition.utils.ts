@@ -8,7 +8,7 @@ const tokenizeComposition = (search: string) =>
     .split(/\s+/);
 
 export const isCompositionValid = (search: string) => {
-  return tokenizeComposition(search).every((token) => /^(and|or|not|union|intersection|\d+|[()!+])$/i.test(token));
+  return tokenizeComposition(search).every((token) => /^(and|or|not|union|intersection|\d+|[()])$/i.test(token));
 };
 
 const formatFilterCombination = (filterText: string, numberOfSearches: number) => {
