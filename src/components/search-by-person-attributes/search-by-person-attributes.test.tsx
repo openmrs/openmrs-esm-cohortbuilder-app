@@ -93,6 +93,11 @@ const expectedQuery = {
         name: 'patientId',
         type: 'org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition',
       },
+      {
+        key: 'reporting.library.patientDataDefinition.builtIn.preferredIdentifier.identifier',
+        name: 'identifier',
+        type: 'org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition',
+      },
     ],
     customRowFilterCombination: '1',
     rowFilters: [

@@ -50,7 +50,7 @@ export const getDataSet = async (queryID: string) => {
   });
 
   const dataset = results.data.rows.map((patient: Patient) => {
-    patient.id = patient.patientId.toString();
+    patient.id = patient.patientId?.toString() ?? '';
     patient.name = getPatientName(patient.firstname, patient.lastname);
 
     return patient;
@@ -75,6 +75,7 @@ interface CohortMembershipPage {
 interface CohortMemberDetails {
   patientId: number;
   person: { gender: string; age: number; preferredName: { givenName: string; familyName: string } | null };
+  identifiers?: Array<{ identifier: string; preferred: boolean }>;
 }
 
 const MEMBERSHIP_PAGE_SIZE = 100;
@@ -137,17 +138,19 @@ function isActiveMembership({ voided, startDate, endDate }: CohortMembership, no
 async function getCohortMember(patientUuid: string): Promise<Patient | null> {
   try {
     const {
-      data: { patientId, person },
+      data: { patientId, person, identifiers },
     }: FetchResponse<CohortMemberDetails> = await openmrsFetch(
-      `${restBaseUrl}/patient/${patientUuid}?v=custom:(patientId,person:(gender,age,preferredName:(givenName,familyName)))`,
+      `${restBaseUrl}/patient/${patientUuid}?v=custom:(patientId,person:(gender,age,preferredName:(givenName,familyName)),identifiers:(identifier,preferred))`,
     );
     if (!person?.preferredName) {
       return null;
     }
     const { givenName, familyName } = person.preferredName;
+    const identifier = identifiers?.find(({ preferred }) => preferred)?.identifier ?? '';
     return {
       id: patientId.toString(),
       patientId,
+      identifier,
       name: getPatientName(givenName, familyName),
       firstname: givenName,
       lastname: familyName,

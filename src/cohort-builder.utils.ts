@@ -96,6 +96,10 @@ export const addColumnsToDisplay = () => {
       name: 'patientId',
       key: 'patientId',
     },
+    {
+      name: 'identifier',
+      key: 'preferredIdentifier.identifier',
+    },
   ];
 
   const columnValues = columns.map((aColumn: Column) => {
