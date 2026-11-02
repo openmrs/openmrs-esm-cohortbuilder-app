@@ -52,7 +52,7 @@ const createExpectedQuery = (date: dayjs.Dayjs) => ({
       {
         key: 'reporting.library.cohortDefinition.builtIn.numericObsSearchAdvanced',
         parameterValues: {
-          onOrBefore: date.format(),
+          onOrAfter: date.format(),
           operator1: 'LESS_THAN',
           question: '2a08da66-f326-4cac-b4cc-6efd68333847',
           timeModifier: 'ANY',
@@ -153,14 +153,16 @@ describe('Test the search by concept component', () => {
       expectedQuery.query.rowFilters[0].parameterValues.timeModifier,
     );
 
-    // Verify the date is within a reasonable range
-    const actualDate = dayjs(actualQuery.query.rowFilters[0].parameterValues.onOrBefore);
+    // "Within the last" sets the start of the period (onOrAfter), not the end
+    const { onOrAfter, onOrBefore } = actualQuery.query.rowFilters[0].parameterValues;
+    expect(onOrBefore).toBeUndefined();
+    const actualDate = dayjs(onOrAfter);
     expect(actualDate.isValid()).toBe(true);
     // Verify the date is approximately correct (within 5 seconds)
     expect(Math.abs(actualDate.diff(testDate, 'second'))).toBeLessThanOrEqual(5);
 
     // Verify the description format
-    expect(actualDescription).toMatch(/^Patients with ANY BLOOD SUGAR\s+until\s+\d{1,2}\/\d{1,2}\/\d{4}$/);
+    expect(actualDescription).toMatch(/^Patients with ANY BLOOD SUGAR\s+since\s+\d{1,2}\/\d{1,2}\/\d{4}$/);
   });
 
   it.each([
