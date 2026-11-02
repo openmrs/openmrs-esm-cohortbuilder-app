@@ -53,7 +53,7 @@ describe('getCohortMembers', () => {
 
     expect(patients).toHaveLength(101);
     expect(patients[100]).toEqual({
-      id: 'OMRS-101',
+      id: '101',
       patientId: 101,
       identifier: 'OMRS-101',
       name: 'Patient 101',
@@ -174,16 +174,18 @@ describe('getDataSet', () => {
     const patients = await getDataSet('query-uuid');
 
     expect(patients.map(({ name }) => name)).toEqual(['', 'Ann', 'Banda', 'Ann Banda']);
-    expect(patients.map(({ id }) => id)).toEqual(['OMRS-1', 'OMRS-2', 'OMRS-3', 'OMRS-4']);
+    expect(patients.map(({ id }) => id)).toEqual(['1', '2', '3', '4']);
+    expect(patients.map(({ identifier }) => identifier)).toEqual(['OMRS-1', 'OMRS-2', 'OMRS-3', 'OMRS-4']);
   });
 
-  it('does not display internal patient IDs when an older saved query has no identifier column', async () => {
+  it('preserves the internal patient ID and leaves the OpenMRS ID blank when an older saved query has no identifier column', async () => {
     mockOpenmrsFetch.mockResolvedValue({
       data: { rows: [{ patientId: 123, firstname: 'Betty', lastname: 'Williams' }] },
     } as never);
 
     const [patient] = await getDataSet('query-uuid');
 
-    expect(patient.id).toBe('');
+    expect(patient.id).toBe('123');
+    expect(patient.identifier).toBeUndefined();
   });
 });

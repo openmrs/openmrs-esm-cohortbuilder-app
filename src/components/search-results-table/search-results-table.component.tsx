@@ -17,7 +17,7 @@ const SearchResultsTable: React.FC<SearchResultsTableProps> = ({ patients }) => 
 
   const headers = [
     {
-      key: 'id',
+      key: 'identifier',
       header: t('openmrsId', 'OpenMRS ID'),
     },
     {

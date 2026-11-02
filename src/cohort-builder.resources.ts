@@ -50,7 +50,7 @@ export const getDataSet = async (queryID: string) => {
   });
 
   const dataset = results.data.rows.map((patient: Patient) => {
-    patient.id = patient.identifier ?? '';
+    patient.id = patient.patientId?.toString() ?? '';
     patient.name = getPatientName(patient.firstname, patient.lastname);
 
     return patient;
@@ -148,7 +148,7 @@ async function getCohortMember(patientUuid: string): Promise<Patient | null> {
     const { givenName, familyName } = person.preferredName;
     const identifier = identifiers?.find(({ preferred }) => preferred)?.identifier ?? '';
     return {
-      id: identifier,
+      id: patientId.toString(),
       patientId,
       identifier,
       name: getPatientName(givenName, familyName),
