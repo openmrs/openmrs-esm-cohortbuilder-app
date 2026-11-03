@@ -3,6 +3,7 @@ import { vi, describe, it, expect } from 'vitest';
 import dayjs from 'dayjs';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
+import { toFormValues } from '../../url-definition/url-definition';
 import SearchByDemographics from './search-by-demographics.component';
 
 const expectedQuery = {
@@ -108,7 +109,7 @@ describe('Test the search by demographics component', () => {
     expect(actualDescription).toBe('Male Patients with ages between 10 and 20 years that are alive');
   });
 
-  it('goes back to every default on Reset', async () => {
+  it('goes back to every default on Reset, even after a definition link filled it in', async () => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-10-17T15:30:00Z'));
     const user = userEvent.setup();
@@ -118,10 +119,12 @@ describe('Test the search by demographics component', () => {
     unmount();
 
     const mockSubmit = vi.fn();
-    render(<SearchByDemographics onSubmit={mockSubmit} />);
-    await user.click(screen.getByRole('tab', { name: 'Female' }));
+    const { demographics } = toFormValues(
+      { v: 1, criteria: [{ type: 'demographics', gender: 'female', minAge: 15, maxAge: 49 }] },
+      new Map(),
+    );
+    render(<SearchByDemographics onSubmit={mockSubmit} initialValues={demographics} />);
     await user.click(screen.getByRole('tab', { name: 'Dead' }));
-    await user.type(screen.getByTestId('minAge'), '15');
     await user.click(screen.getByTestId('reset-btn'));
 
     expect(screen.getByRole('tab', { name: 'All' })).toHaveAttribute('aria-selected', 'true');

@@ -21,6 +21,82 @@
       "component": "cohortBuilderAdminPageCardLink",
       "online": true,
       "offline": true
+    },
+    {
+      "name": "omnibar-cohort-count-provider",
+      "slot": "omnibar-providers-slot",
+      "component": "cohortCountOmnibarProvider",
+      "privileges": [
+        "Get Patients",
+        "Run Reports"
+      ],
+      "meta": {
+        "lane": "navigate",
+        "scopes": [
+          "global"
+        ],
+        "order": 20,
+        "contract": 1,
+        "command": {
+          "id": "cohort",
+          "aliases": [
+            "cohort",
+            "count"
+          ]
+        }
+      }
+    },
+    {
+      "name": "omnibar-cohort-builder-provider",
+      "slot": "omnibar-providers-slot",
+      "component": "cohortBuilderOmnibarProvider",
+      "privileges": [
+        "Get Patients",
+        "Run Reports"
+      ],
+      "meta": {
+        "lane": "navigate",
+        "scopes": [
+          "global"
+        ],
+        "order": 30,
+        "contract": 1
+      }
+    },
+    {
+      "name": "omnibar-saved-cohorts-provider",
+      "slot": "omnibar-providers-slot",
+      "component": "savedCohortsOmnibarProvider",
+      "privileges": [
+        "Get Patient Cohorts",
+        "Get Patients"
+      ],
+      "meta": {
+        "lane": "navigate",
+        "scopes": [
+          "global"
+        ],
+        "order": 40,
+        "contract": 1
+      }
+    },
+    {
+      "name": "omnibar-saved-queries-provider",
+      "slot": "omnibar-providers-slot",
+      "component": "savedQueriesOmnibarProvider",
+      "privileges": [
+        "View Reports",
+        "Run Reports",
+        "Get Patients"
+      ],
+      "meta": {
+        "lane": "navigate",
+        "scopes": [
+          "global"
+        ],
+        "order": 50,
+        "contract": 1
+      }
     }
   ],
   "modals": [

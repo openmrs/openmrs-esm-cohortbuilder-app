@@ -192,6 +192,53 @@ describe('Test the search by enrollments component', () => {
       `Patients enrolled in ${mockPrograms[0].label} at ${mockLocations[2].label}`,
     );
   });
+
+  it('empties the programs and locations on Reset, and searches without them', async () => {
+    const user = userEvent.setup();
+    mockUseLocations.mockImplementation(() => ({
+      locations: mockLocations,
+      isLoading: false,
+      locationsError: undefined,
+    }));
+    mockUsePrograms.mockImplementation(() => ({ programs: mockPrograms, isLoading: false, programsError: undefined }));
+    const mockSubmit = vi.fn();
+    render(<SearchByEnrollments onSubmit={mockSubmit} />);
+
+    await user.click(screen.getByText(/select locations/i));
+    await user.click(screen.getByText(mockLocations[2].label));
+    await user.click(screen.getByText(/select programs/i));
+    await user.click(screen.getByText(mockPrograms[0].label));
+    await user.keyboard('{Escape}');
+    await user.click(screen.getByTestId('reset-btn'));
+
+    expect(screen.queryAllByRole('button', { name: /clear all selected items/i })).toHaveLength(0);
+    await user.click(screen.getByText(/select programs/i));
+    await user.click(screen.getByText(mockPrograms[1].label));
+    await user.keyboard('{Escape}');
+    await user.click(screen.getByTestId('search-btn'));
+
+    expect(JSON.parse(JSON.stringify(mockSubmit.mock.calls[0][0])).query.rowFilters[0].parameterValues).toEqual({
+      programs: [mockPrograms[1].value],
+    });
+  });
+
+  it('shows a failed program list once, not on every render', () => {
+    // SWR keeps returning the same error object until the request is retried.
+    const listError = new Error('Forbidden');
+    mockUseLocations.mockImplementation(() => ({ locations: [], isLoading: false, locationsError: undefined }));
+    mockUsePrograms.mockImplementation(() => ({
+      programs: [],
+      isLoading: false,
+      programsError: listError,
+    }));
+
+    const { rerender } = render(<SearchByEnrollments onSubmit={vi.fn()} />);
+    rerender(<SearchByEnrollments onSubmit={vi.fn()} />);
+
+    expect(showSnackbar).toHaveBeenCalledTimes(1);
+    expect(showSnackbar).toHaveBeenCalledWith(expect.objectContaining({ kind: 'error', subtitle: 'Forbidden' }));
+  });
+
   it('should clear both selections on reset', async () => {
     const user = userEvent.setup();
     mockUsePrograms.mockImplementation(() => ({ programs: mockPrograms, isLoading: false, programsError: undefined }));

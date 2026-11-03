@@ -1,7 +1,9 @@
 import React from 'react';
-import { vi, describe, it, expect, type Mock } from 'vitest';
+import { vi, beforeEach, describe, it, expect, type Mock } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { openmrsFetch, showSnackbar } from '@openmrs/esm-framework';
+import { getDefaultsFromConfigSchema, openmrsFetch, showSnackbar, useConfig } from '@openmrs/esm-framework';
+import { type ConfigObject, configSchema } from '../../config-schema';
+import { toFormValues } from '../../url-definition/url-definition';
 import { render, screen, waitFor } from '@testing-library/react';
 import { useCareSettings, useDrugs } from './search-by-drug-orders.resources';
 import type * as SearchByDrugOrdersResources from './search-by-drug-orders.resources';
@@ -104,8 +106,13 @@ vi.mock('./search-by-drug-orders.resources', async (importOriginal) => {
 const mockOpenmrsFetch = openmrsFetch as Mock;
 const mockUseCareSettings = vi.mocked(useCareSettings);
 const mockUseDrugs = vi.mocked(useDrugs);
+const mockUseConfig = vi.mocked(useConfig<ConfigObject>);
 
 describe('Test the search by drug orders component', () => {
+  beforeEach(() => {
+    mockUseConfig.mockReturnValue(getDefaultsFromConfigSchema(configSchema));
+  });
+
   it('should report each reference-data error once when requests fail separately', () => {
     mockUseDrugs.mockReturnValue({ drugs: mockDrugs, isLoading: false, drugsError: new Error('Drug request failed') });
     mockUseCareSettings.mockReturnValue({
@@ -132,6 +139,7 @@ describe('Test the search by drug orders component', () => {
 
   it('should be able to select input values', async () => {
     const user = userEvent.setup();
+    mockUseConfig.mockReturnValue(getDefaultsFromConfigSchema(configSchema));
 
     mockUseCareSettings.mockImplementation(() => ({
       careSettings: mockCareSettings,
@@ -169,6 +177,80 @@ describe('Test the search by drug orders component', () => {
       `Patients who taking ${mockDrugs[1].label} and ${mockDrugs[2].label} from Pharmacy`,
     );
   });
+
+  it.each([
+    ['opened by hand', undefined],
+    [
+      'filled in by a definition link',
+      toFormValues({ v: 1, criteria: [{ type: 'drugOrder', drugs: [mockDrugs[1].value] }] }, new Map()).drugOrder,
+    ],
+  ])('shows no care setting when it searches without one, %s', async (_, initialValues) => {
+    const user = userEvent.setup();
+    mockUseConfig.mockReturnValue(getDefaultsFromConfigSchema(configSchema));
+    // Already loaded, as when the tab mounts again after a definition link.
+    mockUseCareSettings.mockImplementation(() => ({
+      careSettings: mockCareSettings,
+      isLoading: false,
+      careSettingsError: undefined,
+    }));
+    mockUseDrugs.mockImplementation(() => ({ drugs: mockDrugs, isLoading: false, drugsError: undefined }));
+    const mockSubmit = vi.fn();
+
+    render(<SearchByDrugOrder onSubmit={mockSubmit} initialValues={initialValues} />);
+    if (!initialValues) {
+      await user.click(screen.getByText(/select drugs/i));
+      await user.click(screen.getByText(mockDrugs[1].label));
+    }
+
+    expect(screen.getByText(/select a care setting/i)).toBeInTheDocument();
+    expect(screen.queryByTitle(mockCareSettings[0].label)).not.toBeInTheDocument();
+    await user.click(screen.getByTestId('search-btn'));
+    expect(mockSubmit.mock.calls[0][0].query.rowFilters[0].parameterValues).toEqual({ drugs: [mockDrugs[1].value] });
+  });
+
+  it('lets Search run only with a drug, also after Reset clears it', async () => {
+    const user = userEvent.setup();
+    mockUseConfig.mockReturnValue(getDefaultsFromConfigSchema(configSchema));
+    mockUseCareSettings.mockImplementation(() => ({
+      careSettings: mockCareSettings,
+      isLoading: false,
+      careSettingsError: undefined,
+    }));
+    mockUseDrugs.mockImplementation(() => ({ drugs: mockDrugs, isLoading: false, drugsError: undefined }));
+    const mockSubmit = vi.fn();
+
+    render(<SearchByDrugOrder onSubmit={mockSubmit} />);
+    expect(screen.getByTestId('search-btn')).toBeDisabled();
+
+    await user.click(screen.getByText(/select drugs/i));
+    await user.click(screen.getByText(mockDrugs[1].label));
+    await user.keyboard('{Escape}');
+    expect(screen.getByTestId('search-btn')).toBeEnabled();
+
+    await user.click(screen.getByTestId('reset-btn'));
+    expect(screen.getByTestId('search-btn')).toBeDisabled();
+    expect(screen.getByTestId('search-btn')).toHaveTextContent('Search');
+    expect(mockSubmit).not.toHaveBeenCalled();
+  });
+
+  it('shows a failed drug list once, not on every render', () => {
+    // SWR keeps returning the same error object until the request is retried.
+    const listError = new Error('Forbidden');
+    mockUseConfig.mockReturnValue(getDefaultsFromConfigSchema(configSchema));
+    mockUseCareSettings.mockImplementation(() => ({
+      careSettings: [],
+      isLoading: false,
+      careSettingsError: undefined,
+    }));
+    mockUseDrugs.mockImplementation(() => ({ drugs: [], isLoading: false, drugsError: listError }));
+
+    const { rerender } = render(<SearchByDrugOrder onSubmit={vi.fn()} />);
+    rerender(<SearchByDrugOrder onSubmit={vi.fn()} />);
+
+    expect(showSnackbar).toHaveBeenCalledTimes(1);
+    expect(showSnackbar).toHaveBeenCalledWith(expect.objectContaining({ kind: 'error', subtitle: 'Forbidden' }));
+  });
+
   it('should still search after the inputs are reset', async () => {
     const user = userEvent.setup();
     mockUseCareSettings.mockImplementation(() => ({
@@ -183,10 +265,14 @@ describe('Test the search by drug orders component', () => {
     await user.click(screen.getByText(/select drugs/i));
     await user.click(screen.getByText(mockDrugs[1].label));
     await user.click(screen.getByTestId('reset-btn'));
+    // Search needs a drug, so choose another one.
+    await user.click(screen.getByText(/select drugs/i));
+    await user.click(screen.getByText(mockDrugs[2].label));
     await user.click(screen.getByTestId('search-btn'));
 
     await waitFor(() => expect(mockSubmit).toHaveBeenCalledTimes(1));
     expect(mockSubmit.mock.calls[0][1]).not.toContain(mockDrugs[1].label);
+    expect(mockSubmit.mock.calls[0][1]).toContain(mockDrugs[2].label);
     expect(screen.getByTestId('search-btn')).toBeEnabled();
   });
 });
