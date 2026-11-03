@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
 import { usePersonAttributes } from './search-by-person-attributes.resource';
 import SearchByPersonAttributes from './search-by-person-attributes.component';
+import { getSearchByAttributesDescription } from './search-by-person-attributes.utils';
 
 const mockUsePersonAttributes = vi.mocked(usePersonAttributes);
 
@@ -92,6 +93,11 @@ const expectedQuery = {
         name: 'patientId',
         type: 'org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition',
       },
+      {
+        key: 'reporting.library.patientDataDefinition.builtIn.preferredIdentifier.identifier',
+        name: 'identifier',
+        type: 'org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition',
+      },
     ],
     customRowFilterCombination: '1',
     rowFilters: [
@@ -122,12 +128,33 @@ describe('Test the search by person attributes component', () => {
     await user.click(screen.getByText('Open menu'));
     await user.click(screen.getByText("Mother's Name"));
     await user.click(screen.getByTestId('selectedAttributeValues'));
-    await user.type(screen.getByTestId('selectedAttributeValues'), 'janet,irina');
+    await user.type(screen.getByTestId('selectedAttributeValues'), ' janet, , irina, ');
     await user.click(screen.getByText('Search'));
 
     expect(mockSubmit).toBeCalledWith(expectedQuery, "Patients with Mother's Name equal to either janet or irina");
   });
 
+  it('should keep spaces typed into the attribute values', async () => {
+    const user = userEvent.setup();
+    mockUsePersonAttributes.mockReturnValue({
+      personAttributes,
+      isLoading: false,
+      personAttributesError: undefined,
+    });
+    const mockSubmit = vi.fn();
+    render(<SearchByPersonAttributes onSubmit={mockSubmit} />);
+
+    await user.click(screen.getByText('Open menu'));
+    await user.click(screen.getByText("Mother's Name"));
+    await user.type(screen.getByTestId('selectedAttributeValues'), 'Mary Jane');
+
+    expect(screen.getByTestId('selectedAttributeValues')).toHaveValue('Mary Jane');
+
+    await user.click(screen.getByText('Search'));
+
+    expect(mockSubmit).toHaveBeenCalledTimes(1);
+    expect(mockSubmit.mock.calls[0][0].query.rowFilters[0].parameterValues.values).toEqual(['Mary Jane']);
+  });
   it('empties the attribute and its values on Reset, and searches with only the new ones', async () => {
     const user = userEvent.setup();
     mockUsePersonAttributes.mockReturnValue({ personAttributes, isLoading: false, personAttributesError: undefined });
@@ -142,6 +169,7 @@ describe('Test the search by person attributes component', () => {
     expect(screen.getByText('Select a person attribute')).toBeInTheDocument();
     expect(screen.queryByText("Mother's Name")).not.toBeInTheDocument();
     expect(screen.getByTestId('selectedAttributeValues')).toHaveValue('');
+    expect(screen.getByTestId('selectedAttributeValues')).toBeDisabled();
     await user.click(screen.getByText('Open menu'));
     await user.click(screen.getByText('Race'));
     await user.type(screen.getByTestId('selectedAttributeValues'), 'x');
@@ -151,5 +179,28 @@ describe('Test the search by person attributes component', () => {
       attributeType: personAttributes[7].value,
       values: ['x'],
     });
+  });
+
+  it('keeps Search disabled until an attribute is selected', async () => {
+    const user = userEvent.setup();
+    mockUsePersonAttributes.mockReturnValue({ personAttributes, isLoading: false, personAttributesError: undefined });
+    const mockSubmit = vi.fn();
+    render(<SearchByPersonAttributes onSubmit={mockSubmit} />);
+
+    expect(screen.getByTestId('search-btn')).toBeDisabled();
+    await user.click(screen.getByTestId('search-btn'));
+    expect(mockSubmit).not.toHaveBeenCalled();
+
+    await user.click(screen.getByText('Open menu'));
+    await user.click(screen.getByText('Race'));
+    expect(screen.getByTestId('search-btn')).toBeEnabled();
+  });
+
+  it('only says "either" when there is more than one value', () => {
+    expect(getSearchByAttributesDescription('Telephone Number', ['0712345678'])).toBe(
+      'Patients with Telephone Number equal to 0712345678',
+    );
+    expect(getSearchByAttributesDescription('Race', ['5'])).toBe('Patients with Race equal to 5');
+    expect(getSearchByAttributesDescription('Race', ['a', 'b'])).toBe('Patients with Race equal to either a or b');
   });
 });

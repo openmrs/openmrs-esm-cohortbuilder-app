@@ -47,6 +47,11 @@ const createExpectedQuery = (date: dayjs.Dayjs) => ({
         key: 'reporting.library.patientDataDefinition.builtIn.patientId',
         type: 'org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition',
       },
+      {
+        name: 'identifier',
+        key: 'reporting.library.patientDataDefinition.builtIn.preferredIdentifier.identifier',
+        type: 'org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition',
+      },
     ],
     rowFilters: [
       {
@@ -199,6 +204,43 @@ describe('Test the search by concept component', () => {
     await user.click(screen.getByTestId('reset-btn'));
 
     expect(screen.getByTitle('Patients who have these observations')).toBeInTheDocument();
+  });
+
+  it.each([
+    ['=', 'EQUAL'],
+    ['>', 'GREATER_THAN'],
+  ])('searches a numeric concept for the value 0 with %s', async (operatorLabel, operator1) => {
+    const user = userEvent.setup();
+    const mockSubmit = vi.fn();
+    render(<SearchByConcepts onSubmit={mockSubmit} />);
+
+    await user.type(screen.getByPlaceholderText('Search Concepts'), 'blood sugar');
+    await user.click(await screen.findByText('BLOOD SUGAR'));
+    await user.click(screen.getByText(operatorLabel));
+    const valueInput = screen.getByRole('spinbutton', { name: /enter a value in/i });
+    await user.clear(valueInput);
+    await user.type(valueInput, '0');
+    await user.click(screen.getByTestId('search-btn'));
+
+    expect(mockSubmit.mock.calls[0][0].query.rowFilters[0].parameterValues).toEqual({
+      question: concepts[1].uuid,
+      operator1,
+      value1: '0',
+      timeModifier: 'ANY',
+    });
+  });
+
+  it('starts a numeric concept with an empty value and searches without one until a value is entered', async () => {
+    const user = userEvent.setup();
+    const mockSubmit = vi.fn();
+    render(<SearchByConcepts onSubmit={mockSubmit} />);
+
+    await user.type(screen.getByPlaceholderText('Search Concepts'), 'blood sugar');
+    await user.click(await screen.findByText('BLOOD SUGAR'));
+
+    expect(screen.getByRole('spinbutton', { name: /enter a value in/i })).toHaveValue(null);
+    await user.click(screen.getByTestId('search-btn'));
+    expect(mockSubmit.mock.calls[0][0].query.rowFilters[0].parameterValues).not.toHaveProperty('value1');
   });
 
   it('searches only with what is shown after switching from a numeric to a coded concept', async () => {

@@ -29,6 +29,11 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ isHistoryUpdated, setIsHi
   const [searchResults, setSearchResults] = useState<SearchHistoryItem[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  // The list shrinks when an item is deleted, so keep the current page within range.
+  const currentPage = Math.min(page, Math.max(1, Math.ceil(searchResults.length / pageSize)));
+  if (page !== currentPage) {
+    setPage(currentPage);
+  }
 
   useEffect(() => {
     if (isHistoryUpdated) {
@@ -101,7 +106,7 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ isHistoryUpdated, setIsHi
             </TableHead>
             <TableBody>
               {rows
-                .slice((page - 1) * pageSize)
+                .slice((currentPage - 1) * pageSize)
                 .slice(0, pageSize)
                 .map((row, index: number) => (
                   <TableRow {...getRowProps({ row })}>
@@ -110,7 +115,7 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ isHistoryUpdated, setIsHi
                     ))}
                     <TableCell className={mainStyles.optionCell}>
                       <SearchHistoryOptions
-                        searchItem={searchResults[index]}
+                        searchItem={searchResults[(currentPage - 1) * pageSize + index]}
                         updateSearchHistory={updateSearchHistory}
                       />
                     </TableCell>
@@ -126,8 +131,8 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ isHistoryUpdated, setIsHi
           forwardText={t('nextPage', 'Next page')}
           itemsPerPageText={t('itemsPerPage', 'Items per page:')}
           onChange={handlePagination}
-          page={1}
-          pageSize={10}
+          page={currentPage}
+          pageSize={pageSize}
           pageSizes={[10, 20, 30, 40, 50]}
           size="md"
           totalItems={searchResults.length}

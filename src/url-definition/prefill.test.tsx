@@ -2,7 +2,7 @@ import React, { StrictMode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { getDefaultsFromConfigSchema, openmrsFetch, useConfig } from '@openmrs/esm-framework';
+import { getDefaultsFromConfigSchema, openmrsFetch, useConfig, useOpenmrsFetchAll } from '@openmrs/esm-framework';
 import { type ConfigObject, configSchema } from '../config-schema';
 import type { Query } from '../types';
 import CohortBuilder from '../cohort-builder.component';
@@ -30,6 +30,7 @@ vi.mock('../components/saved-queries/saved-queries.component', () => ({ default:
 
 const mockOpenmrsFetch = vi.mocked(openmrsFetch);
 const mockUseConfig = vi.mocked(useConfig<ConfigObject>);
+const mockUseOpenmrsFetchAll = vi.mocked(useOpenmrsFetchAll);
 
 const women15to49: Criterion = { type: 'demographics', gender: 'female', minAge: 15, maxAge: 49 };
 const onArvs: Criterion = { type: 'drugOrder', drugs: [tenofovir, dolutegravir, lamivudine], activeOnOrAfter: 'today' };
@@ -47,6 +48,24 @@ const link = (...criteria: Criterion[]) => definitionLink({ v: 1, criteria });
 let adHocQueryFails: boolean;
 
 function mockServer() {
+  // The search tabs load their dropdown lists a page at a time.
+  mockUseOpenmrsFetchAll.mockImplementation(
+    (url) =>
+      ({
+        data: String(url).includes('/program?')
+          ? [
+              { uuid: hivProgram, name: 'HIV Care and Treatment' },
+              { uuid: tbProgram, name: 'TB Program' },
+            ]
+          : String(url).includes('/drug?')
+            ? [
+                { uuid: tenofovir, display: 'Tenofovir' },
+                { uuid: dolutegravir, display: 'Dolutegravir' },
+              ]
+            : [],
+        isLoading: false,
+      }) as never,
+  );
   mockOpenmrsFetch.mockImplementation(async (url: string) => {
     if (url.includes('/reportingrest/adhocquery')) {
       if (adHocQueryFails) {

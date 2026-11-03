@@ -24,37 +24,41 @@ const SearchByEnrollments: React.FC<SearchByEnrollmentsProps> = ({ onSubmit, ini
   const [enrolledOnOrBefore, setEnrolledOnOrBefore] = useState(initialValues?.enrolledOnOrBefore ?? '');
   const [completedOnOrAfter, setCompletedOnOrAfter] = useState(initialValues?.completedOnOrAfter ?? '');
   const [completedOnOrBefore, setCompletedOnOrBefore] = useState(initialValues?.completedOnOrBefore ?? '');
-  const [selectedLocations, setSelectedLocations] = useState<DropdownValue[]>(initialValues?.selectedLocations ?? null);
-  const [selectedPrograms, setSelectedPrograms] = useState<DropdownValue[]>(initialValues?.selectedPrograms ?? null);
+  const [selectedLocations, setSelectedLocations] = useState<DropdownValue[]>(initialValues?.selectedLocations ?? []);
+  const [selectedPrograms, setSelectedPrograms] = useState<DropdownValue[]>(initialValues?.selectedPrograms ?? []);
   const programOptions = withSelectedItems(programs, selectedPrograms);
   const locationOptions = withSelectedItems(locations, selectedLocations);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (programsError) {
-      showSnackbar({
-        title: t('error', 'Error'),
-        kind: 'error',
-        isLowContrast: false,
-        subtitle: programsError?.message,
-      });
-    }
-  }, [programsError, t]);
+  const programsErrorMessage = programsError?.message;
 
   useEffect(() => {
-    if (locationsError) {
+    if (programsErrorMessage) {
       showSnackbar({
         title: t('error', 'Error'),
         kind: 'error',
         isLowContrast: false,
-        subtitle: locationsError?.message,
+        subtitle: programsErrorMessage,
       });
     }
-  }, [locationsError, t]);
+  }, [programsErrorMessage, t]);
+
+  const locationsErrorMessage = locationsError?.message;
+
+  useEffect(() => {
+    if (locationsErrorMessage) {
+      showSnackbar({
+        title: t('error', 'Error'),
+        kind: 'error',
+        isLowContrast: false,
+        subtitle: locationsErrorMessage,
+      });
+    }
+  }, [locationsErrorMessage, t]);
 
   const handleResetInputs = () => {
-    setSelectedPrograms(null);
-    setSelectedLocations(null);
+    setSelectedPrograms([]);
+    setSelectedLocations([]);
     setEnrolledOnOrAfter('');
     setEnrolledOnOrBefore('');
     setCompletedOnOrAfter('');
@@ -71,8 +75,11 @@ const SearchByEnrollments: React.FC<SearchByEnrollmentsProps> = ({ onSubmit, ini
       selectedPrograms,
       selectedLocations,
     };
-    await onSubmit(getQueryDetails(searchParams), getDescription(searchParams));
-    setIsLoading(false);
+    try {
+      await onSubmit(getQueryDetails(searchParams), getDescription(searchParams));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

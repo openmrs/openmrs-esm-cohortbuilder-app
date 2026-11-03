@@ -45,8 +45,8 @@ const extensionConfig = () =>
   getExtensionConfigFromStore(getExtensionsConfigStore().getState(), slotName, extensionId).config;
 
 let consoleError: ReturnType<typeof vi.spyOn>;
-// The framework mock loads esm-config's source as well as its build, and each copy logs once, so the
-// count is per copy: what matters is that it is logged before the schema exists and never after.
+// Older frameworks logged the key as unknown while the module's schema was still to come; since
+// 11.0.1-pre.5837 extension config waits for the module to start, so it is never logged.
 const unknownKeyLogs = () => consoleError.mock.calls.filter(([message]) => message === unknownKey).length;
 
 beforeEach(() => {
@@ -61,7 +61,7 @@ afterEach(() => {
 });
 
 describe("o3's config for the cohort row, through the real config system", () => {
-  it('logs drugCriteriaEnabled as unknown only before the module defines its schema, and keeps the value', () => {
+  it('keeps drugCriteriaEnabled from before the module defines its schema, and never logs it as unknown', () => {
     provide(o3Config, '/openmrs/spa/custom/config.json');
     // registerApp, from routes.json: the module exists, with the implicit schema only.
     registerModuleWithConfigSystem(moduleName);
@@ -76,9 +76,8 @@ describe("o3's config for the cohort row, through the real config system", () =>
       slotName,
       slotModuleName: '@openmrs/esm-omnibar-app',
     });
-    const logsBeforeSchema = unknownKeyLogs();
-    expect(logsBeforeSchema).toBeGreaterThan(0);
-    // "Ignoring" only means unchecked: the value is kept, but none of the schema's defaults are there yet.
+    expect(unknownKeyLogs()).toBe(0);
+    // The value is kept, but none of the schema's defaults are there yet.
     expect(extensionConfig()).toMatchObject({ drugCriteriaEnabled: true });
     expect(extensionConfig()).not.toHaveProperty('omnibar');
 
@@ -86,7 +85,7 @@ describe("o3's config for the cohort row, through the real config system", () =>
     defineConfigSchema(moduleName, configSchema);
     registerModuleLoad(moduleName);
     expect(extensionConfig()).toMatchObject({ drugCriteriaEnabled: true, omnibar: { enabled: true } });
-    expect(unknownKeyLogs()).toBe(logsBeforeSchema);
+    expect(unknownKeyLogs()).toBe(0);
   });
 
   it('gives the mounted provider drugCriteriaEnabled, so "how many patients on ARVs" is a count row', () => {

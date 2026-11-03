@@ -6,12 +6,12 @@ import styles from './search-button-set.scss';
 interface SearchButtonSet {
   isLoading: boolean;
   /** Whether the search is missing something it needs, such as the drug order search's drugs. */
-  isDisabled?: boolean;
+  isSearchDisabled?: boolean;
   onHandleSubmit: () => void;
   onHandleReset: () => void;
 }
 
-const SearchButtonSet: React.FC<SearchButtonSet> = ({ isLoading, isDisabled, onHandleSubmit, onHandleReset }) => {
+const SearchButtonSet: React.FC<SearchButtonSet> = ({ isLoading, isSearchDisabled, onHandleSubmit, onHandleReset }) => {
   const { t } = useTranslation();
 
   return (
@@ -23,7 +23,7 @@ const SearchButtonSet: React.FC<SearchButtonSet> = ({ isLoading, isDisabled, onH
         <Button
           className={styles.button}
           kind="primary"
-          disabled={isLoading || isDisabled}
+          disabled={isLoading || isSearchDisabled}
           onClick={onHandleSubmit}
           data-testid="search-btn"
         >
