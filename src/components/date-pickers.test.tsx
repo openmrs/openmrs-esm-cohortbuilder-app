@@ -4,18 +4,23 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vites
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import dayjs from 'dayjs';
-import { useOpenmrsFetchAll } from '@openmrs/esm-framework';
+import { getDefaultsFromConfigSchema, useConfig, useOpenmrsFetchAll } from '@openmrs/esm-framework';
+import { type ConfigObject, configSchema } from '../config-schema';
+import { toFormValues } from '../url-definition/url-definition';
 import SearchByConcepts from './search-by-concepts/search-by-concepts.component';
 import SearchByDemographics from './search-by-demographics/search-by-demographics.component';
 import SearchByDrugOrder from './search-by-drug-orders/search-by-drug-orders.component';
+import { getQueryDetails as getDrugOrderQuery } from './search-by-drug-orders/search-by-drug-orders.utils';
 import SearchByEncounters from './search-by-encounters/search-by-encounters.component';
 import SearchByEnrollments from './search-by-enrollments/search-by-enrollments.component';
+import { getQueryDetails as getEnrollmentQuery } from './search-by-enrollments/search-by-enrollments.utils';
 
 // Carbon's CommonJS build looks flatpickr's locales up by name, but here it gets the module whose only key
 // is `default`, so flatpickr never starts and the inputs stay empty. With "en" in place the real picker runs.
 const flatpickrLocales = createRequire(import.meta.url)('flatpickr/dist/l10n/index');
 
 const mockUseOpenmrsFetchAll = vi.mocked(useOpenmrsFetchAll);
+const mockUseConfig = vi.mocked(useConfig<ConfigObject>);
 
 vi.mock('./search-by-concepts/search-concept/search-concept.resource', () => ({
   getConcepts: vi.fn().mockResolvedValue([
@@ -32,6 +37,7 @@ vi.mock('./search-by-concepts/search-concept/search-concept.resource', () => ({
 }));
 
 const drug = '3cfcf118-931c-46f7-8ff6-7b876f0d4202';
+const program = '64f950e6-1b07-4ac0-8e7e-f3e148f3463f';
 
 const dateInputs = () => screen.getAllByPlaceholderText('DD-MM-YYYY') as HTMLInputElement[];
 
@@ -101,8 +107,9 @@ describe('date pickers', () => {
   beforeEach(() => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-10-17T15:30:00Z'));
+    mockUseConfig.mockReturnValue(getDefaultsFromConfigSchema(configSchema));
     mockUseOpenmrsFetchAll.mockImplementation(
-      (url) => ({ data: String(url).endsWith('/drug') ? [{ uuid: drug, display: 'Aspirin' }] : [] } as never),
+      (url) => ({ data: String(url).includes('/drug?') ? [{ uuid: drug, display: 'Aspirin' }] : [] } as never),
     );
     return () => vi.useRealTimers();
   });
@@ -130,6 +137,69 @@ describe('date pickers', () => {
       endDate: dayjs(new Date(2025, 0, 1)).format(),
     });
   });
+
+  it.each([
+    ['only from', 0, 'startDate', 'born on or after'],
+    ['only until', 1, 'endDate', 'born on or before'],
+  ])('searches with a birth date range open at one end, %s', async (_, index, parameter, described) => {
+    const onSubmit = vi.fn();
+    render(<SearchByDemographics onSubmit={onSubmit} />);
+
+    pick(dateInputs()[index], new Date(2024, 11, 31));
+    const [{ query }, description] = await search(onSubmit);
+
+    expect(query.rowFilters.find(({ key }) => key.endsWith('bornDuringPeriod')).parameterValues).toEqual({
+      [parameter]: dayjs(new Date(2024, 11, 31)).format(),
+    });
+    expect(description).toContain(`${described} ${dayjs(new Date(2024, 11, 31)).format()}`);
+  });
+
+  it("shows and searches with a definition link's enrollment dates", async () => {
+    const onSubmit = vi.fn();
+    const { enrollment } = toFormValues(
+      {
+        v: 1,
+        criteria: [
+          {
+            type: 'enrollment',
+            programs: [program],
+            enrolledOnOrAfter: '2024-01-01',
+            enrolledOnOrBefore: '2024-12-31',
+          },
+        ],
+      },
+      new Map(),
+    );
+    render(<SearchByEnrollments onSubmit={onSubmit} initialValues={enrollment} />);
+
+    await waitFor(() => expect(dateInputs().map((input) => input.value)).toEqual(['01-01-2024', '31-12-2024', '', '']));
+    await userEvent.click(screen.getByTestId('search-btn'));
+    expect(onSubmit.mock.calls[0][0]).toEqual(getEnrollmentQuery(enrollment));
+  });
+
+  it("shows and searches with a definition link's drug order dates", async () => {
+    const onSubmit = vi.fn();
+    const { drugOrder } = toFormValues(
+      {
+        v: 1,
+        criteria: [{ type: 'drugOrder', drugs: [drug], activeOnOrAfter: 'today', activeOnOrBefore: '2026-12-31' }],
+      },
+      new Map(),
+    );
+    render(<SearchByDrugOrder onSubmit={onSubmit} initialValues={drugOrder} />);
+
+    // "today" is the local day, which in some time zones is not the UTC day of the frozen clock.
+    const today = dayjs().format('DD-MM-YYYY');
+    await waitFor(() => expect(dateInputs().map((input) => input.value)).toEqual([today, '31-12-2026', '', '']));
+    await userEvent.click(screen.getByTestId('search-btn'));
+    expect(onSubmit.mock.calls[0][0]).toEqual(
+      getDrugOrderQuery(
+        drugOrder,
+        getDefaultsFromConfigSchema<ConfigObject>(configSchema).drugOrderSearchDefinitionKey,
+      ),
+    );
+  });
+
 
   it.each(tabs)('are all empty after Reset on the %s tab, and so is the search', async (_, Tab) => {
     const untouched = await untouchedSearch(Tab);
