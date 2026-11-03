@@ -313,10 +313,8 @@ describe('useUrlDefinition', () => {
     expect(window.location.search).toBe('');
   });
 
-  it.each([
-    ['none of them', [missingUuid], 'The saved cohort could not be loaded'],
-    ['some of them', [patientUuid, missingUuid], '{{count}} members could not be shown'],
-  ])('says so when %s can be shown', async (_, memberUuids, message) => {
+  /** Opens a saved cohort link whose memberships are these patients, the missing one failing to load. */
+  function openCohortOf(memberUuids: Array<string>) {
     const memberships = memberUuids.map((uuid) => ({
       uuid,
       patientUuid: uuid,
@@ -329,8 +327,22 @@ describe('useUrlDefinition', () => {
       url.includes('/membership') ? ({ data: { results: memberships } } as never) : answerAsServer(url, init),
     );
     openBuilderAt(`?cohort=${cohortUuid}`);
+  }
 
-    expect(await screen.findByText(message)).toBeInTheDocument();
+  it('says so when none of the members can be shown', async () => {
+    openCohortOf([missingUuid]);
+
+    expect(await screen.findByText('The saved cohort could not be loaded')).toBeInTheDocument();
+  });
+
+  it('warns, as for any saved cohort, when only some of the members can be shown', async () => {
+    openCohortOf([patientUuid, missingUuid]);
+
+    await waitFor(() =>
+      expect(showSnackbar).toHaveBeenCalledWith(
+        expect.objectContaining({ kind: 'warning', title: "Some of the cohort's members could not be shown" }),
+      ),
+    );
   });
 
   it('says when a saved cohort has more members than are shown', async () => {
