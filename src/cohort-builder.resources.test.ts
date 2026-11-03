@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { openmrsFetch } from '@openmrs/esm-framework';
-import { CohortMembersLoadError, getCohortMembers, getDataSet } from './cohort-builder.resources';
+import { renderHook } from '@testing-library/react';
+import { openmrsFetch, useOpenmrsFetchAll } from '@openmrs/esm-framework';
+import { CohortMembersLoadError, getCohortMembers, getDataSet, MAX_COHORT_MEMBERS_SHOWN, useLocations } from './cohort-builder.resources';
 
 const mockOpenmrsFetch = vi.mocked(openmrsFetch);
+const mockUseOpenmrsFetchAll = vi.mocked(useOpenmrsFetchAll);
 const cohortUuid = 'f4c0b5a2-3c84-4c76-bb7e-6c1b1b2e5a11';
 
 const patientUuid = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
@@ -49,8 +51,9 @@ describe('getCohortMembers', () => {
     const firstPage = Array.from({ length: 100 }, (_, i) => membership(i + 1));
     membershipPages = [firstPage, [membership(101)]];
 
-    const { patients } = await getCohortMembers(cohortUuid);
+    const { patients, total } = await getCohortMembers(cohortUuid);
 
+    expect(total).toBe(101);
     expect(patients).toHaveLength(101);
     expect(patients[100]).toEqual({
       id: '101',
@@ -68,7 +71,7 @@ describe('getCohortMembers', () => {
     expect(mockOpenmrsFetch).toHaveBeenCalledWith(expect.stringContaining('&startIndex=100'));
   });
 
-  it('loads the members 6 at a time', async () => {
+  it(`loads at most ${MAX_COHORT_MEMBERS_SHOWN} members, 6 at a time`, async () => {
     membershipPages = [0, 1, 2].map((page) => Array.from({ length: 100 }, (_, i) => membership(page * 100 + i + 1)));
     let inFlight = 0;
     let mostInFlight = 0;
@@ -80,10 +83,11 @@ describe('getCohortMembers', () => {
       return details(n);
     };
 
-    const { patients } = await getCohortMembers(cohortUuid);
+    const { patients, total } = await getCohortMembers(cohortUuid);
 
-    expect(patients).toHaveLength(300);
-    expect(fetchedPatients()).toBe(300);
+    expect(total).toBe(300);
+    expect(patients).toHaveLength(MAX_COHORT_MEMBERS_SHOWN);
+    expect(fetchedPatients()).toBe(MAX_COHORT_MEMBERS_SHOWN);
     expect(mostInFlight).toBe(6);
   });
 
@@ -92,9 +96,9 @@ describe('getCohortMembers', () => {
     // A server that ignores startIndex returns the same page with a "next" link forever.
     membershipPages = Array(50).fill(samePage);
 
-    const { patients } = await getCohortMembers(cohortUuid);
+    const { total } = await getCohortMembers(cohortUuid);
 
-    expect(patients).toHaveLength(100);
+    expect(total).toBe(100);
     expect(mockOpenmrsFetch.mock.calls.filter(([url]) => url.includes('/membership'))).toHaveLength(2);
   });
 
@@ -110,13 +114,70 @@ describe('getCohortMembers', () => {
       ],
     ];
 
-    const { patients } = await getCohortMembers(cohortUuid);
+    const { patients, total } = await getCohortMembers(cohortUuid);
 
     expect(patients.map(({ patientId }) => patientId)).toEqual([1, 5, 6]);
+    expect(total).toBe(3);
+  });
+
+  it('reads membership dates with a colonless offset where Date cannot, as Safari', async () => {
+    const SystemDate = Date;
+    // Safari's JavaScriptCore gives an Invalid Date for an offset without a colon, such as +0000.
+    class SafariDate extends SystemDate {
+      constructor(...args: ConstructorParameters<typeof Date> | []) {
+        if (typeof args[0] === 'string' && /[+-]\d{4}$/.test(args[0])) {
+          super(NaN);
+        } else {
+          super(...(args as []));
+        }
+      }
+    }
+    vi.stubGlobal('Date', SafariDate);
+    membershipPages = [
+      [
+        membership(1),
+        membership(2, { endDate: '2026-10-16T00:00:00.000+0000' }),
+        membership(3, { endDate: '2026-10-18T00:00:00.000+0000' }),
+        membership(4, { startDate: '2026-10-17T13:00:00.000+0100' }),
+        membership(5, { startDate: '2026-10-17T14:00:00.000+0100' }),
+      ],
+    ];
+
+    try {
+      const { patients } = await getCohortMembers(cohortUuid);
+      expect(patients.map(({ patientId }) => patientId)).toEqual([1, 3, 4]);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('leaves out a membership with a bound that is not a date, without failing the others', async () => {
+    membershipPages = [
+      [
+        membership(1),
+        membership(2, { startDate: 123 }),
+        membership(3, { startDate: {} }),
+        membership(4, { startDate: ['2020-01-01T00:00:00.000+0000'] }),
+        membership(5, { startDate: '' }),
+        membership(6, { endDate: '' }),
+        membership(7, { endDate: 0 }),
+        membership(8, { endDate: false }),
+        membership(9, { endDate: true }),
+        membership(10, { endDate: 'soon' }),
+        membership(11, { endDate: '2026-10-16T00:00:00.000+0000' }),
+        membership(12, { voided: true }),
+        membership(13, { startDate: undefined, endDate: undefined }),
+      ],
+    ];
+
+    const { patients, total } = await getCohortMembers(cohortUuid);
+
+    expect(patients.map(({ patientId }) => patientId)).toEqual([1, 13]);
+    expect(total).toBe(2);
   });
 
   it('skips members that cannot be loaded or shown', async () => {
-    membershipPages = [[membership(1), membership(2), membership(3)]];
+    membershipPages = [[membership(1), membership(2), membership(3), membership(4, { patientUuid: '../../user' })]];
     patientDetails = async (n) => {
       if (n === 2) {
         throw new Error('Not found');
@@ -124,10 +185,11 @@ describe('getCohortMembers', () => {
       return n === 3 ? { ...details(3), person: { ...details(3).person, preferredName: null } } : details(n);
     };
 
-    const { patients, total } = await getCohortMembers(cohortUuid);
+    const { patients, total, unavailable } = await getCohortMembers(cohortUuid);
 
     expect(patients.map(({ patientId }) => patientId)).toEqual([1]);
     expect(total).toBe(3);
+    expect(unavailable).toBe(2);
     expect(fetchedPatients()).toBe(3);
   });
 
@@ -155,7 +217,12 @@ describe('getCohortMembers', () => {
   it('shows an empty cohort as no members', async () => {
     membershipPages = [[membership(1, { voided: true })]];
 
-    expect(await getCohortMembers(cohortUuid)).toEqual({ patients: [], total: 0 });
+    expect(await getCohortMembers(cohortUuid)).toEqual({ patients: [], total: 0, unavailable: 0 });
+  });
+
+  it('refuses a cohort id that is not a uuid before fetching anything', async () => {
+    await expect(getCohortMembers('../../user')).rejects.toThrow('Not a cohort uuid');
+    expect(mockOpenmrsFetch).not.toHaveBeenCalled();
   });
 });
 
@@ -187,5 +254,19 @@ describe('getDataSet', () => {
 
     expect(patient.id).toBe('123');
     expect(patient.identifier).toBeUndefined();
+  });
+});
+
+describe('useLocations', () => {
+  it('asks only for each location uuid and display, a page at a time', () => {
+    const location = { uuid: '44c3efb0-2583-4c80-a79e-1f756a03c0a1', display: 'Outpatient Clinic' };
+    mockUseOpenmrsFetchAll.mockReturnValue({ data: [location], isLoading: false } as never);
+
+    const { result } = renderHook(() => useLocations());
+
+    expect([...new Set(mockUseOpenmrsFetchAll.mock.calls.map(([url]) => url))]).toEqual([
+      '/ws/rest/v1/location?v=custom:(uuid,display)',
+    ]);
+    expect(result.current.locations).toEqual([{ id: 0, label: 'Outpatient Clinic', value: location.uuid }]);
   });
 });

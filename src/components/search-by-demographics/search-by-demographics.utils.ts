@@ -18,7 +18,7 @@ interface Value {
   livingStatus?: string;
 }
 
-interface Demographics {
+export interface Demographics {
   gender: string;
   minAge: number;
   maxAge: number;
@@ -48,7 +48,9 @@ export const getDescription = ({
     if (birthDayStartDate && birthDayEndDate) {
       description += ` and birthdate between ${birthDayStartDate} and ${birthDayEndDate}`;
     } else {
-      description += minAge ? ` and born before ${birthDayStartDate}` : ` and born before ${birthDayEndDate}`;
+      description += birthDayStartDate
+        ? ` and born on or after ${birthDayStartDate}`
+        : ` and born on or before ${birthDayEndDate}`;
     }
   }
   if (livingStatus) {
@@ -79,11 +81,13 @@ export const getQueryDetails = ({
       searchParameters.upToAgeOnDate = [{ name: 'maxAge', value: maxAge }];
     }
   }
-  if (birthDayStartDate && birthDayEndDate) {
-    searchParameters.bornDuringPeriod = [
-      { name: 'startDate', dataType: 'date', value: birthDayStartDate },
-      { name: 'endDate', dataType: 'date', value: birthDayEndDate },
-    ];
+  // The reporting module leaves out a bound it isn't given, so one birth date searches a range open at the other end.
+  const bornDuringPeriod = [
+    { name: 'startDate', dataType: 'date', value: birthDayStartDate },
+    { name: 'endDate', dataType: 'date', value: birthDayEndDate },
+  ].filter(({ value }) => value);
+  if (bornDuringPeriod.length) {
+    searchParameters.bornDuringPeriod = bornDuringPeriod;
   }
 
   const today = dayjs().format();
