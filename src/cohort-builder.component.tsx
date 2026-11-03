@@ -3,8 +3,14 @@ import classNames from 'classnames';
 import { InlineNotification, Tab, Tabs, TabPanels, TabPanel, TabList } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { CohortsPictogram, PageHeader, PageHeaderContent, showSnackbar, useLayoutType } from '@openmrs/esm-framework';
-import { getCohortMembers, getDataSet, MAX_COHORT_MEMBERS_SHOWN, search } from './cohort-builder.resources';
-import { addToHistory } from './cohort-builder.utils';
+import {
+  CohortMembersLoadError,
+  getCohortMembers,
+  getDataSet,
+  MAX_COHORT_MEMBERS_SHOWN,
+  search,
+} from './cohort-builder.resources';
+import { addToHistory, getPatientName } from './cohort-builder.utils';
 import type { Patient, SearchParams } from './types';
 import { useUrlDefinition } from './url-definition/use-url-definition';
 import Composition from './components/composition/composition.component';
@@ -41,7 +47,7 @@ const CohortBuilder: React.FC = () => {
         .then(({ data: { rows } }) => {
           rows.map((patient: Patient) => {
             patient.id = patient.patientId.toString();
-            patient.name = `${patient.firstname} ${patient.lastname}`;
+            patient.name = getPatientName(patient.firstname, patient.lastname);
           });
           setPatients(rows);
           addToHistory(queryDescription, rows, searchParams.query);
@@ -98,21 +104,36 @@ const CohortBuilder: React.FC = () => {
       const { patients, total, unavailable } = await getCohortMembers(cohortId);
       setPatients(patients);
       setCohortMemberCounts({ total, unavailable });
-      showSnackbar({
-        title: t('searchCompleted', 'Search completed'),
-        kind: 'success',
-        isLowContrast: true,
-        subtitle: t('noOfResultsFound', '{{count}} results found', {
-          count: patients.length,
-        }),
-      });
+      if (unavailable > 0) {
+        showSnackbar({
+          title: t('someCohortMembersNotShown', "Some of the cohort's members could not be shown"),
+          kind: 'warning',
+          isLowContrast: true,
+          subtitle: t('showingCohortMembers', 'Showing {{shown}} of {{count}} members', {
+            shown: patients.length,
+            count: total,
+          }),
+        });
+      } else {
+        showSnackbar({
+          title: t('searchCompleted', 'Search completed'),
+          kind: 'success',
+          isLowContrast: true,
+          subtitle: t('noOfResultsFound', '{{count}} results found', {
+            count: patients.length,
+          }),
+        });
+      }
       return true;
     } catch (error) {
       showSnackbar({
         title: t('error', 'Error'),
         kind: 'error',
         isLowContrast: false,
-        subtitle: error?.message,
+        subtitle:
+          error instanceof CohortMembersLoadError
+            ? t('cohortMembersLoadFailed', "None of the cohort's members could be loaded")
+            : error?.message,
       });
       return false;
     }

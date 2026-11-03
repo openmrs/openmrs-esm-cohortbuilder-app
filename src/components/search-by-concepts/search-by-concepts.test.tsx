@@ -47,6 +47,11 @@ const createExpectedQuery = (date: dayjs.Dayjs) => ({
         key: 'reporting.library.patientDataDefinition.builtIn.patientId',
         type: 'org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition',
       },
+      {
+        name: 'identifier',
+        key: 'reporting.library.patientDataDefinition.builtIn.preferredIdentifier.identifier',
+        type: 'org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition',
+      },
     ],
     rowFilters: [
       {
@@ -161,5 +166,103 @@ describe('Test the search by concept component', () => {
 
     // Verify the description format
     expect(actualDescription).toMatch(/^Patients with ANY BLOOD SUGAR\s+until\s+\d{1,2}\/\d{1,2}\/\d{4}$/);
+  });
+
+  it.each([
+    ['Whole blood sample', 'Patients who have these observations', 'Patients who do not have these observations', 'NO'],
+    ['BLOOD SUGAR', 'Any', 'Lowest', 'MIN'],
+  ])(
+    'shows and searches with the first time modifier again after Reset, for %s',
+    async (conceptName, firstOption, otherOption) => {
+      const user = userEvent.setup();
+      const mockSubmit = vi.fn();
+      render(<SearchByConcepts onSubmit={mockSubmit} />);
+      const pickConcept = async () => {
+        await user.type(screen.getByPlaceholderText('Search Concepts'), 'blood sugar');
+        await user.click(await screen.findByText(conceptName));
+      };
+
+      await pickConcept();
+      await user.click(screen.getByTitle(firstOption));
+      await user.click(screen.getByText(otherOption));
+      await user.click(screen.getByTestId('reset-btn'));
+      await pickConcept();
+
+      expect(screen.getByTitle(firstOption)).toBeInTheDocument();
+      expect(screen.queryByTitle(otherOption)).not.toBeInTheDocument();
+      await user.click(screen.getByTestId('search-btn'));
+      expect(mockSubmit.mock.calls[0][0].query.rowFilters[0].parameterValues.timeModifier).toBe('ANY');
+    },
+  );
+
+  it('shows the first time modifier again on Reset before a concept is picked again', async () => {
+    const user = userEvent.setup();
+    render(<SearchByConcepts onSubmit={vi.fn()} />);
+
+    await user.click(screen.getByTitle('Patients who have these observations'));
+    await user.click(screen.getByText('Patients who do not have these observations'));
+    await user.click(screen.getByTestId('reset-btn'));
+
+    expect(screen.getByTitle('Patients who have these observations')).toBeInTheDocument();
+  });
+
+  it.each([
+    ['=', 'EQUAL'],
+    ['>', 'GREATER_THAN'],
+  ])('searches a numeric concept for the value 0 with %s', async (operatorLabel, operator1) => {
+    const user = userEvent.setup();
+    const mockSubmit = vi.fn();
+    render(<SearchByConcepts onSubmit={mockSubmit} />);
+
+    await user.type(screen.getByPlaceholderText('Search Concepts'), 'blood sugar');
+    await user.click(await screen.findByText('BLOOD SUGAR'));
+    await user.click(screen.getByText(operatorLabel));
+    const valueInput = screen.getByRole('spinbutton', { name: /enter a value in/i });
+    await user.clear(valueInput);
+    await user.type(valueInput, '0');
+    await user.click(screen.getByTestId('search-btn'));
+
+    expect(mockSubmit.mock.calls[0][0].query.rowFilters[0].parameterValues).toEqual({
+      question: concepts[1].uuid,
+      operator1,
+      value1: '0',
+      timeModifier: 'ANY',
+    });
+  });
+
+  it('starts a numeric concept with an empty value and searches without one until a value is entered', async () => {
+    const user = userEvent.setup();
+    const mockSubmit = vi.fn();
+    render(<SearchByConcepts onSubmit={mockSubmit} />);
+
+    await user.type(screen.getByPlaceholderText('Search Concepts'), 'blood sugar');
+    await user.click(await screen.findByText('BLOOD SUGAR'));
+
+    expect(screen.getByRole('spinbutton', { name: /enter a value in/i })).toHaveValue(null);
+    await user.click(screen.getByTestId('search-btn'));
+    expect(mockSubmit.mock.calls[0][0].query.rowFilters[0].parameterValues).not.toHaveProperty('value1');
+  });
+
+  it('searches only with what is shown after switching from a numeric to a coded concept', async () => {
+    const user = userEvent.setup();
+    const mockSubmit = vi.fn();
+    render(<SearchByConcepts onSubmit={mockSubmit} />);
+    const searchInput = screen.getByPlaceholderText('Search Concepts');
+
+    await user.type(searchInput, 'blood sugar');
+    await user.click(await screen.findByText('BLOOD SUGAR'));
+    await user.click(screen.getByTitle('Any'));
+    await user.click(screen.getByText('Highest'));
+    await user.click(screen.getByText('>='));
+    await user.type(screen.getByRole('spinbutton', { name: /enter a value in/i }), '5');
+    await user.clear(searchInput);
+    await user.type(searchInput, 'blood sugar');
+    await user.click(await screen.findByText('Whole blood sample'));
+    await user.click(screen.getByTestId('search-btn'));
+
+    expect(mockSubmit.mock.calls[0][0].query.rowFilters[0].parameterValues).toEqual({
+      question: concepts[0].uuid,
+      timeModifier: 'ANY',
+    });
   });
 });

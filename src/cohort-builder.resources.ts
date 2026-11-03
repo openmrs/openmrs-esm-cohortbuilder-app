@@ -1,7 +1,7 @@
-import useSWRImmutable from 'swr/immutable';
-import { openmrsFetch, restBaseUrl, type FetchResponse } from '@openmrs/esm-framework';
+import { openmrsFetch, restBaseUrl, useOpenmrsFetchAll, type FetchResponse } from '@openmrs/esm-framework';
 import type { Patient, SearchParams, DropdownValue, Response } from './types';
 import { isUuid } from './url-definition/url-definition';
+import { getPatientName } from './cohort-builder.utils';
 
 /**
  * @param searchParams query details
@@ -27,21 +27,19 @@ export const search = async (searchParams: SearchParams) => {
  * @returns Locations
  */
 export const useLocations = () => {
-  const { data, error } = useSWRImmutable<{
-    data: { results: Response[] };
-  }>(`${restBaseUrl}/location`, openmrsFetch);
-
-  const locations: DropdownValue[] = [];
-  data?.data.results.map((location: Response, index: number) => {
-    locations.push({
-      id: index,
-      label: location.display,
-      value: location.uuid,
-    });
+  const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/location`, {
+    immutable: true,
+    swrInfiniteConfig: { revalidateFirstPage: false },
   });
 
+  const locations: DropdownValue[] = (data ?? []).map((location, index) => ({
+    id: index,
+    label: location.display,
+    value: location.uuid,
+  }));
+
   return {
-    isLoading: !data && !error,
+    isLoading,
     locations,
     locationsError: error,
   };
@@ -53,8 +51,8 @@ export const getDataSet = async (queryID: string) => {
   });
 
   const dataset = results.data.rows.map((patient: Patient) => {
-    patient.id = patient.patientId.toString();
-    patient.name = `${patient.firstname} ${patient.lastname}`;
+    patient.id = patient.patientId?.toString() ?? '';
+    patient.name = getPatientName(patient.firstname, patient.lastname);
 
     return patient;
   });
@@ -78,12 +76,21 @@ interface CohortMembershipPage {
 interface CohortMemberDetails {
   patientId: number;
   person: { gender: string; age: number; preferredName: { givenName: string; familyName: string } | null };
+  identifiers?: Array<{ identifier: string; preferred: boolean }>;
 }
 
 export const MAX_COHORT_MEMBERS_SHOWN = 200;
 const MEMBERSHIP_PAGE_SIZE = 100;
 const MAX_MEMBERSHIP_PAGES = 1000;
 const PATIENT_FETCH_CONCURRENCY = 6;
+
+/** Thrown when a cohort has active members but none of them could be loaded. */
+export class CohortMembersLoadError extends Error {
+  constructor() {
+    super("None of the cohort's members could be loaded");
+    this.name = 'CohortMembersLoadError';
+  }
+}
 
 /**
  * webservices.rest has no cohort members endpoint, only the paged `cohort/{uuid}/membership`
@@ -109,7 +116,7 @@ export const getCohortMembers = async (
     Boolean,
   );
   if (membersToShow.length > 0 && patients.length === 0) {
-    throw new Error("None of the cohort's members could be loaded");
+    throw new CohortMembersLoadError();
   }
   return { patients, total: activePatientUuids.length, unavailable: membersToShow.length - patients.length };
 };
@@ -140,18 +147,20 @@ function isActiveMembership({ voided, startDate, endDate }: CohortMembership, no
 async function getCohortMember(patientUuid: string): Promise<Patient | null> {
   try {
     const {
-      data: { patientId, person },
+      data: { patientId, person, identifiers },
     }: FetchResponse<CohortMemberDetails> = await openmrsFetch(
-      `${restBaseUrl}/patient/${patientUuid}?v=custom:(patientId,person:(gender,age,preferredName:(givenName,familyName)))`,
+      `${restBaseUrl}/patient/${patientUuid}?v=custom:(patientId,person:(gender,age,preferredName:(givenName,familyName)),identifiers:(identifier,preferred))`,
     );
     if (!person?.preferredName) {
       return null;
     }
     const { givenName, familyName } = person.preferredName;
+    const identifier = identifiers?.find(({ preferred }) => preferred)?.identifier ?? '';
     return {
       id: patientId.toString(),
       patientId,
-      name: `${givenName} ${familyName}`,
+      identifier,
+      name: getPatientName(givenName, familyName),
       firstname: givenName,
       lastname: familyName,
       age: person.age,

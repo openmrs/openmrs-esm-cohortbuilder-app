@@ -96,6 +96,10 @@ export const addColumnsToDisplay = () => {
       name: 'patientId',
       key: 'patientId',
     },
+    {
+      name: 'identifier',
+      key: 'preferredIdentifier.identifier',
+    },
   ];
 
   const columnValues = columns.map((aColumn: Column) => {
@@ -117,6 +121,9 @@ export const addToHistory = (description: string, patients: Patient[], parameter
   }
   window.sessionStorage.setItem('openmrsHistory', JSON.stringify(newHistory));
 };
+
+/** A patient's name from the parts they have, so a missing one doesn't show as "null". */
+export const getPatientName = (...parts: Array<string | null | undefined>) => parts.filter(Boolean).join(' ');
 
 export const formatDate = (dateString: string) => {
   const date = new Date(dateString);

@@ -13,11 +13,18 @@ interface SearchResultsTableProps {
 const SearchResultsTable: React.FC<SearchResultsTableProps> = ({ patients }) => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [shownPatients, setShownPatients] = useState(patients);
   const { t } = useTranslation();
+
+  // A new search replaces the results, so start again from the first page.
+  if (patients !== shownPatients) {
+    setShownPatients(patients);
+    setPage(1);
+  }
 
   const headers = [
     {
-      key: 'id',
+      key: 'identifier',
       header: t('openmrsId', 'OpenMRS ID'),
     },
     {
@@ -73,8 +80,8 @@ const SearchResultsTable: React.FC<SearchResultsTableProps> = ({ patients }) => 
           forwardText={t('nextPage', 'Next page')}
           itemsPerPageText={t('itemsPerPage', 'Items per page:')}
           onChange={handlePagination}
-          page={1}
-          pageSize={10}
+          page={page}
+          pageSize={pageSize}
           pageSizes={[10, 20, 30, 40, 50]}
           size="md"
           totalItems={patients.length}

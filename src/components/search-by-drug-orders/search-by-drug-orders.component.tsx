@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import dayjs from 'dayjs';
-import { Column, DatePicker, DatePickerInput, Dropdown, MultiSelect } from '@carbon/react';
+import { Column, Dropdown, MultiSelect } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { showSnackbar, useConfig } from '@openmrs/esm-framework';
 import { type ConfigObject } from '../../config-schema';
@@ -8,6 +7,7 @@ import type { DropdownValue, DrugOrderDetails, SearchByProps } from '../../types
 import { getDescription, getQueryDetails } from './search-by-drug-orders.utils';
 import { useCareSettings, useDrugs } from './search-by-drug-orders.resources';
 import SearchButtonSet from '../search-button-set/search-button-set';
+import SearchDatePicker from '../search-date-picker/search-date-picker';
 import styles from './search-by-drug-orders.style.scss';
 
 const SearchByDrugOrder: React.FC<SearchByProps> = ({ onSubmit }) => {
@@ -19,34 +19,38 @@ const SearchByDrugOrder: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [activeOnOrBefore, setActiveOnOrBefore] = useState('');
   const [activatedOnOrAfter, setActivatedOnOrAfter] = useState('');
   const [activatedOnOrBefore, setActivatedOnOrBefore] = useState('');
-  const [selectedDrugs, setSelectedDrugs] = useState<DropdownValue[]>(null);
+  const [selectedDrugs, setSelectedDrugs] = useState<DropdownValue[]>([]);
   const [selectedCareSetting, setSelectedCareSetting] = useState<DropdownValue>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (drugsError) {
-      showSnackbar({
-        title: t('error', 'Error'),
-        kind: 'error',
-        isLowContrast: false,
-        subtitle: drugsError?.message,
-      });
-    }
-  }, [drugsError, t]);
+  const drugsErrorMessage = drugsError?.message;
 
   useEffect(() => {
-    if (careSettingsError) {
+    if (drugsErrorMessage) {
       showSnackbar({
         title: t('error', 'Error'),
         kind: 'error',
         isLowContrast: false,
-        subtitle: careSettingsError?.message,
+        subtitle: drugsErrorMessage,
       });
     }
-  }, [careSettingsError, t]);
+  }, [drugsErrorMessage, t]);
+
+  const careSettingsErrorMessage = careSettingsError?.message;
+
+  useEffect(() => {
+    if (careSettingsErrorMessage) {
+      showSnackbar({
+        title: t('error', 'Error'),
+        kind: 'error',
+        isLowContrast: false,
+        subtitle: careSettingsErrorMessage,
+      });
+    }
+  }, [careSettingsErrorMessage, t]);
 
   const handleResetInputs = () => {
-    setSelectedDrugs(null);
+    setSelectedDrugs([]);
     setSelectedCareSetting(null);
     setActiveOnOrAfter('');
     setActiveOnOrBefore('');
@@ -64,8 +68,11 @@ const SearchByDrugOrder: React.FC<SearchByProps> = ({ onSubmit }) => {
       activatedOnOrAfter,
       activatedOnOrBefore,
     };
-    await onSubmit(getQueryDetails(drugOrderParams, drugOrderSearchDefinitionKey), getDescription(drugOrderParams));
-    setIsLoading(false);
+    try {
+      await onSubmit(getQueryDetails(drugOrderParams, drugOrderSearchDefinitionKey), getDescription(drugOrderParams));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -76,6 +83,7 @@ const SearchByDrugOrder: React.FC<SearchByProps> = ({ onSubmit }) => {
             id="drugs"
             data-testid="drugs"
             onChange={(data) => setSelectedDrugs(data.selectedItems)}
+            selectedItems={selectedDrugs}
             items={drugs}
             label={t('selectDrugs', 'Select drugs')}
           />
@@ -87,7 +95,7 @@ const SearchByDrugOrder: React.FC<SearchByProps> = ({ onSubmit }) => {
             id="careSettings"
             data-testid="careSettings"
             onChange={(data) => setSelectedCareSetting(data.selectedItem)}
-            initialSelectedItem={careSettings[0]}
+            selectedItem={selectedCareSetting}
             items={careSettings}
             label={t('selectCareSettings', 'Select a care setting')}
             titleText=""
@@ -96,56 +104,38 @@ const SearchByDrugOrder: React.FC<SearchByProps> = ({ onSubmit }) => {
       </div>
       <div className={styles.column}>
         <Column>
-          <DatePicker
-            datePickerType="single"
-            allowInput={false}
-            onChange={(date) => setActiveOnOrAfter(dayjs(date[0]).format())}
-            value={activeOnOrAfter && dayjs(activeOnOrAfter).format('DD-MM-YYYY')}
-          >
-            <DatePickerInput
-              id="activeOnOrAfter"
-              labelText={t('using', 'Using between')}
-              placeholder="DD-MM-YYYY"
-              size="md"
-            />
-          </DatePicker>
+          <SearchDatePicker
+            id="activeOnOrAfter"
+            labelText={t('using', 'Using between')}
+            value={activeOnOrAfter}
+            onChange={setActiveOnOrAfter}
+          />
         </Column>
         <Column>
-          <DatePicker
-            datePickerType="single"
-            allowInput={false}
-            onChange={(date) => setActiveOnOrBefore(dayjs(date[0]).format())}
-            value={activeOnOrBefore && dayjs(activeOnOrBefore).format('DD-MM-YYYY')}
-          >
-            <DatePickerInput id="activeOnOrBefore" labelText={t('to', 'to')} placeholder="DD-MM-YYYY" size="md" />
-          </DatePicker>
+          <SearchDatePicker
+            id="activeOnOrBefore"
+            labelText={t('to', 'to')}
+            value={activeOnOrBefore}
+            onChange={setActiveOnOrBefore}
+          />
         </Column>
       </div>
       <div className={styles.column}>
         <Column>
-          <DatePicker
-            datePickerType="single"
-            allowInput={false}
-            onChange={(date) => setActivatedOnOrAfter(dayjs(date[0]).format())}
-            value={activatedOnOrAfter && dayjs(activatedOnOrAfter).format('DD-MM-YYYY')}
-          >
-            <DatePickerInput
-              id="activatedOnOrAfter"
-              labelText={t('used', 'Used between')}
-              placeholder="DD-MM-YYYY"
-              size="md"
-            />
-          </DatePicker>
+          <SearchDatePicker
+            id="activatedOnOrAfter"
+            labelText={t('used', 'Used between')}
+            value={activatedOnOrAfter}
+            onChange={setActivatedOnOrAfter}
+          />
         </Column>
         <Column>
-          <DatePicker
-            datePickerType="single"
-            allowInput={false}
-            onChange={(date) => setActivatedOnOrBefore(dayjs(date[0]).format())}
-            value={activatedOnOrBefore && dayjs(activatedOnOrBefore).format('DD-MM-YYYY')}
-          >
-            <DatePickerInput id="activatedOnOrBefore" labelText={t('and', 'and')} placeholder="DD-MM-YYYY" size="md" />
-          </DatePicker>
+          <SearchDatePicker
+            id="activatedOnOrBefore"
+            labelText={t('and', 'and')}
+            value={activatedOnOrBefore}
+            onChange={setActivatedOnOrBefore}
+          />
         </Column>
       </div>
       <SearchButtonSet onHandleReset={handleResetInputs} onHandleSubmit={submit} isLoading={isLoading} />

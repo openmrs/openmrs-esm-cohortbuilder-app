@@ -16,7 +16,9 @@ export const getQueryDetails = (method: string, selectedLocations: DropdownValue
 };
 
 export const getDescription = (method: string, selectedLocations: DropdownValue[]) => {
-  let description = `Patients in ${selectedLocations?.map((location) => location.label).join(', ')}`;
+  let description = selectedLocations?.length
+    ? `Patients in ${selectedLocations.map((location) => location.label).join(', ')}`
+    : 'Patients in any location';
   switch (method) {
     case 'FIRST':
       description += ' (by method EARLIEST_ENCOUNTER).';

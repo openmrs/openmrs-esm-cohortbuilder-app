@@ -28,6 +28,11 @@ exports[`useUrlDefinition > runs each criterion, then ANDs them, once > demograp
       "name": "patientId",
       "type": "org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition",
     },
+    {
+      "key": "reporting.library.patientDataDefinition.builtIn.preferredIdentifier.identifier",
+      "name": "identifier",
+      "type": "org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition",
+    },
   ],
   "customRowFilterCombination": "1 AND 2 AND NOT 3",
   "rowFilters": [
@@ -83,6 +88,11 @@ exports[`useUrlDefinition > runs each criterion, then ANDs them, once > drugOrde
       "name": "patientId",
       "type": "org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition",
     },
+    {
+      "key": "reporting.library.patientDataDefinition.builtIn.preferredIdentifier.identifier",
+      "name": "identifier",
+      "type": "org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition",
+    },
   ],
   "customRowFilterCombination": "1",
   "rowFilters": [
@@ -127,6 +137,11 @@ exports[`useUrlDefinition > runs each criterion, then ANDs them, once > enrollme
     {
       "key": "reporting.library.patientDataDefinition.builtIn.patientId",
       "name": "patientId",
+      "type": "org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition",
+    },
+    {
+      "key": "reporting.library.patientDataDefinition.builtIn.preferredIdentifier.identifier",
+      "name": "identifier",
       "type": "org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition",
     },
   ],
