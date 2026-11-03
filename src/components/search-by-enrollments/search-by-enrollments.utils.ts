@@ -40,9 +40,10 @@ export const getQueryDetails = ({
         name: 'completedOnOrBefore',
         value: completedOnOrBefore,
       },
-      {
+      // No locations chosen means any location, which the server reads from a missing list as from an empty one.
+      selectedLocations?.length > 0 && {
         name: 'locationList',
-        value: selectedLocations?.map((location) => location.value),
+        value: selectedLocations.map((location) => location.value),
       },
     ],
   };

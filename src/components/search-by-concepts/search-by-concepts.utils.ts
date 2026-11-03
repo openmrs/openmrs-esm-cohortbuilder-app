@@ -54,7 +54,8 @@ const hasComparison = (search: ConceptSearch) =>
 /** The start of the window: "within the last" counted back from now, else the chosen date. */
 function startOf({ withinLastMonths = 0, withinLastDays = 0, onOrAfter }: ConceptSearch): string | undefined {
   if (withinLastMonths > 0 || withinLastDays > 0) {
-    return dayjs().subtract(withinLastMonths, 'months').subtract(withinLastDays, 'days').format();
+    // Days, then months, as the Concepts tab always has.
+    return dayjs().subtract(withinLastDays, 'days').subtract(withinLastMonths, 'months').format();
   }
   return onOrAfter || undefined;
 }

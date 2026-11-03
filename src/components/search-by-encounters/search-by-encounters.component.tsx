@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Column, NumberInput, MultiSelect } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { showSnackbar } from '@openmrs/esm-framework';
@@ -28,34 +28,49 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
   const locationOptions = withSelectedItems(locations, encounterLocations);
   const [isLoading, setIsLoading] = useState(false);
 
-  if (locationsError) {
-    showSnackbar({
-      title: t('error', 'Error'),
-      kind: 'error',
-      isLowContrast: false,
-      subtitle: locationsError?.message,
-    });
-  }
+  const locationsErrorMessage = locationsError?.message;
 
-  if (formsError) {
-    showSnackbar({
-      title: t('error', 'Error'),
-      kind: 'error',
-      isLowContrast: false,
-      subtitle: formsError?.message,
-    });
-  }
+  useEffect(() => {
+    if (locationsErrorMessage) {
+      showSnackbar({
+        title: t('error', 'Error'),
+        kind: 'error',
+        isLowContrast: false,
+        subtitle: locationsErrorMessage,
+      });
+    }
+  }, [locationsErrorMessage, t]);
 
-  if (encounterTypesError) {
-    showSnackbar({
-      title: t('error', 'Error'),
-      kind: 'error',
-      isLowContrast: false,
-      subtitle: encounterTypesError?.message,
-    });
-  }
+  const formsErrorMessage = formsError?.message;
+
+  useEffect(() => {
+    if (formsErrorMessage) {
+      showSnackbar({
+        title: t('error', 'Error'),
+        kind: 'error',
+        isLowContrast: false,
+        subtitle: formsErrorMessage,
+      });
+    }
+  }, [formsErrorMessage, t]);
+
+  const encounterTypesErrorMessage = encounterTypesError?.message;
+
+  useEffect(() => {
+    if (encounterTypesErrorMessage) {
+      showSnackbar({
+        title: t('error', 'Error'),
+        kind: 'error',
+        isLowContrast: false,
+        subtitle: encounterTypesErrorMessage,
+      });
+    }
+  }, [encounterTypesErrorMessage, t]);
 
   const reset = () => {
+    setSelectedEncounterTypes([]);
+    setEncounterForms([]);
+    setEncounterLocations([]);
     setAtLeastCount(0);
     setAtMostCount(0);
     setSelectedEncounterTypes([]);
@@ -76,8 +91,11 @@ const SearchByEncounters: React.FC<SearchByProps> = ({ onSubmit }) => {
       onOrBefore,
       selectedEncounterTypes,
     };
-    await onSubmit(getQueryDetails(encounterDetails), getDescription(encounterDetails));
-    setIsLoading(false);
+    try {
+      await onSubmit(getQueryDetails(encounterDetails), getDescription(encounterDetails));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

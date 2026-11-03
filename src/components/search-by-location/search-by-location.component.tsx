@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Column, Dropdown, MultiSelect } from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
 
@@ -12,50 +12,60 @@ import styles from './search-by-location.style.scss';
 
 const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
-  const methods = [
-    {
-      id: 0,
-      label: t('anyEncounter', 'Any Encounter'),
-      value: 'ANY',
-    },
-    {
-      id: 1,
-      label: t('mostRecentEncounter', 'Most Recent Encounter'),
-      value: 'LAST',
-    },
-    {
-      id: 2,
-      label: t('earliestEncounter', 'Earliest Encounter'),
-      value: 'FIRST',
-    },
-  ];
+  const methods = useMemo(
+    () => [
+      {
+        id: 0,
+        label: t('anyEncounter', 'Any Encounter'),
+        value: 'ANY',
+      },
+      {
+        id: 1,
+        label: t('mostRecentEncounter', 'Most Recent Encounter'),
+        value: 'LAST',
+      },
+      {
+        id: 2,
+        label: t('earliestEncounter', 'Earliest Encounter'),
+        value: 'FIRST',
+      },
+    ],
+    [t],
+  );
   const { locations, locationsError } = useLocations();
-  const [selectedLocations, setSelectedLocations] = useState<DropdownValue[]>(null);
+  const [selectedLocations, setSelectedLocations] = useState<DropdownValue[]>([]);
   const [selectedMethod, setSelectedMethod] = useState<DropdownValue>(methods[0]);
   const locationOptions = withSelectedItems(locations, selectedLocations);
   const [isLoading, setIsLoading] = useState(false);
 
-  if (locationsError) {
-    showSnackbar({
-      title: t('error', 'Error'),
-      kind: 'error',
-      isLowContrast: false,
-      subtitle: locationsError?.message,
-    });
-  }
+  const locationsErrorMessage = locationsError?.message;
+
+  useEffect(() => {
+    if (locationsErrorMessage) {
+      showSnackbar({
+        title: t('error', 'Error'),
+        kind: 'error',
+        isLowContrast: false,
+        subtitle: locationsErrorMessage,
+      });
+    }
+  }, [locationsErrorMessage, t]);
 
   const handleResetInputs = () => {
-    setSelectedLocations(null);
+    setSelectedLocations([]);
     setSelectedMethod(methods[0]);
   };
 
   const submit = async () => {
     setIsLoading(true);
-    await onSubmit(
-      getQueryDetails(selectedMethod.value, selectedLocations),
-      getDescription(selectedMethod.value, selectedLocations),
-    );
-    setIsLoading(false);
+    try {
+      await onSubmit(
+        getQueryDetails(selectedMethod.value, selectedLocations),
+        getDescription(selectedMethod.value, selectedLocations),
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

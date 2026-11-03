@@ -1,11 +1,10 @@
-import { createElement, type ReactNode } from 'react';
-import { SWRConfig } from 'swr';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
-import { openmrsFetch } from '@openmrs/esm-framework';
-import { getCohortMembers, getDataSet, MAX_COHORT_MEMBERS_SHOWN, useLocations } from './cohort-builder.resources';
+import { renderHook } from '@testing-library/react';
+import { openmrsFetch, useOpenmrsFetchAll } from '@openmrs/esm-framework';
+import { CohortMembersLoadError, getCohortMembers, getDataSet, MAX_COHORT_MEMBERS_SHOWN, useLocations } from './cohort-builder.resources';
 
 const mockOpenmrsFetch = vi.mocked(openmrsFetch);
+const mockUseOpenmrsFetchAll = vi.mocked(useOpenmrsFetchAll);
 const cohortUuid = 'f4c0b5a2-3c84-4c76-bb7e-6c1b1b2e5a11';
 
 const patientUuid = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
@@ -19,6 +18,10 @@ const membership = (n: number, overrides = {}) => ({
 });
 const details = (n: number) => ({
   patientId: n,
+  identifiers: [
+    { identifier: `ALT-${n}`, preferred: false },
+    { identifier: `OMRS-${n}`, preferred: true },
+  ],
   person: { gender: 'F', age: 30, preferredName: { givenName: 'Patient', familyName: `${n}` } },
 });
 
@@ -30,7 +33,7 @@ beforeEach(() => {
   vi.setSystemTime(new Date('2026-10-17T12:00:00Z'));
   patientDetails = async (n) => details(n);
   mockOpenmrsFetch.mockImplementation(async (url: string) => {
-    if (url.includes('/membership')) {
+    if (url.includes(`/cohort/${cohortUuid}/membership?`)) {
       const page = Number(new URL(url, 'http://x').searchParams.get('startIndex')) / 100;
       const results = membershipPages[page] ?? [];
       const links = page < membershipPages.length - 1 ? [{ rel: 'next' }] : [];
@@ -55,12 +58,16 @@ describe('getCohortMembers', () => {
     expect(patients[100]).toEqual({
       id: '101',
       patientId: 101,
+      identifier: 'OMRS-101',
       name: 'Patient 101',
       firstname: 'Patient',
       lastname: '101',
       age: 30,
       gender: 'F',
     });
+    expect(mockOpenmrsFetch).toHaveBeenCalledWith(
+      expect.stringContaining('identifiers:(identifier,preferred)'),
+    );
     expect(mockOpenmrsFetch).toHaveBeenCalledWith(expect.stringContaining('&startIndex=100'));
   });
 
@@ -186,13 +193,25 @@ describe('getCohortMembers', () => {
     expect(fetchedPatients()).toBe(3);
   });
 
+  it('names each member with only the parts of a name they have', async () => {
+    membershipPages = [[membership(1), membership(2)]];
+    patientDetails = async (n) => ({
+      ...details(n),
+      person: { ...details(n).person, preferredName: { givenName: n === 1 ? 'Ann' : null, familyName: null } },
+    });
+
+    const { patients } = await getCohortMembers(cohortUuid);
+
+    expect(patients.map(({ name }) => name)).toEqual(['Ann', '']);
+  });
+
   it('fails when the cohort has active members but none can be shown', async () => {
     membershipPages = [[membership(1), membership(2)]];
     patientDetails = async () => {
       throw new Error('Not found');
     };
 
-    await expect(getCohortMembers(cohortUuid)).rejects.toThrow("None of the cohort's members could be loaded");
+    await expect(getCohortMembers(cohortUuid)).rejects.toThrow(CohortMembersLoadError);
   });
 
   it('shows an empty cohort as no members', async () => {
@@ -211,6 +230,7 @@ describe('getDataSet', () => {
   it('names each patient with only the parts of a name they have', async () => {
     const row = (patientId: number, firstname: string | null, lastname: string | null) => ({
       patientId,
+      identifier: `OMRS-${patientId}`,
       firstname,
       lastname,
     });
@@ -221,20 +241,32 @@ describe('getDataSet', () => {
     const patients = await getDataSet('query-uuid');
 
     expect(patients.map(({ name }) => name)).toEqual(['', 'Ann', 'Banda', 'Ann Banda']);
+    expect(patients.map(({ id }) => id)).toEqual(['1', '2', '3', '4']);
+    expect(patients.map(({ identifier }) => identifier)).toEqual(['OMRS-1', 'OMRS-2', 'OMRS-3', 'OMRS-4']);
+  });
+
+  it('preserves the internal patient ID and leaves the OpenMRS ID blank when an older saved query has no identifier column', async () => {
+    mockOpenmrsFetch.mockResolvedValue({
+      data: { rows: [{ patientId: 123, firstname: 'Betty', lastname: 'Williams' }] },
+    } as never);
+
+    const [patient] = await getDataSet('query-uuid');
+
+    expect(patient.id).toBe('123');
+    expect(patient.identifier).toBeUndefined();
   });
 });
 
 describe('useLocations', () => {
-  it('asks only for each location uuid and display', async () => {
+  it('asks only for each location uuid and display, a page at a time', () => {
     const location = { uuid: '44c3efb0-2583-4c80-a79e-1f756a03c0a1', display: 'Outpatient Clinic' };
-    mockOpenmrsFetch.mockResolvedValue({ data: { results: [location] } } as never);
-    const freshCache = ({ children }: { children: ReactNode }) =>
-      createElement(SWRConfig, { value: { provider: () => new Map() } }, children);
+    mockUseOpenmrsFetchAll.mockReturnValue({ data: [location], isLoading: false } as never);
 
-    const { result } = renderHook(() => useLocations(), { wrapper: freshCache });
+    const { result } = renderHook(() => useLocations());
 
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-    expect(mockOpenmrsFetch.mock.calls.map(([url]) => url)).toEqual(['/ws/rest/v1/location?v=custom:(uuid,display)']);
+    expect([...new Set(mockUseOpenmrsFetchAll.mock.calls.map(([url]) => url))]).toEqual([
+      '/ws/rest/v1/location?v=custom:(uuid,display)',
+    ]);
     expect(result.current.locations).toEqual([{ id: 0, label: 'Outpatient Clinic', value: location.uuid }]);
   });
 });

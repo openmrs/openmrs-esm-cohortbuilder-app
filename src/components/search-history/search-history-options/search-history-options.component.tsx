@@ -1,9 +1,12 @@
 import React from 'react';
 import { useTranslation, type TFunction } from 'react-i18next';
 import { OverflowMenu, OverflowMenuItem } from '@carbon/react';
+import { useSWRConfig, type ScopedMutator } from 'swr';
 import { showModal, showSnackbar } from '@openmrs/esm-framework';
 import { downloadCSV } from '../../../cohort-builder.utils';
 import type { Cohort, Patient, SearchHistoryItem } from '../../../types';
+import { savedCohortsKey } from '../../saved-cohorts/saved-cohorts.resources';
+import { savedQueriesKey } from '../../saved-queries/saved-queries.resources';
 import { createCohort, createQuery } from './search-history-options.resources';
 import styles from './search-history-options.scss';
 
@@ -26,6 +29,7 @@ const createCohortFromSearchItem = async (
   description: string,
   searchItem: SearchHistoryItem,
   t: TFunction,
+  mutate: ScopedMutator,
 ) => {
   const cohortMembers: number[] = [];
   const { patients } = searchItem;
@@ -46,6 +50,7 @@ const createCohortFromSearchItem = async (
       isLowContrast: true,
       subtitle: t('cohortSaved', 'Cohort created successfully'),
     });
+    mutate(savedCohortsKey);
   } catch (error) {
     showSnackbar({
       title: t('errorCreatingCohort', 'Error creating the cohort'),
@@ -58,6 +63,7 @@ const createCohortFromSearchItem = async (
 
 const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({ searchItem, updateSearchHistory }) => {
   const { t } = useTranslation();
+  const { mutate } = useSWRConfig();
   const handleOption = async (option: OptionType) => {
     const { patients, description } = searchItem;
     switch (option) {
@@ -107,6 +113,7 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({ searchItem, upda
         isLowContrast: true,
         subtitle: 'the query is saved',
       });
+      mutate(savedQueriesKey);
     } catch (error) {
       showSnackbar({
         title: t('queryDeleteError', 'Error saving the query'),
@@ -137,7 +144,8 @@ const SearchHistoryOptions: React.FC<SearchHistoryOptions> = ({ searchItem, upda
   const launchSaveCohortModal = () => {
     const dispose = showModal('save-cohort-modal', {
       closeModal: () => dispose(),
-      onSave: (name: string, description: string) => createCohortFromSearchItem(name, description, searchItem, t),
+      onSave: (name: string, description: string) =>
+        createCohortFromSearchItem(name, description, searchItem, t, mutate),
       size: 'sm',
     });
   };

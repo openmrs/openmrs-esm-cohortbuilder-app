@@ -2,7 +2,7 @@ import React from 'react';
 import { vi, describe, it, expect, type Mock } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor } from '@testing-library/react';
-import { openmrsFetch } from '@openmrs/esm-framework';
+import { openmrsFetch, showSnackbar } from '@openmrs/esm-framework';
 import { useLocations } from '../../cohort-builder.resources';
 import type * as CohortBuilderResources from '../../cohort-builder.resources';
 import { useForms, useEncounterTypes } from './search-by-encounters.resources';
@@ -106,6 +106,11 @@ const expectedQuery = {
         name: 'patientId',
         type: 'org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition',
       },
+      {
+        key: 'reporting.library.patientDataDefinition.builtIn.preferredIdentifier.identifier',
+        name: 'identifier',
+        type: 'org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition',
+      },
     ],
     customRowFilterCombination: '1',
     rowFilters: [
@@ -143,6 +148,38 @@ vi.mock('../../cohort-builder.resources', async (importOriginal) => {
 });
 
 describe('Test the search by encounters component', () => {
+  it('should report each reference-data error once when requests fail separately', () => {
+    mockUseLocations.mockReturnValue({
+      locations: mockLocations,
+      isLoading: false,
+      locationsError: new Error('Locations request failed'),
+    });
+    mockUseForms.mockReturnValue({ forms: mockForms, isLoading: false, formsError: undefined });
+    mockUseEncounterTypes.mockReturnValue({
+      encounterTypes: mockEncounterTypes,
+      isLoading: false,
+      encounterTypesError: undefined,
+    });
+    const onSubmit = vi.fn();
+    const { rerender } = render(<SearchByEncounters onSubmit={onSubmit} />);
+
+    mockUseForms.mockReturnValue({ forms: mockForms, isLoading: false, formsError: new Error('Forms request failed') });
+    rerender(<SearchByEncounters onSubmit={onSubmit} />);
+    mockUseEncounterTypes.mockReturnValue({
+      encounterTypes: mockEncounterTypes,
+      isLoading: false,
+      encounterTypesError: new Error('Encounter types request failed'),
+    });
+    rerender(<SearchByEncounters onSubmit={onSubmit} />);
+    rerender(<SearchByEncounters onSubmit={onSubmit} />);
+
+    expect(vi.mocked(showSnackbar).mock.calls.map(([notification]) => notification.subtitle)).toEqual([
+      'Locations request failed',
+      'Forms request failed',
+      'Encounter types request failed',
+    ]);
+  });
+
   it('should be able to select input values', async () => {
     const user = userEvent.setup();
 

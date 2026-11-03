@@ -19,9 +19,9 @@ interface Description {
  * @returns Concepts
  * @param conceptName
  */
-export async function getConcepts(conceptName: String): Promise<Concept[]> {
+export async function getConcepts(conceptName: string): Promise<Concept[]> {
   const searchResult: FetchResponse<{ results: ConceptResponse[] }> = await openmrsFetch(
-    `${restBaseUrl}/concept?v=full&q=${conceptName}`,
+    `${restBaseUrl}/concept?v=full&q=${encodeURIComponent(conceptName)}`,
     {
       method: 'GET',
     },
