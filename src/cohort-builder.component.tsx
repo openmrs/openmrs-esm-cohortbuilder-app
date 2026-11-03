@@ -254,16 +254,6 @@ const CohortBuilder: React.FC = () => {
               })}
             />
           )}
-          {cohortMemberCounts?.unavailable > 0 && (
-            <InlineNotification
-              kind="warning"
-              lowContrast
-              hideCloseButton
-              title={t('cohortMembersUnavailable', '{{count}} members could not be shown', {
-                count: cohortMemberCounts.unavailable,
-              })}
-            />
-          )}
           <SearchResultsTable patients={patients} />
           <SearchHistory isHistoryUpdated={isHistoryUpdated} setIsHistoryUpdated={setIsHistoryUpdated} />
         </div>
