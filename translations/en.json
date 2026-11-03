@@ -24,8 +24,6 @@
   "cohortMemberCount_other": "{{count}} members",
   "cohortMembersLimited": "Showing the first {{shown}} of {{total}} members",
   "cohortMembersLoadFailed": "None of the cohort's members could be loaded",
-  "cohortMembersUnavailable_one": "{{count}} member could not be shown",
-  "cohortMembersUnavailable_other": "{{count}} members could not be shown",
   "cohortNameRequired": "Cohort name is required",
   "cohorts": "cohorts",
   "cohortSaved": "Cohort created successfully",
