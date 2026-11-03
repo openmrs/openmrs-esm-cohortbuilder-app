@@ -32,6 +32,7 @@ export interface Patient {
   firstname?: string;
   lastname?: string;
   patientId?: number;
+  identifier?: string;
 }
 
 export interface Concept {

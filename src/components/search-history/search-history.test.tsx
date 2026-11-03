@@ -62,6 +62,11 @@ const mockSearchHistory = [
           key: 'reporting.library.patientDataDefinition.builtIn.patientId',
           type: 'org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition',
         },
+        {
+          name: 'identifier',
+          key: 'reporting.library.patientDataDefinition.builtIn.preferredIdentifier.identifier',
+          type: 'org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition',
+        },
       ],
       rowFilters: [
         {

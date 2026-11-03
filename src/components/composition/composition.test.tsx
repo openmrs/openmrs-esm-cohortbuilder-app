@@ -35,6 +35,11 @@ const mockCompositionQuery = {
         key: 'reporting.library.patientDataDefinition.builtIn.patientId',
         type: 'org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition',
       },
+      {
+        name: 'identifier',
+        key: 'reporting.library.patientDataDefinition.builtIn.preferredIdentifier.identifier',
+        type: 'org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition',
+      },
     ],
     rowFilters: [
       {
@@ -68,19 +73,18 @@ vi.mock('./composition.utils', async (importOriginal) => {
   return {
     ...original,
     createCompositionQuery: vi.fn().mockImplementation(() => mockCompositionQuery),
-    isCompositionValid: vi.fn().mockImplementation((query) => query === '1 and 2'),
   };
 });
 
 describe('Composition', () => {
-  it('should show error notification when an invalid composition query is entered', async () => {
+  it.each(['random text', '1 + 2', '1 AND ! 2'])('should reject an invalid composition query: %s', async (query) => {
     const user = userEvent.setup();
     const mockSubmit = vi.fn();
     render(<Composition onSubmit={mockSubmit} />);
 
     const compositionInput = screen.getByRole('textbox', { name: /composition/i });
     await user.click(compositionInput);
-    await user.type(compositionInput, 'random text');
+    await user.type(compositionInput, query);
     await user.click(screen.getByRole('button', { name: /search/i }));
 
     expect(mockSubmit).not.toHaveBeenCalled();
@@ -92,19 +96,21 @@ describe('Composition', () => {
     });
   });
 
-  it('should submit a valid composition query', async () => {
-    const compositionQuery = '1 and 2';
-    const user = userEvent.setup();
-    const mockSubmit = vi.fn();
-    render(<Composition onSubmit={mockSubmit} />);
+  it.each(['1 and 2', '(2 OR 3) AND 1', '((2 OR 3) AND 1)'])(
+    'should submit a valid composition query: %s',
+    async (compositionQuery) => {
+      const user = userEvent.setup();
+      const mockSubmit = vi.fn();
+      render(<Composition onSubmit={mockSubmit} />);
 
-    const compositionInput = screen.getByRole('textbox', { name: /composition/i });
-    await user.click(compositionInput);
-    await user.type(compositionInput, compositionQuery);
-    await user.click(screen.getByRole('button', { name: /search/i }));
+      const compositionInput = screen.getByRole('textbox', { name: /composition/i });
+      await user.click(compositionInput);
+      await user.type(compositionInput, compositionQuery);
+      await user.click(screen.getByRole('button', { name: /search/i }));
 
-    expect(mockSubmit).toHaveBeenCalledWith(mockCompositionQuery, `Composition of ${compositionQuery}`);
-  });
+      expect(mockSubmit).toHaveBeenCalledWith(mockCompositionQuery, `Composition of ${compositionQuery}`);
+    },
+  );
 
   it('should handle reset functionality', async () => {
     const user = userEvent.setup();

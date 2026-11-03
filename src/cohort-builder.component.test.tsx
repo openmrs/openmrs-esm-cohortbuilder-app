@@ -48,6 +48,7 @@ describe('the search results', () => {
       if (url.includes('/reportingrest/adhocquery')) {
         const row = (patientId: number, firstname: string | null, lastname: string | null) => ({
           patientId,
+          identifier: `10000${patientId}Y`,
           firstname,
           lastname,
           gender: 'F',
@@ -69,6 +70,12 @@ describe('the search results', () => {
         .map((row) => within(row).getAllByRole('cell')[1].textContent);
     await waitFor(() => expect(names()).toHaveLength(3));
     expect(names()).toEqual(['', 'Ann', 'Banda']);
+    const identifiers = () =>
+      within(screen.getAllByRole('table')[0])
+        .getAllByRole('row')
+        .slice(1)
+        .map((row) => within(row).getAllByRole('cell')[0].textContent);
+    expect(identifiers()).toEqual(['100001Y', '100002Y', '100003Y']);
   });
 });
 
@@ -93,6 +100,7 @@ describe('viewing a saved cohort', () => {
       return {
         data: {
           patientId: n,
+          identifiers: [{ identifier: `OMRS-${n}`, preferred: true }],
           person: { gender: 'F', age: 30, preferredName: { givenName: 'Patient', familyName: `${n}` } },
         },
       } as never;
