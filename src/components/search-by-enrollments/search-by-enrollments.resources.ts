@@ -1,5 +1,4 @@
-import useSWRImmutable from 'swr/immutable';
-import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import { restBaseUrl, useOpenmrsFetchAll } from '@openmrs/esm-framework';
 import { type DropdownValue, type Response } from '../../types';
 
 interface ProgramsResponse extends Response {
@@ -11,20 +10,19 @@ interface ProgramsResponse extends Response {
  * and one workflow that fails to convert makes the server answer 400 for the whole list.
  */
 export function usePrograms() {
-  const { data, error } = useSWRImmutable<{
-    data: { results: ProgramsResponse[] };
-  }>(`${restBaseUrl}/program?v=custom:(uuid,name)`, openmrsFetch);
-
-  const programs: DropdownValue[] = [];
-  data?.data.results.map((program: ProgramsResponse, index: number) => {
-    programs.push({
-      id: index,
-      label: program.name,
-      value: program.uuid,
-    });
+  const { data, error, isLoading } = useOpenmrsFetchAll<ProgramsResponse>(`${restBaseUrl}/program?v=custom:(uuid,name)`, {
+    immutable: true,
+    swrInfiniteConfig: { revalidateFirstPage: false },
   });
+
+  const programs: DropdownValue[] = (data ?? []).map((program, index) => ({
+    id: index,
+    label: program.name,
+    value: program.uuid,
+  }));
+
   return {
-    isLoading: !data && !error,
+    isLoading,
     programs,
     programsError: error,
   };

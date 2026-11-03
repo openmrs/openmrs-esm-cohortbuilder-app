@@ -1,9 +1,14 @@
 import { addColumnsToDisplay } from '../../cohort-builder.utils';
 import type { Query } from '../../types';
 
+const tokenizeComposition = (search: string) =>
+  search
+    .replace(/([()])/g, ' $1 ')
+    .trim()
+    .split(/\s+/);
+
 export const isCompositionValid = (search: string) => {
-  const matches = search.match(/and|or|not|\d+|\)|\(|union|intersection|!|\+/gi);
-  return matches !== null && matches.length === search.split(/\s+/g).length;
+  return tokenizeComposition(search).every((token) => /^(and|or|not|union|intersection|\d+|[()])$/i.test(token));
 };
 
 const formatFilterCombination = (filterText: string, numberOfSearches: number) => {
@@ -16,7 +21,6 @@ const formatFilterCombination = (filterText: string, numberOfSearches: number) =
  * the copy's numbering is rewritten.
  */
 const composeOperands = (compositionQuery: string, operand: (position: number) => Query) => {
-  const search = compositionQuery.replace(/(\(|\))+/g, (char) => (char === '(' ? '( ' : ' )'));
   const query: Query = {
     type: 'org.openmrs.module.reporting.dataset.definition.PatientDataSetDefinition',
     columns: addColumnsToDisplay(),
@@ -24,7 +28,7 @@ const composeOperands = (compositionQuery: string, operand: (position: number) =
     customRowFilterCombination: '',
   };
 
-  const searchTokens = search.split(/\s+/);
+  const searchTokens = tokenizeComposition(compositionQuery);
 
   searchTokens.forEach((eachToken) => {
     if (eachToken.match(/\d/)) {

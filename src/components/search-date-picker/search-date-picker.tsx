@@ -41,7 +41,21 @@ const SearchDatePicker: React.FC<SearchDatePickerProps> = ({ id, labelText, valu
       onClose={handleDates}
       value={value && dayjs(value).format('DD-MM-YYYY')}
     >
-      <DatePickerInput id={id} labelText={labelText} placeholder="DD-MM-YYYY" size="md" />
+      <DatePickerInput
+        id={id}
+        labelText={labelText}
+        placeholder="DD-MM-YYYY"
+        size="md"
+        onChange={(event) => !event.target.value && onChange('')}
+        onKeyDownCapture={(event) => {
+          // Tab moves focus into the calendar and Shift+Tab closes it, neither reading typed text, so read it
+          // into flatpickr here, before Carbon handles the key.
+          if (event.key === 'Tab') {
+            const input = event.currentTarget as HTMLInputElement & { _flatpickr?: Instance };
+            input._flatpickr?.setDate(parseDate(input.value) || '', true);
+          }
+        }}
+      />
     </DatePicker>
   );
 };

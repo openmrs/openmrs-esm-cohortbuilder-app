@@ -62,7 +62,8 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
   const [concept, setConcept] = useState<Concept | null>(null);
   const [lastDays, setLastDays] = useState(0);
   const [lastMonths, setLastMonths] = useState(0);
-  const [operatorValue, setOperatorValue] = useState(0);
+  // Empty until a value is entered, so that a search for 0 keeps its value.
+  const [operatorValue, setOperatorValue] = useState<number | ''>('');
   const [operator, setOperator] = useState('LESS_THAN');
   const [timeModifier, setTimeModifier] = useState('ANY');
   const [onOrAfter, setOnOrAfter] = useState('');
@@ -134,7 +135,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
     setOnOrAfter('');
     setOnOrBefore('');
     setLastMonths(0);
-    setOperatorValue(0);
+    setOperatorValue('');
     setOperator('LESS_THAN');
     setTimeModifier('ANY');
   };
@@ -153,7 +154,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
     const observations: Observation = {
       modifier: '',
       operator1: isNumeric ? operator : '',
-      value1: isNumeric && operatorValue > 0 ? operatorValue.toString() : '',
+      value1: isNumeric && operatorValue !== '' ? operatorValue.toString() : '',
       question: concept.uuid,
       onOrBefore: getOnOrBefore() || onOrBefore,
       onOrAfter,
@@ -218,6 +219,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
                 </div>
                 <div className={styles.multipleInputs}>
                   <NumberInput
+                    allowEmpty
                     hideSteppers
                     id="operator-value"
                     invalidText={t('numberIsNotValid', 'Number is not valid')}
@@ -225,7 +227,7 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
                     min={0}
                     size="sm"
                     value={operatorValue}
-                    onChange={(event, { value }) => setOperatorValue(Number(value))}
+                    onChange={(event, { value }) => setOperatorValue(value === '' ? '' : Number(value))}
                   />
                 </div>
               </div>

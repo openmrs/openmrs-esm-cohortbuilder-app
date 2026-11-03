@@ -53,6 +53,11 @@ const expectedQuery = {
         name: 'patientId',
         type: 'org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition',
       },
+      {
+        key: 'reporting.library.patientDataDefinition.builtIn.preferredIdentifier.identifier',
+        name: 'identifier',
+        type: 'org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition',
+      },
     ],
     customRowFilterCombination: '1',
     rowFilters: [
@@ -107,6 +112,48 @@ describe('Test the search by location component', () => {
         `Patients in ${mockLocations[2].label} (by method LATEST_ENCOUNTER).`,
       );
     });
+  });
+  it('should still search after the inputs are reset', async () => {
+    const user = userEvent.setup();
+    mockUseLocations.mockImplementation(() => ({
+      locations: mockLocations,
+      isLoading: false,
+      locationsError: undefined,
+    }));
+    const mockSubmit = vi.fn().mockResolvedValue(true);
+    render(<SearchByLocation onSubmit={mockSubmit} />);
+
+    await user.click(screen.getByTitle('Any Encounter'));
+    await user.click(screen.getByText('Most Recent Encounter'));
+    await user.click(screen.getByTestId('reset-btn'));
+
+    expect(screen.getByTitle('Any Encounter')).toBeInTheDocument();
+
+    await user.click(screen.getByTestId('search-btn'));
+
+    await waitFor(() =>
+      expect(mockSubmit).toHaveBeenCalledWith(expect.anything(), expect.stringContaining('(by method ANY_ENCOUNTER).')),
+    );
+    expect(screen.getByTestId('search-btn')).toBeEnabled();
+  });
+
+  it('describes a search after Reset, with no locations, as in any location', async () => {
+    const user = userEvent.setup();
+    mockUseLocations.mockImplementation(() => ({
+      locations: mockLocations,
+      isLoading: false,
+      locationsError: undefined,
+    }));
+    const mockSubmit = vi.fn();
+    render(<SearchByLocation onSubmit={mockSubmit} />);
+
+    await user.click(screen.getByText(/select locations/i));
+    await user.click(screen.getByText(mockLocations[2].label));
+    await user.keyboard('{Escape}');
+    await user.click(screen.getByTestId('reset-btn'));
+    await user.click(screen.getByTestId('search-btn'));
+
+    expect(mockSubmit.mock.calls[0][1]).toBe('Patients in any location (by method ANY_ENCOUNTER).');
   });
 
   it('goes back to no locations and Any Encounter on Reset, and searches with them', async () => {

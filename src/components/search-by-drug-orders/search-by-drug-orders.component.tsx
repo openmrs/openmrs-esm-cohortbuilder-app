@@ -25,37 +25,41 @@ const SearchByDrugOrder: React.FC<SearchByDrugOrderProps> = ({ onSubmit, initial
   const [activeOnOrBefore, setActiveOnOrBefore] = useState(initialValues?.activeOnOrBefore ?? '');
   const [activatedOnOrAfter, setActivatedOnOrAfter] = useState(initialValues?.activatedOnOrAfter ?? '');
   const [activatedOnOrBefore, setActivatedOnOrBefore] = useState(initialValues?.activatedOnOrBefore ?? '');
-  const [selectedDrugs, setSelectedDrugs] = useState<DropdownValue[]>(initialValues?.selectedDrugs ?? null);
+  const [selectedDrugs, setSelectedDrugs] = useState<DropdownValue[]>(initialValues?.selectedDrugs ?? []);
   const [selectedCareSetting, setSelectedCareSetting] = useState<DropdownValue>(
     initialValues?.selectedCareSetting ?? null,
   );
   const drugOptions = withSelectedItems(drugs, selectedDrugs);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (drugsError) {
-      showSnackbar({
-        title: t('error', 'Error'),
-        kind: 'error',
-        isLowContrast: false,
-        subtitle: drugsError?.message,
-      });
-    }
-  }, [drugsError, t]);
+  const drugsErrorMessage = drugsError?.message;
 
   useEffect(() => {
-    if (careSettingsError) {
+    if (drugsErrorMessage) {
       showSnackbar({
         title: t('error', 'Error'),
         kind: 'error',
         isLowContrast: false,
-        subtitle: careSettingsError?.message,
+        subtitle: drugsErrorMessage,
       });
     }
-  }, [careSettingsError, t]);
+  }, [drugsErrorMessage, t]);
+
+  const careSettingsErrorMessage = careSettingsError?.message;
+
+  useEffect(() => {
+    if (careSettingsErrorMessage) {
+      showSnackbar({
+        title: t('error', 'Error'),
+        kind: 'error',
+        isLowContrast: false,
+        subtitle: careSettingsErrorMessage,
+      });
+    }
+  }, [careSettingsErrorMessage, t]);
 
   const handleResetInputs = () => {
-    setSelectedDrugs(null);
+    setSelectedDrugs([]);
     setSelectedCareSetting(null);
     setActiveOnOrAfter('');
     setActiveOnOrBefore('');
@@ -73,8 +77,11 @@ const SearchByDrugOrder: React.FC<SearchByDrugOrderProps> = ({ onSubmit, initial
       activatedOnOrAfter,
       activatedOnOrBefore,
     };
-    await onSubmit(getQueryDetails(drugOrderParams, drugOrderSearchDefinitionKey), getDescription(drugOrderParams));
-    setIsLoading(false);
+    try {
+      await onSubmit(getQueryDetails(drugOrderParams, drugOrderSearchDefinitionKey), getDescription(drugOrderParams));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -144,7 +151,7 @@ const SearchByDrugOrder: React.FC<SearchByDrugOrderProps> = ({ onSubmit, initial
         onHandleReset={handleResetInputs}
         onHandleSubmit={submit}
         isLoading={isLoading}
-        isDisabled={!selectedDrugs?.length}
+        isSearchDisabled={!selectedDrugs?.length}
       />
     </>
   );
