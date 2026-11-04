@@ -140,7 +140,8 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
     setTimeModifier('ANY');
   };
 
-  const getOnOrBefore = () => {
+  // "Within the last" is the start of the period, so it maps to onOrAfter.
+  const getOnOrAfter = () => {
     if (lastDays > 0 || lastMonths > 0) {
       return dayjs().subtract(lastDays, 'days').subtract(lastMonths, 'months').format();
     }
@@ -156,8 +157,8 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
       operator1: isNumeric ? operator : '',
       value1: isNumeric && operatorValue !== '' ? operatorValue.toString() : '',
       question: concept.uuid,
-      onOrBefore: getOnOrBefore() || onOrBefore,
-      onOrAfter,
+      onOrBefore,
+      onOrAfter: getOnOrAfter() || onOrAfter,
       timeModifier: shownTimeModifier.value,
     };
     const dataType = types[concept.hl7Abbrev];
