@@ -126,7 +126,15 @@ export const addToHistory = (description: string, patients: Patient[], parameter
 export const getPatientName = (...parts: Array<string | null | undefined>) => parts.filter(Boolean).join(' ');
 
 export const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
+  const parseLocalDate = (str: string) => {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+      const [year, month, day] = str.split('-').map(Number);
+      return new Date(year, month - 1, day);
+    }
+    return new Date(str);
+  };
+
+  const date = parseLocalDate(dateString);
   const day = date.getDate();
   const month = date.getMonth() + 1;
   const year = date.getFullYear();
