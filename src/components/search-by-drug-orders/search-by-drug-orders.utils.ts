@@ -1,6 +1,10 @@
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { formatDate } from '@openmrs/esm-framework';
 import { composeJson } from '../../cohort-builder.utils';
 import { type DrugOrderDetails } from './../../types/index';
+
+dayjs.extend(customParseFormat);
 
 export const getDescription = ({
   selectedDrugs,
