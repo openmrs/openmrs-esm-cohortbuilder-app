@@ -1,7 +1,8 @@
 import React from 'react';
-import { vi, describe, it, expect, type Mock } from 'vitest';
+import { vi, beforeEach, describe, it, expect, type Mock } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { openmrsFetch, showSnackbar } from '@openmrs/esm-framework';
+import { getDefaultsFromConfigSchema, openmrsFetch, showSnackbar, useConfig } from '@openmrs/esm-framework';
+import { type ConfigObject, configSchema } from '../../config-schema';
 import { render, screen, waitFor } from '@testing-library/react';
 import { useCareSettings, useDrugs } from './search-by-drug-orders.resources';
 import type * as SearchByDrugOrdersResources from './search-by-drug-orders.resources';
@@ -104,8 +105,13 @@ vi.mock('./search-by-drug-orders.resources', async (importOriginal) => {
 const mockOpenmrsFetch = openmrsFetch as Mock;
 const mockUseCareSettings = vi.mocked(useCareSettings);
 const mockUseDrugs = vi.mocked(useDrugs);
+const mockUseConfig = vi.mocked(useConfig<ConfigObject>);
 
 describe('Test the search by drug orders component', () => {
+  beforeEach(() => {
+    mockUseConfig.mockReturnValue(getDefaultsFromConfigSchema(configSchema));
+  });
+
   it('should report each reference-data error once when requests fail separately', () => {
     mockUseDrugs.mockReturnValue({ drugs: mockDrugs, isLoading: false, drugsError: new Error('Drug request failed') });
     mockUseCareSettings.mockReturnValue({
@@ -132,6 +138,7 @@ describe('Test the search by drug orders component', () => {
 
   it('should be able to select input values', async () => {
     const user = userEvent.setup();
+    mockUseConfig.mockReturnValue(getDefaultsFromConfigSchema(configSchema));
 
     mockUseCareSettings.mockImplementation(() => ({
       careSettings: mockCareSettings,
@@ -169,6 +176,25 @@ describe('Test the search by drug orders component', () => {
       `Patients who taking ${mockDrugs[1].label} and ${mockDrugs[2].label} from Pharmacy`,
     );
   });
+
+  it('shows a failed drug list once, not on every render', () => {
+    // SWR keeps returning the same error object until the request is retried.
+    const listError = new Error('Forbidden');
+    mockUseConfig.mockReturnValue(getDefaultsFromConfigSchema(configSchema));
+    mockUseCareSettings.mockImplementation(() => ({
+      careSettings: [],
+      isLoading: false,
+      careSettingsError: undefined,
+    }));
+    mockUseDrugs.mockImplementation(() => ({ drugs: [], isLoading: false, drugsError: listError }));
+
+    const { rerender } = render(<SearchByDrugOrder onSubmit={vi.fn()} />);
+    rerender(<SearchByDrugOrder onSubmit={vi.fn()} />);
+
+    expect(showSnackbar).toHaveBeenCalledTimes(1);
+    expect(showSnackbar).toHaveBeenCalledWith(expect.objectContaining({ kind: 'error', subtitle: 'Forbidden' }));
+  });
+
   it('should still search after the inputs are reset', async () => {
     const user = userEvent.setup();
     mockUseCareSettings.mockImplementation(() => ({

@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { Tab, Tabs, TabPanels, TabPanel, TabList } from '@carbon/react';
+import { InlineNotification, Tab, Tabs, TabPanels, TabPanel, TabList } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { CohortsPictogram, PageHeader, PageHeaderContent, showSnackbar, useLayoutType } from '@openmrs/esm-framework';
-import { CohortMembersLoadError, getCohortMembers, getDataSet, search } from './cohort-builder.resources';
+import {
+  CohortMembersLoadError,
+  getCohortMembers,
+  getDataSet,
+  MAX_COHORT_MEMBERS_SHOWN,
+  search,
+} from './cohort-builder.resources';
 import { addToHistory, getPatientName } from './cohort-builder.utils';
 import type { Patient, SearchParams } from './types';
+import { useUrlDefinition } from './url-definition/use-url-definition';
 import Composition from './components/composition/composition.component';
 import SavedCohorts from './components/saved-cohorts/saved-cohorts.component';
 import SavedQueries from './components/saved-queries/saved-queries.component';
@@ -29,11 +36,13 @@ const CohortBuilder: React.FC = () => {
   const { t } = useTranslation();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [isHistoryUpdated, setIsHistoryUpdated] = useState(true);
+  const [cohortMemberCounts, setCohortMemberCounts] = useState<{ total: number; unavailable: number } | null>(null);
   const isLayoutTablet = useLayoutType() === 'tablet';
 
   const runSearch = (searchParams: SearchParams, queryDescription: string): Promise<boolean> => {
     return new Promise((resolve) => {
       setPatients([]);
+      setCohortMemberCounts(null);
       search(searchParams)
         .then(({ data: { rows } }) => {
           rows.map((patient: Patient) => {
@@ -60,7 +69,7 @@ const CohortBuilder: React.FC = () => {
             isLowContrast: false,
             subtitle: error?.message,
           });
-          resolve(true);
+          resolve(false);
         });
     });
   };
@@ -69,6 +78,7 @@ const CohortBuilder: React.FC = () => {
     try {
       const patients = await getDataSet(queryId);
       setPatients(patients);
+      setCohortMemberCounts(null);
       showSnackbar({
         title: t('searchCompleted', 'Search completed'),
         kind: 'success',
@@ -77,6 +87,7 @@ const CohortBuilder: React.FC = () => {
           count: patients.length,
         }),
       });
+      return true;
     } catch (error) {
       showSnackbar({
         title: t('error', 'Error'),
@@ -84,14 +95,16 @@ const CohortBuilder: React.FC = () => {
         isLowContrast: false,
         subtitle: error?.message,
       });
+      return false;
     }
   };
 
   const getCohortResults = async (cohortId: string) => {
     try {
-      const { patients, total } = await getCohortMembers(cohortId);
+      const { patients, total, unavailable } = await getCohortMembers(cohortId);
       setPatients(patients);
-      if (patients.length < total) {
+      setCohortMemberCounts({ total, unavailable });
+      if (unavailable > 0) {
         showSnackbar({
           title: t('someCohortMembersNotShown', "Some of the cohort's members could not be shown"),
           kind: 'warning',
@@ -111,6 +124,7 @@ const CohortBuilder: React.FC = () => {
           }),
         });
       }
+      return true;
     } catch (error) {
       showSnackbar({
         title: t('error', 'Error'),
@@ -121,8 +135,16 @@ const CohortBuilder: React.FC = () => {
             ? t('cohortMembersLoadFailed', "None of the cohort's members could be loaded")
             : error?.message,
       });
+      return false;
     }
   };
+
+  const urlDefinitionError = useUrlDefinition({
+    runSearch,
+    showCohort: getCohortResults,
+    showQuery: getQueryResults,
+    onHistoryChange: () => setIsHistoryUpdated(true),
+  });
 
   const tabs: TabItem[] = [
     {
@@ -173,6 +195,14 @@ const CohortBuilder: React.FC = () => {
         <PageHeaderContent illustration={<CohortsPictogram />} title={t('cohortBuilder', 'Cohort Builder')} />
       </PageHeader>
       <div className={classNames(styles.mainContainer, styles.cohortBuilder)}>
+        {urlDefinitionError && (
+          <InlineNotification
+            kind="error"
+            lowContrast
+            title={t('cohortBuilderLinkError', 'This cohort builder link could not be opened')}
+            subtitle={urlDefinitionError}
+          />
+        )}
         <div className={classNames(isLayoutTablet ? styles.tabletContainer : styles.desktopContainer)}>
           <div className={styles.tabContainer}>
             <p className={styles.heading}>{t('searchCriteria', 'Search Criteria')}</p>
@@ -193,6 +223,17 @@ const CohortBuilder: React.FC = () => {
               </Tabs>
             </div>
           </div>
+          {cohortMemberCounts?.total > MAX_COHORT_MEMBERS_SHOWN && (
+            <InlineNotification
+              kind="info"
+              lowContrast
+              hideCloseButton
+              title={t('cohortMembersLimited', 'Showing the first {{shown}} of {{total}} members', {
+                shown: MAX_COHORT_MEMBERS_SHOWN,
+                total: cohortMemberCounts.total,
+              })}
+            />
+          )}
           <SearchResultsTable patients={patients} />
           <SearchHistory isHistoryUpdated={isHistoryUpdated} setIsHistoryUpdated={setIsHistoryUpdated} />
         </div>

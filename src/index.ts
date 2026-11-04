@@ -1,4 +1,5 @@
-import { getSyncLifecycle } from '@openmrs/esm-framework';
+import { defineConfigSchema, getSyncLifecycle } from '@openmrs/esm-framework';
+import { configSchema } from './config-schema';
 import clearSearchHistoryModalComponent from './components/search-history/search-history-options/clear-search-history.modal';
 import clearItemFromSearchHistoryModalComponent from './components/search-history/search-history-options/clear-item-from-search-history.modal';
 import cohortBuilderAdminPageCardLinkComponent from './cohort-builder-admin-link.component';
@@ -17,7 +18,9 @@ const options = {
 
 export const importTranslation = require.context('../translations', false, /.json$/, 'lazy');
 
-export function startupApp() {}
+export function startupApp() {
+  defineConfigSchema(moduleName, configSchema);
+}
 
 export const cohortBuilder = getSyncLifecycle(cohortBuilderComponent, options);
 
