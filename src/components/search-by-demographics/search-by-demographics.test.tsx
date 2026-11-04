@@ -82,7 +82,7 @@ describe('Test the search by demographics component', () => {
     await user.type(maxAgeInput, '20');
 
     const testDate = dayjs();
-    expectedQuery.query.rowFilters[2].parameterValues.endDate = testDate.format();
+    expectedQuery.query.rowFilters[2].parameterValues.endDate = testDate.format('YYYY-MM-DD');
 
     await user.click(screen.getByTestId('search-btn'));
 

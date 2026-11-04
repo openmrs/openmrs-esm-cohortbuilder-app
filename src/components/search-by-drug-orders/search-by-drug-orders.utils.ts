@@ -1,22 +1,7 @@
 import dayjs from 'dayjs';
-import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { formatDate } from '@openmrs/esm-framework';
 import { composeJson } from '../../cohort-builder.utils';
 import { type DrugOrderDetails } from './../../types/index';
-
-dayjs.extend(customParseFormat);
-
-/**
- * Safely parses a date string (either YYYY-MM-DD or full ISO) as a local date
- * to prevent western timezones from shifting backward via UTC midnight parsing.
- */
-const parseLocalDate = (dateString: string) => {
-  if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-    const [year, month, day] = dateString.split('-').map(Number);
-    return new Date(year, month - 1, day);
-  }
-  return new Date(dateString);
-};
 
 export const getDescription = ({
   selectedDrugs,
@@ -38,7 +23,7 @@ export const getDescription = ({
   }
 
   if (activeOnOrAfter) {
-    const date = formatDate(parseLocalDate(activeOnOrAfter), { mode: 'standard' });
+    const date = formatDate(dayjs(activeOnOrAfter).toDate(), { mode: 'standard' });
     if (activeOnOrBefore) {
       description += ` from ${date}`;
     } else {
@@ -47,7 +32,7 @@ export const getDescription = ({
   }
 
   if (activeOnOrBefore) {
-    const date = formatDate(parseLocalDate(activeOnOrBefore), { mode: 'standard' });
+    const date = formatDate(dayjs(activeOnOrBefore).toDate(), { mode: 'standard' });
     if (activeOnOrAfter) {
       description += ` to ${date}`;
     } else {
@@ -56,7 +41,7 @@ export const getDescription = ({
   }
 
   if (activatedOnOrAfter) {
-    const date = formatDate(parseLocalDate(activatedOnOrAfter), { mode: 'standard' });
+    const date = formatDate(dayjs(activatedOnOrAfter).toDate(), { mode: 'standard' });
     if (activatedOnOrBefore) {
       description += ` from ${date}`;
     } else {
@@ -65,7 +50,7 @@ export const getDescription = ({
   }
 
   if (activatedOnOrBefore) {
-    const date = formatDate(parseLocalDate(activatedOnOrBefore), {
+    const date = formatDate(dayjs(activatedOnOrBefore).toDate(), {
       mode: 'standard',
     });
     if (activatedOnOrAfter) {
