@@ -47,8 +47,10 @@ export const getDescription = ({
   if (birthDayStartDate != '' || birthDayEndDate != '') {
     if (birthDayStartDate && birthDayEndDate) {
       description += ` and birthdate between ${birthDayStartDate} and ${birthDayEndDate}`;
+    } else if (birthDayStartDate) {
+      description += ` and born on or after ${birthDayStartDate}`;
     } else {
-      description += minAge ? ` and born before ${birthDayStartDate}` : ` and born before ${birthDayEndDate}`;
+      description += ` and born on or before ${birthDayEndDate}`;
     }
   }
   if (livingStatus) {
@@ -79,10 +81,10 @@ export const getQueryDetails = ({
       searchParameters.upToAgeOnDate = [{ name: 'maxAge', value: maxAge }];
     }
   }
-  if (birthDayStartDate && birthDayEndDate) {
+  if (birthDayStartDate || birthDayEndDate) {
     searchParameters.bornDuringPeriod = [
-      { name: 'startDate', dataType: 'date', value: birthDayStartDate },
-      { name: 'endDate', dataType: 'date', value: birthDayEndDate },
+      ...(birthDayStartDate ? [{ name: 'startDate', dataType: 'date', value: birthDayStartDate }] : []),
+      ...(birthDayEndDate ? [{ name: 'endDate', dataType: 'date', value: birthDayEndDate }] : []),
     ];
   }
 
