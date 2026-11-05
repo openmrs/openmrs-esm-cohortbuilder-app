@@ -195,9 +195,9 @@ describe('date pickers', () => {
     const [{ query }, description] = await search(onSubmit);
 
     expect(query.rowFilters.find(({ key }) => key.endsWith('bornDuringPeriod')).parameterValues).toEqual({
-      startDate: dayjs(new Date(2000, 0, 1)).format(),
+      startDate: dayjs(new Date(2000, 0, 1)).format('YYYY-MM-DD'),
     });
-    expect(description).toContain(`born on or after ${dayjs(new Date(2000, 0, 1)).format()}`);
+    expect(description).toContain(`born on or after ${dayjs(new Date(2000, 0, 1)).format('YYYY-MM-DD')}`);
   });
 
   it('searches with only an end date, with no start date in the filter', async () => {
@@ -208,9 +208,9 @@ describe('date pickers', () => {
     const [{ query }, description] = await search(onSubmit);
 
     expect(query.rowFilters.find(({ key }) => key.endsWith('bornDuringPeriod')).parameterValues).toEqual({
-      endDate: dayjs(new Date(2000, 0, 1)).format(),
+      endDate: dayjs(new Date(2000, 0, 1)).format('YYYY-MM-DD'),
     });
-    expect(description).toContain(`born on or before ${dayjs(new Date(2000, 0, 1)).format()}`);
+    expect(description).toContain(`born on or before ${dayjs(new Date(2000, 0, 1)).format('YYYY-MM-DD')}`);
   });
 
   it('takes a typed date when Enter is pressed', async () => {
