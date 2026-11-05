@@ -132,7 +132,13 @@ export const formatDate = (dateString: string) => {
   const year = date.getFullYear();
   return `${day}/${month}/${year}`;
 };
-
+const operatorSymbols: Record<string, string> = {
+  LESS_THAN: '<',
+  LESS_EQUAL: '<=',
+  EQUAL: '=',
+  GREATER_EQUAL: '>=',
+  GREATER_THAN: '>',
+};
 /**
  * builds a query description based on query input
  * @param {object} state the current state
@@ -140,12 +146,24 @@ export const formatDate = (dateString: string) => {
  * @returns {string} date in the required format
  */
 export const queryDescriptionBuilder = (state, conceptName: string) => {
-  const { timeModifier, onOrAfter, onOrBefore } = state;
+  const { timeModifier, onOrAfter, onOrBefore, operator1, value1 } = state;
+
+  const operatorSymbol = operatorSymbols[operator1] || operator1;
+  const valueDescription = value1 !== '' && value1 !== undefined && operatorSymbol ? `${operatorSymbol} ${value1}` : '';
 
   const onOrAfterDescription = onOrAfter ? `since ${formatDate(onOrAfter)}` : '';
   const onOrBeforeDescription = onOrBefore ? `until ${formatDate(onOrBefore)}` : '';
 
-  return `Patients with ${timeModifier} ${conceptName} ${onOrAfterDescription} ${onOrBeforeDescription}`.trim();
+  return [
+    'Patients with',
+    timeModifier,
+    conceptName,
+    valueDescription,
+    onOrAfterDescription,
+    onOrBeforeDescription,
+  ]
+    .filter(Boolean)
+    .join(' ');
 };
 
 /** Quotes a value for a CSV file. A missing value is left empty, and a quote in the value is doubled. */
