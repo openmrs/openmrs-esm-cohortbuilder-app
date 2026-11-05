@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
 import SearchByDemographics from './search-by-demographics.component';
+import { getDescription } from './search-by-demographics.utils';
 
 const expectedQuery = {
   query: {
@@ -129,5 +130,45 @@ describe('Test the search by demographics component', () => {
     await user.click(screen.getByTestId('search-btn'));
     expect(mockSubmit.mock.calls[0]).toEqual(untouchedSubmit.mock.calls[0]);
     vi.useRealTimers();
+  });
+});
+
+describe('getDescription birth date formatting', () => {
+  const baseDemographics = {
+    gender: 'all',
+    minAge: 0,
+    maxAge: 0,
+    birthDayStartDate: '',
+    birthDayEndDate: '',
+    livingStatus: '',
+  };
+
+  it('formats both birth dates when start and end dates are set', () => {
+    const description = getDescription({
+      ...baseDemographics,
+      birthDayStartDate: '2023-01-09T00:00:00+05:30',
+      birthDayEndDate: '2023-01-15T00:00:00+05:30',
+    });
+
+    // In TZ=UTC, midnight +05:30 shifts back into the evening of the previous day:
+    expect(description).toBe('All Patients and birthdate between 8/1/2023 and 14/1/2023');
+  });
+
+  it('formats correctly when only birthDayStartDate is set', () => {
+    const description = getDescription({
+      ...baseDemographics,
+      birthDayStartDate: '2023-01-09T00:00:00+05:30',
+    });
+
+    expect(description).toBe('All Patients and born on or after 8/1/2023');
+  });
+
+  it('formats correctly when only birthDayEndDate is set', () => {
+    const description = getDescription({
+      ...baseDemographics,
+      birthDayEndDate: '2023-01-15T00:00:00+05:30',
+    });
+
+    expect(description).toBe('All Patients and born on or before 14/1/2023');
   });
 });
