@@ -30,7 +30,7 @@ const SearchDatePicker: React.FC<SearchDatePickerProps> = ({ id, labelText, valu
   // It reports a typed date on blur or Enter, but takes one silently when a touch outside closes the calendar, so
   // closing reports the date it holds by then too.
   const handleDates = (_dates: Date[], _dateStr: string, { selectedDates: [date] }: Instance) =>
-    onChange(date ? dayjs(date).format() : '');
+    onChange(date ? dayjs(date).format('YYYY-MM-DD') : '');
 
   return (
     <DatePicker
