@@ -8,6 +8,7 @@ import type * as CohortBuilderResources from '../../cohort-builder.resources';
 import { useForms, useEncounterTypes } from './search-by-encounters.resources';
 import type * as SearchByEncountersResources from './search-by-encounters.resources';
 import SearchByEncounters from './search-by-encounters.component';
+import { getDescription } from './search-by-encounters.utils';
 
 const mockUseEncounterTypes = vi.mocked(useEncounterTypes);
 const mockUseForms = vi.mocked(useForms);
@@ -288,5 +289,46 @@ describe('Test the search by encounters component', () => {
     expect(mockSubmit.mock.calls[0][0].query.rowFilters[0].parameterValues).toEqual({
       encounterTypeList: [mockEncounterTypes[3].value],
     });
+  });
+});
+
+describe('getDescription date formatting', () => {
+  const baseDetails = {
+    selectedEncounterTypes: [],
+    encounterLocations: [],
+    encounterForms: [],
+    atLeastCount: 0,
+    atMostCount: 0,
+    onOrAfter: '',
+    onOrBefore: '',
+  };
+
+  it('formats both dates when from and to are set', () => {
+    const description = getDescription({
+      ...baseDetails,
+      onOrAfter: '2023-01-09T00:00:00+05:30',
+      onOrBefore: '2023-01-15T00:00:00+05:30',
+    });
+
+    // In TZ=UTC, midnight +05:30 shifts back into the evening of the previous day:
+    expect(description).toBe('Patients with Encounter of any Type from 8/1/2023 to 14/1/2023');
+  });
+
+  it('formats correctly when only from (onOrAfter) is set', () => {
+    const description = getDescription({
+      ...baseDetails,
+      onOrAfter: '2023-01-09T00:00:00+05:30',
+    });
+
+    expect(description).toBe('Patients with Encounter of any Type on or after 8/1/2023');
+  });
+
+  it('formats correctly when only to (onOrBefore) is set', () => {
+    const description = getDescription({
+      ...baseDetails,
+      onOrBefore: '2023-01-15T00:00:00+05:30',
+    });
+
+    expect(description).toBe('Patients with Encounter of any Type on or before 14/1/2023');
   });
 });
