@@ -166,7 +166,7 @@ describe('Test the search by drug orders component', () => {
 
     expect(mockSubmit).toBeCalledWith(
       expectedQuery,
-      `Patients who taking ${mockDrugs[1].label} and ${mockDrugs[2].label} from Pharmacy`,
+      `Patients who are taking ${mockDrugs[1].label} and ${mockDrugs[2].label} from Pharmacy`,
     );
   });
   it('should still search after the inputs are reset', async () => {
@@ -186,7 +186,7 @@ describe('Test the search by drug orders component', () => {
     await user.click(screen.getByTestId('search-btn'));
 
     await waitFor(() => expect(mockSubmit).toHaveBeenCalledTimes(1));
-    expect(mockSubmit.mock.calls[0][1]).not.toContain(mockDrugs[1].label);
+    expect(mockSubmit.mock.calls[0][1]).toBe('Patients who are taking any drug');
     expect(screen.getByTestId('search-btn')).toBeEnabled();
   });
 });
