@@ -148,9 +148,12 @@ export const queryDescriptionBuilder = (state, conceptName: string) => {
   return `Patients with ${timeModifier} ${conceptName} ${onOrAfterDescription} ${onOrBeforeDescription}`.trim();
 };
 
-const convertToCSV = (patients: Patient[]) => {
+/** Quotes a value for a CSV file. A missing value is left empty, and a quote in the value is doubled. */
+const toCSVValue = (value: unknown) => `"${String(value ?? '').replace(/"/g, '""')}"`;
+
+export const convertToCSV = (patients: Patient[]) => {
   const csv =
-    'patient_id, full_name, age, gender\n' +
+    'patient_id,full_name,age,gender\n' +
     patients
       .map((patient) => {
         const orderedPatient = {
@@ -162,7 +165,7 @@ const convertToCSV = (patients: Patient[]) => {
 
         return Object.keys(orderedPatient)
           .map((key) => {
-            return `"${patient[key]}"`;
+            return toCSVValue(patient[key]);
           })
           .join(',');
       })
