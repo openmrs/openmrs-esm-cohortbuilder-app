@@ -15,7 +15,6 @@ describe('composeJson', () => {
   });
 });
 
-
 describe('convertToCSV', () => {
   const patient: Patient = { id: '7', patientId: 7, name: 'Asha Rao', age: 34, gender: 'F' };
 
