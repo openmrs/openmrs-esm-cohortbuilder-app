@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import type { Column, Patient, Query } from './types';
 
 export const composeJson = (searchParameters) => {
@@ -126,7 +127,7 @@ export const addToHistory = (description: string, patients: Patient[], parameter
 export const getPatientName = (...parts: Array<string | null | undefined>) => parts.filter(Boolean).join(' ');
 
 export const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
+  const date = dayjs(dateString).toDate();
   const day = date.getDate();
   const month = date.getMonth() + 1;
   const year = date.getFullYear();
