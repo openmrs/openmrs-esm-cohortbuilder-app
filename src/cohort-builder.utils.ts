@@ -132,6 +132,7 @@ export const formatDate = (dateString: string) => {
   const year = date.getFullYear();
   return `${day}/${month}/${year}`;
 };
+
 const operatorSymbols: Record<string, string> = {
   LESS_THAN: '<',
   LESS_EQUAL: '<=',
@@ -139,6 +140,7 @@ const operatorSymbols: Record<string, string> = {
   GREATER_EQUAL: '>=',
   GREATER_THAN: '>',
 };
+
 /**
  * builds a query description based on query input
  * @param {object} state the current state
@@ -154,14 +156,7 @@ export const queryDescriptionBuilder = (state, conceptName: string) => {
   const onOrAfterDescription = onOrAfter ? `since ${formatDate(onOrAfter)}` : '';
   const onOrBeforeDescription = onOrBefore ? `until ${formatDate(onOrBefore)}` : '';
 
-  return [
-    'Patients with',
-    timeModifier,
-    conceptName,
-    valueDescription,
-    onOrAfterDescription,
-    onOrBeforeDescription,
-  ]
+  return ['Patients with', timeModifier, conceptName, valueDescription, onOrAfterDescription, onOrBeforeDescription]
     .filter(Boolean)
     .join(' ');
 };
