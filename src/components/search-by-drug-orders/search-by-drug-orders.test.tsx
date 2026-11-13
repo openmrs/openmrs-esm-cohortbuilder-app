@@ -260,7 +260,10 @@ describe('Test the search by drug orders component', () => {
   it('searches with the configured definition key', async () => {
     const user = userEvent.setup();
     const drugOrderSearchDefinitionKey = 'configuration.definitionlibrary.cohort.drugOrderSearch';
-    mockUseConfig.mockReturnValue({ drugOrderSearchDefinitionKey });
+    mockUseConfig.mockReturnValue({
+      ...(getDefaultsFromConfigSchema(configSchema) as ConfigObject),
+      drugOrderSearchDefinitionKey,
+    });
     mockUseCareSettings.mockReturnValue({
       careSettings: mockCareSettings,
       isLoading: false,
