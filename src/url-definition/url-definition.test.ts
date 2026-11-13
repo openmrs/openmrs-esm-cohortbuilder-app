@@ -509,7 +509,7 @@ describe('buildSearch', () => {
     });
 
     expect(buildSearch({ type: 'drugOrder', drugs: [drugUuid] }, new Map(), drugOrderSearchKey).description).toBe(
-      'Patients who taking 1 drug',
+      'Patients who are taking 1 drug',
     );
     expect(
       buildSearch(
@@ -517,7 +517,7 @@ describe('buildSearch', () => {
         names,
         drugOrderSearchKey,
       ).description,
-    ).toBe('Patients who taking Triomune-30 and 2 more drugs');
+    ).toBe('Patients who are taking Triomune-30 and 2 more drugs');
   });
 
   it('searches encounters by type only, as the encounters tab does, and describes them with their names', () => {
@@ -545,7 +545,7 @@ describe('buildSearch', () => {
         names,
         drugOrderSearchKey,
       ).description,
-    ).toMatch(/^Patients who taking Triomune-30 and Efavirenz on or after /);
+    ).toMatch(/^Patients who are taking Triomune-30 and Efavirenz on or after /);
   });
 
   it('uses the configured drug order search definition key', () => {

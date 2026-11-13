@@ -141,9 +141,9 @@ describe('useUrlDefinition', () => {
       'Female Patients with ages between 15 and 49 years that are alive',
       'Patients enrolled in HIV Care and Treatment',
       // formatDate is the framework mock's.
-      'Patients who taking 1 drug on or after Today, 12:00 AM',
+      'Patients who are taking 1 drug on or after Today, 12:00 AM',
       // The builder's own words for each criterion, never the link's label.
-      'Female Patients with ages between 15 and 49 years that are alive AND Patients enrolled in HIV Care and Treatment AND Patients who taking 1 drug on or after Today, 12:00 AM',
+      'Female Patients with ages between 15 and 49 years that are alive AND Patients enrolled in HIV Care and Treatment AND Patients who are taking 1 drug on or after Today, 12:00 AM',
     ]);
     expect(history().map(({ patients }) => patients.length)).toEqual([3, 2, 2, 1]);
 
