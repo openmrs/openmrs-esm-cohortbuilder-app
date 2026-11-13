@@ -12,7 +12,7 @@ describe('composeJson', () => {
       }),
     );
   });
-}); // <-- This closing bracket ends composeJson before formatDate starts!
+});
 
 describe('formatDate', () => {
   const originalTz = process.env.TZ;
