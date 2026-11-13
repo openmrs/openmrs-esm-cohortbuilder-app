@@ -254,6 +254,7 @@ describe('Test the search by encounters component', () => {
       `Patients with Encounter of Type Vitals at Pharmacy from POC Patient Consent v1.2 at least 10 times and at most 20 times`,
     );
   });
+
   it('empties the encounter types, forms and locations on Reset, and searches without them', async () => {
     const user = userEvent.setup();
     mockUseForms.mockImplementation(() => ({ forms: mockForms, isLoading: false, formsError: undefined }));
