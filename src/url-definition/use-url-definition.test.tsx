@@ -318,6 +318,27 @@ describe('useUrlDefinition', () => {
     expect(screen.getByRole('tab', { name: 'Drug Order' })).toBeEnabled();
   });
 
+  it('keeps the earlier history and a plain error when crypto.randomUUID throws', async () => {
+    vi.spyOn(crypto, 'randomUUID').mockImplementation(() => {
+      throw new TypeError('crypto.randomUUID is not a function');
+    });
+    try {
+      const earlierHistory = [{ description: 'Earlier search', patients: [row(8)], parameters: {} }];
+      window.sessionStorage.setItem('openmrsHistory', JSON.stringify(earlierHistory));
+      adHocQueryResults = [[row(1)], [row(1)], new Error('Internal Server Error')];
+      openBuilderAt(`?definition=${encode(definition)}`);
+
+      expect(await screen.findByText('This cohort builder link could not be opened')).toBeInTheDocument();
+      expect(
+        screen.getByText('The search "{{description}}" failed, so none of this link\'s searches were kept'),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/randomUUID/)).not.toBeInTheDocument();
+      expect(history()).toEqual(earlierHistory);
+    } finally {
+      vi.mocked(crypto.randomUUID).mockRestore();
+    }
+  });
+
   it.each([
     ['program', { type: 'enrollment', programs: [programUuid] }],
     ['drug', { type: 'drugOrder', drugs: [drugUuid] }],

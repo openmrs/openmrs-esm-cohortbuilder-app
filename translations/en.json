@@ -72,6 +72,7 @@
   "linkCohortFailed": "The saved cohort could not be loaded",
   "linkQueryFailed": "The saved query could not be run",
   "linkSearchFailed": "The search \"{{description}}\" failed, so none of this link's searches were kept",
+  "linkSearchNotRecorded": "The search could not be recorded, so none of this link's searches were kept",
   "location": "Location",
   "lowest": "Lowest",
   "males": "Male",

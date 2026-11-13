@@ -147,6 +147,8 @@ async function runDefinition(
   // Ids of the entries this link added. Each id is stored on its entry, so it still names that
   // entry after history is cleared or an earlier entry is deleted.
   const addedEntryIds: string[] = [];
+  // True after runSearch has appended a row and before that row has an id. The catch drops it.
+  let pendingEntry = false;
 
   const runAndRecord = async ({ searchParams, description }: Search) => {
     if (!(await runSearch(searchParams, description))) {
@@ -157,7 +159,9 @@ async function runDefinition(
       );
     }
     // runSearch appends to the history just before it resolves, so the newest entry is this one.
+    pendingEntry = true;
     addedEntryIds.push(markNewestHistoryEntry());
+    pendingEntry = false;
   };
 
   try {
@@ -172,9 +176,21 @@ async function runDefinition(
       });
     }
   } catch (error) {
+    if (pendingEntry) {
+      removeNewestHistoryEntry();
+    }
     removeHistoryEntries(addedEntryIds);
     onHistoryChange();
     throw error;
+  }
+}
+
+/** Works on plain http, where crypto.randomUUID is missing outside a secure context. */
+function newEntryId(): string {
+  try {
+    return crypto.randomUUID();
+  } catch {
+    return `h${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
   }
 }
 
@@ -182,10 +198,21 @@ async function runDefinition(
 function markNewestHistoryEntry(): string {
   const history = readHistory();
   const added = history.at(-1);
-  const entryId = crypto.randomUUID();
-  added.entryId = entryId;
+  if (!added) {
+    throw new LinkError(
+      'linkSearchNotRecorded',
+      "The search could not be recorded, so none of this link's searches were kept",
+    );
+  }
+  added.entryId = newEntryId();
   window.sessionStorage.setItem('openmrsHistory', JSON.stringify(history));
-  return entryId;
+  return added.entryId;
+}
+
+function removeNewestHistoryEntry() {
+  const history = readHistory();
+  history.pop();
+  window.sessionStorage.setItem('openmrsHistory', JSON.stringify(history));
 }
 
 function removeHistoryEntries(entryIds: string[]) {
