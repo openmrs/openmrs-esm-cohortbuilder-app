@@ -63,9 +63,7 @@ describe('getCohortMembers', () => {
       age: 30,
       gender: 'F',
     });
-    expect(mockOpenmrsFetch).toHaveBeenCalledWith(
-      expect.stringContaining('identifiers:(identifier,preferred)'),
-    );
+    expect(mockOpenmrsFetch).toHaveBeenCalledWith(expect.stringContaining('identifiers:(identifier,preferred)'));
     expect(mockOpenmrsFetch).toHaveBeenCalledWith(expect.stringContaining('&startIndex=100'));
   });
 

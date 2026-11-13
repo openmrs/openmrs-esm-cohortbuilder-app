@@ -1,4 +1,4 @@
-import { composeJson } from '../../cohort-builder.utils';
+import { composeJson, formatDate } from '../../cohort-builder.utils';
 import { type EncounterDetails } from '../../types';
 
 export const getDescription = ({
@@ -14,10 +14,10 @@ export const getDescription = ({
   const selectedEncounters = selectedEncounterTypes
     .map((encounterType) => encounterType.label)
     .join(', ')
-    .replace(/,(?=[^,]*$)/, ' and ');
+    .replace(/,(?=[^,]*$)/, ' and');
 
   description += selectedEncounters
-    ? ` Type${selectedEncounters.length > 1 ? 's' : ''} ${selectedEncounters}`
+    ? ` Type${selectedEncounterTypes.length > 1 ? 's' : ''} ${selectedEncounters}`
     : ' any Type';
   if (encounterLocations.length) {
     description += ` at ${encounterLocations.map((location) => location.label).join(', ')}`;
@@ -29,20 +29,20 @@ export const getDescription = ({
     description += ` at least ${atLeastCount} ${atLeastCount > 1 ? 'times' : 'time'}`;
   }
   if (atMostCount) {
-    description += ` ${atLeastCount ? ' and' : ''} at most ${atMostCount} ${atMostCount > 1 ? 'times' : 'time'}`;
+    description += `${atLeastCount ? ' and' : ''} at most ${atMostCount} ${atMostCount > 1 ? 'times' : 'time'}`;
   }
   if (onOrAfter) {
     if (onOrBefore) {
-      description += ` from ${onOrAfter}`;
+      description += ` from ${formatDate(onOrAfter)}`;
     } else {
-      description += ` on or after ${onOrAfter}`;
+      description += ` on or after ${formatDate(onOrAfter)}`;
     }
   }
   if (onOrBefore) {
     if (onOrAfter) {
-      description += ` to ${onOrBefore}`;
+      description += ` to ${formatDate(onOrBefore)}`;
     } else {
-      description += ` on or before ${onOrBefore}`;
+      description += ` on or before ${formatDate(onOrBefore)}`;
     }
   }
   return description;
