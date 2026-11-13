@@ -1,5 +1,6 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
 import React, { StrictMode } from 'react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it as vitestIt, vi } from 'vitest';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { getDefaultsFromConfigSchema, openmrsFetch, useConfig, useOpenmrsFetchAll } from '@openmrs/esm-framework';
@@ -27,6 +28,86 @@ vi.mock('../components/search-by-location/search-by-location.component', () => (
 vi.mock('../components/composition/composition.component', () => ({ default: () => null }));
 vi.mock('../components/saved-cohorts/saved-cohorts.component', () => ({ default: () => null }));
 vi.mock('../components/saved-queries/saved-queries.component', () => ({ default: () => null }));
+// Nothing here reads the results, the history table or the calendar. Mounting them builds two Carbon
+// data tables and a flatpickr for every date (ten of them, and flatpickr throws "invalid locale undefined"
+// in jsdom). On the CI runner that pushed every test up against the 5s limit. A test that then timed out
+// kept running and changed the next test. The dates still go out with a search: each tab keeps them in its
+// own state, which is what Search reads.
+vi.mock('../components/search-results-table/search-results-table.component', () => ({ default: () => null }));
+vi.mock('../components/search-history/search-history.component', () => ({ default: () => null }));
+vi.mock('../components/search-date-picker/search-date-picker', () => ({ default: () => null }));
+
+// Vitest aborts the test's signal at the timeout, then moves on, but the async function keeps going.
+// Its later URL changes, history writes and tab clicks would land on the next test. The signal stays with
+// this test's awaits, including the link run that started from the render.
+const tests = new AsyncLocalStorage<AbortSignal>();
+
+class FinishedTest extends Error {
+  constructor() {
+    super('Test already finished');
+    this.name = 'FinishedTest';
+  }
+}
+
+/** Runs `body` with this test's abort signal, so a timeout cannot act on the test that follows. */
+function it(title: string, body: () => Promise<void>) {
+  vitestIt(title, async (context) => {
+    await tests.run(context.signal, body);
+  });
+}
+
+function stopIfStale() {
+  if (tests.getStore()?.aborted) {
+    throw new FinishedTest();
+  }
+}
+
+const historyPushState = window.history.pushState.bind(window.history);
+const historyReplaceState = window.history.replaceState.bind(window.history);
+const dispatchWindowEvent = window.dispatchEvent.bind(window);
+const sessionSetItem = window.sessionStorage.setItem.bind(window.sessionStorage);
+const sessionRemoveItem = window.sessionStorage.removeItem.bind(window.sessionStorage);
+
+function staleHistoryWrite(): boolean {
+  return tests.getStore()?.aborted === true;
+}
+
+beforeAll(() => {
+  window.history.pushState = (data, unused, url) => {
+    if (!staleHistoryWrite()) {
+      historyPushState(data, unused, url);
+    }
+  };
+  window.history.replaceState = (data, unused, url) => {
+    if (!staleHistoryWrite()) {
+      historyReplaceState(data, unused, url);
+    }
+  };
+  window.dispatchEvent = (event: Event) => {
+    if (event.type === 'popstate' && staleHistoryWrite()) {
+      return true;
+    }
+    return dispatchWindowEvent(event);
+  };
+  window.sessionStorage.setItem = (key, value) => {
+    if (!staleHistoryWrite()) {
+      sessionSetItem(key, value);
+    }
+  };
+  window.sessionStorage.removeItem = (key) => {
+    if (!staleHistoryWrite()) {
+      sessionRemoveItem(key);
+    }
+  };
+});
+
+afterAll(() => {
+  window.history.pushState = historyPushState;
+  window.history.replaceState = historyReplaceState;
+  window.dispatchEvent = dispatchWindowEvent;
+  window.sessionStorage.setItem = sessionSetItem;
+  window.sessionStorage.removeItem = sessionRemoveItem;
+});
 
 const mockOpenmrsFetch = vi.mocked(openmrsFetch);
 const mockUseConfig = vi.mocked(useConfig<ConfigObject>);
@@ -58,13 +139,13 @@ function mockServer() {
               { uuid: tbProgram, name: 'TB Program' },
             ]
           : String(url).includes('/drug?')
-            ? [
-                { uuid: tenofovir, display: 'Tenofovir' },
-                { uuid: dolutegravir, display: 'Dolutegravir' },
-              ]
-            : [],
+          ? [
+              { uuid: tenofovir, display: 'Tenofovir' },
+              { uuid: dolutegravir, display: 'Dolutegravir' },
+            ]
+          : [],
         isLoading: false,
-      }) as never,
+      } as never),
   );
   mockOpenmrsFetch.mockImplementation(async (url: string) => {
     if (url.includes('/reportingrest/adhocquery')) {
@@ -126,6 +207,7 @@ const searchFor = (criterion: Criterion) =>
 const configSchemaDefaults = () => getDefaultsFromConfigSchema(configSchema) as ConfigObject;
 
 function openBuilderAt(search: string) {
+  stopIfStale();
   window.history.replaceState(null, '', `/openmrs/spa/cohort-builder${search}`);
   render(
     <StrictMode>
@@ -136,6 +218,7 @@ function openBuilderAt(search: string) {
 
 // What single-spa's navigateToUrl does when a link to the page that is already shown is opened.
 function openLinkWhileShown(search: string) {
+  stopIfStale();
   act(() => {
     window.history.pushState(null, '', `/openmrs/spa/cohort-builder${search}`);
     window.dispatchEvent(new PopStateEvent('popstate'));
@@ -147,8 +230,41 @@ const selectedTab = () =>
 // Only the selected tab's panel is shown; the others are hidden.
 const panel = () => within(screen.getByRole('tabpanel'));
 
+// delay: null skips the setTimeout(0) between each key and click. On a busy runner those timers
+// wait behind everyone else, which is most of why a test that is under a second here crosses 5s in CI.
+let user = userEvent.setup({ delay: null });
+
+async function click(target: Element) {
+  stopIfStale();
+  await user.click(target);
+}
+
+async function typeInto(target: Element, text: string) {
+  stopIfStale();
+  await user.type(target, text);
+}
+
+async function clearField(target: Element) {
+  stopIfStale();
+  await user.clear(target);
+}
+
 async function showTab(name: string) {
-  await userEvent.click(screen.getByRole('tab', { name }));
+  await click(screen.getByRole('tab', { name }));
+}
+
+/** Waits until `assertion` holds. A test that has already timed out stops here instead of polling the next one. */
+async function until(assertion: () => void) {
+  const signal = tests.getStore();
+  await waitFor(() => {
+    if (signal?.aborted) {
+      return;
+    }
+    assertion();
+  });
+  if (signal?.aborted) {
+    throw new FinishedTest();
+  }
 }
 
 function expectDemographics(gender: string, minAge: number, maxAge: number) {
@@ -157,23 +273,25 @@ function expectDemographics(gender: string, minAge: number, maxAge: number) {
   expect(panel().getByTestId('maxAge')).toHaveValue(maxAge);
 }
 
-/** The labels checked in the panel's dropdown with this placeholder, read by opening it. */
+/** The labels checked in the panel's dropdown with this placeholder, read by opening it once. */
 async function selectedOptions(placeholder: string) {
-  const user = userEvent.setup();
+  stopIfStale();
   await user.click(panel().getByText(placeholder));
   const labels = screen
     .getAllByRole('option')
     .filter((option) => option.getAttribute('aria-selected') === 'true')
     .map((option) => option.textContent)
     .sort();
+  stopIfStale();
   await user.keyboard('{Escape}');
   return labels;
 }
 
 async function search() {
+  stopIfStale();
   const searches = adHocQueryBodies().length;
-  await userEvent.click(panel().getByTestId('search-btn'));
-  await waitFor(() => expect(adHocQueryBodies()).toHaveLength(searches + 1));
+  await user.click(panel().getByTestId('search-btn'));
+  await until(() => expect(adHocQueryBodies()).toHaveLength(searches + 1));
   return adHocQueryBodies()[searches];
 }
 
@@ -182,79 +300,75 @@ describe('pre-filling the search tabs from a definition link', () => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-10-17T15:30:00Z'));
     window.sessionStorage.clear();
+    window.history.replaceState(null, '', '/openmrs/spa/cohort-builder');
+    user = userEvent.setup({ delay: null });
     mockUseConfig.mockReturnValue(configSchemaDefaults());
     adHocQueryFails = false;
     mockServer();
   });
 
   afterEach(() => {
+    window.sessionStorage.clear();
+    window.history.replaceState(null, '', '/openmrs/spa/cohort-builder');
     vi.useRealTimers();
   });
 
   it('fills in and shows the demographics tab for women aged 15-49', async () => {
     openBuilderAt(definitionLink({ v: 1, label: 'Female patients aged 15–49', criteria: [women15to49] }));
 
-    await waitFor(() => expect(selectedTab()).toHaveTextContent('Demographics'));
+    await until(() => expect(selectedTab()).toHaveTextContent('Demographics'));
     expectDemographics('Female', 15, 49);
   });
 
   it('fills in and shows the drug order tab for patients on ARVs', async () => {
     openBuilderAt(definitionLink({ v: 1, label: 'Patients on ARVs', criteria: [onArvs] }));
 
-    await waitFor(() => expect(selectedTab()).toHaveTextContent('Drug Order'));
+    await until(() => expect(selectedTab()).toHaveTextContent('Drug Order'));
     // Lamivudine isn't in the drug list, so it is shown with the name its own lookup found.
-    await waitFor(async () =>
-      expect(await selectedOptions('Select drugs')).toEqual(['Dolutegravir', 'Lamivudine', 'Tenofovir']),
-    );
+    expect(await selectedOptions('Select drugs')).toEqual(['Dolutegravir', 'Lamivudine', 'Tenofovir']);
   });
 
   it('shows the uuid of a drug that has no name anywhere', async () => {
     openBuilderAt(link({ type: 'drugOrder', drugs: [tenofovir, unknownDrug] }));
 
-    await waitFor(() => expect(selectedTab()).toHaveTextContent('Drug Order'));
-    await waitFor(async () => expect(await selectedOptions('Select drugs')).toEqual([unknownDrug, 'Tenofovir']));
+    await until(() => expect(selectedTab()).toHaveTextContent('Drug Order'));
+    expect(await selectedOptions('Select drugs')).toEqual([unknownDrug, 'Tenofovir']);
   });
 
   it('fills in the drug order tab when drug criteria are switched off for the omnibar', async () => {
     mockUseConfig.mockReturnValue({ ...configSchemaDefaults(), drugCriteriaEnabled: false });
     openBuilderAt(link(onArvs));
 
-    await waitFor(() => expect(selectedTab()).toHaveTextContent('Drug Order'));
-    await waitFor(async () =>
-      expect(await selectedOptions('Select drugs')).toEqual(['Dolutegravir', 'Lamivudine', 'Tenofovir']),
-    );
+    await until(() => expect(selectedTab()).toHaveTextContent('Drug Order'));
+    expect(await selectedOptions('Select drugs')).toEqual(['Dolutegravir', 'Lamivudine', 'Tenofovir']);
   });
 
   it('fills in and shows the enrollments tab', async () => {
     openBuilderAt(link(inHivCare));
 
-    await waitFor(() => expect(selectedTab()).toHaveTextContent('Enrollments'));
-    await waitFor(async () =>
-      expect(await selectedOptions('Select programs')).toEqual(['HIV Care and Treatment', 'TB Program']),
-    );
+    await until(() => expect(selectedTab()).toHaveTextContent('Enrollments'));
+    expect(await selectedOptions('Select programs')).toEqual(['HIV Care and Treatment', 'TB Program']);
   });
 
   it("fills in every criterion's tab and shows the first one's", async () => {
     const inTbCare: Criterion = { type: 'enrollment', programs: [tbProgram] };
     openBuilderAt(link(women15to49, { type: 'enrollment', programs: [hivProgram] }, inTbCare, onArvs));
 
-    await waitFor(() => expect(selectedTab()).toHaveTextContent('Demographics'));
+    await until(() => expect(selectedTab()).toHaveTextContent('Demographics'));
     expectDemographics('Female', 15, 49);
 
     // A type that repeats fills its tab with its first criterion.
     await showTab('Enrollments');
-    await waitFor(async () => expect(await selectedOptions('Select programs')).toEqual(['HIV Care and Treatment']));
+    expect(await selectedOptions('Select programs')).toEqual(['HIV Care and Treatment']);
 
     await showTab('Drug Order');
-    await waitFor(async () =>
-      expect(await selectedOptions('Select drugs')).toEqual(['Dolutegravir', 'Lamivudine', 'Tenofovir']),
-    );
+    expect(await selectedOptions('Select drugs')).toEqual(['Dolutegravir', 'Lamivudine', 'Tenofovir']);
   });
 
   it('shows all genders and no upper bound for a minimum age alone', async () => {
     openBuilderAt(link({ type: 'demographics', gender: 'any', minAge: 18 }));
 
-    await waitFor(() => expect(selectedTab()).toHaveTextContent('Demographics'));
+    await until(() => expect(selectedTab()).toHaveTextContent('Demographics'));
     expectDemographics('All', 18, 0);
   });
 
@@ -262,7 +376,7 @@ describe('pre-filling the search tabs from a definition link', () => {
     adHocQueryFails = true;
     openBuilderAt(link(women15to49));
 
-    expect(await screen.findByText('This cohort builder link could not be opened')).toBeInTheDocument();
+    await until(() => expect(screen.getByText('This cohort builder link could not be opened')).toBeInTheDocument());
     expect(selectedTab()).toHaveTextContent('Demographics');
     expectDemographics('Female', 15, 49);
   });
@@ -270,86 +384,84 @@ describe('pre-filling the search tabs from a definition link', () => {
   it('fills in nothing for a link that cannot be read', async () => {
     openBuilderAt('?definition=%%%');
 
-    expect(await screen.findByText('This cohort builder link could not be opened')).toBeInTheDocument();
+    await until(() => expect(screen.getByText('This cohort builder link could not be opened')).toBeInTheDocument());
     expect(selectedTab()).toHaveTextContent('Concepts');
     await showTab('Demographics');
     expectDemographics('All', 0, 0);
   });
 
-  // Also covers the dates, which flatpickr can't show in jsdom: Carbon's locale lookup comes out undefined here.
-  it.each([
+  // The date pickers are not mounted. A search still sends the link's dates, because the tab keeps them.
+  for (const [name, criterion] of [
     ['demographics', women15to49],
     ['enrollment', inHivCare],
     ['drugOrder', onArvs],
-  ])('searches for exactly what the link did when %s is searched without edits', async (_, criterion) => {
-    openBuilderAt(link(criterion));
-    await waitFor(() => expect(history()).toHaveLength(1));
+  ] as const) {
+    it(`searches for exactly what the link did when ${name} is searched without edits`, async () => {
+      openBuilderAt(link(criterion));
+      await until(() => expect(history()).toHaveLength(1));
 
-    const [linkSearch] = adHocQueryBodies();
-    expect(linkSearch).toEqual(searchFor(criterion));
-    expect(await search()).toEqual(linkSearch);
-  });
+      const [linkSearch] = adHocQueryBodies();
+      expect(linkSearch).toEqual(searchFor(criterion));
+      expect(await search()).toEqual(linkSearch);
+    });
+  }
 
   it('changes only the edited field', async () => {
-    const user = userEvent.setup();
     openBuilderAt(link(women15to49));
-    await waitFor(() => expect(history()).toHaveLength(1));
+    await until(() => expect(history()).toHaveLength(1));
 
-    await user.clear(panel().getByTestId('maxAge'));
-    await user.type(panel().getByTestId('maxAge'), '40');
+    await clearField(panel().getByTestId('maxAge'));
+    await typeInto(panel().getByTestId('maxAge'), '40');
 
     expect(await search()).toEqual(searchFor({ ...women15to49, maxAge: 40 }));
     // The search re-renders the page, which must not put the link's values back.
-    await waitFor(() => expect(history()).toHaveLength(2));
+    await until(() => expect(history()).toHaveLength(2));
     expectDemographics('Female', 15, 40);
   });
 
   it('fills in the tabs again for a link opened while the page is shown', async () => {
-    const user = userEvent.setup();
     openBuilderAt(link(women15to49));
-    await waitFor(() => expect(history()).toHaveLength(1));
-    await user.clear(panel().getByTestId('maxAge'));
-    await user.type(panel().getByTestId('maxAge'), '40');
+    await until(() => expect(history()).toHaveLength(1));
+    await clearField(panel().getByTestId('maxAge'));
+    await typeInto(panel().getByTestId('maxAge'), '40');
 
     openLinkWhileShown(link(onArvs));
 
-    await waitFor(() => expect(selectedTab()).toHaveTextContent('Drug Order'));
-    await waitFor(async () =>
-      expect(await selectedOptions('Select drugs')).toEqual(['Dolutegravir', 'Lamivudine', 'Tenofovir']),
-    );
+    await until(() => expect(selectedTab()).toHaveTextContent('Drug Order'));
+    expect(await selectedOptions('Select drugs')).toEqual(['Dolutegravir', 'Lamivudine', 'Tenofovir']);
     // The tabs show the new link, so one it doesn't fill is back to empty.
     await showTab('Demographics');
     expectDemographics('All', 0, 0);
 
     // The same link opened again is a new link too.
     openLinkWhileShown(link(women15to49));
-    await waitFor(() => expectDemographics('Female', 15, 49));
+    await until(() => expectDemographics('Female', 15, 49));
     await showTab('Concepts');
     openLinkWhileShown(link(women15to49));
-    await waitFor(() => expect(selectedTab()).toHaveTextContent('Demographics'));
+    await until(() => expect(selectedTab()).toHaveTextContent('Demographics'));
   });
 
   it('keeps the tabs as they are when a link that cannot be read is opened while the page is shown', async () => {
     openBuilderAt(link(women15to49));
-    await waitFor(() => expect(history()).toHaveLength(1));
+    await until(() => expect(history()).toHaveLength(1));
 
     openLinkWhileShown('?definition=%%%');
 
-    expect(await screen.findByText('This cohort builder link could not be opened')).toBeInTheDocument();
+    await until(() => expect(screen.getByText('This cohort builder link could not be opened')).toBeInTheDocument());
     expect(selectedTab()).toHaveTextContent('Demographics');
     expectDemographics('Female', 15, 49);
   });
 
   it('clears the pre-filled ages and programs on reset', async () => {
     openBuilderAt(link(women15to49, inHivCare));
-    await waitFor(() => expect(history()).toHaveLength(3));
+    await until(() => expect(history()).toHaveLength(3));
 
-    await userEvent.click(panel().getByRole('button', { name: 'Reset' }));
+    await click(panel().getByRole('button', { name: 'Reset' }));
     expect(panel().getByTestId('minAge')).toHaveValue(0);
     expect(panel().getByTestId('maxAge')).toHaveValue(0);
 
     await showTab('Enrollments');
-    await userEvent.click(panel().getByRole('button', { name: 'Reset' }));
+    await click(panel().getByRole('button', { name: 'Reset' }));
     expect(await selectedOptions('Select programs')).toEqual([]);
   });
 });
