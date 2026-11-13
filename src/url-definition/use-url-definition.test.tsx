@@ -164,7 +164,9 @@ describe('useUrlDefinition', () => {
   });
 
   it('searches encounter types, named from the server', async () => {
-    openBuilderAt(`?definition=${encode({ v: 1, criteria: [{ type: 'encounter', encounterTypes: [encounterTypeUuid] }] })}`);
+    openBuilderAt(
+      `?definition=${encode({ v: 1, criteria: [{ type: 'encounter', encounterTypes: [encounterTypeUuid] }] })}`,
+    );
 
     await waitFor(() => expect(history()).toHaveLength(1));
     expect(history()[0].description).toBe('Patients with Encounter of Type Adult Visit');
@@ -207,6 +209,58 @@ describe('useUrlDefinition', () => {
 
     expect(await screen.findByText('This cohort builder link could not be opened')).toBeInTheDocument();
     expect(history().map(({ description }) => description)).toEqual(['Manual search']);
+  });
+
+  it('composes the searches it ran, and rolls back only those, when history is cleared or an earlier entry is deleted meanwhile', async () => {
+    const earlier = {
+      description: 'Earlier search',
+      patients: [row(8)],
+      parameters: { rowFilters: [{ key: 'earlier' }], customRowFilterCombination: '1' },
+    };
+    const unrelated = {
+      description: 'Unrelated search',
+      patients: [row(9)],
+      parameters: { rowFilters: [{ key: 'unrelated' }], customRowFilterCombination: '1' },
+    };
+    window.sessionStorage.setItem('openmrsHistory', JSON.stringify([earlier, unrelated]));
+
+    let releaseFirst: () => void;
+    let releaseSecond: () => void;
+    beforeAdHocQueryAnswers = (call) => {
+      if (call === 0) {
+        // An earlier entry goes away while the first criterion is still running, so positions shift.
+        const remaining = history().filter((entry) => entry.description !== 'Earlier search');
+        window.sessionStorage.setItem('openmrsHistory', JSON.stringify(remaining));
+        return new Promise<void>((resolve) => {
+          releaseFirst = resolve;
+        });
+      }
+      if (call === 1) {
+        window.sessionStorage.removeItem('openmrsHistory');
+        return new Promise<void>((resolve) => {
+          releaseSecond = resolve;
+        });
+      }
+      // A search that is not this link's lands while the composition is running, and then it fails.
+      addToHistory('Arrived meanwhile', [row(7)], {
+        rowFilters: [{ key: 'arrived' }],
+        customRowFilterCombination: '1',
+      } as Query);
+    };
+    adHocQueryResults = [[row(1)], [row(2)], new Error('Internal Server Error')];
+    openBuilderAt(`?definition=${encode({ v: 1, criteria: definition.criteria.slice(0, 2) })}`);
+
+    await waitFor(() => expect(adHocQueryBodies()).toHaveLength(1));
+    releaseFirst();
+    await waitFor(() => expect(adHocQueryBodies()).toHaveLength(2));
+    releaseSecond();
+
+    expect(await screen.findByText('This cohort builder link could not be opened')).toBeInTheDocument();
+    const [demographics, enrollment, composition] = adHocQueryBodies();
+    expect(adHocQueryBodies()).toHaveLength(3);
+    expect(composition.rowFilters).toEqual([...demographics.rowFilters, ...enrollment.rowFilters]);
+    expect(composition.customRowFilterCombination).toBe('(1 AND 2 AND NOT 3) AND (4)');
+    expect(history().map(({ description }) => description)).toEqual(['Arrived meanwhile']);
   });
 
   it('composes with the newest history entries when history already has searches', async () => {
