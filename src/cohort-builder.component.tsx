@@ -228,8 +228,8 @@ const CohortBuilder: React.FC = () => {
               kind="info"
               lowContrast
               hideCloseButton
-              title={t('cohortMembersLimited', 'Showing the first {{shown}} of {{total}} members', {
-                shown: MAX_COHORT_MEMBERS_SHOWN,
+              title={t('cohortMembersLimited', 'Only the first {{limit}} of {{total}} members are loaded', {
+                limit: MAX_COHORT_MEMBERS_SHOWN,
                 total: cohortMemberCounts.total,
               })}
             />

@@ -19,7 +19,7 @@
   "cohortBuilderLinkError": "This cohort builder link could not be opened",
   "cohortDeleted": "Cohort deleted",
   "cohortDescriptionRequired": "Description is required",
-  "cohortMembersLimited": "Showing the first {{shown}} of {{total}} members",
+  "cohortMembersLimited": "Only the first {{limit}} of {{total}} members are loaded",
   "cohortMembersLoadFailed": "None of the cohort's members could be loaded",
   "cohortNameRequired": "Cohort name is required",
   "cohorts": "cohorts",

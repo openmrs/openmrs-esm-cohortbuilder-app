@@ -484,7 +484,7 @@ describe('useUrlDefinition', () => {
     );
     openBuilderAt(`?cohort=${cohortUuid}`);
 
-    expect(await screen.findByText('Showing the first {{shown}} of {{total}} members')).toBeInTheDocument();
+    expect(await screen.findByText('Only the first {{limit}} of {{total}} members are loaded')).toBeInTheDocument();
   });
 
   it('runs a saved query', async () => {
