@@ -247,7 +247,7 @@ describe('useUrlDefinition', () => {
         });
       }
       // A search that is not this link's lands while the composition is running, and then it fails.
-      addToHistory('Arrived meanwhile', [row(7)], {
+      addToHistory('Arrived meanwhile', [], {
         rowFilters: [{ key: 'arrived' }],
         customRowFilterCombination: '1',
       } as Query);
