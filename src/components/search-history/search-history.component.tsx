@@ -17,7 +17,7 @@ import EmptyData from '../empty-data/empty-data.component';
 import SearchHistoryOptions from './search-history-options/search-history-options.component';
 import mainStyles from '../../cohort-builder.scss';
 import styles from './search-history.style.scss';
-import { showModal } from '@openmrs/esm-framework';
+import { showModal, usePagination } from '@openmrs/esm-framework';
 
 interface SearchHistoryProps {
   isHistoryUpdated: boolean;
@@ -27,13 +27,8 @@ interface SearchHistoryProps {
 const SearchHistory: React.FC<SearchHistoryProps> = ({ isHistoryUpdated, setIsHistoryUpdated }) => {
   const { t } = useTranslation();
   const [searchResults, setSearchResults] = useState<SearchHistoryItem[]>([]);
-  const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  // The list shrinks when an item is deleted, so keep the current page within range.
-  const currentPage = Math.min(page, Math.max(1, Math.ceil(searchResults.length / pageSize)));
-  if (page !== currentPage) {
-    setPage(currentPage);
-  }
+  const { results, currentPage, goTo } = usePagination(searchResults, pageSize);
 
   useEffect(() => {
     if (isHistoryUpdated) {
@@ -43,7 +38,7 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ isHistoryUpdated, setIsHi
   }, [isHistoryUpdated, setIsHistoryUpdated]);
 
   const handlePagination = ({ page, pageSize }: PaginationData) => {
-    setPage(page);
+    goTo(page);
     setPageSize(pageSize);
   };
 
@@ -93,7 +88,7 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ isHistoryUpdated, setIsHi
           </Button>
         )}
       </div>
-      <DataTable rows={searchResults} headers={headers} useZebraStyles>
+      <DataTable rows={results} headers={headers} useZebraStyles>
         {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
           <Table {...getTableProps()}>
             <TableHead>
@@ -105,22 +100,16 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ isHistoryUpdated, setIsHi
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows
-                .slice((currentPage - 1) * pageSize)
-                .slice(0, pageSize)
-                .map((row, index: number) => (
-                  <TableRow {...getRowProps({ row })}>
-                    {row.cells.map((cell) => (
-                      <TableCell key={cell.id}>{cell.value}</TableCell>
-                    ))}
-                    <TableCell className={mainStyles.optionCell}>
-                      <SearchHistoryOptions
-                        searchItem={searchResults[(currentPage - 1) * pageSize + index]}
-                        updateSearchHistory={updateSearchHistory}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
+              {rows.map((row, index: number) => (
+                <TableRow {...getRowProps({ row })}>
+                  {row.cells.map((cell) => (
+                    <TableCell key={cell.id}>{cell.value}</TableCell>
+                  ))}
+                  <TableCell className={mainStyles.optionCell}>
+                    <SearchHistoryOptions searchItem={results[index]} updateSearchHistory={updateSearchHistory} />
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         )}

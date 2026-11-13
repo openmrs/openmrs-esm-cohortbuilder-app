@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Column, Dropdown, NumberInput, Switch, ContentSwitcher } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
 import type { Concept, SearchByProps } from '../../types';
 import { SearchConcept } from './search-concept/search-concept.component';
 import SearchButtonSet from '../search-button-set/search-button-set';

@@ -5,6 +5,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import dayjs from 'dayjs';
 import { getDefaultsFromConfigSchema, useConfig, useOpenmrsFetchAll } from '@openmrs/esm-framework';
+import { formatDate } from '../cohort-builder.utils';
 import { type ConfigObject, configSchema } from '../config-schema';
 import { toFormValues } from '../url-definition/url-definition';
 import SearchByConcepts from './search-by-concepts/search-by-concepts.component';
@@ -151,7 +152,7 @@ describe('date pickers', () => {
     expect(query.rowFilters.find(({ key }) => key.endsWith('bornDuringPeriod')).parameterValues).toEqual({
       [parameter]: dayjs(new Date(2024, 11, 31)).format(),
     });
-    expect(description).toContain(`${described} ${dayjs(new Date(2024, 11, 31)).format()}`);
+    expect(description).toContain(`${described} ${formatDate(dayjs(new Date(2024, 11, 31)).format())}`);
   });
 
   it("shows and searches with a definition link's enrollment dates", async () => {
@@ -255,6 +256,32 @@ describe('date pickers', () => {
 
     expect(dateInputs()[0]).toHaveValue(date ? dayjs(date).format('DD-MM-YYYY') : '');
     expect(query.rowFilters[0]?.parameterValues?.onOrAfter).toEqual(date ? dayjs(date).format() : undefined);
+  });
+
+  it('searches with only a start date, with no end date in the filter', async () => {
+    const onSubmit = vi.fn();
+    render(<SearchByDemographics onSubmit={onSubmit} />);
+
+    pick(dateInputs()[0], new Date(2000, 0, 1));
+    const [{ query }, description] = await search(onSubmit);
+
+    expect(query.rowFilters.find(({ key }) => key.endsWith('bornDuringPeriod')).parameterValues).toEqual({
+      startDate: dayjs(new Date(2000, 0, 1)).format(),
+    });
+    expect(description).toContain('born on or after 1/1/2000');
+  });
+
+  it('searches with only an end date, with no start date in the filter', async () => {
+    const onSubmit = vi.fn();
+    render(<SearchByDemographics onSubmit={onSubmit} />);
+
+    pick(dateInputs()[1], new Date(2000, 0, 1));
+    const [{ query }, description] = await search(onSubmit);
+
+    expect(query.rowFilters.find(({ key }) => key.endsWith('bornDuringPeriod')).parameterValues).toEqual({
+      endDate: dayjs(new Date(2000, 0, 1)).format(),
+    });
+    expect(description).toContain('born on or before 1/1/2000');
   });
 
   it('takes a typed date when Enter is pressed', async () => {

@@ -1,5 +1,6 @@
 import React from 'react';
 import { vi, describe, it, expect, type Mock } from 'vitest';
+import dayjs from 'dayjs';
 import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor } from '@testing-library/react';
 import { openmrsFetch, showSnackbar } from '@openmrs/esm-framework';
@@ -8,6 +9,7 @@ import type * as CohortBuilderResources from '../../cohort-builder.resources';
 import { useForms, useEncounterTypes } from './search-by-encounters.resources';
 import type * as SearchByEncountersResources from './search-by-encounters.resources';
 import SearchByEncounters from './search-by-encounters.component';
+import { getDescription } from './search-by-encounters.utils';
 
 const mockUseEncounterTypes = vi.mocked(useEncounterTypes);
 const mockUseForms = vi.mocked(useForms);
@@ -249,7 +251,7 @@ describe('Test the search by encounters component', () => {
 
     expect(mockSubmit).toBeCalledWith(
       expectedQuery,
-      `Patients with Encounter of Types Vitals at Pharmacy from POC Patient Consent v1.2 at least 10 times  and at most 20 times`,
+      `Patients with Encounter of Type Vitals at Pharmacy from POC Patient Consent v1.2 at least 10 times and at most 20 times`,
     );
   });
 
@@ -289,5 +291,45 @@ describe('Test the search by encounters component', () => {
     expect(mockSubmit.mock.calls[0][0].query.rowFilters[0].parameterValues).toEqual({
       encounterTypeList: [mockEncounterTypes[3].value],
     });
+  });
+});
+
+describe('getDescription date formatting', () => {
+  const baseDetails = {
+    selectedEncounterTypes: [],
+    encounterLocations: [],
+    encounterForms: [],
+    atLeastCount: 0,
+    atMostCount: 0,
+    onOrAfter: '',
+    onOrBefore: '',
+  };
+
+  it('formats both dates when from and to are set', () => {
+    const description = getDescription({
+      ...baseDetails,
+      onOrAfter: dayjs(new Date(2023, 0, 9)).format(),
+      onOrBefore: dayjs(new Date(2023, 0, 15)).format(),
+    });
+
+    expect(description).toBe('Patients with Encounter of any Type from 9/1/2023 to 15/1/2023');
+  });
+
+  it('formats correctly when only from (onOrAfter) is set', () => {
+    const description = getDescription({
+      ...baseDetails,
+      onOrAfter: dayjs(new Date(2023, 0, 9)).format(),
+    });
+
+    expect(description).toBe('Patients with Encounter of any Type on or after 9/1/2023');
+  });
+
+  it('formats correctly when only to (onOrBefore) is set', () => {
+    const description = getDescription({
+      ...baseDetails,
+      onOrBefore: dayjs(new Date(2023, 0, 15)).format(),
+    });
+
+    expect(description).toBe('Patients with Encounter of any Type on or before 15/1/2023');
   });
 });

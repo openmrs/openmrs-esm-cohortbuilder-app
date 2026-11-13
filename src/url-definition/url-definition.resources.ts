@@ -1,9 +1,10 @@
 import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
-import { type CohortDefinition, isUuid, type TestDetails } from './url-definition';
+import { type CohortDefinition, isUuid, LinkError, type TestDetails } from './url-definition';
 
 /**
  * Looks up display names for the programs, drugs and encounter types in a definition, for history descriptions only.
- * Best effort: anything that fails to load is left out and counted in the description instead.
+ * A 404 means the link names something that is gone, so the link is refused. Any other failure is left out and
+ * counted in the description instead.
  */
 export async function fetchDisplayNames(definition: CohortDefinition): Promise<Map<string, string>> {
   const lookups: Array<[resource: string, uuid: string]> = definition.criteria.flatMap((criterion) => {
@@ -32,7 +33,10 @@ export async function fetchDisplayNames(definition: CohortDefinition): Promise<M
           if (typeof data?.display === 'string') {
             names.set(uuid, data.display);
           }
-        } catch {
+        } catch (error) {
+          if (isNotFound(error)) {
+            throw new LinkError('invalidCohortLink', "This link isn't a valid cohort query");
+          }
           // The description falls back to a count.
         }
       }),
@@ -74,4 +78,14 @@ export async function fetchTestDetails(definition: CohortDefinition): Promise<Te
       }),
   );
   return tests;
+}
+
+/** openmrsFetch rejects a missing resource with the response still attached. */
+function isNotFound(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'response' in error &&
+    (error as { response?: { status?: number } }).response?.status === 404
+  );
 }

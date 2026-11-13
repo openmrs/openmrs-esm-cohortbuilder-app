@@ -3,8 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useConfig } from '@openmrs/esm-framework';
 import type { SearchParams } from '../types';
 import { type ConfigObject } from '../config-schema';
-import { createCompositionQuery } from '../components/composition/composition.utils';
-import { getSearchHistory } from '../components/search-history/search-history.utils';
+import { composeQueries } from '../components/composition/composition.utils';
 import {
   buildSearch,
   describeSearches,
@@ -157,8 +156,11 @@ async function runDefinition(
     throw new LinkError('linkTestNotNumeric', "This link's test result isn't a numeric test on this server");
   }
   onDefinition(definition, names);
-  // 1-based history positions of the entries this link added. Searches run meanwhile from the tabs are not included.
-  const addedEntries: number[] = [];
+  // Ids of the entries this link added. Each id is stored on its entry, so it still names that
+  // entry after history is cleared or an earlier entry is deleted.
+  const addedEntryIds: string[] = [];
+  // True after runSearch has appended a row and before that row has an id. The catch drops it.
+  let pendingEntry = false;
 
   const runAndRecord = async ({ searchParams, description }: Search) => {
     if (!(await runSearch(searchParams, description))) {
@@ -169,7 +171,9 @@ async function runDefinition(
       );
     }
     // runSearch appends to the history just before it resolves, so the newest entry is this one.
-    addedEntries.push(getSearchHistory().length);
+    pendingEntry = true;
+    addedEntryIds.push(markNewestHistoryEntry());
+    pendingEntry = false;
   };
 
   try {
@@ -179,19 +183,56 @@ async function runDefinition(
     }
     if (searches.length >= 2) {
       await runAndRecord({
-        searchParams: createCompositionQuery(addedEntries.join(' AND ')),
+        searchParams: composeQueries(searches.map(({ searchParams }) => searchParams.query)),
         description: describeSearches(searches),
       });
     }
   } catch (error) {
-    removeHistoryEntries(addedEntries);
+    if (pendingEntry) {
+      removeNewestHistoryEntry();
+    }
+    removeHistoryEntries(addedEntryIds);
     onHistoryChange();
     throw error;
   }
 }
 
-function removeHistoryEntries(positions: number[]) {
-  const history: unknown[] = JSON.parse(window.sessionStorage.getItem('openmrsHistory')) ?? [];
-  const remaining = history.filter((_, index) => !positions.includes(index + 1));
+/** Works on plain http, where crypto.randomUUID is missing outside a secure context. */
+function newEntryId(): string {
+  try {
+    return crypto.randomUUID();
+  } catch {
+    return `h${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
+  }
+}
+
+/** The id stays on the entry, so a later delete of some other entry cannot make it refer to a different search. */
+function markNewestHistoryEntry(): string {
+  const history = readHistory();
+  const added = history.at(-1);
+  if (!added) {
+    throw new LinkError(
+      'linkSearchNotRecorded',
+      "The search could not be recorded, so none of this link's searches were kept",
+    );
+  }
+  added.entryId = newEntryId();
+  window.sessionStorage.setItem('openmrsHistory', JSON.stringify(history));
+  return added.entryId;
+}
+
+function removeNewestHistoryEntry() {
+  const history = readHistory();
+  history.pop();
+  window.sessionStorage.setItem('openmrsHistory', JSON.stringify(history));
+}
+
+function removeHistoryEntries(entryIds: string[]) {
+  const remove = new Set(entryIds);
+  const remaining = readHistory().filter((entry) => !remove.has(entry.entryId));
   window.sessionStorage.setItem('openmrsHistory', JSON.stringify(remaining));
+}
+
+function readHistory(): Array<{ entryId?: string }> {
+  return JSON.parse(window.sessionStorage.getItem('openmrsHistory')) ?? [];
 }
