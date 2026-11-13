@@ -146,29 +146,28 @@ describe('getDescription birth date formatting', () => {
   it('formats both birth dates when start and end dates are set', () => {
     const description = getDescription({
       ...baseDemographics,
-      birthDayStartDate: '2023-01-09T00:00:00+05:30',
-      birthDayEndDate: '2023-01-15T00:00:00+05:30',
+      birthDayStartDate: dayjs(new Date(2023, 0, 9)).format(),
+      birthDayEndDate: dayjs(new Date(2023, 0, 15)).format(),
     });
 
-    // In TZ=UTC, midnight +05:30 shifts back into the evening of the previous day:
-    expect(description).toBe('All Patients and birthdate between 8/1/2023 and 14/1/2023');
+    expect(description).toBe('All Patients and birthdate between 9/1/2023 and 15/1/2023');
   });
 
   it('formats correctly when only birthDayStartDate is set', () => {
     const description = getDescription({
       ...baseDemographics,
-      birthDayStartDate: '2023-01-09T00:00:00+05:30',
+      birthDayStartDate: dayjs(new Date(2023, 0, 9)).format(),
     });
 
-    expect(description).toBe('All Patients and born on or after 8/1/2023');
+    expect(description).toBe('All Patients and born on or after 9/1/2023');
   });
 
   it('formats correctly when only birthDayEndDate is set', () => {
     const description = getDescription({
       ...baseDemographics,
-      birthDayEndDate: '2023-01-15T00:00:00+05:30',
+      birthDayEndDate: dayjs(new Date(2023, 0, 15)).format(),
     });
 
-    expect(description).toBe('All Patients and born on or before 14/1/2023');
+    expect(description).toBe('All Patients and born on or before 15/1/2023');
   });
 });

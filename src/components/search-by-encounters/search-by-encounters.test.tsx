@@ -1,5 +1,6 @@
 import React from 'react';
 import { vi, describe, it, expect, type Mock } from 'vitest';
+import dayjs from 'dayjs';
 import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor } from '@testing-library/react';
 import { openmrsFetch, showSnackbar } from '@openmrs/esm-framework';
@@ -306,29 +307,28 @@ describe('getDescription date formatting', () => {
   it('formats both dates when from and to are set', () => {
     const description = getDescription({
       ...baseDetails,
-      onOrAfter: '2023-01-09T00:00:00+05:30',
-      onOrBefore: '2023-01-15T00:00:00+05:30',
+      onOrAfter: dayjs(new Date(2023, 0, 9)).format(),
+      onOrBefore: dayjs(new Date(2023, 0, 15)).format(),
     });
 
-    // In TZ=UTC, midnight +05:30 shifts back into the evening of the previous day:
-    expect(description).toBe('Patients with Encounter of any Type from 8/1/2023 to 14/1/2023');
+    expect(description).toBe('Patients with Encounter of any Type from 9/1/2023 to 15/1/2023');
   });
 
   it('formats correctly when only from (onOrAfter) is set', () => {
     const description = getDescription({
       ...baseDetails,
-      onOrAfter: '2023-01-09T00:00:00+05:30',
+      onOrAfter: dayjs(new Date(2023, 0, 9)).format(),
     });
 
-    expect(description).toBe('Patients with Encounter of any Type on or after 8/1/2023');
+    expect(description).toBe('Patients with Encounter of any Type on or after 9/1/2023');
   });
 
   it('formats correctly when only to (onOrBefore) is set', () => {
     const description = getDescription({
       ...baseDetails,
-      onOrBefore: '2023-01-15T00:00:00+05:30',
+      onOrBefore: dayjs(new Date(2023, 0, 15)).format(),
     });
 
-    expect(description).toBe('Patients with Encounter of any Type on or before 14/1/2023');
+    expect(description).toBe('Patients with Encounter of any Type on or before 15/1/2023');
   });
 });

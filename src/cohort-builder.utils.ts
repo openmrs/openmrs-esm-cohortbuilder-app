@@ -150,8 +150,8 @@ const operatorSymbols: Record<string, string> = {
 export const queryDescriptionBuilder = (state, conceptName: string) => {
   const { timeModifier, onOrAfter, onOrBefore, operator1, value1 } = state;
 
-  const operatorSymbol = operatorSymbols[operator1] || operator1;
-  const valueDescription = value1 !== '' && value1 !== undefined && operatorSymbol ? `${operatorSymbol} ${value1}` : '';
+  const operatorSymbol = operatorSymbols[operator1];
+  const valueDescription = operatorSymbol && value1 ? `${operatorSymbol} ${value1}` : '';
 
   const onOrAfterDescription = onOrAfter ? `since ${formatDate(onOrAfter)}` : '';
   const onOrBeforeDescription = onOrBefore ? `until ${formatDate(onOrBefore)}` : '';
