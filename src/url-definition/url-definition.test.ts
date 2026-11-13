@@ -534,8 +534,8 @@ describe('buildSearch', () => {
       },
     ]);
     expect(search.searchParams.query.customRowFilterCombination).toBe('1');
-    // The encounters tab's own words, double space and all: it swaps the last comma for " and ".
-    expect(search.description).toBe('Patients with Encounter of Types Adult Visit and  1 more encounter type');
+    // The encounters tab's own words: "Types" for more than one, and the last comma becomes " and".
+    expect(search.description).toBe('Patients with Encounter of Types Adult Visit and 1 more encounter type');
   });
 
   it('describes drug orders with drug names and dates', () => {

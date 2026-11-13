@@ -167,7 +167,7 @@ describe('useUrlDefinition', () => {
     openBuilderAt(`?definition=${encode({ v: 1, criteria: [{ type: 'encounter', encounterTypes: [encounterTypeUuid] }] })}`);
 
     await waitFor(() => expect(history()).toHaveLength(1));
-    expect(history()[0].description).toBe('Patients with Encounter of Types Adult Visit');
+    expect(history()[0].description).toBe('Patients with Encounter of Type Adult Visit');
     expect(mockOpenmrsFetch).toHaveBeenCalledWith(
       expect.stringMatching(new RegExp(`/encountertype/${encounterTypeUuid}\\?v=custom:\\(display\\)$`)),
     );
