@@ -196,4 +196,24 @@ describe('Test the search by drug orders component', () => {
     expect(mockSubmit.mock.calls[0][1]).toBe('Patients who are taking any drug');
     expect(screen.getByTestId('search-btn')).toBeEnabled();
   });
+
+  it('searches with the configured definition key', async () => {
+    const user = userEvent.setup();
+    const drugOrderSearchDefinitionKey = 'configuration.definitionlibrary.cohort.drugOrderSearch';
+    mockUseConfig.mockReturnValue({ drugOrderSearchDefinitionKey });
+    mockUseCareSettings.mockReturnValue({
+      careSettings: mockCareSettings,
+      isLoading: false,
+      careSettingsError: undefined,
+    });
+    mockUseDrugs.mockReturnValue({ drugs: mockDrugs, isLoading: false, drugsError: undefined });
+    const mockSubmit = vi.fn();
+    render(<SearchByDrugOrder onSubmit={mockSubmit} />);
+
+    await user.click(screen.getByText(/select drugs/i));
+    await user.click(screen.getByText(mockDrugs[1].label));
+    await user.click(screen.getByTestId('search-btn'));
+
+    expect(mockSubmit.mock.calls[0][0].query.rowFilters[0].key).toBe(drugOrderSearchDefinitionKey);
+  });
 });
