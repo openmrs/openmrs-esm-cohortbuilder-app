@@ -192,6 +192,7 @@ describe('Test the search by enrollments component', () => {
       `Patients enrolled in ${mockPrograms[0].label} at ${mockLocations[2].label}`,
     );
   });
+
   it('should clear both selections on reset', async () => {
     const user = userEvent.setup();
     mockUsePrograms.mockImplementation(() => ({ programs: mockPrograms, isLoading: false, programsError: undefined }));

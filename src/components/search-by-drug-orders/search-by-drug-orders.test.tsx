@@ -1,7 +1,8 @@
 import React from 'react';
-import { vi, describe, it, expect, type Mock } from 'vitest';
+import { vi, beforeEach, describe, it, expect, type Mock } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { openmrsFetch, showSnackbar } from '@openmrs/esm-framework';
+import { getDefaultsFromConfigSchema, openmrsFetch, showSnackbar, useConfig } from '@openmrs/esm-framework';
+import { type ConfigObject, configSchema } from '../../config-schema';
 import { render, screen, waitFor } from '@testing-library/react';
 import { useCareSettings, useDrugs } from './search-by-drug-orders.resources';
 import type * as SearchByDrugOrdersResources from './search-by-drug-orders.resources';
@@ -104,8 +105,13 @@ vi.mock('./search-by-drug-orders.resources', async (importOriginal) => {
 const mockOpenmrsFetch = openmrsFetch as Mock;
 const mockUseCareSettings = vi.mocked(useCareSettings);
 const mockUseDrugs = vi.mocked(useDrugs);
+const mockUseConfig = vi.mocked(useConfig<ConfigObject>);
 
 describe('Test the search by drug orders component', () => {
+  beforeEach(() => {
+    mockUseConfig.mockReturnValue(getDefaultsFromConfigSchema(configSchema));
+  });
+
   it('should report each reference-data error once when requests fail separately', () => {
     mockUseDrugs.mockReturnValue({ drugs: mockDrugs, isLoading: false, drugsError: new Error('Drug request failed') });
     mockUseCareSettings.mockReturnValue({
@@ -169,6 +175,7 @@ describe('Test the search by drug orders component', () => {
       `Patients who are taking ${mockDrugs[1].label} and ${mockDrugs[2].label} from Pharmacy`,
     );
   });
+
   it('should still search after the inputs are reset', async () => {
     const user = userEvent.setup();
     mockUseCareSettings.mockImplementation(() => ({
@@ -188,5 +195,25 @@ describe('Test the search by drug orders component', () => {
     await waitFor(() => expect(mockSubmit).toHaveBeenCalledTimes(1));
     expect(mockSubmit.mock.calls[0][1]).toBe('Patients who are taking any drug');
     expect(screen.getByTestId('search-btn')).toBeEnabled();
+  });
+
+  it('searches with the configured definition key', async () => {
+    const user = userEvent.setup();
+    const drugOrderSearchDefinitionKey = 'configuration.definitionlibrary.cohort.drugOrderSearch';
+    mockUseConfig.mockReturnValue({ drugOrderSearchDefinitionKey });
+    mockUseCareSettings.mockReturnValue({
+      careSettings: mockCareSettings,
+      isLoading: false,
+      careSettingsError: undefined,
+    });
+    mockUseDrugs.mockReturnValue({ drugs: mockDrugs, isLoading: false, drugsError: undefined });
+    const mockSubmit = vi.fn();
+    render(<SearchByDrugOrder onSubmit={mockSubmit} />);
+
+    await user.click(screen.getByText(/select drugs/i));
+    await user.click(screen.getByText(mockDrugs[1].label));
+    await user.click(screen.getByTestId('search-btn'));
+
+    expect(mockSubmit.mock.calls[0][0].query.rowFilters[0].key).toBe(drugOrderSearchDefinitionKey);
   });
 });
