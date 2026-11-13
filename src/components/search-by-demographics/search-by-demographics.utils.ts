@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 
-import { composeJson } from '../../cohort-builder.utils';
+import { composeJson, formatDate } from '../../cohort-builder.utils';
 
 interface DemographicsSearchParams {
   gender: string;
@@ -46,11 +46,11 @@ export const getDescription = ({
   }
   if (birthDayStartDate != '' || birthDayEndDate != '') {
     if (birthDayStartDate && birthDayEndDate) {
-      description += ` and birthdate between ${birthDayStartDate} and ${birthDayEndDate}`;
+      description += ` and birthdate between ${formatDate(birthDayStartDate)} and ${formatDate(birthDayEndDate)}`;
     } else if (birthDayStartDate) {
-      description += ` and born on or after ${birthDayStartDate}`;
+      description += ` and born on or after ${formatDate(birthDayStartDate)}`;
     } else {
-      description += ` and born on or before ${birthDayEndDate}`;
+      description += ` and born on or before ${formatDate(birthDayEndDate)}`;
     }
   }
   if (livingStatus) {

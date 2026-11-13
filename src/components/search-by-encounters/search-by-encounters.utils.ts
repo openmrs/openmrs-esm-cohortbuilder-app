@@ -1,4 +1,4 @@
-import { composeJson } from '../../cohort-builder.utils';
+import { composeJson, formatDate } from '../../cohort-builder.utils';
 import { type EncounterDetails } from '../../types';
 
 export const getDescription = ({
@@ -33,16 +33,16 @@ export const getDescription = ({
   }
   if (onOrAfter) {
     if (onOrBefore) {
-      description += ` from ${onOrAfter}`;
+      description += ` from ${formatDate(onOrAfter)}`;
     } else {
-      description += ` on or after ${onOrAfter}`;
+      description += ` on or after ${formatDate(onOrAfter)}`;
     }
   }
   if (onOrBefore) {
     if (onOrAfter) {
-      description += ` to ${onOrBefore}`;
+      description += ` to ${formatDate(onOrBefore)}`;
     } else {
-      description += ` on or before ${onOrBefore}`;
+      description += ` on or before ${formatDate(onOrBefore)}`;
     }
   }
   return description;
