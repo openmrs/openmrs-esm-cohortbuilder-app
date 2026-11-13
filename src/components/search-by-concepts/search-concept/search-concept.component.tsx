@@ -103,7 +103,7 @@ export const SearchConcept: React.FC<SearchConceptProps> = ({ concept, searchTex
         </div>
         {concept && (
           <span className={styles.text}>
-            {t('patientsWithObservationsWhoseAnswerIs', 'Patients with observations whose answer is')}
+            {t('patientsWithObservationsOf', 'Patients with observations of')}
             <strong> "{concept.name}"</strong>.
           </span>
         )}

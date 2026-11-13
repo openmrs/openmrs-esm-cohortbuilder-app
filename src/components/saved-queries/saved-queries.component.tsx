@@ -12,7 +12,7 @@ import {
   Pagination,
 } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
-import { showSnackbar } from '@openmrs/esm-framework';
+import { showSnackbar, usePagination } from '@openmrs/esm-framework';
 import type { PaginationData } from '../../types';
 import { deleteDataSet, useQueries } from './saved-queries.resources';
 import EmptyData from '../empty-data/empty-data.component';
@@ -26,14 +26,9 @@ interface SavedQueriesProps {
 
 const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
   const { t } = useTranslation();
-  const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const { queries, error, isLoading, mutate } = useQueries();
-  // The list can shrink after a delete, so keep the current page within range.
-  const currentPage = Math.min(page, Math.max(1, Math.ceil(queries.length / pageSize)));
-  if (page !== currentPage) {
-    setPage(currentPage);
-  }
+  const { results, currentPage, goTo } = usePagination(queries, pageSize);
 
   const deleteQuery = async (queryId: string) => {
     try {
@@ -67,7 +62,7 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
   ];
 
   const handlePagination = ({ page, pageSize }: PaginationData) => {
-    setPage(page);
+    goTo(page);
     setPageSize(pageSize);
   };
 
@@ -88,7 +83,7 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
       {isLoading ? (
         <DataTableSkeleton headers={headers} rowCount={3} showHeader={false} showToolbar={false} />
       ) : !error || queries.length > 0 ? (
-        <DataTable rows={queries} headers={headers} useZebraStyles>
+        <DataTable rows={results} headers={headers} useZebraStyles>
           {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
             <Table {...getTableProps()}>
               <TableHead>
@@ -100,23 +95,16 @@ const SavedQueries: React.FC<SavedQueriesProps> = ({ onViewQuery }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows
-                  .slice((currentPage - 1) * pageSize)
-                  .slice(0, pageSize)
-                  .map((row, index: number) => (
-                    <TableRow {...getRowProps({ row })} key={index}>
-                      {row.cells.map((cell, index) => (
-                        <TableCell key={index}>{cell.value}</TableCell>
-                      ))}
-                      <TableCell className={mainStyles.optionCell}>
-                        <SavedQueriesOptions
-                          query={queries[(currentPage - 1) * pageSize + index]}
-                          onViewQuery={onViewQuery}
-                          deleteQuery={deleteQuery}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                {rows.map((row, index: number) => (
+                  <TableRow {...getRowProps({ row })} key={index}>
+                    {row.cells.map((cell, index) => (
+                      <TableCell key={index}>{cell.value}</TableCell>
+                    ))}
+                    <TableCell className={mainStyles.optionCell}>
+                      <SavedQueriesOptions query={results[index]} onViewQuery={onViewQuery} deleteQuery={deleteQuery} />
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           )}

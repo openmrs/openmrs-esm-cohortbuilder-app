@@ -215,15 +215,15 @@ const CohortBuilder: React.FC = () => {
         <PageHeaderContent illustration={<CohortsPictogram />} title={t('cohortBuilder', 'Cohort Builder')} />
       </PageHeader>
       <div className={classNames(styles.mainContainer, styles.cohortBuilder)}>
-        {urlDefinitionError && (
-          <InlineNotification
-            kind="error"
-            lowContrast
-            title={t('cohortBuilderLinkError', 'This cohort builder link could not be opened')}
-            subtitle={urlDefinitionError}
-          />
-        )}
         <div className={classNames(isLayoutTablet ? styles.tabletContainer : styles.desktopContainer)}>
+          {urlDefinitionError && (
+            <InlineNotification
+              kind="error"
+              lowContrast
+              title={t('cohortBuilderLinkError', 'This cohort builder link could not be opened')}
+              subtitle={urlDefinitionError}
+            />
+          )}
           <div className={styles.tabContainer}>
             <p className={styles.heading}>{t('searchCriteria', 'Search Criteria')}</p>
             <div className={styles.tab}>
@@ -248,8 +248,8 @@ const CohortBuilder: React.FC = () => {
               kind="info"
               lowContrast
               hideCloseButton
-              title={t('cohortMembersLimited', 'Showing the first {{shown}} of {{total}} members', {
-                shown: MAX_COHORT_MEMBERS_SHOWN,
+              title={t('cohortMembersLimited', 'Only the first {{limit}} of {{total}} members are loaded', {
+                limit: MAX_COHORT_MEMBERS_SHOWN,
                 total: cohortMemberCounts.total,
               })}
             />

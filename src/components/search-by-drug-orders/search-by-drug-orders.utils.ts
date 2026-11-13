@@ -10,12 +10,11 @@ export const getDescription = ({
   activatedOnOrBefore,
   activatedOnOrAfter,
 }: DrugOrderDetails) => {
-  let description =
-    'Patients who taking ' +
-    selectedDrugs
-      .map((drug) => drug.label)
-      .join(', ')
-      .replace(/,(?=[^,]*$)/, ' and');
+  const drugs = selectedDrugs
+    .map((drug) => drug.label)
+    .join(', ')
+    .replace(/,(?=[^,]*$)/, ' and');
+  let description = `Patients who are taking ${drugs || 'any drug'}`;
 
   if (selectedCareSetting) {
     description += ` from ${selectedCareSetting.label}`;

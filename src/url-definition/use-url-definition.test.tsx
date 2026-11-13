@@ -141,9 +141,9 @@ describe('useUrlDefinition', () => {
       'Female Patients with ages between 15 and 49 years that are alive',
       'Patients enrolled in HIV Care and Treatment',
       // formatDate is the framework mock's.
-      'Patients who taking 1 drug on or after Today, 12:00 AM',
+      'Patients who are taking 1 drug on or after Today, 12:00 AM',
       // The builder's own words for each criterion, never the link's label.
-      'Female Patients with ages between 15 and 49 years that are alive AND Patients enrolled in HIV Care and Treatment AND Patients who taking 1 drug on or after Today, 12:00 AM',
+      'Female Patients with ages between 15 and 49 years that are alive AND Patients enrolled in HIV Care and Treatment AND Patients who are taking 1 drug on or after Today, 12:00 AM',
     ]);
     expect(history().map(({ patients }) => patients.length)).toEqual([3, 2, 2, 1]);
 
@@ -169,7 +169,7 @@ describe('useUrlDefinition', () => {
     );
 
     await waitFor(() => expect(history()).toHaveLength(1));
-    expect(history()[0].description).toBe('Patients with Encounter of Types Adult Visit');
+    expect(history()[0].description).toBe('Patients with Encounter of Type Adult Visit');
     expect(mockOpenmrsFetch).toHaveBeenCalledWith(
       expect.stringMatching(new RegExp(`/encountertype/${encounterTypeUuid}\\?v=custom:\\(display\\)$`)),
     );
@@ -196,6 +196,11 @@ describe('useUrlDefinition', () => {
       'Patients enrolled in HIV Care and Treatment',
       'Female Patients with ages between 15 and 49 years that are alive AND Patients enrolled in HIV Care and Treatment',
     ]);
+
+    const [demographics, enrollment, composition] = adHocQueryBodies();
+    expect(adHocQueryBodies()).toHaveLength(3);
+    expect(composition.rowFilters).toEqual([...demographics.rowFilters, ...enrollment.rowFilters]);
+    expect(composition.customRowFilterCombination).toBe('(1 AND 2 AND NOT 3) AND (4)');
   });
 
   it('removes only its own entries when a search fails', async () => {
@@ -209,6 +214,58 @@ describe('useUrlDefinition', () => {
 
     expect(await screen.findByText('This cohort builder link could not be opened')).toBeInTheDocument();
     expect(history().map(({ description }) => description)).toEqual(['Manual search']);
+  });
+
+  it('composes the searches it ran, and rolls back only those, when history is cleared or an earlier entry is deleted meanwhile', async () => {
+    const earlier = {
+      description: 'Earlier search',
+      patients: [row(8)],
+      parameters: { rowFilters: [{ key: 'earlier' }], customRowFilterCombination: '1' },
+    };
+    const unrelated = {
+      description: 'Unrelated search',
+      patients: [row(9)],
+      parameters: { rowFilters: [{ key: 'unrelated' }], customRowFilterCombination: '1' },
+    };
+    window.sessionStorage.setItem('openmrsHistory', JSON.stringify([earlier, unrelated]));
+
+    let releaseFirst: () => void;
+    let releaseSecond: () => void;
+    beforeAdHocQueryAnswers = (call) => {
+      if (call === 0) {
+        // An earlier entry goes away while the first criterion is still running, so positions shift.
+        const remaining = history().filter((entry) => entry.description !== 'Earlier search');
+        window.sessionStorage.setItem('openmrsHistory', JSON.stringify(remaining));
+        return new Promise<void>((resolve) => {
+          releaseFirst = resolve;
+        });
+      }
+      if (call === 1) {
+        window.sessionStorage.removeItem('openmrsHistory');
+        return new Promise<void>((resolve) => {
+          releaseSecond = resolve;
+        });
+      }
+      // A search that is not this link's lands while the composition is running, and then it fails.
+      addToHistory('Arrived meanwhile', [], {
+        rowFilters: [{ key: 'arrived' }],
+        customRowFilterCombination: '1',
+      } as Query);
+    };
+    adHocQueryResults = [[row(1)], [row(2)], new Error('Internal Server Error')];
+    openBuilderAt(`?definition=${encode({ v: 1, criteria: definition.criteria.slice(0, 2) })}`);
+
+    await waitFor(() => expect(adHocQueryBodies()).toHaveLength(1));
+    releaseFirst();
+    await waitFor(() => expect(adHocQueryBodies()).toHaveLength(2));
+    releaseSecond();
+
+    expect(await screen.findByText('This cohort builder link could not be opened')).toBeInTheDocument();
+    const [demographics, enrollment, composition] = adHocQueryBodies();
+    expect(adHocQueryBodies()).toHaveLength(3);
+    expect(composition.rowFilters).toEqual([...demographics.rowFilters, ...enrollment.rowFilters]);
+    expect(composition.customRowFilterCombination).toBe('(1 AND 2 AND NOT 3) AND (4)');
+    expect(history().map(({ description }) => description)).toEqual(['Arrived meanwhile']);
   });
 
   it('composes with the newest history entries when history already has searches', async () => {
@@ -259,6 +316,72 @@ describe('useUrlDefinition', () => {
     );
     expect(screen.getByText('Earlier search')).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Drug Order' })).toBeEnabled();
+  });
+
+  it('keeps the earlier history and a plain error when crypto.randomUUID throws', async () => {
+    vi.spyOn(crypto, 'randomUUID').mockImplementation(() => {
+      throw new TypeError('crypto.randomUUID is not a function');
+    });
+    try {
+      const earlierHistory = [{ description: 'Earlier search', patients: [row(8)], parameters: {} }];
+      window.sessionStorage.setItem('openmrsHistory', JSON.stringify(earlierHistory));
+      adHocQueryResults = [[row(1)], [row(1)], new Error('Internal Server Error')];
+      openBuilderAt(`?definition=${encode(definition)}`);
+
+      expect(await screen.findByText('This cohort builder link could not be opened')).toBeInTheDocument();
+      expect(
+        screen.getByText('The search "{{description}}" failed, so none of this link\'s searches were kept'),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/randomUUID/)).not.toBeInTheDocument();
+      expect(history()).toEqual(earlierHistory);
+    } finally {
+      vi.mocked(crypto.randomUUID).mockRestore();
+    }
+  });
+
+  it.each([
+    ['program', { type: 'enrollment', programs: [programUuid] }],
+    ['drug', { type: 'drugOrder', drugs: [drugUuid] }],
+    ['encounter type', { type: 'encounter', encounterTypes: [encounterTypeUuid] }],
+  ])('refuses a link when its %s no longer exists, and does not search', async (resource, criterion) => {
+    const resources = { program: 'program', drug: 'drug', 'encounter type': 'encountertype' };
+    const uuid =
+      criterion.type === 'drugOrder' ? drugUuid : criterion.type === 'encounter' ? encounterTypeUuid : programUuid;
+    const answerAsServer = mockOpenmrsFetch.getMockImplementation();
+    mockOpenmrsFetch.mockImplementation(async (url: string, init) => {
+      if (url.includes(`/${resources[resource]}/${uuid}`)) {
+        const missing = new Error('Not found') as Error & { response: { status: number } };
+        missing.response = { status: 404 };
+        throw missing;
+      }
+      return answerAsServer(url, init);
+    });
+    openBuilderAt(`?definition=${encode({ v: 1, criteria: [criterion] })}`);
+
+    expect(await screen.findByText('This cohort builder link could not be opened')).toBeInTheDocument();
+    expect(screen.getByText("This link isn't a valid cohort query")).toBeInTheDocument();
+    expect(screen.queryByText(uuid)).not.toBeInTheDocument();
+    expect(window.location.search).toBe('');
+    expect(adHocQueryBodies()).toHaveLength(0);
+    expect(history()).toHaveLength(0);
+  });
+
+  it('still searches when a name cannot be loaded for a reason other than it being gone', async () => {
+    const answerAsServer = mockOpenmrsFetch.getMockImplementation();
+    mockOpenmrsFetch.mockImplementation(async (url: string, init) => {
+      if (url.includes(`/program/${programUuid}`)) {
+        const failure = new Error('Internal Server Error') as Error & { response: { status: number } };
+        failure.response = { status: 500 };
+        throw failure;
+      }
+      return answerAsServer(url, init);
+    });
+    openBuilderAt(`?definition=${encode({ v: 1, criteria: [{ type: 'enrollment', programs: [programUuid] }] })}`);
+
+    await waitFor(() => expect(history()).toHaveLength(1));
+    expect(history()[0].description).toBe('Patients enrolled in 1 program');
+    expect(adHocQueryBodies()).toHaveLength(1);
+    expect(screen.queryByText("This link isn't a valid cohort query")).not.toBeInTheDocument();
   });
 
   it('uses the configured drug order search definition key', async () => {
@@ -362,7 +485,7 @@ describe('useUrlDefinition', () => {
     );
     openBuilderAt(`?cohort=${cohortUuid}`);
 
-    expect(await screen.findByText('Showing the first {{shown}} of {{total}} members')).toBeInTheDocument();
+    expect(await screen.findByText('Only the first {{limit}} of {{total}} members are loaded')).toBeInTheDocument();
   });
 
   it('runs a saved query', async () => {
