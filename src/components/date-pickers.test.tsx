@@ -187,6 +187,32 @@ describe('date pickers', () => {
     expect(query.rowFilters[0]?.parameterValues?.onOrAfter).toEqual(date ? dayjs(date).format() : undefined);
   });
 
+  it('searches with only a start date, with no end date in the filter', async () => {
+    const onSubmit = vi.fn();
+    render(<SearchByDemographics onSubmit={onSubmit} />);
+
+    pick(dateInputs()[0], new Date(2000, 0, 1));
+    const [{ query }, description] = await search(onSubmit);
+
+    expect(query.rowFilters.find(({ key }) => key.endsWith('bornDuringPeriod')).parameterValues).toEqual({
+      startDate: dayjs(new Date(2000, 0, 1)).format(),
+    });
+    expect(description).toContain(`born on or after ${dayjs(new Date(2000, 0, 1)).format()}`);
+  });
+
+  it('searches with only an end date, with no start date in the filter', async () => {
+    const onSubmit = vi.fn();
+    render(<SearchByDemographics onSubmit={onSubmit} />);
+
+    pick(dateInputs()[1], new Date(2000, 0, 1));
+    const [{ query }, description] = await search(onSubmit);
+
+    expect(query.rowFilters.find(({ key }) => key.endsWith('bornDuringPeriod')).parameterValues).toEqual({
+      endDate: dayjs(new Date(2000, 0, 1)).format(),
+    });
+    expect(description).toContain(`born on or before ${dayjs(new Date(2000, 0, 1)).format()}`);
+  });
+
   it('takes a typed date when Enter is pressed', async () => {
     const onSubmit = vi.fn();
     render(<SearchByDemographics onSubmit={onSubmit} />);
