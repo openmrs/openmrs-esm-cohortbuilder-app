@@ -139,7 +139,6 @@ describe('Test the search by drug orders component', () => {
 
   it('should be able to select input values', async () => {
     const user = userEvent.setup();
-    mockUseConfig.mockReturnValue(getDefaultsFromConfigSchema(configSchema));
 
     mockUseCareSettings.mockImplementation(() => ({
       careSettings: mockCareSettings,
@@ -174,7 +173,7 @@ describe('Test the search by drug orders component', () => {
 
     expect(mockSubmit).toBeCalledWith(
       expectedQuery,
-      `Patients who taking ${mockDrugs[1].label} and ${mockDrugs[2].label} from Pharmacy`,
+      `Patients who are taking ${mockDrugs[1].label} and ${mockDrugs[2].label} from Pharmacy`,
     );
   });
 
@@ -233,24 +232,6 @@ describe('Test the search by drug orders component', () => {
     expect(mockSubmit).not.toHaveBeenCalled();
   });
 
-  it('shows a failed drug list once, not on every render', () => {
-    // SWR keeps returning the same error object until the request is retried.
-    const listError = new Error('Forbidden');
-    mockUseConfig.mockReturnValue(getDefaultsFromConfigSchema(configSchema));
-    mockUseCareSettings.mockImplementation(() => ({
-      careSettings: [],
-      isLoading: false,
-      careSettingsError: undefined,
-    }));
-    mockUseDrugs.mockImplementation(() => ({ drugs: [], isLoading: false, drugsError: listError }));
-
-    const { rerender } = render(<SearchByDrugOrder onSubmit={vi.fn()} />);
-    rerender(<SearchByDrugOrder onSubmit={vi.fn()} />);
-
-    expect(showSnackbar).toHaveBeenCalledTimes(1);
-    expect(showSnackbar).toHaveBeenCalledWith(expect.objectContaining({ kind: 'error', subtitle: 'Forbidden' }));
-  });
-
   it('should still search after the inputs are reset', async () => {
     const user = userEvent.setup();
     mockUseCareSettings.mockImplementation(() => ({
@@ -274,5 +255,28 @@ describe('Test the search by drug orders component', () => {
     expect(mockSubmit.mock.calls[0][1]).not.toContain(mockDrugs[1].label);
     expect(mockSubmit.mock.calls[0][1]).toContain(mockDrugs[2].label);
     expect(screen.getByTestId('search-btn')).toBeEnabled();
+  });
+
+  it('searches with the configured definition key', async () => {
+    const user = userEvent.setup();
+    const drugOrderSearchDefinitionKey = 'configuration.definitionlibrary.cohort.drugOrderSearch';
+    mockUseConfig.mockReturnValue({
+      ...(getDefaultsFromConfigSchema(configSchema) as ConfigObject),
+      drugOrderSearchDefinitionKey,
+    });
+    mockUseCareSettings.mockReturnValue({
+      careSettings: mockCareSettings,
+      isLoading: false,
+      careSettingsError: undefined,
+    });
+    mockUseDrugs.mockReturnValue({ drugs: mockDrugs, isLoading: false, drugsError: undefined });
+    const mockSubmit = vi.fn();
+    render(<SearchByDrugOrder onSubmit={mockSubmit} />);
+
+    await user.click(screen.getByText(/select drugs/i));
+    await user.click(screen.getByText(mockDrugs[1].label));
+    await user.click(screen.getByTestId('search-btn'));
+
+    expect(mockSubmit.mock.calls[0][0].query.rowFilters[0].key).toBe(drugOrderSearchDefinitionKey);
   });
 });

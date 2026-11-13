@@ -276,7 +276,7 @@ describe('CohortCountProvider', () => {
       looksLikeIdentifier: false,
     });
     const description =
-      'Female Patients with ages between 15 and 49 years that are alive AND Patients who taking 1 drug on or after Today, 12:00 AM';
+      'Female Patients with ages between 15 and 49 years that are alive AND Patients who are taking 1 drug on or after Today, 12:00 AM';
     expect(last()).toMatchObject({ status: 'loading', title: 'Patient count' });
     expect(last().results).toEqual([
       expect.objectContaining({ id: 'cohort-count', title: 'Counting…', subtitle: description }),

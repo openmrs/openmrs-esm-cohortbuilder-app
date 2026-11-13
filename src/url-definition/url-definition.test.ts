@@ -510,7 +510,7 @@ describe('buildSearch', () => {
     });
 
     expect(buildSearch({ type: 'drugOrder', drugs: [drugUuid] }, new Map(), drugOrderSearchKey).description).toBe(
-      'Patients who taking 1 drug',
+      'Patients who are taking 1 drug',
     );
     expect(
       buildSearch(
@@ -518,7 +518,7 @@ describe('buildSearch', () => {
         names,
         drugOrderSearchKey,
       ).description,
-    ).toBe('Patients who taking Triomune-30 and 2 more drugs');
+    ).toBe('Patients who are taking Triomune-30 and 2 more drugs');
   });
 
   it('searches encounters by type only, as the encounters tab does, and describes them with their names', () => {
@@ -535,8 +535,8 @@ describe('buildSearch', () => {
       },
     ]);
     expect(search.searchParams.query.customRowFilterCombination).toBe('1');
-    // The encounters tab's own words, double space and all: it swaps the last comma for " and ".
-    expect(search.description).toBe('Patients with Encounter of Types Adult Visit and  1 more encounter type');
+    // The encounters tab's own words: "Types" for more than one, and the last comma becomes " and".
+    expect(search.description).toBe('Patients with Encounter of Types Adult Visit and 1 more encounter type');
   });
 
   it('describes drug orders with drug names and dates', () => {
@@ -546,7 +546,7 @@ describe('buildSearch', () => {
         names,
         drugOrderSearchKey,
       ).description,
-    ).toMatch(/^Patients who taking Triomune-30 and Efavirenz on or after /);
+    ).toMatch(/^Patients who are taking Triomune-30 and Efavirenz on or after /);
   });
 
   it('uses the configured drug order search definition key', () => {

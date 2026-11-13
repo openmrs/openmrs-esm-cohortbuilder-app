@@ -123,7 +123,7 @@ describe("o3's config for the cohort row, through the real config system", () =>
 
     expect(report.mock.calls.at(-1)[0]).toMatchObject({
       status: 'loading',
-      results: [{ title: 'Counting…', subtitle: expect.stringMatching(/^Patients who taking 13 drugs on or after /) }],
+      results: [{ title: 'Counting…', subtitle: expect.stringMatching(/^Patients who are taking 13 drugs on or after /) }],
     });
   });
 });
