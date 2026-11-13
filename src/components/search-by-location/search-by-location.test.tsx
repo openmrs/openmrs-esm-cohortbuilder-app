@@ -155,4 +155,34 @@ describe('Test the search by location component', () => {
 
     expect(mockSubmit.mock.calls[0][1]).toBe('Patients in any location (by method ANY_ENCOUNTER).');
   });
+
+  it('goes back to no locations and Any Encounter on Reset, and searches with them', async () => {
+    const user = userEvent.setup();
+    mockUseLocations.mockImplementation(() => ({
+      locations: mockLocations,
+      isLoading: false,
+      locationsError: undefined,
+    }));
+    const mockSubmit = vi.fn();
+    render(<SearchByLocation onSubmit={mockSubmit} />);
+
+    await user.click(screen.getByText(/select locations/i));
+    await user.click(screen.getByText(mockLocations[2].label));
+    await user.keyboard('{Escape}');
+    await user.click(screen.getByTitle('Any Encounter'));
+    await user.click(screen.getByText('Most Recent Encounter'));
+    await user.click(screen.getByTestId('reset-btn'));
+
+    expect(screen.queryAllByRole('button', { name: /clear all selected items/i })).toHaveLength(0);
+    expect(screen.getByTitle('Any Encounter')).toBeInTheDocument();
+    await user.click(screen.getByText(/select locations/i));
+    await user.click(screen.getByText(mockLocations[0].label));
+    await user.keyboard('{Escape}');
+    await user.click(screen.getByTestId('search-btn'));
+
+    expect(mockSubmit.mock.calls[0][0].query.rowFilters[0].parameterValues).toEqual({
+      locationList: [mockLocations[0].value],
+      timeQualifier: 'ANY',
+    });
+  });
 });

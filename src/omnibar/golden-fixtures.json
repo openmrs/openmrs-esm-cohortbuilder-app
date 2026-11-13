@@ -1,0 +1,122 @@
+[
+  {
+    "text": "women aged 15-49",
+    "drugCriteriaEnabled": false,
+    "url": "${openmrsSpaBase}/cohort-builder?definition=eyJ2IjoxLCJsYWJlbCI6IkZlbWFsZSBwYXRpZW50cyBhZ2VkIDE14oCTNDkiLCJjcml0ZXJpYSI6W3sidHlwZSI6ImRlbW9ncmFwaGljcyIsImdlbmRlciI6ImZlbWFsZSIsIm1pbkFnZSI6MTUsIm1heEFnZSI6NDl9XX0",
+    "definition": {
+      "v": 1,
+      "label": "Female patients aged 15–49",
+      "criteria": [
+        {
+          "type": "demographics",
+          "gender": "female",
+          "minAge": 15,
+          "maxAge": 49
+        }
+      ]
+    }
+  },
+  {
+    "text": "men over 50 enrolled in HIV",
+    "drugCriteriaEnabled": false,
+    "url": "${openmrsSpaBase}/cohort-builder?definition=eyJ2IjoxLCJsYWJlbCI6Ik1hbGUgcGF0aWVudHMgYWdlZCA1MSsgaW4gSElWIENhcmUgYW5kIFRyZWF0bWVudCIsImNyaXRlcmlhIjpbeyJ0eXBlIjoiZGVtb2dyYXBoaWNzIiwiZ2VuZGVyIjoibWFsZSIsIm1pbkFnZSI6NTF9LHsidHlwZSI6ImVucm9sbG1lbnQiLCJwcm9ncmFtcyI6WyI2NGY5NTBlNi0xYjA3LTRhYzAtOGU3ZS1mM2UxNDhmMzQ2M2YiXX1dfQ",
+    "definition": {
+      "v": 1,
+      "label": "Male patients aged 51+ in HIV Care and Treatment",
+      "criteria": [
+        {
+          "type": "demographics",
+          "gender": "male",
+          "minAge": 51
+        },
+        {
+          "type": "enrollment",
+          "programs": [
+            "64f950e6-1b07-4ac0-8e7e-f3e148f3463f"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "text": "boys under 5 in the diabetes program",
+    "drugCriteriaEnabled": false,
+    "url": "${openmrsSpaBase}/cohort-builder?definition=eyJ2IjoxLCJsYWJlbCI6Ik1hbGUgcGF0aWVudHMgYWdlZCA0IG9yIHlvdW5nZXIgaW4gT3V0cGF0aWVudCBEaWFiZXRlcyBFZHVjYXRpb24gUHJvZ3JhbSIsImNyaXRlcmlhIjpbeyJ0eXBlIjoiZGVtb2dyYXBoaWNzIiwiZ2VuZGVyIjoibWFsZSIsIm1heEFnZSI6NH0seyJ0eXBlIjoiZW5yb2xsbWVudCIsInByb2dyYW1zIjpbIjdhNzJhNzI0LTg5OTQtNGQzMy05NjJlLWY2NWQ4Y2E0YWU2NyJdfV19",
+    "definition": {
+      "v": 1,
+      "label": "Male patients aged 4 or younger in Outpatient Diabetes Education Program",
+      "criteria": [
+        {
+          "type": "demographics",
+          "gender": "male",
+          "maxAge": 4
+        },
+        {
+          "type": "enrollment",
+          "programs": [
+            "7a72a724-8994-4d33-962e-f65d8ca4ae67"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "text": "enrolled in PMTCT and enrolled in PrEP",
+    "drugCriteriaEnabled": false,
+    "url": "${openmrsSpaBase}/cohort-builder?definition=eyJ2IjoxLCJsYWJlbCI6IlBhdGllbnRzIGluIFBNVENUIGluIEhJViBQcmV2ZW50YXRpdmUgU2VydmljZXMgKFBFUC9QckVQKSIsImNyaXRlcmlhIjpbeyJ0eXBlIjoiZW5yb2xsbWVudCIsInByb2dyYW1zIjpbImQxYjZjZDQzLThhYzctNGNkZC04ZmI0LWZlNTE2MzVjODJiNCJdfSx7InR5cGUiOiJlbnJvbGxtZW50IiwicHJvZ3JhbXMiOlsiYWMxYmJjNDUtOGMzNS00OWZmLWE1NzQtOTU1M2ZmNzg5NTI3Il19XX0",
+    "definition": {
+      "v": 1,
+      "label": "Patients in PMTCT in HIV Preventative Services (PEP/PrEP)",
+      "criteria": [
+        {
+          "type": "enrollment",
+          "programs": [
+            "d1b6cd43-8ac7-4cdd-8fb4-fe51635c82b4"
+          ]
+        },
+        {
+          "type": "enrollment",
+          "programs": [
+            "ac1bbc45-8c35-49ff-a574-9553ff789527"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "text": "female patients aged 15-49 on ARVs",
+    "drugCriteriaEnabled": true,
+    "url": "${openmrsSpaBase}/cohort-builder?definition=eyJ2IjoxLCJsYWJlbCI6IkZlbWFsZSBwYXRpZW50cyBhZ2VkIDE14oCTNDkgb24gQVJWcyIsImNyaXRlcmlhIjpbeyJ0eXBlIjoiZGVtb2dyYXBoaWNzIiwiZ2VuZGVyIjoiZmVtYWxlIiwibWluQWdlIjoxNSwibWF4QWdlIjo0OX0seyJ0eXBlIjoiZHJ1Z09yZGVyIiwiZHJ1Z3MiOlsiODg5MWVmODQtMDhkMy01ZTIzLThkODEtZjdhNTI4YTI1OTFkIiwiMjRjN2I2YTctYzMxNy01ODhmLWE1MGMtOWNhMTI1MzUzODhiIiwiYmZjOTM1NjgtYzlkZS01YTdiLTk5OGEtYTU3ZWEzYWY3ZTAyIiwiMDIxNmZmNWYtN2U5OC01NDI1LTk0NGItZTQ3OTJjZmFlYThjIiwiNWUwZmI0ZDEtMGE3Ni01NzBjLWFhMjMtOWFiM2U2OGYyZDVlIiwiZmY3Y2JmNGEtY2ViMy01MDQ0LTljMDItMDI4MDhmMzEwZGVhIiwiOTI0N2E5Y2QtNjc5MC01MWI0LTg2OGYtYWE4M2E3NDBkNjE3IiwiMjc0YWFlNzctMzFkMi01M2EwLTlhMmQtZWM5NDFkNGU5NjI0IiwiMDgwMGZhZGEtOGE5Ni01MmFjLWFiOGEtNjhmNmY1Y2IxMTljIiwiYjNhM2RiMzYtYmE4OS01MmZjLWIzNWMtYjI2ZWI2Yjk5MzI0IiwiOGNlYTg2M2QtZThhNS01YjU2LTgyNjktMTYyYjQ0NGMzMDlhIiwiYmYxNzEyODUtMTY5MS0xMWRmLTk3YTUtNzAzOGM0MzJhYWJmIiwiNGQyNjE4ZmQtNWJlMy01YTRjLWFkNGItNThiOGIyZWQwYTEzIl0sImFjdGl2ZU9uT3JBZnRlciI6InRvZGF5In1dfQ",
+    "definition": {
+      "v": 1,
+      "label": "Female patients aged 15–49 on ARVs",
+      "criteria": [
+        {
+          "type": "demographics",
+          "gender": "female",
+          "minAge": 15,
+          "maxAge": 49
+        },
+        {
+          "type": "drugOrder",
+          "drugs": [
+            "8891ef84-08d3-5e23-8d81-f7a528a2591d",
+            "24c7b6a7-c317-588f-a50c-9ca12535388b",
+            "bfc93568-c9de-5a7b-998a-a57ea3af7e02",
+            "0216ff5f-7e98-5425-944b-e4792cfaea8c",
+            "5e0fb4d1-0a76-570c-aa23-9ab3e68f2d5e",
+            "ff7cbf4a-ceb3-5044-9c02-02808f310dea",
+            "9247a9cd-6790-51b4-868f-aa83a740d617",
+            "274aae77-31d2-53a0-9a2d-ec941d4e9624",
+            "0800fada-8a96-52ac-ab8a-68f6f5cb119c",
+            "b3a3db36-ba89-52fc-b35c-b26eb6b99324",
+            "8cea863d-e8a5-5b56-8269-162b444c309a",
+            "bf171285-1691-11df-97a5-7038c432aabf",
+            "4d2618fd-5be3-5a4c-ad4b-58b8b2ed0a13"
+          ],
+          "activeOnOrAfter": "today"
+        }
+      ]
+    }
+  }
+]
