@@ -196,6 +196,11 @@ describe('useUrlDefinition', () => {
       'Patients enrolled in HIV Care and Treatment',
       'Female Patients with ages between 15 and 49 years that are alive AND Patients enrolled in HIV Care and Treatment',
     ]);
+
+    const [demographics, enrollment, composition] = adHocQueryBodies();
+    expect(adHocQueryBodies()).toHaveLength(3);
+    expect(composition.rowFilters).toEqual([...demographics.rowFilters, ...enrollment.rowFilters]);
+    expect(composition.customRowFilterCombination).toBe('(1 AND 2 AND NOT 3) AND (4)');
   });
 
   it('removes only its own entries when a search fails', async () => {
