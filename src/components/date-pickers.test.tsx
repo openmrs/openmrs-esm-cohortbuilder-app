@@ -184,7 +184,9 @@ describe('date pickers', () => {
     const [{ query }] = await search(onSubmit);
 
     expect(dateInputs()[0]).toHaveValue(date ? dayjs(date).format('DD-MM-YYYY') : '');
-    expect(query.rowFilters[0]?.parameterValues?.onOrAfter).toEqual(date ? dayjs(date).format('YYYY-MM-DD') : undefined);
+    expect(query.rowFilters[0]?.parameterValues?.onOrAfter).toEqual(
+      date ? dayjs(date).format('YYYY-MM-DD') : undefined,
+    );
   });
 
   it('searches with only a start date, with no end date in the filter', async () => {

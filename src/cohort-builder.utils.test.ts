@@ -12,10 +12,11 @@ describe('composeJson', () => {
       }),
     );
   });
+}); // <-- This closing bracket ends composeJson before formatDate starts!
 
 describe('formatDate', () => {
   const originalTz = process.env.TZ;
-  
+
   afterEach(() => {
     if (originalTz === undefined) {
       delete process.env.TZ;
@@ -28,5 +29,4 @@ describe('formatDate', () => {
     process.env.TZ = 'America/New_York';
     expect(formatDate('2024-12-31')).toBe('31/12/2024');
   });
-});
 });
