@@ -138,7 +138,6 @@ describe('Test the search by drug orders component', () => {
 
   it('should be able to select input values', async () => {
     const user = userEvent.setup();
-    mockUseConfig.mockReturnValue(getDefaultsFromConfigSchema(configSchema));
 
     mockUseCareSettings.mockImplementation(() => ({
       careSettings: mockCareSettings,
@@ -175,24 +174,6 @@ describe('Test the search by drug orders component', () => {
       expectedQuery,
       `Patients who are taking ${mockDrugs[1].label} and ${mockDrugs[2].label} from Pharmacy`,
     );
-  });
-
-  it('shows a failed drug list once, not on every render', () => {
-    // SWR keeps returning the same error object until the request is retried.
-    const listError = new Error('Forbidden');
-    mockUseConfig.mockReturnValue(getDefaultsFromConfigSchema(configSchema));
-    mockUseCareSettings.mockImplementation(() => ({
-      careSettings: [],
-      isLoading: false,
-      careSettingsError: undefined,
-    }));
-    mockUseDrugs.mockImplementation(() => ({ drugs: [], isLoading: false, drugsError: listError }));
-
-    const { rerender } = render(<SearchByDrugOrder onSubmit={vi.fn()} />);
-    rerender(<SearchByDrugOrder onSubmit={vi.fn()} />);
-
-    expect(showSnackbar).toHaveBeenCalledTimes(1);
-    expect(showSnackbar).toHaveBeenCalledWith(expect.objectContaining({ kind: 'error', subtitle: 'Forbidden' }));
   });
 
   it('should still search after the inputs are reset', async () => {

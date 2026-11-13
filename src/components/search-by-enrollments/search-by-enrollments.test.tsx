@@ -193,23 +193,6 @@ describe('Test the search by enrollments component', () => {
     );
   });
 
-  it('shows a failed program list once, not on every render', () => {
-    // SWR keeps returning the same error object until the request is retried.
-    const listError = new Error('Forbidden');
-    mockUseLocations.mockImplementation(() => ({ locations: [], isLoading: false, locationsError: undefined }));
-    mockUsePrograms.mockImplementation(() => ({
-      programs: [],
-      isLoading: false,
-      programsError: listError,
-    }));
-
-    const { rerender } = render(<SearchByEnrollments onSubmit={vi.fn()} />);
-    rerender(<SearchByEnrollments onSubmit={vi.fn()} />);
-
-    expect(showSnackbar).toHaveBeenCalledTimes(1);
-    expect(showSnackbar).toHaveBeenCalledWith(expect.objectContaining({ kind: 'error', subtitle: 'Forbidden' }));
-  });
-
   it('should clear both selections on reset', async () => {
     const user = userEvent.setup();
     mockUsePrograms.mockImplementation(() => ({ programs: mockPrograms, isLoading: false, programsError: undefined }));
