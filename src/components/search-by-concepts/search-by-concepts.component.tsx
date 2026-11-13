@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { Column, Dropdown, NumberInput, Switch, ContentSwitcher } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
-import { composeJson, queryDescriptionBuilder } from '../../cohort-builder.utils';
 import type { Concept, SearchByProps } from '../../types';
 import { SearchConcept } from './search-concept/search-concept.component';
 import SearchButtonSet from '../search-button-set/search-button-set';
+import { getDescription, getQueryDetails, type ConceptSearch } from './search-by-concepts.utils';
 import SearchDatePicker from '../search-date-picker/search-date-picker';
 import styles from './search-by-concepts.style.scss';
 
@@ -36,26 +35,6 @@ const operators = [
     value: 'GREATER_THAN',
   },
 ];
-
-interface Observation {
-  timeModifier: string;
-  question: string;
-  operator1: string;
-  modifier: string;
-  onOrBefore: string;
-  onOrAfter: string;
-  value1: string;
-}
-
-const types = {
-  CWE: 'codedObsSearchAdvanced',
-  NM: 'numericObsSearchAdvanced',
-  DT: 'dateObsSearchAdvanced',
-  ST: 'dateObsSearchAdvanced',
-  TS: 'textObsSearchAdvanced',
-  ZZ: 'codedObsSearchAdvanced',
-  BIT: 'codedObsSearchAdvanced',
-};
 
 const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
   const { t } = useTranslation();
@@ -140,39 +119,22 @@ const SearchByConcepts: React.FC<SearchByProps> = ({ onSubmit }) => {
     setTimeModifier('ANY');
   };
 
-  // "Within the last" is the start of the period, so it maps to onOrAfter.
-  const getOnOrAfter = () => {
-    if (lastDays > 0 || lastMonths > 0) {
-      return dayjs().subtract(lastDays, 'days').subtract(lastMonths, 'months').format();
-    }
-  };
-
   const handleSubmit = async () => {
     if (!concept) {
       return;
     }
     setIsLoading(true);
-    const observations: Observation = {
-      modifier: '',
-      operator1: isNumeric ? operator : '',
-      value1: isNumeric && operatorValue !== '' ? operatorValue.toString() : '',
-      question: concept.uuid,
-      onOrBefore,
-      onOrAfter: getOnOrAfter() || onOrAfter,
+    const search: ConceptSearch = {
+      concept,
       timeModifier: shownTimeModifier.value,
+      operator: isNumeric ? operator : undefined,
+      value: isNumeric && operatorValue !== '' ? operatorValue : undefined,
+      onOrAfter,
+      onOrBefore,
+      withinLastMonths: lastMonths,
+      withinLastDays: lastDays,
     };
-    const dataType = types[concept.hl7Abbrev];
-    const params = { [dataType]: [] };
-    Object.keys(observations).forEach((key) => {
-      if (observations[key] !== '') {
-        params[dataType].push({
-          name: key === 'modifier' ? (['CWE', 'TS'].includes(concept.hl7Abbrev) ? 'values' : 'value1') : key,
-          value:
-            key === 'modifier' && ['CWE', 'TS'].includes(concept.hl7Abbrev) ? [observations[key]] : observations[key],
-        });
-      }
-    });
-    await onSubmit(composeJson(params), queryDescriptionBuilder(observations, concept.name));
+    await onSubmit(getQueryDetails(search), getDescription(search));
     setIsLoading(false);
   };
 
