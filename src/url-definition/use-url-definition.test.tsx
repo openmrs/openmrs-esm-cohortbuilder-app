@@ -318,6 +318,51 @@ describe('useUrlDefinition', () => {
     expect(screen.getByRole('tab', { name: 'Drug Order' })).toBeEnabled();
   });
 
+  it.each([
+    ['program', { type: 'enrollment', programs: [programUuid] }],
+    ['drug', { type: 'drugOrder', drugs: [drugUuid] }],
+    ['encounter type', { type: 'encounter', encounterTypes: [encounterTypeUuid] }],
+  ])('refuses a link when its %s no longer exists, and does not search', async (resource, criterion) => {
+    const resources = { program: 'program', drug: 'drug', 'encounter type': 'encountertype' };
+    const uuid =
+      criterion.type === 'drugOrder' ? drugUuid : criterion.type === 'encounter' ? encounterTypeUuid : programUuid;
+    const answerAsServer = mockOpenmrsFetch.getMockImplementation();
+    mockOpenmrsFetch.mockImplementation(async (url: string, init) => {
+      if (url.includes(`/${resources[resource]}/${uuid}`)) {
+        const missing = new Error('Not found') as Error & { response: { status: number } };
+        missing.response = { status: 404 };
+        throw missing;
+      }
+      return answerAsServer(url, init);
+    });
+    openBuilderAt(`?definition=${encode({ v: 1, criteria: [criterion] })}`);
+
+    expect(await screen.findByText('This cohort builder link could not be opened')).toBeInTheDocument();
+    expect(screen.getByText("This link isn't a valid cohort query")).toBeInTheDocument();
+    expect(screen.queryByText(uuid)).not.toBeInTheDocument();
+    expect(window.location.search).toBe('');
+    expect(adHocQueryBodies()).toHaveLength(0);
+    expect(history()).toHaveLength(0);
+  });
+
+  it('still searches when a name cannot be loaded for a reason other than it being gone', async () => {
+    const answerAsServer = mockOpenmrsFetch.getMockImplementation();
+    mockOpenmrsFetch.mockImplementation(async (url: string, init) => {
+      if (url.includes(`/program/${programUuid}`)) {
+        const failure = new Error('Internal Server Error') as Error & { response: { status: number } };
+        failure.response = { status: 500 };
+        throw failure;
+      }
+      return answerAsServer(url, init);
+    });
+    openBuilderAt(`?definition=${encode({ v: 1, criteria: [{ type: 'enrollment', programs: [programUuid] }] })}`);
+
+    await waitFor(() => expect(history()).toHaveLength(1));
+    expect(history()[0].description).toBe('Patients enrolled in 1 program');
+    expect(adHocQueryBodies()).toHaveLength(1);
+    expect(screen.queryByText("This link isn't a valid cohort query")).not.toBeInTheDocument();
+  });
+
   it('uses the configured drug order search definition key', async () => {
     mockUseConfig.mockReturnValue({
       drugOrderSearchDefinitionKey: 'configuration.definitionlibrary.cohort.drugOrderSearch',
