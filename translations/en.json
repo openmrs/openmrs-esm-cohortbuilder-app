@@ -81,7 +81,7 @@
   "noOfResultsFound_other": "{{count}} results found",
   "numberIsNotValid": "Number is not valid",
   "openmrsId": "OpenMRS ID",
-  "patientsWithObservationsWhoseAnswerIs": "Patients with observations whose answer is",
+  "patientsWithObservationsOf": "Patients with observations of",
   "personAttributes": "Person Attributes",
   "previousPage": "Previous page",
   "queries": "queries",
