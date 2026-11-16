@@ -79,7 +79,7 @@ describe('the server vocabulary', () => {
   });
 
   it('reads programs with every name their concept has, in any language, and encounter types', () => {
-    const vocabulary = toServerVocabulary(programs, encounterTypes, 'fr_FR');
+    const vocabulary = toServerVocabulary(programs, encounterTypes);
     expect(vocabulary.programs).toEqual([
       {
         uuid: tb,
@@ -102,16 +102,16 @@ describe('the server vocabulary', () => {
   });
 
   it('skips retired entries, entries without a name, uuids the builder would refuse, and anything not an object', () => {
-    const vocabulary = toServerVocabulary(programs, encounterTypes, 'en');
+    const vocabulary = toServerVocabulary(programs, encounterTypes);
     const uuids = [...vocabulary.programs, ...vocabulary.encounterTypes].map(({ uuid }) => uuid);
     expect(uuids).toEqual([tb, mch, hiv, admission, vitals]);
-    expect(toServerVocabulary(null, 'nonsense', 'en')).toEqual({ programs: [], encounterTypes: [] });
+    expect(toServerVocabulary(null, 'nonsense')).toEqual({ programs: [], encounterTypes: [] });
   });
 
   it("keeps config's label for a program it also names, adding the server's names as aliases", () => {
     const merged = mergeVocabulary(
       { programs: [{ uuid: hiv, label: 'HIV clinic', aliases: ['art'] }], encounterTypes: [] },
-      toServerVocabulary(programs, encounterTypes, 'en'),
+      toServerVocabulary(programs, encounterTypes),
     );
     expect(merged.programs.find(({ uuid }) => uuid === hiv)).toEqual({
       uuid: hiv,
@@ -126,11 +126,12 @@ describe('the server vocabulary', () => {
     const config: CohortCriteriaConfig = {
       drugCriteriaEnabled: false,
       drugGroups: [],
-      ...mergeVocabulary({ programs: [], encounterTypes: [] }, toServerVocabulary(programs, encounterTypes, 'en')),
+      ...mergeVocabulary({ programs: [], encounterTypes: [] }, toServerVocabulary(programs, encounterTypes)),
     };
     const criteria = (text: string) => parseCohortCriteria(text, config)?.criteria ?? null;
     expect(criteria('patients in the TB program')).toEqual([{ type: 'enrollment', programs: [tb] }]);
     expect(criteria('enrolled in tuberculosis treatment')).toEqual([{ type: 'enrollment', programs: [tb] }]);
+    expect(criteria('enrolled in programu ya kifua kikuu')).toEqual([{ type: 'enrollment', programs: [tb] }]);
     expect(criteria('enrolled in maternal and child health')).toEqual([{ type: 'enrollment', programs: [mch] }]);
     expect(criteria('women in the maternal and child health programme')).toEqual([
       { type: 'demographics', gender: 'female' },
@@ -146,7 +147,7 @@ describe('the server vocabulary', () => {
       drugGroups: [],
       ...mergeVocabulary(
         { programs: [], encounterTypes: [] },
-        toServerVocabulary({ results: [{ uuid: tb, name: 'MDR-TB Program' }] }, {}, 'en'),
+        toServerVocabulary({ results: [{ uuid: tb, name: 'MDR-TB Program' }] }, {}),
       ),
     };
     const texts = ['enrolled in MDR TB', 'enrolled in MDR-TB', 'patients in the MDR TB program', 'MDR-TB clinic'];
@@ -165,7 +166,7 @@ describe('the server vocabulary', () => {
     const config: CohortCriteriaConfig = {
       drugCriteriaEnabled: false,
       drugGroups: [],
-      ...mergeVocabulary({ programs: [], encounterTypes: [] }, toServerVocabulary(twins, {}, 'en')),
+      ...mergeVocabulary({ programs: [], encounterTypes: [] }, toServerVocabulary(twins, {})),
     };
     expect(parseCohortCriteria('enrolled in child health', config)).toBeNull();
     expect(parseCohortCriteria('enrolled in the Child Health Program', config)?.criteria).toEqual([
@@ -261,7 +262,7 @@ describe('the server vocabulary', () => {
     await flush();
     expect(result.current).toEqual({
       programs: [{ uuid: tb, label: 'TB Program', aliases: ['TB'] }],
-      encounterTypes: toServerVocabulary(null, encounterTypes, 'en').encounterTypes,
+      encounterTypes: toServerVocabulary(null, encounterTypes).encounterTypes,
     });
     expect(error).not.toHaveBeenCalled();
 

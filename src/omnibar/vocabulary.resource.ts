@@ -57,7 +57,7 @@ const entriesOf = (data: unknown) =>
   );
 
 /** The answers read defensively: anything that isn't what the parser needs is left out. */
-export function toServerVocabulary(programData: unknown, encounterTypeData: unknown, locale: string): ServerVocabulary {
+export function toServerVocabulary(programData: unknown, encounterTypeData: unknown): ServerVocabulary {
   const programWords = compilePhrases().programNouns.map((noun) => noun.join(' '));
   const programs = entriesOf(programData).map((program) => {
     const label = nameOf(program.name);
@@ -144,16 +144,14 @@ export function forgetServerVocabulary() {
 }
 
 /** Asks for the lists not read yet. One that fails is left out, to be asked for again next time. */
-async function readVocabulary(locale: string, read: Partial<ServerVocabulary>): Promise<Partial<ServerVocabulary>> {
+async function readVocabulary(read: Partial<ServerVocabulary>): Promise<Partial<ServerVocabulary>> {
   const [programs, encounterTypes] = await Promise.allSettled([
     read.programs ??
       openmrsFetch<unknown>(programsUrl)
         .catch(() => openmrsFetch<unknown>(programNamesUrl))
-        .then(({ data }) => toServerVocabulary(data, null, locale).programs),
+        .then(({ data }) => toServerVocabulary(data, null).programs),
     read.encounterTypes ??
-      openmrsFetch<unknown>(encounterTypesUrl).then(
-        ({ data }) => toServerVocabulary(null, data, locale).encounterTypes,
-      ),
+      openmrsFetch<unknown>(encounterTypesUrl).then(({ data }) => toServerVocabulary(null, data).encounterTypes),
   ]);
   return {
     ...(programs.status === 'fulfilled' && { programs: programs.value }),
@@ -185,7 +183,7 @@ export function useServerVocabulary(enabled: boolean, locale: string): ServerVoc
       return;
     }
     if (!entry.asking) {
-      entry.asking = readVocabulary(locale, entry.read).then((read) => {
+      entry.asking = readVocabulary(entry.read).then((read) => {
         entry.read = read;
         entry.asking = undefined;
         return read;
@@ -196,7 +194,7 @@ export function useServerVocabulary(enabled: boolean, locale: string): ServerVoc
     return () => {
       live = false;
     };
-  }, [enabled, key, locale]);
+  }, [enabled, key]);
 
   return enabled && state?.key === key ? state.value : null;
 }
