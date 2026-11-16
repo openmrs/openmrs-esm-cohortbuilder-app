@@ -98,7 +98,7 @@ const CohortCountProvider: React.FC<OmnibarProviderProps> = (props) => {
   const onLanded = useCallback(() => setLookupsLanded((landed) => landed + 1), []);
   useTestLookup(pending, lookingUp, locale, onLanded);
 
-  // What the user can take with Tab: the test or program being typed, never before the row may answer.
+  // What the user can take with Tab: the test being typed, never before the row may answer.
   const completions = useMemo(
     () =>
       allowed

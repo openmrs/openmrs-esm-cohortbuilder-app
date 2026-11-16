@@ -1,11 +1,10 @@
 import { type OmnibarCompletion } from './omnibar-contract';
-import { type CohortCriteriaConfig, type CohortTest, typedProgramWords, typedTestWords } from './parse-cohort-criteria';
+import { type CohortCriteriaConfig, type CohortTest, typedTestWords } from './parse-cohort-criteria';
 
 /**
  * What the count row offers to finish the question being typed, taken with Tab: the test whose
- * name is being typed, from what the concept lookup found for those words, and the program after
- * "enrolled in", from the programs the row already knows. Each completion replaces the words typed
- * so far with the whole name and a space, so the comparison can follow.
+ * name is being typed, from what the concept lookup found for those words. Each completion replaces
+ * the words typed so far with the whole name and a space, so the comparison can follow.
  */
 
 const maxCompletions = 5;
@@ -36,22 +35,6 @@ export function completionsFor(
   lookedUp: (words: string) => Array<CohortTest> | undefined,
 ): Array<OmnibarCompletion> {
   const completions: Array<OmnibarCompletion> = [];
-
-  for (const words of typedProgramWords(query, config)) {
-    const replace = typedLength(query, words);
-    if (replace === null) continue;
-    for (const program of config.programs ?? []) {
-      const typed = words.toLowerCase();
-      const name = [program.label, ...(program.aliases ?? [])].find((candidate) =>
-        candidate.toLowerCase().startsWith(typed),
-      );
-      if (name && program.label.length <= maxName && !completions.some(({ label }) => label === program.label)) {
-        completions.push({ insert: `${program.label} `, replace, label: program.label });
-      }
-    }
-    if (completions.length) break;
-  }
-
   const words = typedTestWords(query, config);
   const replace = words ? typedLength(query, words) : null;
   if (words && replace !== null) {

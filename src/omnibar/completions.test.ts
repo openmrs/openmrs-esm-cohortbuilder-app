@@ -2,18 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { completionsFor } from './completions';
 import { type CohortCriteriaConfig, type CohortTest } from './parse-cohort-criteria';
 
-const tb = '9f144a34-3a4a-44a9-8486-6b7af6cc64f6';
-const mch = '0b8c3c4e-2f9a-4b1e-9d5c-1a2b3c4d5e6f';
-const hiv = '64f950e6-1b07-4ac0-8e7e-f3e148f3463f';
-
 const config: CohortCriteriaConfig = {
   drugCriteriaEnabled: false,
   drugGroups: [],
-  programs: [
-    { uuid: tb, label: 'Tuberculosis Program', aliases: ['TB'] },
-    { uuid: mch, label: 'Maternal and Child Health Programme', aliases: ['Maternal and Child Health'] },
-    { uuid: hiv, label: 'HIV Care and Treatment', aliases: ['HIV'] },
-  ],
 };
 
 const viralLoad: CohortTest = {
@@ -72,25 +63,7 @@ describe('completions from the count row', () => {
     expect(asked).toBe(false);
   });
 
-  it('completes a program after "enrolled in" from the known programs, with no request', () => {
-    const query = 'women enrolled in tub';
-    const completions = completionsFor(query, config, () => undefined);
-    expect(completions).toEqual([{ insert: 'Tuberculosis Program ', replace: 3, label: 'Tuberculosis Program' }]);
-    expect(apply(query, completions[0])).toBe('women enrolled in Tuberculosis Program ');
-  });
-
-  it('completes several words of a program name, and every program that starts that way', () => {
-    expect(completionsFor('enrolled in the maternal and ch', config, () => undefined)).toEqual([
-      { insert: 'Maternal and Child Health Programme ', replace: 15, label: 'Maternal and Child Health Programme' },
-    ]);
-    expect(completionsFor('in the h', config, () => undefined).map(({ label }) => label)).toEqual([
-      'HIV Care and Treatment',
-    ]);
-  });
-
-  it('offers nothing once the question reads, or for words that start nothing', () => {
-    expect(completionsFor('women enrolled in Tuberculosis Program', config, () => undefined)).toEqual([]);
-    expect(completionsFor('women enrolled in xyz', config, () => undefined)).toEqual([]);
+  it('offers nothing for an empty question', () => {
     expect(completionsFor('', config, () => undefined)).toEqual([]);
   });
 

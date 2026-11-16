@@ -480,18 +480,12 @@ describe('CohortCountProvider', () => {
       ]);
     });
 
-    it('offers a known program after enrolled in, with no request', async () => {
-      const { last } = renderProvider(CohortCountProvider, 'women enrolled in hi');
-      expect(last().completions).toEqual([{ insert: 'HIV Program ', replace: 2, label: 'HIV Program' }]);
-      await settle(testLookupDelayMs);
-      expect(lookups()).toHaveLength(0);
-    });
-
     it('offers no completion for a name, or inside a chart', async () => {
       const { last, rerender } = renderProvider(CohortCountProvider, 'patients with Mary Ach');
       await settle(testLookupDelayMs);
       expect(last().completions ?? []).toEqual([]);
-      rerender('women enrolled in hi', inChart);
+      rerender('women with vir', inChart);
+      await settle(testLookupDelayMs);
       expect(last().completions ?? []).toEqual([]);
       expect(lookups()).toHaveLength(0);
     });

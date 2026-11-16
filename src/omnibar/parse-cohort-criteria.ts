@@ -607,31 +607,6 @@ export function typedTestWords(text: string, config: CohortCriteriaConfig): stri
   return span?.beingTyped ? span.words : null;
 }
 
-/**
- * The words after "enrolled", "in", "the" or another program word at the end of text that doesn't
- * read yet, which could be the start of a program's name ("tub" in "enrolled in tub"), longest
- * first, at most four words each.
- */
-export function typedProgramWords(text: string, config: CohortCriteriaConfig): Array<string> {
-  const P = config.phrases ?? compilePhrases();
-  const tokens = tokenize(text);
-  if (!tokens?.length || parseCohortCriteria(text, config)) return [];
-  const tails: Array<string> = [];
-  for (let start = Math.max(1, tokens.length - 4); start < tokens.length; start++) {
-    const afterProgramWord = [P.enrolled, P.programLinkers].some((list) =>
-      list.some(
-        (phrase) =>
-          start - phrase.length >= 0 && phrase.every((word, offset) => tokens[start - phrase.length + offset] === word),
-      ),
-    );
-    const words = tokens.slice(start);
-    if (afterProgramWord && words.every((word) => /^[\p{L}\p{N}]+$/u.test(word))) {
-      tails.push(words.join(' '));
-    }
-  }
-  return tails;
-}
-
 /** The words that stopped the parser, and whether a comparison follows them or they are being typed. */
 function unreadSpan(
   text: string,
