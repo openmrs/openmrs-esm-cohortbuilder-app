@@ -29,18 +29,29 @@ function nameFor({ label, aliases }: { label: string; aliases: Array<string> }, 
   return starting ?? (label.toLowerCase().includes(typed) ? label : null);
 }
 
+/** True when `lead` is the first word or words of `name`, not merely a prefix of its first word. */
+function nameStartsWith(name: string, lead: string): boolean {
+  const text = name.toLowerCase();
+  const typed = lead.toLowerCase();
+  return text.startsWith(typed) && (text.length === typed.length || text.charAt(typed.length) === ' ');
+}
+
 export function completionsFor(
   query: string,
   config: CohortCriteriaConfig,
   lookedUp: (words: string) => Array<CohortTest> | undefined,
 ): Array<OmnibarCompletion> {
   const completions: Array<OmnibarCompletion> = [];
-  const words = typedTestWords(query, config);
-  const replace = words ? typedLength(query, words) : null;
-  if (words && replace !== null) {
-    for (const test of lookedUp(words) ?? []) {
-      const name = nameFor(test, words);
-      if (name && name.length <= maxName) {
+  const typed = typedTestWords(query, config);
+  if (typed) {
+    for (const test of lookedUp(typed.words) ?? []) {
+      const covering =
+        typed.lead &&
+        [test.label, ...test.aliases].find((name) => nameStartsWith(name, `${typed.lead} ${typed.words}`));
+      const name = covering ?? nameFor(test, typed.words);
+      const fromLead = Boolean(covering || (typed.lead && name && nameStartsWith(name, typed.lead)));
+      const replace = name ? typedLength(query, fromLead ? `${typed.lead} ${typed.words}` : typed.words) : null;
+      if (name && replace !== null && name.length <= maxName) {
         completions.push({
           insert: `${name} `,
           replace,

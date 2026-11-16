@@ -388,7 +388,7 @@ describe('CohortCountProvider', () => {
         display: 'HIV viral load',
         units: 'copies/mL',
         datatype: { hl7Abbreviation: 'NM' },
-        names: [{ name: 'Viral load', locale: 'en' }],
+        names: [{ name: 'HIV viral load', locale: 'en' }],
       },
       cd4: {
         uuid: cd4,
@@ -406,7 +406,8 @@ describe('CohortCountProvider', () => {
         const requested = new URL(url, 'http://localhost');
         if (requested.pathname.endsWith('/concept')) {
           const match = concepts[requested.searchParams.get('q')];
-          return { data: { results: match ? [match] : [] } } as FetchResponse;
+          const results = !match ? [] : Array.isArray(match) ? match : [match];
+          return { data: { results } } as FetchResponse;
         }
         return { data: { result: { memberIds: [1, 2, 3, 4] } } } as FetchResponse;
       });
@@ -476,8 +477,70 @@ describe('CohortCountProvider', () => {
       await settle(testLookupDelayMs);
       expect(last()).toMatchObject({ query: 'women with vir', status: 'idle' });
       expect(last().completions).toEqual([
-        { insert: 'Viral load ', replace: 3, label: 'Viral load', detail: 'HIV viral load · copies/mL' },
+        { insert: 'HIV viral load ', replace: 3, label: 'HIV viral load', detail: 'HIV viral load · copies/mL' },
       ]);
+    });
+
+    it('reads mean corpuscular volume as the test, not as an average', async () => {
+      const mcv = '851AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+      concepts['corpuscular volume'] = {
+        uuid: mcv,
+        display: 'Mean corpuscular volume',
+        units: 'fL',
+        datatype: { hl7Abbreviation: 'NM' },
+        names: [
+          { name: 'Mean corpuscular volume', locale: 'en' },
+          { name: 'Mcv', locale: 'en' },
+        ],
+      };
+      const { last } = renderProvider(CohortCountProvider, 'mean corpuscular volume < 80');
+      await settle(testLookupDelayMs);
+      expect(lookups().map(({ url }) => url.searchParams.get('q'))).toEqual(['corpuscular volume']);
+      await settle();
+      expect(last().results[0].subtitle).toBe('Patients with most recent Mean corpuscular volume < 80 fL');
+      expect(decodeDefinition((last().results[0].target as { to: string }).to).criteria).toEqual([
+        { type: 'numericObs', concept: mcv, operator: 'lt', value: 80 },
+      ]);
+    });
+
+    it('completes mean corp as the concept name, without repeating mean', async () => {
+      const mch = '1018AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+      const mcv = '851AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+      concepts.corp = [
+        {
+          uuid: mch,
+          display: 'Mean corpuscular hemoglobin',
+          units: 'pg',
+          datatype: { hl7Abbreviation: 'NM' },
+          names: [
+            { name: 'Mean corpuscular hemoglobin', locale: 'en' },
+            { name: 'MCH', locale: 'en' },
+          ],
+        },
+        {
+          uuid: mcv,
+          display: 'Mean corpuscular volume',
+          units: 'fL',
+          datatype: { hl7Abbreviation: 'NM' },
+          names: [{ name: 'Mean corpuscular volume', locale: 'en' }],
+        },
+      ];
+      const query = 'women with mean corp';
+      const { last } = renderProvider(CohortCountProvider, query);
+      await settle(testLookupDelayMs);
+      expect(lookups().map(({ url }) => url.searchParams.get('q'))).toEqual(['corp']);
+      const completion = last().completions[0];
+      const text = query.slice(0, query.length - completion.replace) + completion.insert;
+      expect(text).toBe('women with Mean corpuscular hemoglobin ');
+    });
+
+    it('reads hiv viral load ever above 1000 as any result of that test', async () => {
+      concepts['hiv viral load'] = concepts['viral load'];
+      const { last } = renderProvider(CohortCountProvider, 'hiv viral load ever above 1000');
+      await settle(testLookupDelayMs);
+      expect(lookups().map(({ url }) => url.searchParams.get('q'))).toEqual(['hiv viral load']);
+      await settle();
+      expect(last().results[0].subtitle).toBe('Patients with any HIV viral load > 1000 copies/mL');
     });
 
     it('offers no completion for a name, or inside a chart', async () => {

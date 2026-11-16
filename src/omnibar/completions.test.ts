@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { completionsFor } from './completions';
-import { type CohortCriteriaConfig, type CohortTest } from './parse-cohort-criteria';
+import { type CohortCriteriaConfig, type CohortTest, parseCohortCriteria } from './parse-cohort-criteria';
 
 const config: CohortCriteriaConfig = {
   drugCriteriaEnabled: false,
@@ -12,6 +12,18 @@ const viralLoad: CohortTest = {
   label: 'HIV viral load',
   aliases: ['Viral load'],
   units: 'copies/mL',
+};
+const mch: CohortTest = {
+  uuid: '1018AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+  label: 'Mean corpuscular hemoglobin',
+  aliases: ['MCH'],
+  units: 'pg',
+};
+const mcv: CohortTest = {
+  uuid: '851AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+  label: 'Mean corpuscular volume',
+  aliases: ['Mcv'],
+  units: 'fL',
 };
 const baseline: CohortTest = {
   uuid: '81aec00d-4b98-43fa-b241-cb56f7fe4e01',
@@ -45,6 +57,18 @@ describe('completions from the count row', () => {
     const [completion] = completionsFor(query, config, () => [viralLoad]);
     expect(completion).toMatchObject({ insert: 'HIV viral load ', label: 'HIV viral load' });
     expect(apply(query, completion)).toBe('women with  HIV viral load ');
+  });
+
+  it('replaces a result word that begins the concept name, and the text reads as that test', () => {
+    const query = 'women with mean corp';
+    const completions = completionsFor(query, config, (words) => (words === 'corp' ? [mch, mcv] : undefined));
+    expect(apply(query, completions[0])).toBe('women with Mean corpuscular hemoglobin ');
+    expect(
+      parseCohortCriteria(`${apply(query, completions[0]).trim()} < 30`, { ...config, tests: [mch, mcv] })?.criteria,
+    ).toEqual([
+      { type: 'demographics', gender: 'female' },
+      { type: 'numericObs', concept: mch.uuid, operator: 'lt', value: 30 },
+    ]);
   });
 
   it('offers nothing for a test before the lookup has answered, or when it found nothing', () => {

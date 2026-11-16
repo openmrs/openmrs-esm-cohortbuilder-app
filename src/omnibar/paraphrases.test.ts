@@ -625,13 +625,17 @@ describe('test results', () => {
   const cd4 = '5497AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
   const hb = '21AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
   const creatinine = '790AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+  const mcv = '851AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+  const mch = '1018AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
   const withTests: CohortCriteriaConfig = {
     ...config,
     tests: [
-      { uuid: viralLoad, label: 'HIV viral load', aliases: ['viral load', 'vl'], units: 'copies/mL' },
+      { uuid: viralLoad, label: 'HIV viral load', aliases: ['vl'], units: 'copies/mL' },
       { uuid: cd4, label: 'CD4 count', aliases: ['cd4'], units: 'cells/µL' },
       { uuid: hb, label: 'Haemoglobin', aliases: ['hb', 'hemoglobin'], units: 'g/dL' },
       { uuid: creatinine, label: 'Creatinine', aliases: [], units: 'mg/dL' },
+      { uuid: mcv, label: 'Mean corpuscular volume', aliases: ['Mcv'], units: 'fL' },
+      { uuid: mch, label: 'Mean corpuscular hemoglobin', aliases: ['MCH'], units: 'pg' },
     ],
   };
   const read = (text: string) => parseCohortCriteria(text, withTests)?.criteria ?? null;
@@ -654,6 +658,15 @@ describe('test results', () => {
     ['peak viral load > 100000', [result(viralLoad, 'gt', 100000, { which: 'highest' })]],
     ['any viral load over 1000', [result(viralLoad, 'gt', 1000, { which: 'any' })]],
     ['viral load ever above 1000', [result(viralLoad, 'gt', 1000, { which: 'any' })]],
+    ['hiv viral load ever above 1000', [result(viralLoad, 'gt', 1000, { which: 'any' })]],
+    ['mean corpuscular volume < 80', [result(mcv, 'lt', 80)]],
+    ['mean viral load > 1000', [result(viralLoad, 'gt', 1000, { which: 'average' })]],
+    ['women with mcv under 80', [women(), result(mcv, 'lt', 80)]],
+    ['average mean corpuscular volume below 80', [result(mcv, 'lt', 80, { which: 'average' })]],
+    [
+      'lowest mean corpuscular volume under 75 in the last 6 months',
+      [result(mcv, 'lt', 75, { which: 'lowest', withinLastMonths: 6 })],
+    ],
     ['average hb under 10', [result(hb, 'lt', 10, { which: 'average' })]],
     ['hb under 10.5 g/dL', [result(hb, 'lt', 10.5)]],
     ['hb under 49.5', [result(hb, 'lt', 49.5)]],
@@ -702,6 +715,11 @@ describe('test results', () => {
     'VL > 1000 since 2025-02-30',
     // A dot glued to the comparison is neither 30 nor 0.30.
     'creatinine under.30',
+    // One word of a longer name is not that name.
+    'load over 1000',
+    'volume < 80',
+    'corpuscular < 80',
+    'count under 200',
     // A test the server didn't name.
     'weight over 2',
   ])('offers nothing for %j', (text) => {
@@ -710,6 +728,19 @@ describe('test results', () => {
 
   it('reads no test without the server naming it', () => {
     expect(criteriaOf('viral load over 1000')).toBeNull();
+  });
+
+  it('prefers a whole name over an equal suffix, and reads nothing when two suffixes tie', () => {
+    const named = '11111111-1111-4111-8111-111111111111';
+    const hepatitis = '22222222-2222-4222-8222-222222222222';
+    const hivOnly = [{ uuid: viralLoad, label: 'HIV viral load', aliases: [], units: 'copies/mL' }];
+    const wholeAndSuffix = [{ uuid: named, label: 'Viral load', aliases: [], units: 'copies/mL' }, ...hivOnly];
+    const twoSuffixes = [...hivOnly, { uuid: hepatitis, label: 'Hepatitis B viral load', aliases: [], units: 'IU/mL' }];
+    const criteria = (tests: Array<{ uuid: string; label: string; aliases: Array<string>; units: string }>) =>
+      parseCohortCriteria('patients with a viral load over 1000', { ...config, tests })?.criteria ?? null;
+    expect(criteria(hivOnly)).toEqual([result(viralLoad, 'gt', 1000)]);
+    expect(criteria(wholeAndSuffix)).toEqual([result(named, 'gt', 1000)]);
+    expect(criteria(twoSuffixes)).toBeNull();
   });
 
   it('labels the definition with the result, the comparison and the units', () => {
@@ -737,6 +768,9 @@ describe('test results', () => {
     ['patients with Mary Achieng', null],
     ['how many patients have Mary Achieng', null],
     ['women with vir', 'vir'],
+    ['viral load ever above 1000', 'viral load'],
+    ['hiv viral load ever above 1000', 'hiv viral load'],
+    ['women with mean corp', 'corp'],
     ['latest vir', 'vir'],
     ['patients with lowest cd', 'cd'],
     // A program being typed is completed from the known programs, never looked up as a test.

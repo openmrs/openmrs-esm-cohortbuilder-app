@@ -479,25 +479,117 @@ function readWindow(
 }
 
 /**
+ * Where a test name must stop, and whether a comparison follows that stop. "ever" and its kind end
+ * the name when a comparison follows them ("viral load ever above 1000"), as do comparisons, a
+ * window, "since" and a never-word. The parser and the concept-search span both use this.
+ */
+function testNameBoundary(
+  tokens: Array<string>,
+  start: number,
+  P: CompiledPhrases,
+): { end: number; compared: boolean } {
+  const stops = (at: number) => {
+    if (longestOf(tokens, at, testComparisons, P)) return true;
+    const ever = matchPhrase(tokens, at, P.resultAny);
+    if (ever !== null && longestOf(tokens, ever, testComparisons, P)) return true;
+    return (
+      matchPhrase(tokens, at, P.windowStart) !== null ||
+      matchPhrase(tokens, at, P.since) !== null ||
+      P.never.has(tokens[at])
+    );
+  };
+  let end = start;
+  while (end < tokens.length && !stops(end)) end++;
+  const afterEver = matchPhrase(tokens, end, P.resultAny) ?? end;
+  const compared = afterEver < tokens.length && Boolean(longestOf(tokens, afterEver, testComparisons, P));
+  return { end, compared };
+}
+
+/**
+ * The test whose name matches the most words from `start`, up to `limit`. A typed name may be any
+ * of the concept's names, the whole name or a suffix of at least its last two words, so "viral load"
+ * is "HIV viral load" and "load" is not. A whole name beats a suffix of the same length. Two
+ * concepts matching the same way is ambiguous, so neither matches. One slip, as for other names.
+ */
+function longestTestName<T extends Named>(
+  tokens: Array<string>,
+  start: number,
+  limit: number,
+  items: Array<T>,
+  P: CompiledPhrases,
+): { item: T; next: number; words: number; whole: boolean } | null {
+  const room = limit - start;
+  if (room < 1) return null;
+  for (const slips of [0, 1]) {
+    let best: { item: T; next: number; words: number; whole: boolean } | null = null;
+    let tied = false;
+    for (const item of items) {
+      let pick: { words: number; whole: boolean } | null = null;
+      for (const name of namesOf(item)) {
+        if (name.length <= room && slipsFrom(name, tokens, start, P) === slips) {
+          if (!pick || name.length > pick.words || (name.length === pick.words && !pick.whole)) {
+            pick = { words: name.length, whole: true };
+          }
+        }
+        for (let length = Math.min(name.length - 1, room); length >= 2; length--) {
+          if (slipsFrom(name.slice(name.length - length), tokens, start, P) === slips) {
+            if (!pick || length > pick.words) pick = { words: length, whole: false };
+            break;
+          }
+        }
+      }
+      if (!pick) continue;
+      if (!best || pick.words > best.words || (pick.words === best.words && pick.whole && !best.whole)) {
+        best = { item, next: start + pick.words, words: pick.words, whole: pick.whole };
+        tied = false;
+      } else if (pick.words === best.words && pick.whole === best.whole && best.item !== item) {
+        tied = true;
+      }
+    }
+    if (best) return tied ? null : best;
+  }
+  return null;
+}
+
+/**
  * "most recent viral load > 1000", "lowest CD4 count under 200 cells/µL in the last 6 months",
- * "viral load ever above 1000". The result words come before the name, except "ever" and its kind
- * just after it; the value is in the concept's units, and a unit typed after it must be those.
+ * "viral load ever above 1000". A leading word is tried both as a result ("mean" of a viral load)
+ * and as part of the name ("mean corpuscular volume"); the longer name wins, so the volume is not
+ * an average. The value is in the concept's units, and a unit typed after it must be those.
  */
 function matchTest(tokens: Array<string>, start: number, tests: Array<CohortTest>, P: CompiledPhrases): Match | null {
   if (!tests.length) return null;
-  let i = start;
-  const before = longestOf(tokens, i, testResults, P);
-  if (before) i = before.next;
-  const hit = longestAlias(tokens, i, tests, P);
-  if (!hit) return null;
-  i = hit.next;
-  let which: TestResult | undefined = before?.value;
-  if (!which) {
-    const ever = matchPhrase(tokens, i, P.resultAny);
-    if (ever !== null) {
-      which = 'any';
-      i = ever;
+  const leading = longestOf(tokens, start, testResults, P);
+  const readings = [
+    readTestAt(tokens, start, tests, P),
+    leading && readTestAt(tokens, leading.next, tests, P, leading.value),
+  ];
+  const chosen = readings.reduce<ReturnType<typeof readTestAt>>((best, reading) => {
+    if (!reading) return best;
+    if (!best || reading.words > best.words || (reading.words === best.words && reading.whole && !best.whole)) {
+      return reading;
     }
+    return best;
+  }, null);
+  return chosen && { next: chosen.next, clause: chosen.clause };
+}
+
+/** The test at `start`, with a result word already read, or with "ever" after the name when one follows. */
+function readTestAt(
+  tokens: Array<string>,
+  start: number,
+  tests: Array<CohortTest>,
+  P: CompiledPhrases,
+  which?: TestResult,
+): { next: number; words: number; whole: boolean; clause: Extract<Clause, { kind: 'test' }> } | null {
+  const hit = longestTestName(tokens, start, testNameBoundary(tokens, start, P).end, tests, P);
+  if (!hit) return null;
+  let i = hit.next;
+  let result = which;
+  const ever = matchPhrase(tokens, i, P.resultAny);
+  if (ever !== null && longestOf(tokens, ever, testComparisons, P)) {
+    if (!result) result = 'any';
+    i = ever;
   }
   const comparison = longestOf(tokens, i, testComparisons, P);
   if (!comparison) return null;
@@ -507,12 +599,14 @@ function matchTest(tokens: Array<string>, start: number, tests: Array<CohortTest
   const window = readWindow(tokens, i, P);
   return {
     next: window?.next ?? i,
+    words: hit.words,
+    whole: hit.whole,
     clause: {
       kind: 'test',
       test: hit.item,
       operator: comparison.value,
       value: value.value,
-      ...(which && which !== 'latest' && { which }),
+      ...(result && result !== 'latest' && { which: result }),
       ...window?.window,
     },
   };
@@ -602,45 +696,41 @@ export function unreadWords(text: string, config: CohortCriteriaConfig): string 
  * The test name being typed at the end of the text, after a criterion or a result word ("vir" in
  * "women with vir"), which completions may finish. Never words after stopwords alone.
  */
-export function typedTestWords(text: string, config: CohortCriteriaConfig): string | null {
+/** The test words still being typed, and a result word read just before them ("mean" in "mean corp"). */
+export function typedTestWords(
+  text: string,
+  config: CohortCriteriaConfig,
+): { words: string; lead: string | null } | null {
   const span = unreadSpan(text, config);
-  return span?.beingTyped ? span.words : null;
+  return span?.beingTyped ? { words: span.words, lead: span.lead } : null;
 }
 
 /** The words that stopped the parser, and whether a comparison follows them or they are being typed. */
 function unreadSpan(
   text: string,
   config: CohortCriteriaConfig,
-): { words: string; compared: boolean; beingTyped: boolean } | null {
+): { words: string; compared: boolean; beingTyped: boolean; lead: string | null } | null {
   const P = config.phrases ?? compilePhrases();
   const tokens = tokenize(text);
   if (!tokens?.length) return null;
   const read = readClauses(tokens, config, P);
   if (!('unreadAt' in read)) return null;
-  // A result word that came before the name ("latest vir") is the user's, not the name's.
+  // A result word before the name ("latest vir", "mean corp") is not sent to concept search.
+  // Completions still hear it, so a name that begins with that word replaces it instead of repeating it.
   const resultWord = longestOf(tokens, read.unreadAt, testResults, P);
   const start = resultWord?.next ?? read.unreadAt;
   // "enrolled in tub", "in the tub": a program being typed, never a test's name to look up.
   if (!resultWord && [P.enrolled, P.programLinkers].some((list) => matchPhrase(tokens, start, list) !== null)) {
     return null;
   }
-  let end = start;
-  while (
-    end < tokens.length &&
-    !longestOf(tokens, end, testComparisons, P) &&
-    matchPhrase(tokens, end, P.windowStart) === null &&
-    matchPhrase(tokens, end, P.since) === null &&
-    !P.never.has(tokens[end])
-  ) {
-    end++;
-  }
+  const { end, compared } = testNameBoundary(tokens, start, P);
   const words = tokens.slice(start, end);
   if (!words.length || words.length > 6 || !words.some((word) => /\p{L}/u.test(word))) return null;
   // Only words that could be a test: a comparison follows them, or they are still being typed after a
   // criterion or a result word ("women with vir", "latest vir"). Stopwords alone aren't enough, so
   // "patients with Mary Achieng" never sends a patient's name to concept search.
-  const compared = end < tokens.length && Boolean(longestOf(tokens, end, testComparisons, P));
   const beingTyped = end === tokens.length && (read.matched > 0 || resultWord !== null);
+  const lead = resultWord ? tokens.slice(read.unreadAt, resultWord.next).join(' ') : null;
   // Put back what the tokenizer split: "cd4", not "cd 4", when that is how it was typed.
   const typed = text.normalize('NFKC').toLowerCase();
   const joined = words.reduce((so, word) => {
@@ -648,7 +738,7 @@ function unreadSpan(
     const last = so.split(' ').at(-1);
     return typed.includes(`${last}${word}`) && !typed.includes(`${last} ${word}`) ? `${so}${word}` : `${so} ${word}`;
   }, '');
-  return { words: joined, compared, beingTyped };
+  return { words: joined, compared, beingTyped, lead };
 }
 
 export function parseCohortCriteria(text: string, config: CohortCriteriaConfig): CohortDefinition | null {
