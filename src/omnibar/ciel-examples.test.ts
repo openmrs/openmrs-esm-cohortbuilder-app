@@ -268,7 +268,7 @@ describe('CIEL lab phrases', () => {
     ['creatinine under 0.9', '790 latest lt 0.9', ['creatinine']],
     ['creatinine under 1.', '790 latest lt 1', ['creatinine']],
     ['creatinine under .9.', '790 latest lt 0.9', ['creatinine']],
-  ] as const)('reads bare creatinine in %s as %s', (text, row, queries) => {
+  ] as const)('%s is the accent slip on 790 Créatinine and reads %s', (text, row, queries) => {
     expect(asked(text)).toMatchObject({ row, queries });
   });
 });

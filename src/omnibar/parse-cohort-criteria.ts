@@ -692,10 +692,6 @@ export function unreadWords(text: string, config: CohortCriteriaConfig): string 
   return span && (span.compared || span.beingTyped) ? span.words : null;
 }
 
-/**
- * The test name being typed at the end of the text, after a criterion or a result word ("vir" in
- * "women with vir"), which completions may finish. Never words after stopwords alone.
- */
 /** The test words still being typed, and a result word read just before them ("mean" in "mean corp"). */
 export function typedTestWords(
   text: string,
