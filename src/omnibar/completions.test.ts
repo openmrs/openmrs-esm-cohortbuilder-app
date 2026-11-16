@@ -5,6 +5,7 @@ import { type CohortCriteriaConfig, type CohortTest, parseCohortCriteria } from 
 const config: CohortCriteriaConfig = {
   drugCriteriaEnabled: false,
   drugGroups: [],
+  programs: [],
 };
 
 const viralLoad: CohortTest = {
