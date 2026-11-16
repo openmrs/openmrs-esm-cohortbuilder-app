@@ -105,9 +105,13 @@ export function tokenize(text: string, commas = false): Array<string> | null {
     .replace(/[–—−]/g, '-')
     .replace(/≤/g, '<=')
     .replace(/≥/g, '>=')
-    // "1,000" and "49.5" stay numbers; any other full stop is only punctuation.
+    // "1,000" and "49.5" stay numbers. ".9" is a number too: a dot before a digit, and not right
+    // after a digit or a letter, becomes "0.". A full stop after a number ("under 1.") is punctuation.
+    // "under.30" is neither, the dot follows a letter, so it stays one token and gives no row: reading
+    // it as 30 or as 0.30 would both be a guess, and a wrong count is worse.
     .replace(/(\d),(?=\d{3}(?!\d))/g, '$1')
-    .replace(/\.(?!\d)|(?<!\d)\./g, ' ')
+    .replace(/(?<![\p{L}\p{N}])\.(?=\d)/gu, '0.')
+    .replace(/\.(?!\d)/g, ' ')
     .replace(/;/g, ',')
     .replace(commas ? /[:!?()"]/g : /[,:!?()"]/g, ' ')
     .replace(/(<=|>=|=<|=>|<|>|=|\+|-|\/|,)/g, ' $1 ')

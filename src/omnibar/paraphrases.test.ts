@@ -624,12 +624,14 @@ describe('test results', () => {
   const viralLoad = '856AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
   const cd4 = '5497AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
   const hb = '21AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+  const creatinine = '790AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
   const withTests: CohortCriteriaConfig = {
     ...config,
     tests: [
       { uuid: viralLoad, label: 'HIV viral load', aliases: ['viral load', 'vl'], units: 'copies/mL' },
       { uuid: cd4, label: 'CD4 count', aliases: ['cd4'], units: 'cells/µL' },
       { uuid: hb, label: 'Haemoglobin', aliases: ['hb', 'hemoglobin'], units: 'g/dL' },
+      { uuid: creatinine, label: 'Creatinine', aliases: [], units: 'mg/dL' },
     ],
   };
   const read = (text: string) => parseCohortCriteria(text, withTests)?.criteria ?? null;
@@ -654,6 +656,11 @@ describe('test results', () => {
     ['viral load ever above 1000', [result(viralLoad, 'gt', 1000, { which: 'any' })]],
     ['average hb under 10', [result(hb, 'lt', 10, { which: 'average' })]],
     ['hb under 10.5 g/dL', [result(hb, 'lt', 10.5)]],
+    ['hb under 49.5', [result(hb, 'lt', 49.5)]],
+    ['creatinine under .9', [result(creatinine, 'lt', 0.9)]],
+    ['creatinine under 0.9', [result(creatinine, 'lt', 0.9)]],
+    ['creatinine under 1.', [result(creatinine, 'lt', 1)]],
+    ['creatinine under .9.', [result(creatinine, 'lt', 0.9)]],
     ['cd4 = 350', [result(cd4, 'eq', 350)]],
     ['cd4 count of exactly 350', [result(cd4, 'eq', 350)]],
     ['women with hb < 11', [women(), result(hb, 'lt', 11)]],
@@ -693,8 +700,10 @@ describe('test results', () => {
     'VL > 1000 in the last year',
     'VL > 1000 since 1850',
     'VL > 1000 since 2025-02-30',
+    // A dot glued to the comparison is neither 30 nor 0.30.
+    'creatinine under.30',
     // A test the server didn't name.
-    'creatinine over 2',
+    'weight over 2',
   ])('offers nothing for %j', (text) => {
     expect(read(text)).toBeNull();
   });
