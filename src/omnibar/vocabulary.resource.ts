@@ -7,10 +7,11 @@ import { isPlainObject } from './saved-search.resource';
 
 /**
  * The programs and encounter types the server has, so the cohort parser knows them by name with no
- * config: a program by its name, its concept's names in the user's language and in English (CIEL
- * gives most programs several), and each of those without a trailing program word (any of the
- * table's `programNouns`: "program", "clinic", "service" and the rest); an encounter type by its name. Asked for once per user and language, when the bar first mounts the
- * count row, never per keystroke; the parser itself still makes no request.
+ * config: a program by its name, every name its concept has in any language (CIEL gives most programs
+ * several), and each of those without a trailing program word (any of the table's `programNouns`:
+ * "program", "clinic", "service" and the rest); an encounter type by its name. Asked for once per user
+ * and language, when the bar first mounts the count row, never per keystroke; the parser itself still
+ * makes no request.
  *
  * Limits: the first 100 of each (REST pages), and a concept's voided names too, since REST doesn't
  * say which names are voided. A user who may not read programs or encounter types gets config alone.
@@ -56,19 +57,14 @@ const entriesOf = (data: unknown) =>
   );
 
 /** The answers read defensively: anything that isn't what the parser needs is left out. */
-export function toServerVocabulary(programData: unknown, encounterTypeData: unknown, locale: string): ServerVocabulary {
-  const language = (locale ?? 'en').split(/[-_]/)[0].toLowerCase();
+export function toServerVocabulary(programData: unknown, encounterTypeData: unknown): ServerVocabulary {
   const programWords = compilePhrases().programNouns.map((noun) => noun.join(' '));
   const programs = entriesOf(programData).map((program) => {
     const label = nameOf(program.name);
     const conceptNames = (
       isPlainObject(program.concept) && Array.isArray(program.concept.names) ? program.concept.names : []
     )
-      .filter((name) => isPlainObject(name) && typeof name.locale === 'string')
-      .filter((name) => {
-        const nameLanguage = String(name.locale).split(/[-_]/)[0].toLowerCase();
-        return nameLanguage === language || nameLanguage === 'en';
-      })
+      .filter(isPlainObject)
       .map((name) => nameOf(name.name))
       .filter(Boolean);
     return {
@@ -148,16 +144,14 @@ export function forgetServerVocabulary() {
 }
 
 /** Asks for the lists not read yet. One that fails is left out, to be asked for again next time. */
-async function readVocabulary(locale: string, read: Partial<ServerVocabulary>): Promise<Partial<ServerVocabulary>> {
+async function readVocabulary(read: Partial<ServerVocabulary>): Promise<Partial<ServerVocabulary>> {
   const [programs, encounterTypes] = await Promise.allSettled([
     read.programs ??
       openmrsFetch<unknown>(programsUrl)
         .catch(() => openmrsFetch<unknown>(programNamesUrl))
-        .then(({ data }) => toServerVocabulary(data, null, locale).programs),
+        .then(({ data }) => toServerVocabulary(data, null).programs),
     read.encounterTypes ??
-      openmrsFetch<unknown>(encounterTypesUrl).then(
-        ({ data }) => toServerVocabulary(null, data, locale).encounterTypes,
-      ),
+      openmrsFetch<unknown>(encounterTypesUrl).then(({ data }) => toServerVocabulary(null, data).encounterTypes),
   ]);
   return {
     ...(programs.status === 'fulfilled' && { programs: programs.value }),
@@ -189,7 +183,7 @@ export function useServerVocabulary(enabled: boolean, locale: string): ServerVoc
       return;
     }
     if (!entry.asking) {
-      entry.asking = readVocabulary(locale, entry.read).then((read) => {
+      entry.asking = readVocabulary(entry.read).then((read) => {
         entry.read = read;
         entry.asking = undefined;
         return read;
@@ -200,7 +194,7 @@ export function useServerVocabulary(enabled: boolean, locale: string): ServerVoc
     return () => {
       live = false;
     };
-  }, [enabled, key, locale]);
+  }, [enabled, key]);
 
   return enabled && state?.key === key ? state.value : null;
 }
