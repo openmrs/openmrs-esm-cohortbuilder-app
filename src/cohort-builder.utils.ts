@@ -142,34 +142,6 @@ export const formatDate = (dateString: string) => {
   return `${day}/${month}/${year}`;
 };
 
-const operatorSymbols: Record<string, string> = {
-  LESS_THAN: '<',
-  LESS_EQUAL: '<=',
-  EQUAL: '=',
-  GREATER_EQUAL: '>=',
-  GREATER_THAN: '>',
-};
-
-/**
- * builds a query description based on query input
- * @param {object} state the current state
- * @param {string} conceptName the concept name
- * @returns {string} date in the required format
- */
-export const queryDescriptionBuilder = (state, conceptName: string) => {
-  const { timeModifier, onOrAfter, onOrBefore, operator1, value1 } = state;
-
-  const operatorSymbol = operatorSymbols[operator1];
-  const valueDescription = operatorSymbol && value1 ? `${operatorSymbol} ${value1}` : '';
-
-  const onOrAfterDescription = onOrAfter ? `since ${formatDate(onOrAfter)}` : '';
-  const onOrBeforeDescription = onOrBefore ? `until ${formatDate(onOrBefore)}` : '';
-
-  return ['Patients with', timeModifier, conceptName, valueDescription, onOrAfterDescription, onOrBeforeDescription]
-    .filter(Boolean)
-    .join(' ');
-};
-
 /** Quotes a value for a CSV file. A missing value is left empty, and a quote in the value is doubled. */
 const toCSVValue = (value: unknown) => `"${String(value ?? '').replace(/"/g, '""')}"`;
 

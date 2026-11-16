@@ -44,6 +44,9 @@ describe('the Concepts tab search', () => {
     expect(getDescription(search({ timeModifier: 'ANY', operator: 'LESS_EQUAL', value: 49.5 }))).toBe(
       'Patients with any HIV viral load <= 49.5 copies/mL',
     );
+    expect(getDescription(search({ timeModifier: 'ANY', operator: 'EQUAL', value: 0 }))).toBe(
+      'Patients with any HIV viral load = 0 copies/mL',
+    );
     expect(getDescription(search({ timeModifier: 'MIN', operator: 'LESS_THAN', value: 200 }))).toBe(
       'Patients with lowest HIV viral load < 200 copies/mL',
     );
