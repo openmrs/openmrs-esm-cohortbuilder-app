@@ -22,7 +22,7 @@ const lookupUrl = (words: string) =>
   `${restBaseUrl}/concept?${new URLSearchParams({
     q: words,
     v: 'custom:(uuid,display,units,datatype:(hl7Abbreviation),names:(name,locale))',
-    limit: '20',
+    limit: '100',
   })}`;
 
 const textOf = (value: unknown, max: number) =>

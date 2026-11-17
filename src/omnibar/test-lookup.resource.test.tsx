@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { type FetchResponse, getSessionStore, openmrsFetch } from '@openmrs/esm-framework';
+import { completionsFor } from './completions';
 import { forgetTestLookups, knownTests, testLookupDelayMs, toTests, useTestLookup } from './test-lookup.resource';
 
 const mockOpenmrsFetch = vi.mocked(openmrsFetch);
@@ -74,6 +75,34 @@ describe('looking up a test by name', () => {
     expect(toTests(null)).toEqual([]);
   });
 
+  it('keeps a numeric test that ranks after a page of non-numeric concepts', () => {
+    const results = [
+      ...Array.from({ length: 20 }, (_, index) => ({
+        uuid: `${String(index).padStart(8, '0')}-0000-4000-8000-000000000000`,
+        display: `Coded ${index}`,
+        datatype: { hl7Abbreviation: 'CWE' },
+        names: [],
+      })),
+      {
+        uuid: viralLoad,
+        display: 'HIV viral load',
+        units: 'copies/mL',
+        datatype: { hl7Abbreviation: 'NM' },
+        names: [
+          { name: 'HIV viral load', locale: 'en' },
+          { name: 'Viral load', locale: 'en' },
+        ],
+      },
+    ];
+    const tests = toTests({ results });
+    expect(tests.map(({ label }) => label)).toEqual(['HIV viral load']);
+    expect(
+      completionsFor('women with vir', { drugCriteriaEnabled: false, programs: [], drugGroups: [] }, () => tests).map(
+        ({ label }) => label,
+      ),
+    ).toEqual(['Viral load']);
+  });
+
   it('also knows a name without the unit in brackets at its end, as CIEL writes "Weight (kg)"', () => {
     const weight = '5089AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
     const creatinine = '790AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
@@ -139,6 +168,7 @@ describe('looking up a test by name', () => {
     expect(url.searchParams.get('v')).toBe(
       'custom:(uuid,display,units,datatype:(hl7Abbreviation),names:(name,locale))',
     );
+    expect(url.searchParams.get('limit')).toBe('100');
     expect(knownTests('viral load', 'en')?.map(({ uuid }) => uuid)).toEqual([viralLoad, hepB]);
     expect(result.current).toBeGreaterThan(0);
   });
