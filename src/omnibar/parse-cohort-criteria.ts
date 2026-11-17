@@ -392,6 +392,12 @@ function skipAt(tokens: Array<string>, start: number, P: CompiledPhrases): { nex
   return best;
 }
 
+/** True when every skipped word can sit between a number and the encounter it counts. */
+function keepsCount(span: Array<string>, P: CompiledPhrases): boolean {
+  const glue = new Set(P.countGlue.flat());
+  return span.every((token) => glue.has(token));
+}
+
 export function parseCohortCriteria(text: string, config: CohortCriteriaConfig): CohortDefinition | null {
   const P = config.phrases ?? compilePhrases();
   // A comma or semicolon is skipped wherever it stands, within a phrase or a name too, but joins two
@@ -430,8 +436,10 @@ export function parseCohortCriteria(text: string, config: CohortCriteriaConfig):
   let sawRelator = false;
   // "today", "currently" and the like were written somewhere in the question.
   let sawAsOf = false;
-  // The clause just read was a unitless age, and nothing has been skipped since.
-  let bareAge = false;
+  // A unitless age with nothing skipped since. Refuses the group it sits against ("at least 2 children").
+  let directBare = false;
+  // The same age, still a count across only countGlue words. Refuses the encounter or bare program name.
+  let countBare = false;
   const join = () => {
     joined ||= population;
     joinedToPopulation ||= lastWasPopulation;
@@ -440,7 +448,8 @@ export function parseCohortCriteria(text: string, config: CohortCriteriaConfig):
   while (i < tokens.length) {
     if (afterComma.has(i)) {
       join();
-      bareAge = false;
+      directBare = false;
+      countBare = false;
     }
     // Criteria before stopwords, so "at least" is read before "at" could be skipped, and the reading
     // that takes the most words, so "women of reproductive age" is one age group, not "women".
@@ -459,18 +468,21 @@ export function parseCohortCriteria(text: string, config: CohortCriteriaConfig):
       if (skipped === null) return null;
       if (skipped.role === 'relator') sawRelator = true;
       if (skipped.role === 'asOf') sawAsOf = true;
-      if (tokens.slice(i, skipped.next).some((token) => joiners.has(token))) join();
-      bareAge = false;
+      const span = tokens.slice(i, skipped.next);
+      if (span.some((token) => joiners.has(token))) join();
+      directBare = false;
+      if (!keepsCount(span, P)) countBare = false;
       i = skipped.next;
       continue;
     }
 
     const { clause } = match;
-    // A unitless age directly before an encounter or a population counts them ("more than one
-    // admission", "at least 2 children"). The same number before a program name with no "enrolled"
-    // and no "in" counts programs ("at least 2 HIV programs"). "enrolled in" and "in the … program" stay ages.
-    if (bareAge && clause.kind === 'program' && !clause.linked) return null;
-    if (bareAge && (clause.kind === 'encounter' || isPopulation(clause))) return null;
+    // "at least 2 children" counts people. "more than one admission", and the same with only
+    // "a", "an", "the" or "of" between, counts encounters. "at least 2 HIV programs" counts programs
+    // when the name has no "enrolled" and no "in". "under 5 who had an admission" keeps the age.
+    if (countBare && clause.kind === 'program' && !clause.linked) return null;
+    if (countBare && clause.kind === 'encounter') return null;
+    if (directBare && isPopulation(clause)) return null;
     // "of", "whose" or "have" before a second gender or named group names someone else's relation.
     if (sawRelator && population && isPopulation(clause)) return null;
     sawRelator = false;
@@ -501,7 +513,9 @@ export function parseCohortCriteria(text: string, config: CohortCriteriaConfig):
     } else if (clause.kind === 'encounter' && !encounterTypes.includes(clause.encounterType)) {
       encounterTypes.push(clause.encounterType);
     }
-    bareAge = clause.kind === 'age' && clause.unitless === true;
+    const unitlessAge = clause.kind === 'age' && clause.unitless === true;
+    directBare = unitlessAge;
+    countBare = unitlessAge;
     i = match.next;
   }
 

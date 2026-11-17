@@ -200,6 +200,8 @@ describe('the paraphrase set', () => {
     ['women over 50 and under 60', [women(51, 59)]],
     ['how many women between 15 and 49 are enrolled in HIV?', [women(15, 49), inHiv]],
     ['men over 50 in the TB program', [men(51), inTb]],
+    ['men over 50 with an admission encounter', [men(51), admitted]],
+    ['patients under 5 who had an admission encounter', [age(undefined, 4), admitted]],
     ['adolescent girls enrolled in hiv care on arvs', [women(10, 19), inHiv, onArvs]],
     ['children under 5 with an admission encounter', [age(undefined, 4), admitted]],
     ['number of HIV program patients under 30', [age(undefined, 29), inHiv]],
@@ -343,6 +345,7 @@ describe('the paraphrase set', () => {
     'at least 2 admission encounters',
     'at least 2 HIV programs',
     'more than one HIV program',
+    'more than one of the admission encounters',
     '2 or more admission encounters',
     'fewer than 2 admission encounters',
     'patients over 2 admission encounters',
@@ -518,7 +521,12 @@ describe('the English table holds together', () => {
 
   it('never makes a negation or an alternative a skipped word', () => {
     const never = new Set(englishPhrases.never);
-    for (const phrase of [...englishPhrases.stopwords, ...englishPhrases.relators, ...englishPhrases.asOf]) {
+    for (const phrase of [
+      ...englishPhrases.stopwords,
+      ...englishPhrases.relators,
+      ...englishPhrases.asOf,
+      ...englishPhrases.countGlue,
+    ]) {
       expect([phrase, tokenize(phrase).some((token) => never.has(token))]).toEqual([phrase, false]);
     }
   });
