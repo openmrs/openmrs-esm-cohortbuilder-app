@@ -62,7 +62,7 @@ type Gender = 'male' | 'female';
 type Clause =
   | { kind: 'gender'; gender: Gender }
   | { kind: 'age'; minAge?: number; maxAge?: number; gender?: Gender; group?: boolean; unitless?: boolean }
-  | { kind: 'program'; program: CohortProgram }
+  | { kind: 'program'; program: CohortProgram; linked: boolean }
   | { kind: 'drugGroup'; group: CohortDrugGroup }
   | { kind: 'encounter'; encounterType: CohortEncounterType };
 
@@ -318,9 +318,11 @@ function matchProgram(
   let i = start;
   const enrolled = matchPhrase(tokens, i, P.enrolled);
   if (enrolled !== null) i = enrolled;
+  let linked = enrolled !== null;
   for (let linkers = 0; linkers < 2; linkers++) {
     const linker = matchPhrase(tokens, i, P.programLinkers);
     if (linker === null) break;
+    linked = true;
     i = linker;
   }
   const hit = longestAlias(tokens, i, programs, P);
@@ -334,7 +336,7 @@ function matchProgram(
     i = noun;
   }
   if (enrolled === null && !named) return null;
-  return { next: i, clause: { kind: 'program', program: hit.item } };
+  return { next: i, clause: { kind: 'program', program: hit.item, linked } };
 }
 
 /** "on ARVs", "taking antiretrovirals", "receiving TLD". */
@@ -465,7 +467,9 @@ export function parseCohortCriteria(text: string, config: CohortCriteriaConfig):
 
     const { clause } = match;
     // A unitless age directly before an encounter or a population counts them ("more than one
-    // admission", "at least 2 children"). A word between keeps the age ("over 50 with an admission").
+    // admission", "at least 2 children"). The same number before a program name with no "enrolled"
+    // and no "in" counts programs ("at least 2 HIV programs"). "enrolled in" and "in the … program" stay ages.
+    if (bareAge && clause.kind === 'program' && !clause.linked) return null;
     if (bareAge && (clause.kind === 'encounter' || isPopulation(clause))) return null;
     // "of", "whose" or "have" before a second gender or named group names someone else's relation.
     if (sawRelator && population && isPopulation(clause)) return null;
