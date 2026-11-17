@@ -89,6 +89,11 @@ const rows: Array<[string, string]> = [
   ['at least 2 admission encounters', 'no row'],
   ['women who have children', 'no row'],
   ['paediatric patients under 18', 'no row'],
+  ['at least 2 HIV programs', 'no row'],
+  ['more than one HIV program', 'no row'],
+  ['more than one of the admission encounters', 'no row'],
+  ['patients under 5 who had an admission encounter', 'Patients aged 4 or younger with Admission encounters'],
+  ['can you show me women on ARVs', 'Female patients on ARVs'],
 ];
 
 describe('the second review, as the row would show it', () => {
