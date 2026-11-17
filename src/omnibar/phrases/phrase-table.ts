@@ -22,6 +22,8 @@ const phraseLists = [
   'relators',
   // Skipped, except together with a program or an encounter.
   'asOf',
+  // May sit between a unitless number and what it counts. Any other skipped word makes the number an age.
+  'countGlue',
   'female',
   'male',
   'under',
@@ -206,7 +208,7 @@ export function compilePhrases(
   ) as Record<PhraseList, Compiled>;
   // The shipped table may hold reviewed phrases such as "not older than". A skipped word never may:
   // a negation or an alternative has to fail the question, not disappear inside it.
-  for (const list of ['stopwords', 'relators', 'asOf'] as const) {
+  for (const list of ['stopwords', 'relators', 'asOf', 'countGlue'] as const) {
     lists[list] = lists[list].filter((tokens) => !tokens.some((token) => never.has(token)));
   }
 

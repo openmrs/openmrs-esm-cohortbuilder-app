@@ -88,7 +88,7 @@ type Gender = 'male' | 'female';
 type Clause =
   | { kind: 'gender'; gender: Gender }
   | { kind: 'age'; minAge?: number; maxAge?: number; gender?: Gender; group?: boolean; unitless?: boolean }
-  | { kind: 'program'; program: CohortProgram }
+  | { kind: 'program'; program: CohortProgram; linked: boolean }
   | { kind: 'drugGroup'; group: CohortDrugGroup }
   | { kind: 'encounter'; encounterType: CohortEncounterType }
   | ({ kind: 'test'; test: CohortTest; operator: TestOperator; value: number; which?: TestResult } & TestWindow);
@@ -351,9 +351,11 @@ function matchProgram(
   let i = start;
   const enrolled = matchPhrase(tokens, i, P.enrolled);
   if (enrolled !== null) i = enrolled;
+  let linked = enrolled !== null;
   for (let linkers = 0; linkers < 2; linkers++) {
     const linker = matchPhrase(tokens, i, P.programLinkers);
     if (linker === null) break;
+    linked = true;
     i = linker;
   }
   const hit = longestAlias(tokens, i, programs, P);
@@ -367,7 +369,7 @@ function matchProgram(
     i = noun;
   }
   if (enrolled === null && !named) return null;
-  return { next: i, clause: { kind: 'program', program: hit.item } };
+  return { next: i, clause: { kind: 'program', program: hit.item, linked } };
 }
 
 /** "on ARVs", "taking antiretrovirals", "receiving TLD". */
@@ -654,13 +656,20 @@ const resultWords: Record<TestResult, string> = {
   average: 'average',
 };
 
-type ReadMatch = Match & { joined: boolean; relator: boolean; bareBefore: boolean };
+type ReadMatch = Match & {
+  joined: boolean;
+  relator: boolean;
+  /** Unitless age with nothing skipped since. */
+  directBefore: boolean;
+  /** Unitless age still counting, across only countGlue words. */
+  countBefore: boolean;
+};
 
 /**
  * The question's clauses in order, or where reading stopped: the first word that is neither part of
  * a criterion nor a word the table allows to be skipped. Each clause says whether "and", "with" or a
- * comma came before it, whether a relator ("of", "whose", "have") is still waiting, and whether a
- * unitless age stands directly before it. `sawAsOf` says "today" or "currently" was written.
+ * comma came before it, whether a relator is still waiting, and whether a unitless age is still a
+ * count. `sawAsOf` says "today" or "currently" was written.
  */
 function readClauses(
   tokens: Array<string>,
@@ -673,12 +682,14 @@ function readClauses(
   let joined = false;
   let sawRelator = false;
   let sawAsOf = false;
-  let bareAge = false;
+  let directBare = false;
+  let countBare = false;
   let i = 0;
   while (i < tokens.length) {
     if (afterComma.has(i)) {
       joined = true;
-      bareAge = false;
+      directBare = false;
+      countBare = false;
     }
     // Criteria before skipped words, so "at least" is read before "at" could be skipped, and the reading
     // that takes the most words, so "women of reproductive age" is one age group, not "women".
@@ -694,10 +705,18 @@ function readClauses(
       null,
     );
     if (match) {
-      matches.push({ ...match, joined, relator: sawRelator, bareBefore: bareAge });
+      matches.push({
+        ...match,
+        joined,
+        relator: sawRelator,
+        directBefore: directBare,
+        countBefore: countBare,
+      });
       joined = false;
       sawRelator = false;
-      bareAge = match.clause.kind === 'age' && match.clause.unitless === true;
+      const unitlessAge = match.clause.kind === 'age' && match.clause.unitless === true;
+      directBare = unitlessAge;
+      countBare = unitlessAge;
       i = match.next;
       continue;
     }
@@ -705,8 +724,10 @@ function readClauses(
     if (skipped === null) return { unreadAt: i, matched: matches.length };
     if (skipped.role === 'relator') sawRelator = true;
     if (skipped.role === 'asOf') sawAsOf = true;
-    if (tokens.slice(i, skipped.next).some((token) => joiners.has(token))) joined = true;
-    bareAge = false;
+    const span = tokens.slice(i, skipped.next);
+    if (span.some((token) => joiners.has(token))) joined = true;
+    directBare = false;
+    if (!keepsCount(span, P)) countBare = false;
     i = skipped.next;
   }
   return { matches, sawAsOf };
@@ -784,6 +805,12 @@ function skipAt(tokens: Array<string>, start: number, P: CompiledPhrases): { nex
   return best;
 }
 
+/** True when every skipped word can sit between a number and the encounter it counts. */
+function keepsCount(span: Array<string>, P: CompiledPhrases): boolean {
+  const glue = new Set(P.countGlue.flat());
+  return span.every((token) => glue.has(token));
+}
+
 export function parseCohortCriteria(text: string, config: CohortCriteriaConfig): CohortDefinition | null {
   const P = config.phrases ?? compilePhrases();
   // A comma or semicolon is skipped wherever it stands, within a phrase or a name too, but joins two
@@ -827,9 +854,12 @@ export function parseCohortCriteria(text: string, config: CohortCriteriaConfig):
       joinedToPopulation ||= lastWasPopulation;
     }
     const { clause } = match;
-    // A unitless age directly before an encounter or a population counts them ("more than one
-    // admission", "at least 2 children"). A word between keeps the age ("over 50 with an admission").
-    if (match.bareBefore && (clause.kind === 'encounter' || isPopulation(clause))) return null;
+    // "at least 2 children" counts people. "more than one admission", and the same with only
+    // "a", "an", "the" or "of" between, counts encounters. "at least 2 HIV programs" counts programs
+    // when the name has no "enrolled" and no "in". "under 5 who had an admission" keeps the age.
+    if (match.countBefore && clause.kind === 'program' && !clause.linked) return null;
+    if (match.countBefore && clause.kind === 'encounter') return null;
+    if (match.directBefore && isPopulation(clause)) return null;
     // "of", "whose" or "have" before a second gender or named group names someone else's relation.
     if (match.relator && population && isPopulation(clause)) return null;
     // "women and children", or "women under 30 and children", asks about two populations, so it never

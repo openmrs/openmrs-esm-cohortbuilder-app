@@ -195,6 +195,14 @@ export const configSchema = {
           'Words skipped unless the question also names a program, an encounter, or a test result with no window. ' +
           'The shipped table has "today", "now", "right now", "currently" and "presently".',
       },
+      countGlue: {
+        _type: Type.Array,
+        _elements: { _type: Type.String },
+        _default: [],
+        _description:
+          'Words that can sit between a number and an encounter without turning the number into an age. ' +
+          'The shipped table has "a", "an", "the" and "of".',
+      },
       female: { _type: Type.Array, _elements: { _type: Type.String }, _default: [] },
       male: { _type: Type.Array, _elements: { _type: Type.String }, _default: [] },
       under: { _type: Type.Array, _elements: { _type: Type.String }, _default: [] },

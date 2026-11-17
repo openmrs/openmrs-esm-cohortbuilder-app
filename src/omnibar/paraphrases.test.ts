@@ -200,6 +200,8 @@ describe('the paraphrase set', () => {
     ['women over 50 and under 60', [women(51, 59)]],
     ['how many women between 15 and 49 are enrolled in HIV?', [women(15, 49), inHiv]],
     ['men over 50 in the TB program', [men(51), inTb]],
+    ['men over 50 with an admission encounter', [men(51), admitted]],
+    ['patients under 5 who had an admission encounter', [age(undefined, 4), admitted]],
     ['adolescent girls enrolled in hiv care on arvs', [women(10, 19), inHiv, onArvs]],
     ['children under 5 with an admission encounter', [age(undefined, 4), admitted]],
     ['number of HIV program patients under 30', [age(undefined, 29), inHiv]],
@@ -214,9 +216,11 @@ describe('the paraphrase set', () => {
     ['children under 5 right now', [age(undefined, 4)]],
     ['women over 50 with an admission encounter', [women(51), admitted]],
     ['patients under 5 enrolled in HIV', [age(undefined, 4), inHiv]],
+    ['children under 5 in the HIV program', [age(undefined, 4), inHiv]],
     ['men aged 15 to 49', [men(15, 49)]],
     ['how many women do we have', [women()]],
     ['can I see all women on ARVs', [women(), onArvs]],
+    ['can you show me women on ARVs', [women(), onArvs]],
     ['patients at least 18 enrolled in HIV', [age(18), inHiv]],
   ])('reads %j', (text, criteria) => {
     expect(criteriaOf(text)).toEqual(criteria);
@@ -340,6 +344,9 @@ describe('the paraphrase set', () => {
     'patients in TB for 6 months',
     'patients with more than one admission encounter',
     'at least 2 admission encounters',
+    'at least 2 HIV programs',
+    'more than one HIV program',
+    'more than one of the admission encounters',
     '2 or more admission encounters',
     'fewer than 2 admission encounters',
     'patients over 2 admission encounters',
@@ -515,7 +522,12 @@ describe('the English table holds together', () => {
 
   it('never makes a negation or an alternative a skipped word', () => {
     const never = new Set(englishPhrases.never);
-    for (const phrase of [...englishPhrases.stopwords, ...englishPhrases.relators, ...englishPhrases.asOf]) {
+    for (const phrase of [
+      ...englishPhrases.stopwords,
+      ...englishPhrases.relators,
+      ...englishPhrases.asOf,
+      ...englishPhrases.countGlue,
+    ]) {
       expect([phrase, tokenize(phrase).some((token) => never.has(token))]).toEqual([phrase, false]);
     }
   });
