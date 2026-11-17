@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react';
 import { getSessionStore, openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import { isUuid } from '../url-definition/url-definition';
-import { type CohortTest } from './parse-cohort-criteria';
+import { type CohortTest, type CohortTestName } from './parse-cohort-criteria';
 import { isPlainObject } from './saved-search.resource';
 
 /**
  * Tests by name, from the server's concept search: the numeric concepts whose names match the words
  * the cohort parser couldn't read ("viral load" in "patients with viral load over 1000"), each with
- * its name, its names in the user's language and English, and its units. Asked for once the words
+ * its name, every stored name and that name's locale, and its units. Asked for once the words
  * have stayed the same for a moment, and remembered per user and language for the session. Only those
- * words are sent; the parser decides which words could be a test.
+ * words are sent; the parser decides which words could be a test. The server searches the user's
+ * language. Completions then offer the user's locale, that language, then English.
  */
 
 export const testLookupDelayMs = 300;
@@ -41,20 +42,50 @@ export function toTests(data: unknown): Array<CohortTest> {
     if (!isPlainObject(concept.datatype) || concept.datatype.hl7Abbreviation !== 'NM') return [];
     const label = textOf(concept.display, maxNameLength);
     if (!label) return [];
-    const names = (Array.isArray(concept.names) ? concept.names : [])
-      .filter(isPlainObject)
-      .map((name) => textOf(name.name, maxNameLength));
+    const stored = (Array.isArray(concept.names) ? concept.names : []).filter(isPlainObject).flatMap((entry) => {
+      const name = textOf(entry.name, maxNameLength);
+      const locale = textOf(entry.locale, 40);
+      return name && locale ? [{ name, locale }] : [];
+    });
     const seen = new Set([label.toLowerCase()]);
     // Each name also without a trailing unit in brackets, as CIEL writes "Weight (kg)": the unit is
     // the concept's anyway, and checked against it.
-    const aliases = [label, ...names]
+    const aliases = [label, ...stored.map(({ name }) => name)]
       .flatMap((name) => [name, withoutBracketedEnd(name)])
       .filter((name): name is string => {
         if (!name || seen.has(name.toLowerCase())) return false;
         seen.add(name.toLowerCase());
         return true;
       });
-    return [{ uuid: concept.uuid as string, label, aliases, units: textOf(concept.units, maxUnitsLength) ?? '' }];
+    const localizedNames: Array<CohortTestName> = [];
+    const remember = (name: string | null, locale: string) => {
+      if (
+        !name ||
+        localizedNames.some(
+          (entry) =>
+            entry.name.toLowerCase() === name.toLowerCase() && entry.locale.toLowerCase() === locale.toLowerCase(),
+        )
+      ) {
+        return;
+      }
+      localizedNames.push({ name, locale });
+    };
+    for (const { name, locale } of stored) {
+      remember(name, locale);
+      remember(withoutBracketedEnd(name), locale);
+    }
+    const displayLocale = stored.find((entry) => entry.name.toLowerCase() === label.toLowerCase())?.locale ?? 'en';
+    remember(label, displayLocale);
+    remember(withoutBracketedEnd(label), displayLocale);
+    return [
+      {
+        uuid: concept.uuid as string,
+        label,
+        aliases,
+        units: textOf(concept.units, maxUnitsLength) ?? '',
+        localizedNames,
+      },
+    ];
   });
 }
 

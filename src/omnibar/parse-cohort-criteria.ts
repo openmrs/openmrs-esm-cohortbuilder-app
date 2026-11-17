@@ -51,12 +51,20 @@ export interface CohortCriteriaConfig {
   phrases?: CompiledPhrases;
 }
 
+/** A name the concept search returned, with the locale it is stored in. */
+export interface CohortTestName {
+  name: string;
+  locale: string;
+}
+
 /** A numeric concept the parser can read by name, with the units its values are in. */
 export interface CohortTest {
   uuid: string;
   label: string;
   aliases: Array<string>;
   units: string;
+  /** Set by the concept lookup. Completions offer from these, never from another locale. */
+  localizedNames?: Array<CohortTestName>;
 }
 
 const isObject = (value: unknown) => typeof value === 'object' && value !== null && !Array.isArray(value);

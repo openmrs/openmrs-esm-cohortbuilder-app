@@ -56,8 +56,20 @@ describe('looking up a test by name', () => {
         label: 'HIV viral load',
         aliases: ['Viral load', 'Charge virale', 'Wingi wa virusi'],
         units: 'copies/mL',
+        localizedNames: [
+          { name: 'HIV viral load', locale: 'en' },
+          { name: 'Viral load', locale: 'en' },
+          { name: 'Charge virale', locale: 'fr' },
+          { name: 'Wingi wa virusi', locale: 'sw' },
+        ],
       },
-      { uuid: hepB, label: 'Hepatitis B viral load', aliases: [], units: 'IU/mL' },
+      {
+        uuid: hepB,
+        label: 'Hepatitis B viral load',
+        aliases: [],
+        units: 'IU/mL',
+        localizedNames: [{ name: 'Hepatitis B viral load', locale: 'en' }],
+      },
     ]);
     expect(toTests(null)).toEqual([]);
   });
@@ -85,8 +97,28 @@ describe('looking up a test by name', () => {
         ],
       }),
     ).toEqual([
-      { uuid: weight, label: 'Weight (kg)', aliases: ['Weight', 'WT'], units: 'kg' },
-      { uuid: creatinine, label: 'Serum creatinine (umol/L)', aliases: ['Serum creatinine', 'Cr'], units: 'umol/L' },
+      {
+        uuid: weight,
+        label: 'Weight (kg)',
+        aliases: ['Weight', 'WT'],
+        units: 'kg',
+        localizedNames: [
+          { name: 'WT', locale: 'en' },
+          { name: 'Weight (kg)', locale: 'en' },
+          { name: 'Weight', locale: 'en' },
+        ],
+      },
+      {
+        uuid: creatinine,
+        label: 'Serum creatinine (umol/L)',
+        aliases: ['Serum creatinine', 'Cr'],
+        units: 'umol/L',
+        localizedNames: [
+          { name: 'Cr', locale: 'en' },
+          { name: 'Serum creatinine (umol/L)', locale: 'en' },
+          { name: 'Serum creatinine', locale: 'en' },
+        ],
+      },
     ]);
   });
 

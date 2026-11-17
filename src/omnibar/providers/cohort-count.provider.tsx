@@ -102,8 +102,11 @@ const CohortCountProvider: React.FC<OmnibarProviderProps> = (props) => {
   const completions = useMemo(
     () =>
       allowed
-        ? completionsFor(query, { ...criteriaConfig, tests }, (words) =>
-            lookingUp ? knownTests(words, locale) : undefined,
+        ? completionsFor(
+            query,
+            { ...criteriaConfig, tests },
+            (words) => (lookingUp ? knownTests(words, locale) : undefined),
+            locale,
           )
         : [],
     // lookupsLanded: the lookup's answer is read through knownTests.

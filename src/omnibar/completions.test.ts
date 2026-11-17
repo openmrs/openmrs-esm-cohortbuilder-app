@@ -100,6 +100,69 @@ describe('completions from the count row', () => {
     ]);
   });
 
+  it('offers a name that reads back as its own test, and not one the tokenizer cannot read', () => {
+    const cd4 = '5497AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+    const test: CohortTest = {
+      uuid: cd4,
+      label: 'CD4%',
+      aliases: ['CD4 count', 'CD4%'],
+      units: 'cells/mm3',
+      localizedNames: [
+        { name: 'CD4%', locale: 'en' },
+        { name: 'CD4 count', locale: 'en' },
+      ],
+    };
+    expect(completionsFor('women with cd4', config, () => [test]).map(({ label }) => label)).toEqual(['CD4 count']);
+    expect(parseCohortCriteria('women with CD4 count over 1', { ...config, tests: [test] })?.criteria).toEqual([
+      { type: 'demographics', gender: 'female' },
+      { type: 'numericObs', concept: cd4, operator: 'gt', value: 1 },
+    ]);
+  });
+
+  it('offers neither concept a short name they share, because that name reads as no test', () => {
+    const shared = (uuid: string): CohortTest => ({
+      uuid,
+      label: 'Glu',
+      aliases: ['Glu'],
+      units: 'mg/dL',
+      localizedNames: [{ name: 'Glu', locale: 'en' }],
+    });
+    const glu = shared('887AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+    const other = shared('1458AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+    expect(completionsFor('women with glu', config, () => [glu]).map(({ label }) => label)).toEqual(['Glu']);
+    expect(completionsFor('women with glu', config, () => [glu, other])).toEqual([]);
+  });
+
+  it('does not offer a name in another locale, which the concept search would not find again', () => {
+    const creole: CohortTest = {
+      uuid: '1132AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      label: 'Sodyòm sewòm',
+      aliases: ['Sodyòm sewòm'],
+      units: 'mmol/L',
+      localizedNames: [{ name: 'Sodyòm sewòm', locale: 'ht' }],
+    };
+    expect(completionsFor('women with sod', config, () => [creole], 'en')).toEqual([]);
+  });
+
+  it("offers the user's locale before English when both names match", () => {
+    const hb: CohortTest = {
+      uuid: '21AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      label: 'Hemoglobin',
+      aliases: ['Haemoglobin', 'Hemoglobin'],
+      units: 'g/dL',
+      localizedNames: [
+        { name: 'Haemoglobin', locale: 'en_GB' },
+        { name: 'Hemoglobin', locale: 'en' },
+      ],
+    };
+    expect(completionsFor('women with glo', config, () => [hb], 'en_GB').map(({ label }) => label)).toEqual([
+      'Haemoglobin',
+    ]);
+    expect(completionsFor('women with glo', config, () => [hb], 'en').map(({ label }) => label)).toEqual([
+      'Hemoglobin',
+    ]);
+  });
+
   it('keeps at most five', () => {
     const many = Array.from({ length: 8 }, (_, i) => ({
       uuid: `${String(i).padStart(8, '0')}-0000-4000-8000-000000000000`,

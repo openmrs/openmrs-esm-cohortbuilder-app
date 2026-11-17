@@ -1,5 +1,10 @@
 import { type OmnibarCompletion } from './omnibar-contract';
-import { type CohortCriteriaConfig, type CohortTest, typedTestWords } from './parse-cohort-criteria';
+import {
+  type CohortCriteriaConfig,
+  type CohortTest,
+  parseCohortCriteria,
+  typedTestWords,
+} from './parse-cohort-criteria';
 
 /**
  * What the count row offers to finish the question being typed, taken with Tab: the test whose
@@ -22,11 +27,61 @@ function typedLength(query: string, words: string): number | null {
   return match && query.normalize('NFKC').length === query.length ? match[0].length : null;
 }
 
-/** The first of the names that starts with the words, the label first; else the label, if it holds them. */
-function nameFor({ label, aliases }: { label: string; aliases: Array<string> }, words: string): string | null {
+/** User's locale, then its language ("en" for "en_GB"), then English. Other locales are never offered. */
+function localeOrder(userLocale: string): Array<string> {
+  const locale = userLocale.replace(/-/g, '_').toLowerCase();
+  const language = locale.split('_')[0];
+  const order = [locale];
+  if (language !== locale) order.push(language);
+  if (!order.includes('en')) order.push('en');
+  return order;
+}
+
+/** Names completions may offer, in locale order. Without locales, the label and aliases, as before. */
+function namesToOffer(test: CohortTest, userLocale: string): Array<string> {
+  const localized = test.localizedNames;
+  if (!localized?.length) return [test.label, ...test.aliases];
+  const names: Array<string> = [];
+  for (const locale of localeOrder(userLocale)) {
+    for (const entry of localized) {
+      if (entry.locale.replace(/-/g, '_').toLowerCase() !== locale) continue;
+      if (names.some((name) => name.toLowerCase() === entry.name.toLowerCase())) continue;
+      names.push(entry.name);
+    }
+  }
+  return names;
+}
+
+/**
+ * Names that start the way the typed words do, then names that contain them. A result word before
+ * the typed words ("mean" in "mean corp") prefers a name that begins with both.
+ */
+function namesMatching(names: Array<string>, words: string, lead: string | null): Array<string> {
   const typed = words.toLowerCase();
-  const starting = [label, ...aliases].find((name) => name.toLowerCase().startsWith(typed));
-  return starting ?? (label.toLowerCase().includes(typed) ? label : null);
+  const covering =
+    lead === null ? [] : names.filter((name) => nameStartsWith(name, `${lead} ${words}`));
+  const starting = names.filter(
+    (name) => !covering.includes(name) && name.toLowerCase().startsWith(typed),
+  );
+  const containing = names.filter(
+    (name) => !covering.includes(name) && !starting.includes(name) && name.toLowerCase().includes(typed),
+  );
+  return [...covering, ...starting, ...containing];
+}
+
+/** The completed question plus a comparison reads back as this test, and no other. */
+function readsBackAs(
+  query: string,
+  name: string,
+  replace: number,
+  test: CohortTest,
+  config: CohortCriteriaConfig,
+  tests: Array<CohortTest>,
+): boolean {
+  const completed = `${query.slice(0, query.length - replace) + name} over 1`;
+  const parsed = parseCohortCriteria(completed, { ...config, tests });
+  const obs = parsed?.criteria.filter((criterion) => criterion.type === 'numericObs') ?? [];
+  return obs.length === 1 && obs[0].concept === test.uuid;
 }
 
 /** True when `lead` is the first word or words of `name`, not merely a prefix of its first word. */
@@ -40,24 +95,26 @@ export function completionsFor(
   query: string,
   config: CohortCriteriaConfig,
   lookedUp: (words: string) => Array<CohortTest> | undefined,
+  locale = 'en',
 ): Array<OmnibarCompletion> {
   const completions: Array<OmnibarCompletion> = [];
   const typed = typedTestWords(query, config);
   if (typed) {
-    for (const test of lookedUp(typed.words) ?? []) {
-      const covering =
-        typed.lead &&
-        [test.label, ...test.aliases].find((name) => nameStartsWith(name, `${typed.lead} ${typed.words}`));
-      const name = covering ?? nameFor(test, typed.words);
-      const fromLead = Boolean(covering || (typed.lead && name && nameStartsWith(name, typed.lead)));
-      const replace = name ? typedLength(query, fromLead ? `${typed.lead} ${typed.words}` : typed.words) : null;
-      if (name && replace !== null && name.length <= maxName) {
+    const tests = lookedUp(typed.words) ?? [];
+    for (const test of tests) {
+      const names = namesMatching(namesToOffer(test, locale), typed.words, typed.lead);
+      for (const name of names) {
+        const fromLead = Boolean(typed.lead && nameStartsWith(name, typed.lead));
+        const replace = typedLength(query, fromLead ? `${typed.lead} ${typed.words}` : typed.words);
+        if (replace === null || name.length > maxName) continue;
+        if (!readsBackAs(query, name, replace, test, config, tests)) continue;
         completions.push({
           insert: `${name} `,
           replace,
           label: name,
           detail: [test.label, test.units].filter(Boolean).join(' · '),
         });
+        break;
       }
     }
   }
