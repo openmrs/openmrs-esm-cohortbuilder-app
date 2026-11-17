@@ -20,7 +20,7 @@ const phraseLists = [
   'stopwords',
   // Skipped, except when they introduce a second gender or named age group.
   'relators',
-  // Skipped, except together with a program or an encounter.
+  // Skipped, except together with a program, an encounter, or a test result that has no window.
   'asOf',
   // May sit between a unitless number and what it counts. Any other skipped word makes the number an age.
   'countGlue',
