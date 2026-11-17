@@ -109,8 +109,8 @@ export const configSchema = {
       _type: Type.Boolean,
       _default: true,
       _description:
-        'Let the cohort row know the programs and encounter types on the server by name, with the names of each ' +
-        "program's concept in the user's language and English, besides those in programs and encounterTypes. " +
+        'Let the cohort row know the programs and encounter types on the server by name, with every name of each ' +
+        "program's concept in any language, besides those in programs and encounterTypes. " +
         'Asked for once per user when the row is first allowed to answer, never per keystroke. Off, only config is known.',
     },
     countDebounceMs: {
