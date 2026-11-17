@@ -172,7 +172,6 @@ describe('the paraphrase set', () => {
     ['TB clinic patients', [inTb]],
     ['patients in the tuberculosis clinic', [inTb]],
     ['patients on the TB program', [inTb]],
-    ['patients currently enrolled in TB', [inTb]],
     ['patients in the Tuberculosis Program', [inTb]],
     ['patients in the tuberculoses program', [inTb]],
     ['patients in the tuberclosis program', [inTb]],
@@ -208,6 +207,17 @@ describe('the paraphrase set', () => {
     ['what is the total number of women of reproductive age enrolled in HIV', [women(15, 49), inHiv]],
     ['show me all men 50+ taking ARVs', [men(50), onArvs]],
     ['list adults in the TB clinic', [age(18), inTb]],
+    // "of" before an age is the age. "of" before a second group is not.
+    ['women of 15-49 years', [women(15, 49)]],
+    ['patients with children', [age(undefined, 17)]],
+    ['patients currently on ARVs', [onArvs]],
+    ['how many women today', [women()]],
+    ['children under 5 right now', [age(undefined, 4)]],
+    ['women over 50 with an admission encounter', [women(51), admitted]],
+    ['patients under 5 enrolled in HIV', [age(undefined, 4), inHiv]],
+    ['men aged 15 to 49', [men(15, 49)]],
+    ['how many women do we have', [women()]],
+    ['patients at least 18 enrolled in HIV', [age(18), inHiv]],
   ])('reads %j', (text, criteria) => {
     expect(criteriaOf(text)).toEqual(criteria);
   });
@@ -311,6 +321,34 @@ describe('the paraphrase set', () => {
     'women 1234567',
     '50+',
     '<30',
+    // A second gender or named group after "of", "whose" or "have" is someone else's relation.
+    'children of women enrolled in PMTCT',
+    'women whose children are under 5',
+    'women who have children',
+    'children of mothers',
+    'women having children',
+    'mothers of children under 5',
+    // "for" before a number is a duration, and a unitless number glued to an encounter counts them.
+    'patients enrolled in HIV for at least 12 months',
+    'patients on ARVs for 6 months',
+    'enrolled in HIV for 2 years',
+    'patients in TB for over a year',
+    'patients in TB for 6 months',
+    'patients with more than one admission encounter',
+    'at least 2 admission encounters',
+    '2 or more admission encounters',
+    'fewer than 2 admission encounters',
+    'patients over 2 admission encounters',
+    // "today" and "currently" with an enrollment or an encounter are not what the search counts.
+    'how many admission encounters today',
+    'patients currently enrolled in TB',
+    'patients presently in the HIV program',
+    // These words pick out a person, a place, a moment in the past, or a subset we cannot see.
+    'these women',
+    'those patients on ARVs',
+    'how many patients do you have on ARVs',
+    'patients who were enrolled in HIV',
+    'patients who were on ARVs',
   ])('offers nothing for %j', (text) => {
     expect(criteriaOf(text)).toBeNull();
   });
@@ -468,9 +506,9 @@ describe('the English table holds together', () => {
     expect(overlap(female, male)).toEqual([]);
   });
 
-  it('never makes a negation or an alternative a stopword', () => {
+  it('never makes a negation or an alternative a skipped word', () => {
     const never = new Set(englishPhrases.never);
-    for (const phrase of englishPhrases.stopwords) {
+    for (const phrase of [...englishPhrases.stopwords, ...englishPhrases.relators, ...englishPhrases.asOf]) {
       expect([phrase, tokenize(phrase).some((token) => never.has(token))]).toEqual([phrase, false]);
     }
   });

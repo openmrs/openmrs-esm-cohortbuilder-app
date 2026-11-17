@@ -170,6 +170,22 @@ export const configSchema = {
         'so is a phrase longer than 80 characters. ageGroups adds named age bands, such as ' +
         '{"phrases": ["school age"], "minAge": 6, "maxAge": 12}. Additions only: nothing in the shipped table can be removed.',
       stopwords: { _type: Type.Array, _elements: { _type: Type.String }, _default: [] },
+      relators: {
+        _type: Type.Array,
+        _elements: { _type: Type.String },
+        _default: [],
+        _description:
+          'Words skipped unless a gender or a named age group was already read and the next clause is another. ' +
+          'The shipped table has "of", "whose", "have", "has", "had" and "having".',
+      },
+      asOf: {
+        _type: Type.Array,
+        _elements: { _type: Type.String },
+        _default: [],
+        _description:
+          'Words skipped unless the question also names a program or an encounter. The shipped table has ' +
+          '"today", "now", "right now", "currently" and "presently".',
+      },
       female: { _type: Type.Array, _elements: { _type: Type.String }, _default: [] },
       male: { _type: Type.Array, _elements: { _type: Type.String }, _default: [] },
       under: { _type: Type.Array, _elements: { _type: Type.String }, _default: [] },

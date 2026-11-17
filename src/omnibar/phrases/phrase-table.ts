@@ -18,6 +18,10 @@ export interface AgeGroup {
 
 const phraseLists = [
   'stopwords',
+  // Skipped, except when they introduce a second gender or named age group.
+  'relators',
+  // Skipped, except together with a program or an encounter.
+  'asOf',
   'female',
   'male',
   'under',
@@ -176,9 +180,11 @@ export function compilePhrases(
       return [list, compileList([...table[list], ...added])];
     }),
   ) as Record<PhraseList, Compiled>;
-  // The shipped table may hold reviewed phrases such as "not older than"; a stopword never may, since
-  // it is skipped wherever it stands.
-  lists.stopwords = lists.stopwords.filter((tokens) => !tokens.some((token) => never.has(token)));
+  // The shipped table may hold reviewed phrases such as "not older than". A skipped word never may:
+  // a negation or an alternative has to fail the question, not disappear inside it.
+  for (const list of ['stopwords', 'relators', 'asOf'] as const) {
+    lists[list] = lists[list].filter((tokens) => !tokens.some((token) => never.has(token)));
+  }
 
   const numbers = new Map(
     Object.entries(table.numbers).filter(([word, value]) => /^\p{L}+$/u.test(word) && Number.isInteger(value)),

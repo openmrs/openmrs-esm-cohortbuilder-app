@@ -23,8 +23,8 @@ import {
 
 /**
  * Turns plain English like "how many women aged 15-49 on ARVs?" into a cohort builder definition.
- * Every word must be understood or be a stopword; anything else returns null, so the omnibar never
- * shows a cohort that is a guess at what was typed. No network, no model. The words are data, in
+ * Every word must be understood or be a word the table allows to be skipped; anything else returns
+ * null, so the omnibar never shows a cohort that is a guess at what was typed. No network, no model. The words are data, in
  * `phrases/en.json` plus a site's `omnibar.phrases`; the names are programs, drug groups and
  * encounter types from config and, in the omnibar, from the server. The limits and the uuid check are
  * the decoder's own, in url-definition.ts.
@@ -61,7 +61,7 @@ type Gender = 'male' | 'female';
 
 type Clause =
   | { kind: 'gender'; gender: Gender }
-  | { kind: 'age'; minAge?: number; maxAge?: number; gender?: Gender; group?: boolean }
+  | { kind: 'age'; minAge?: number; maxAge?: number; gender?: Gender; group?: boolean; unitless?: boolean }
   | { kind: 'program'; program: CohortProgram }
   | { kind: 'drugGroup'; group: CohortDrugGroup }
   | { kind: 'encounter'; encounterType: CohortEncounterType };
@@ -78,6 +78,8 @@ interface AgeReading {
   gender?: Gender;
   /** A named group, such as "adolescents", whose band bounds written as numbers narrow. */
   group?: boolean;
+  /** A number with no age unit and no "aged", so it may be a count of whatever follows. */
+  unitless?: boolean;
 }
 
 /** A whole number of up to three digits, or in words: "nine", "nineteen", "forty", "forty nine", "forty-nine". */
@@ -101,13 +103,13 @@ function readNumber(tokens: Array<string>, start: number, P: CompiledPhrases): {
 /**
  * A number of years: the number, then perhaps a unit. Months count only in whole years ("24 months"
  * is 2, and `months` says so), since the builder searches ages in years; any other unit makes it
- * unreadable. `old` says the unit names an age by itself ("30 years old").
+ * unreadable. `old` says the unit names an age by itself ("30 years old"). `bare` says no unit was written.
  */
 function readYears(
   tokens: Array<string>,
   start: number,
   P: CompiledPhrases,
-): { years: number; next: number; old: boolean; months: boolean } | null {
+): { years: number; next: number; old: boolean; months: boolean; bare: boolean } | null {
   const number = readNumber(tokens, start, P);
   if (!number) return null;
   const { value, next } = number;
@@ -115,14 +117,14 @@ function readYears(
   const years = matchPhrase(tokens, next, P.years);
   if (old !== null || years !== null) {
     const end = Math.max(old ?? 0, years ?? 0);
-    return { years: value, next: end, old: old !== null && old === end, months: false };
+    return { years: value, next: end, old: old !== null && old === end, months: false, bare: false };
   }
   const months = matchPhrase(tokens, next, P.months);
   if (months !== null) {
-    return value % 12 === 0 ? { years: value / 12, next: months, old: true, months: true } : null;
+    return value % 12 === 0 ? { years: value / 12, next: months, old: true, months: true, bare: false } : null;
   }
   if (matchPhrase(tokens, next, P.otherUnits) !== null) return null;
-  return { years: value, next, old: false, months: false };
+  return { years: value, next, old: false, months: false, bare: true };
 }
 
 // The last value says whether months in whole years are exact: "under 24 months" is aged 1 or younger
@@ -149,7 +151,12 @@ function matchAge(tokens: Array<string>, start: number, P: CompiledPhrases): Mat
       (rangeStart !== null && tokens[first.next] === 'and' ? first.next + 1 : null);
     const second = join !== null ? readYears(tokens, join, P) : null;
     if (second && !first.months && !second.months) {
-      readings.push({ next: second.next, minAge: first.years, maxAge: second.years });
+      readings.push({
+        next: second.next,
+        minAge: first.years,
+        maxAge: second.years,
+        unitless: aged === null && first.bare && second.bare,
+      });
     }
   }
 
@@ -157,7 +164,9 @@ function matchAge(tokens: Array<string>, start: number, P: CompiledPhrases): Mat
   for (const [list, bounds, exactInMonths] of comparators) {
     const comparator = matchPhrase(tokens, from, P[list]);
     const years = comparator !== null ? readYears(tokens, comparator, P) : null;
-    if (years && (exactInMonths || !years.months)) readings.push({ next: years.next, ...bounds(years.years) });
+    if (years && (exactInMonths || !years.months)) {
+      readings.push({ next: years.next, ...bounds(years.years), unitless: aged === null && years.bare });
+    }
   }
 
   // "30 or younger", "65+", "18 and over", "30 years old", "aged 30"
@@ -165,8 +174,9 @@ function matchAge(tokens: Array<string>, start: number, P: CompiledPhrases): Mat
   if (years) {
     const orUnder = matchPhrase(tokens, years.next, P.orUnder);
     const orOver = matchPhrase(tokens, years.next, P.orOver);
-    if (orUnder !== null && !years.months) readings.push({ next: orUnder, maxAge: years.years });
-    if (orOver !== null) readings.push({ next: orOver, minAge: years.years });
+    const unitless = aged === null && years.bare;
+    if (orUnder !== null && !years.months) readings.push({ next: orUnder, maxAge: years.years, unitless });
+    if (orOver !== null) readings.push({ next: orOver, minAge: years.years, unitless });
     if ((years.old || aged !== null) && !years.months) {
       readings.push({ next: years.next, minAge: years.years, maxAge: years.years });
     }
@@ -365,6 +375,21 @@ const isAge = (value: number | undefined) =>
 const joiners = new Set(['and', 'with']);
 const isPopulation = (clause: Clause) => clause.kind === 'gender' || (clause.kind === 'age' && clause.group);
 
+type SkipRole = 'filler' | 'relator' | 'asOf';
+
+/** The longest phrase the table allows to be skipped here. A tie keeps a relator or an asOf word. */
+function skipAt(tokens: Array<string>, start: number, P: CompiledPhrases): { next: number; role: SkipRole } | null {
+  let best: { next: number; role: SkipRole } | null = null;
+  const consider = (role: SkipRole, next: number | null) => {
+    if (next === null) return;
+    if (!best || next > best.next || (next === best.next && best.role === 'filler')) best = { next, role };
+  };
+  consider('filler', matchPhrase(tokens, start, P.stopwords));
+  consider('relator', matchPhrase(tokens, start, P.relators));
+  consider('asOf', matchPhrase(tokens, start, P.asOf));
+  return best;
+}
+
 export function parseCohortCriteria(text: string, config: CohortCriteriaConfig): CohortDefinition | null {
   const P = config.phrases ?? compilePhrases();
   // A comma or semicolon is skipped wherever it stands, within a phrase or a name too, but joins two
@@ -399,13 +424,22 @@ export function parseCohortCriteria(text: string, config: CohortCriteriaConfig):
   let joined = false;
   let joinedToPopulation = false;
   let lastWasPopulation = false;
+  // A relator ("of", "whose", "have") is still waiting for the next clause.
+  let sawRelator = false;
+  // "today", "currently" and the like were written somewhere in the question.
+  let sawAsOf = false;
+  // The clause just read was a unitless age, and nothing has been skipped since.
+  let bareAge = false;
   const join = () => {
     joined ||= population;
     joinedToPopulation ||= lastWasPopulation;
   };
   let i = 0;
   while (i < tokens.length) {
-    if (afterComma.has(i)) join();
+    if (afterComma.has(i)) {
+      join();
+      bareAge = false;
+    }
     // Criteria before stopwords, so "at least" is read before "at" could be skipped, and the reading
     // that takes the most words, so "women of reproductive age" is one age group, not "women".
     const match = [
@@ -419,14 +453,23 @@ export function parseCohortCriteria(text: string, config: CohortCriteriaConfig):
       null,
     );
     if (!match) {
-      const stopword = matchPhrase(tokens, i, P.stopwords);
-      if (stopword === null) return null;
-      if (tokens.slice(i, stopword).some((token) => joiners.has(token))) join();
-      i = stopword;
+      const skipped = skipAt(tokens, i, P);
+      if (skipped === null) return null;
+      if (skipped.role === 'relator') sawRelator = true;
+      if (skipped.role === 'asOf') sawAsOf = true;
+      if (tokens.slice(i, skipped.next).some((token) => joiners.has(token))) join();
+      bareAge = false;
+      i = skipped.next;
       continue;
     }
 
     const { clause } = match;
+    // A unitless age directly before an encounter or a population counts them ("more than one
+    // admission", "at least 2 children"). A word between keeps the age ("over 50 with an admission").
+    if (bareAge && (clause.kind === 'encounter' || isPopulation(clause))) return null;
+    // "of", "whose" or "have" before a second gender or named group names someone else's relation.
+    if (sawRelator && population && isPopulation(clause)) return null;
+    sawRelator = false;
     // "women and children", or "women under 30 and children", asks about two populations, so it never
     // counts the girls they share. "women and under 5" may too, so any age right after one is refused.
     if ((joined && isPopulation(clause)) || (joinedToPopulation && clause.kind === 'age')) return null;
@@ -454,8 +497,12 @@ export function parseCohortCriteria(text: string, config: CohortCriteriaConfig):
     } else if (clause.kind === 'encounter' && !encounterTypes.includes(clause.encounterType)) {
       encounterTypes.push(clause.encounterType);
     }
+    bareAge = clause.kind === 'age' && clause.unitless === true;
     i = match.next;
   }
+
+  // Enrollments and encounters are not limited to today, so "currently" beside one would count other people.
+  if (sawAsOf && (programs.length > 0 || encounterTypes.length > 0)) return null;
 
   if (!isAge(minAge) || !isAge(maxAge)) {
     return null;
