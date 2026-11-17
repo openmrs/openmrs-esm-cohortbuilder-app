@@ -588,6 +588,17 @@ describe('names from config or the server', () => {
       ]),
     ).toBeNull();
   });
+
+  it('never reads a short word, or a word of the table, as a slip in a name', () => {
+    const order = '5d2e3f40-1111-4222-8333-444455556666';
+    const named = {
+      ...config,
+      encounterTypes: [...config.encounterTypes, { uuid: order, label: 'Order', aliases: [] }],
+    };
+    expect(parseCohortCriteria('enrolled in hpv', named)).toBeNull();
+    expect(parseCohortCriteria('enrolled in pmtc', named)).toBeNull();
+    expect(parseCohortCriteria('patients with an older encounter', named)).toBeNull();
+  });
 });
 
 describe("a site's own phrases", () => {
