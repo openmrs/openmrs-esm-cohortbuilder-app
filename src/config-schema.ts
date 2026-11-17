@@ -109,8 +109,8 @@ export const configSchema = {
       _type: Type.Boolean,
       _default: true,
       _description:
-        'Let the cohort row know the programs and encounter types on the server by name, with the names of each ' +
-        "program's concept in the user's language and English, besides those in programs and encounterTypes. " +
+        'Let the cohort row know the programs and encounter types on the server by name, with every name of each ' +
+        "program's concept in any language, besides those in programs and encounterTypes. " +
         'Asked for once per user when the row is first allowed to answer, never per keystroke. Off, only config is known.',
     },
     testResults: {
@@ -179,6 +179,22 @@ export const configSchema = {
         'so is a phrase longer than 80 characters. ageGroups adds named age bands, such as ' +
         '{"phrases": ["school age"], "minAge": 6, "maxAge": 12}. Additions only: nothing in the shipped table can be removed.',
       stopwords: { _type: Type.Array, _elements: { _type: Type.String }, _default: [] },
+      relators: {
+        _type: Type.Array,
+        _elements: { _type: Type.String },
+        _default: [],
+        _description:
+          'Words skipped unless a gender or a named age group was already read and the next clause is another. ' +
+          'The shipped table has "of", "whose", "have", "has", "had" and "having".',
+      },
+      asOf: {
+        _type: Type.Array,
+        _elements: { _type: Type.String },
+        _default: [],
+        _description:
+          'Words skipped unless the question also names a program, an encounter, or a test result with no window. ' +
+          'The shipped table has "today", "now", "right now", "currently" and "presently".',
+      },
       female: { _type: Type.Array, _elements: { _type: Type.String }, _default: [] },
       male: { _type: Type.Array, _elements: { _type: Type.String }, _default: [] },
       under: { _type: Type.Array, _elements: { _type: Type.String }, _default: [] },

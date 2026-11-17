@@ -155,7 +155,6 @@ describe('the paraphrase set', () => {
     ['adolescents under 15', [age(10, 14)]],
     ['women of reproductive age under 30', [women(15, 29)]],
     ['children under 5', [age(undefined, 4)]],
-    ['children aged 10 to 30', [age(10, 17)]],
     ['elderly patients', [age(60)]],
     ['older people', [age(60)]],
     ['seniors', [age(60)]],
@@ -172,7 +171,6 @@ describe('the paraphrase set', () => {
     ['TB clinic patients', [inTb]],
     ['patients in the tuberculosis clinic', [inTb]],
     ['patients on the TB program', [inTb]],
-    ['patients currently enrolled in TB', [inTb]],
     ['patients in the Tuberculosis Program', [inTb]],
     ['patients in the tuberculoses program', [inTb]],
     ['patients in the tuberclosis program', [inTb]],
@@ -208,6 +206,18 @@ describe('the paraphrase set', () => {
     ['what is the total number of women of reproductive age enrolled in HIV', [women(15, 49), inHiv]],
     ['show me all men 50+ taking ARVs', [men(50), onArvs]],
     ['list adults in the TB clinic', [age(18), inTb]],
+    // "of" before an age is the age. "of" before a second group is not.
+    ['women of 15-49 years', [women(15, 49)]],
+    ['patients with children', [age(undefined, 17)]],
+    ['patients currently on ARVs', [onArvs]],
+    ['how many women today', [women()]],
+    ['children under 5 right now', [age(undefined, 4)]],
+    ['women over 50 with an admission encounter', [women(51), admitted]],
+    ['patients under 5 enrolled in HIV', [age(undefined, 4), inHiv]],
+    ['men aged 15 to 49', [men(15, 49)]],
+    ['how many women do we have', [women()]],
+    ['can I see all women on ARVs', [women(), onArvs]],
+    ['patients at least 18 enrolled in HIV', [age(18), inHiv]],
   ])('reads %j', (text, criteria) => {
     expect(criteriaOf(text)).toEqual(criteria);
   });
@@ -259,6 +269,10 @@ describe('the paraphrase set', () => {
     'patients 15',
     'women 15',
     'adults under 10',
+    'adults 15+',
+    'pediatric patients under 18',
+    'paediatric patients under 18',
+    'children aged 10 to 30',
     'children over 20 and under 30',
     // Two named groups: likely an "or" or a slip, never a narrow band between them.
     'adolescent adults',
@@ -311,6 +325,37 @@ describe('the paraphrase set', () => {
     'women 1234567',
     '50+',
     '<30',
+    // A second gender or named group after "of", "whose" or "have" is someone else's relation.
+    'children of women enrolled in PMTCT',
+    'women whose children are under 5',
+    'women who have children',
+    'children of mothers',
+    'women having children',
+    'mothers of children under 5',
+    // "for" before a number is a duration, and a unitless number glued to an encounter counts them.
+    'patients enrolled in HIV for at least 12 months',
+    'patients on ARVs for 6 months',
+    'enrolled in HIV for 2 years',
+    'patients in TB for over a year',
+    'patients in TB for 6 months',
+    'patients with more than one admission encounter',
+    'at least 2 admission encounters',
+    '2 or more admission encounters',
+    'fewer than 2 admission encounters',
+    'patients over 2 admission encounters',
+    // "today" and "currently" with an enrollment or an encounter are not what the search counts.
+    'how many admission encounters today',
+    'patients currently enrolled in TB',
+    'patients presently in the HIV program',
+    // These words pick out a person, a place, a moment in the past, or a subset we cannot see.
+    'these women',
+    'those patients on ARVs',
+    'how many patients do you have on ARVs',
+    'patients who were enrolled in HIV',
+    'patients who were on ARVs',
+    'how many of my patients are women',
+    'how many patients do I have on ARVs',
+    'how many women are here',
   ])('offers nothing for %j', (text) => {
     expect(criteriaOf(text)).toBeNull();
   });
@@ -468,9 +513,9 @@ describe('the English table holds together', () => {
     expect(overlap(female, male)).toEqual([]);
   });
 
-  it('never makes a negation or an alternative a stopword', () => {
+  it('never makes a negation or an alternative a skipped word', () => {
     const never = new Set(englishPhrases.never);
-    for (const phrase of englishPhrases.stopwords) {
+    for (const phrase of [...englishPhrases.stopwords, ...englishPhrases.relators, ...englishPhrases.asOf]) {
       expect([phrase, tokenize(phrase).some((token) => never.has(token))]).toEqual([phrase, false]);
     }
   });
@@ -542,6 +587,17 @@ describe('names from config or the server', () => {
         { uuid: '4d2e3f40-1111-4222-8333-444455556666', label: 'Diabetic Clinic', aliases: ['diabetic'] },
       ]),
     ).toBeNull();
+  });
+
+  it('never reads a short word, or a word of the table, as a slip in a name', () => {
+    const order = '5d2e3f40-1111-4222-8333-444455556666';
+    const named = {
+      ...config,
+      encounterTypes: [...config.encounterTypes, { uuid: order, label: 'Order', aliases: [] }],
+    };
+    expect(parseCohortCriteria('enrolled in hpv', named)).toBeNull();
+    expect(parseCohortCriteria('enrolled in pmtc', named)).toBeNull();
+    expect(parseCohortCriteria('patients with an older encounter', named)).toBeNull();
   });
 });
 
@@ -688,6 +744,8 @@ describe('test results', () => {
     ['viral load over 1000 since 2025-03-01', [result(viralLoad, 'gt', 1000, { onOrAfter: '2025-03-01' })]],
     ['VL > 1000 and CD4 < 200', [result(viralLoad, 'gt', 1000), result(cd4, 'lt', 200)]],
     ['enrolled in HIV with a viral load over 1000', [inHiv, result(viralLoad, 'gt', 1000)]],
+    // A window is a real bound, so "today" beside it does not change who is counted.
+    ['viral load over 1000 in the last 6 months today', [result(viralLoad, 'gt', 1000, { withinLastMonths: 6 })]],
   ])('reads %j', (text, criteria) => {
     expect(read(text)).toEqual(criteria);
   });
@@ -720,6 +778,10 @@ describe('test results', () => {
     'volume < 80',
     'corpuscular < 80',
     'count under 200',
+    // A test with no window is the latest ever, so "today" would count other days.
+    'viral load over 1000 today',
+    'patients currently with a viral load over 1000',
+    'patients with a viral load over 1000 right now',
     // A test the server didn't name.
     'weight over 2',
   ])('offers nothing for %j', (text) => {
