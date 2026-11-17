@@ -216,6 +216,7 @@ describe('the paraphrase set', () => {
     ['patients under 5 enrolled in HIV', [age(undefined, 4), inHiv]],
     ['men aged 15 to 49', [men(15, 49)]],
     ['how many women do we have', [women()]],
+    ['can I see all women on ARVs', [women(), onArvs]],
     ['patients at least 18 enrolled in HIV', [age(18), inHiv]],
   ])('reads %j', (text, criteria) => {
     expect(criteriaOf(text)).toEqual(criteria);
@@ -352,6 +353,9 @@ describe('the paraphrase set', () => {
     'how many patients do you have on ARVs',
     'patients who were enrolled in HIV',
     'patients who were on ARVs',
+    'how many of my patients are women',
+    'how many patients do I have on ARVs',
+    'how many women are here',
   ])('offers nothing for %j', (text) => {
     expect(criteriaOf(text)).toBeNull();
   });
