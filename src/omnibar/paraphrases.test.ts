@@ -155,7 +155,6 @@ describe('the paraphrase set', () => {
     ['adolescents under 15', [age(10, 14)]],
     ['women of reproductive age under 30', [women(15, 29)]],
     ['children under 5', [age(undefined, 4)]],
-    ['children aged 10 to 30', [age(10, 17)]],
     ['elderly patients', [age(60)]],
     ['older people', [age(60)]],
     ['seniors', [age(60)]],
@@ -269,6 +268,10 @@ describe('the paraphrase set', () => {
     'patients 15',
     'women 15',
     'adults under 10',
+    'adults 15+',
+    'pediatric patients under 18',
+    'paediatric patients under 18',
+    'children aged 10 to 30',
     'children over 20 and under 30',
     // Two named groups: likely an "or" or a slip, never a narrow band between them.
     'adolescent adults',

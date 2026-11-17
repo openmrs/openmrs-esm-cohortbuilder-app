@@ -508,7 +508,8 @@ export function parseCohortCriteria(text: string, config: CohortCriteriaConfig):
     return null;
   }
   if (banded) {
-    // Within the band; a bound outside it, as in "adults under 10", leaves no one, so no cohort.
+    // Within the band. A bound outside it, as in "adults under 10" or "adults 15+", asks about other people.
+    if ((minAge != null && minAge < bandMin) || (maxAge != null && maxAge > bandMax)) return null;
     minAge = Math.max(minAge ?? 0, bandMin);
     maxAge = Math.min(maxAge ?? MAX_AGE, bandMax);
     if (minAge === 0) minAge = undefined;
