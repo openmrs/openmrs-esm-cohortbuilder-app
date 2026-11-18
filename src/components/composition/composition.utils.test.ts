@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createCompositionQuery, isCompositionValid } from './composition.utils';
+import type { Query } from '../../types';
+import { composeQueries, createCompositionQuery, isCompositionValid } from './composition.utils';
 
 const rowFilter = (key: string) => ({
   type: 'org.openmrs.module.reporting.dataset.definition.PatientDataSetDefinition',
@@ -82,5 +83,33 @@ describe('createCompositionQuery', () => {
 
     expect(query.rowFilters).toHaveLength(12);
     expect(query.customRowFilterCombination).toBe('(1 AND 10) AND (11 OR 12)');
+  });
+});
+
+describe('composeQueries', () => {
+  beforeEach(() => {
+    window.sessionStorage.clear();
+  });
+
+  it('ANDs queries exactly as the Composition tab ANDs the same searches from history', () => {
+    const searches = [
+      { rowFilters: [rowFilter('males')], customRowFilterCombination: '1' },
+      {
+        rowFilters: [rowFilter('ageRangeOnDate'), rowFilter('diedDuringPeriod')],
+        customRowFilterCombination: '1 AND NOT 2',
+      },
+      { rowFilters: [rowFilter('patientsWithEnrollment')], customRowFilterCombination: '1' },
+    ];
+    setHistory(searches);
+    const fromHistory = createCompositionQuery('1 AND 2 AND 3');
+
+    expect(composeQueries(searches as Array<Query>)).toEqual(fromHistory);
+    expect(fromHistory.query.customRowFilterCombination).toBe('(1) AND (2 AND NOT 3) AND (4)');
+  });
+
+  it('leaves the queries it was given as they were', () => {
+    const search = { rowFilters: [rowFilter('males')], customRowFilterCombination: '1' };
+    composeQueries([search, { ...search }] as Array<Query>);
+    expect(search).toEqual({ rowFilters: [rowFilter('males')], customRowFilterCombination: '1' });
   });
 });

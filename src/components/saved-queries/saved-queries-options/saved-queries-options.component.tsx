@@ -14,7 +14,7 @@ type OptionType = (typeof Options)[keyof typeof Options];
 
 interface SavedQueriesOptionsProps {
   query: DefinitionDataRow;
-  onViewQuery: (queryId: string) => Promise<void>;
+  onViewQuery: (queryId: string) => Promise<boolean>;
   deleteQuery: (queryId: string) => Promise<void>;
 }
 

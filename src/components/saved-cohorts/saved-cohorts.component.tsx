@@ -21,7 +21,7 @@ import mainStyles from '../../cohort-builder.scss';
 import styles from './saved-cohorts.scss';
 
 interface SavedCohortsProps {
-  onViewCohort: (queryId: string) => Promise<void>;
+  onViewCohort: (queryId: string) => Promise<boolean>;
 }
 
 const SavedCohorts: React.FC<SavedCohortsProps> = ({ onViewCohort }) => {
