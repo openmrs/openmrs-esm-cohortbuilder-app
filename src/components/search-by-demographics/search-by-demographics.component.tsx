@@ -3,19 +3,24 @@ import classNames from 'classnames';
 import { Column, ContentSwitcher, NumberInput, Switch } from '@carbon/react';
 import { useTranslation } from 'react-i18next';
 import { type SearchByProps } from '../../types';
-import { getDescription, getQueryDetails } from './search-by-demographics.utils';
+import { type Demographics, getDescription, getQueryDetails } from './search-by-demographics.utils';
 import SearchButtonSet from '../search-button-set/search-button-set';
 import SearchDatePicker from '../search-date-picker/search-date-picker';
 import styles from './search-by-demographics.style.scss';
 
-const SearchByDemographics: React.FC<SearchByProps> = ({ onSubmit }) => {
+interface SearchByDemographicsProps extends SearchByProps {
+  /** The values to start with, such as a definition link's. */
+  initialValues?: Demographics;
+}
+
+const SearchByDemographics: React.FC<SearchByDemographicsProps> = ({ onSubmit, initialValues }) => {
   const { t } = useTranslation();
-  const [livingStatus, setLivingStatus] = useState('alive');
-  const [gender, setGender] = useState('all');
-  const [birthDayStartDate, setBirthDayStartDate] = useState('');
-  const [birthDayEndDate, setBirthDayEndDate] = useState('');
-  const [minAge, setMinAge] = useState(0);
-  const [maxAge, setMaxAge] = useState(0);
+  const [livingStatus, setLivingStatus] = useState(initialValues?.livingStatus ?? 'alive');
+  const [gender, setGender] = useState(initialValues?.gender ?? 'all');
+  const [birthDayStartDate, setBirthDayStartDate] = useState(initialValues?.birthDayStartDate ?? '');
+  const [birthDayEndDate, setBirthDayEndDate] = useState(initialValues?.birthDayEndDate ?? '');
+  const [minAge, setMinAge] = useState(initialValues?.minAge ?? 0);
+  const [maxAge, setMaxAge] = useState(initialValues?.maxAge ?? 0);
   const [isLoading, setIsLoading] = useState(false);
 
   const genders = [

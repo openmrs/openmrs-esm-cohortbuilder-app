@@ -1,7 +1,7 @@
 import { composeJson } from '../../cohort-builder.utils';
 import { type DropdownValue } from '../../types';
 
-interface EnrollmentsSearchParams {
+export interface EnrollmentsSearchParams {
   enrolledOnOrAfter: string;
   enrolledOnOrBefore: string;
   completedOnOrAfter: string;
@@ -40,9 +40,10 @@ export const getQueryDetails = ({
         name: 'completedOnOrBefore',
         value: completedOnOrBefore,
       },
-      {
+      // No locations chosen means any location, which the server reads from a missing list as from an empty one.
+      selectedLocations?.length > 0 && {
         name: 'locationList',
-        value: selectedLocations?.map((location) => location.value),
+        value: selectedLocations.map((location) => location.value),
       },
     ],
   };
