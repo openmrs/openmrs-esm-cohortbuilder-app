@@ -126,8 +126,8 @@ describe('date pickers', () => {
     const [{ query }] = await search(onSubmit);
 
     expect(query.rowFilters.find(({ key }) => key.endsWith('bornDuringPeriod')).parameterValues).toEqual({
-      startDate: dayjs(new Date(2024, 11, 31)).format(),
-      endDate: dayjs(new Date(2025, 0, 1)).format(),
+      startDate: dayjs(new Date(2024, 11, 31)).format('YYYY-MM-DD'),
+      endDate: dayjs(new Date(2025, 0, 1)).format('YYYY-MM-DD'),
     });
   });
 
@@ -184,7 +184,9 @@ describe('date pickers', () => {
     const [{ query }] = await search(onSubmit);
 
     expect(dateInputs()[0]).toHaveValue(date ? dayjs(date).format('DD-MM-YYYY') : '');
-    expect(query.rowFilters[0]?.parameterValues?.onOrAfter).toEqual(date ? dayjs(date).format() : undefined);
+    expect(query.rowFilters[0]?.parameterValues?.onOrAfter).toEqual(
+      date ? dayjs(date).format('YYYY-MM-DD') : undefined,
+    );
   });
 
   it('searches with only a start date, with no end date in the filter', async () => {
@@ -195,7 +197,7 @@ describe('date pickers', () => {
     const [{ query }, description] = await search(onSubmit);
 
     expect(query.rowFilters.find(({ key }) => key.endsWith('bornDuringPeriod')).parameterValues).toEqual({
-      startDate: dayjs(new Date(2000, 0, 1)).format(),
+      startDate: dayjs(new Date(2000, 0, 1)).format('YYYY-MM-DD'),
     });
     expect(description).toContain('born on or after 1/1/2000');
   });
@@ -208,7 +210,7 @@ describe('date pickers', () => {
     const [{ query }, description] = await search(onSubmit);
 
     expect(query.rowFilters.find(({ key }) => key.endsWith('bornDuringPeriod')).parameterValues).toEqual({
-      endDate: dayjs(new Date(2000, 0, 1)).format(),
+      endDate: dayjs(new Date(2000, 0, 1)).format('YYYY-MM-DD'),
     });
     expect(description).toContain('born on or before 1/1/2000');
   });
@@ -225,8 +227,8 @@ describe('date pickers', () => {
     });
     const [{ query }] = await search(onSubmit);
     expect(query.rowFilters.find(({ key }) => key.endsWith('bornDuringPeriod')).parameterValues).toEqual({
-      startDate: dayjs(new Date(2024, 11, 31)).format(),
-      endDate: dayjs(new Date(2025, 0, 1)).format(),
+      startDate: dayjs(new Date(2024, 11, 31)).format('YYYY-MM-DD'),
+      endDate: dayjs(new Date(2025, 0, 1)).format('YYYY-MM-DD'),
     });
   });
 
@@ -238,7 +240,7 @@ describe('date pickers', () => {
     await userEvent.tab();
     const [{ query }] = await search(onSubmit);
 
-    expect(query.rowFilters[0]?.parameterValues?.onOrAfter).toEqual(dayjs(new Date(2024, 11, 31)).format());
+    expect(query.rowFilters[0]?.parameterValues?.onOrAfter).toEqual(dayjs(new Date(2024, 11, 31)).format('YYYY-MM-DD'));
   });
 
   it.each([false, true])(
@@ -252,7 +254,7 @@ describe('date pickers', () => {
       await userEvent.tab({ shift });
       const [{ query }] = await search(onSubmit);
 
-      expect(query.rowFilters[0]?.parameterValues?.onOrAfter).toEqual(dayjs(new Date(2025, 0, 1)).format());
+      expect(query.rowFilters[0]?.parameterValues?.onOrAfter).toEqual(dayjs(new Date(2025, 0, 1)).format('YYYY-MM-DD'));
     },
   );
 
@@ -291,8 +293,8 @@ describe('date pickers', () => {
 
     const [{ query }] = await search(onSubmit);
     expect(query.rowFilters.find(({ key }) => key.endsWith('bornDuringPeriod')).parameterValues).toEqual({
-      startDate: dayjs(new Date(2024, 11, 31)).format(),
-      endDate: dayjs(new Date(2025, 0, 1)).format(),
+      startDate: dayjs(new Date(2024, 11, 31)).format('YYYY-MM-DD'),
+      endDate: dayjs(new Date(2025, 0, 1)).format('YYYY-MM-DD'),
     });
   });
 
