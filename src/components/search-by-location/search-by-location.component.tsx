@@ -78,7 +78,6 @@ const SearchByLocation: React.FC<SearchByProps> = ({ onSubmit }) => {
             selectedItems={selectedLocations}
             items={locations}
             label={t('selectLocations', 'Select locations')}
-            placeholder={t('searchForALocation', 'Search for a location')}
           />
         </div>
       </Column>
