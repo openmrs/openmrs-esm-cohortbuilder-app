@@ -9,7 +9,7 @@ dayjs.extend(customParseFormat);
 interface SearchDatePickerProps {
   id: string;
   labelText: string;
-  /** The date as an ISO 8601 string, or '' for none. */
+  /** The date as YYYY-MM-DD, or '' for none. */
   value: string;
   onChange: (value: string) => void;
 }
@@ -29,8 +29,11 @@ const SearchDatePicker: React.FC<SearchDatePickerProps> = ({ id, labelText, valu
   // flatpickr reports no dates when it is cleared, as Carbon does when the value is reset; that is no date, not today.
   // It reports a typed date on blur or Enter, but takes one silently when a touch outside closes the calendar, so
   // closing reports the date it holds by then too.
+  // The date goes out as a calendar day with no time or offset. The server reads it as midnight in its own time zone
+  // and searches to the end of a "to" day given at midnight. Local midnight from a browser in another time zone isn't
+  // midnight on the server, so the search would end at that instant and leave out the "to" day.
   const handleDates = (_dates: Date[], _dateStr: string, { selectedDates: [date] }: Instance) =>
-    onChange(date ? dayjs(date).format() : '');
+    onChange(date ? dayjs(date).format('YYYY-MM-DD') : '');
 
   return (
     <DatePicker

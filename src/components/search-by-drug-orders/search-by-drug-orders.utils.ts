@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { formatDate } from '@openmrs/esm-framework';
 import { composeJson } from '../../cohort-builder.utils';
 import { type DrugOrderDetails } from './../../types/index';
@@ -21,7 +22,7 @@ export const getDescription = ({
   }
 
   if (activeOnOrAfter) {
-    const date = formatDate(new Date(activeOnOrAfter), { mode: 'standard' });
+    const date = formatDate(dayjs(activeOnOrAfter).toDate(), { mode: 'standard' });
     if (activeOnOrBefore) {
       description += ` from ${date}`;
     } else {
@@ -30,7 +31,7 @@ export const getDescription = ({
   }
 
   if (activeOnOrBefore) {
-    const date = formatDate(new Date(activeOnOrBefore), { mode: 'standard' });
+    const date = formatDate(dayjs(activeOnOrBefore).toDate(), { mode: 'standard' });
     if (activeOnOrAfter) {
       description += ` to ${date}`;
     } else {
@@ -39,7 +40,7 @@ export const getDescription = ({
   }
 
   if (activatedOnOrAfter) {
-    const date = formatDate(new Date(activatedOnOrAfter), { mode: 'standard' });
+    const date = formatDate(dayjs(activatedOnOrAfter).toDate(), { mode: 'standard' });
     if (activatedOnOrBefore) {
       description += ` from ${date}`;
     } else {
@@ -48,7 +49,7 @@ export const getDescription = ({
   }
 
   if (activatedOnOrBefore) {
-    const date = formatDate(new Date(activatedOnOrBefore), {
+    const date = formatDate(dayjs(activatedOnOrBefore).toDate(), {
       mode: 'standard',
     });
     if (activatedOnOrAfter) {
