@@ -5,7 +5,7 @@ import type { DropdownValue, Response } from '../../types';
  * @returns Forms
  */
 export const useForms = () => {
-  const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/form`, {
+  const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/form?v=custom:(uuid,display)`, {
     immutable: true,
     swrInfiniteConfig: { revalidateFirstPage: false },
   });
@@ -27,7 +27,7 @@ export const useForms = () => {
  * @returns EncounterTypes
  */
 export const useEncounterTypes = () => {
-  const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/encountertype`, {
+  const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/encountertype?v=custom:(uuid,display)`, {
     immutable: true,
     swrInfiniteConfig: { revalidateFirstPage: false },
   });

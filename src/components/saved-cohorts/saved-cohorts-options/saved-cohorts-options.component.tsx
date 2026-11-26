@@ -12,7 +12,7 @@ const Options = {
 
 interface SavedCohortsOptionsProps {
   cohort: DefinitionDataRow;
-  onViewCohort: (cohortId: string) => Promise<void>;
+  onViewCohort: (cohortId: string) => Promise<boolean>;
   onDeleteCohort: (cohortId: string) => Promise<void>;
 }
 
