@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { composeJson, convertToCSV, queryDescriptionBuilder } from './cohort-builder.utils';
 import type { Patient } from './types';
 
@@ -75,5 +75,21 @@ describe('queryDescriptionBuilder', () => {
     );
 
     expect(description).toBe('Patients with ANY Weight (kg)');
+  });
+
+  describe('in a browser behind UTC', () => {
+    beforeEach(() => {
+      const zone = process.env.TZ;
+      process.env.TZ = 'America/New_York';
+      return () => {
+        process.env.TZ = zone;
+      };
+    });
+
+    it('describes calendar days as those days', () => {
+      expect(
+        queryDescriptionBuilder({ timeModifier: 'ANY', onOrAfter: '2026-11-13', onOrBefore: '2026-11-16' }, 'Pulse'),
+      ).toBe('Patients with ANY Pulse since 13/11/2026 until 16/11/2026');
+    });
   });
 });
