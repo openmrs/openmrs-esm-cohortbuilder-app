@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { openmrsFetch } from '@openmrs/esm-framework';
-import { CohortMembersLoadError, getCohortMembers, getDataSet } from './cohort-builder.resources';
+import { CohortMembersLoadError, getCohortMembers, getDataSet, MAX_COHORT_MEMBERS_SHOWN } from './cohort-builder.resources';
 
 const mockOpenmrsFetch = vi.mocked(openmrsFetch);
 const cohortUuid = 'f4c0b5a2-3c84-4c76-bb7e-6c1b1b2e5a11';
@@ -49,8 +49,9 @@ describe('getCohortMembers', () => {
     const firstPage = Array.from({ length: 100 }, (_, i) => membership(i + 1));
     membershipPages = [firstPage, [membership(101)]];
 
-    const { patients } = await getCohortMembers(cohortUuid);
+    const { patients, total } = await getCohortMembers(cohortUuid);
 
+    expect(total).toBe(101);
     expect(patients).toHaveLength(101);
     expect(patients[100]).toEqual({
       id: '101',
@@ -66,7 +67,7 @@ describe('getCohortMembers', () => {
     expect(mockOpenmrsFetch).toHaveBeenCalledWith(expect.stringContaining('&startIndex=100'));
   });
 
-  it('loads the members 6 at a time', async () => {
+  it(`loads at most ${MAX_COHORT_MEMBERS_SHOWN} members, 6 at a time`, async () => {
     membershipPages = [0, 1, 2].map((page) => Array.from({ length: 100 }, (_, i) => membership(page * 100 + i + 1)));
     let inFlight = 0;
     let mostInFlight = 0;
@@ -78,10 +79,11 @@ describe('getCohortMembers', () => {
       return details(n);
     };
 
-    const { patients } = await getCohortMembers(cohortUuid);
+    const { patients, total } = await getCohortMembers(cohortUuid);
 
-    expect(patients).toHaveLength(300);
-    expect(fetchedPatients()).toBe(300);
+    expect(total).toBe(300);
+    expect(patients).toHaveLength(MAX_COHORT_MEMBERS_SHOWN);
+    expect(fetchedPatients()).toBe(MAX_COHORT_MEMBERS_SHOWN);
     expect(mostInFlight).toBe(6);
   });
 
@@ -90,9 +92,9 @@ describe('getCohortMembers', () => {
     // A server that ignores startIndex returns the same page with a "next" link forever.
     membershipPages = Array(50).fill(samePage);
 
-    const { patients } = await getCohortMembers(cohortUuid);
+    const { total } = await getCohortMembers(cohortUuid);
 
-    expect(patients).toHaveLength(100);
+    expect(total).toBe(100);
     expect(mockOpenmrsFetch.mock.calls.filter(([url]) => url.includes('/membership'))).toHaveLength(2);
   });
 
@@ -108,13 +110,14 @@ describe('getCohortMembers', () => {
       ],
     ];
 
-    const { patients } = await getCohortMembers(cohortUuid);
+    const { patients, total } = await getCohortMembers(cohortUuid);
 
     expect(patients.map(({ patientId }) => patientId)).toEqual([1, 5, 6]);
+    expect(total).toBe(3);
   });
 
   it('skips members that cannot be loaded or shown', async () => {
-    membershipPages = [[membership(1), membership(2), membership(3)]];
+    membershipPages = [[membership(1), membership(2), membership(3), membership(4, { patientUuid: '../../user' })]];
     patientDetails = async (n) => {
       if (n === 2) {
         throw new Error('Not found');
@@ -122,10 +125,11 @@ describe('getCohortMembers', () => {
       return n === 3 ? { ...details(3), person: { ...details(3).person, preferredName: null } } : details(n);
     };
 
-    const { patients, total } = await getCohortMembers(cohortUuid);
+    const { patients, total, unavailable } = await getCohortMembers(cohortUuid);
 
     expect(patients.map(({ patientId }) => patientId)).toEqual([1]);
     expect(total).toBe(3);
+    expect(unavailable).toBe(2);
     expect(fetchedPatients()).toBe(3);
   });
 
@@ -153,7 +157,12 @@ describe('getCohortMembers', () => {
   it('shows an empty cohort as no members', async () => {
     membershipPages = [[membership(1, { voided: true })]];
 
-    expect(await getCohortMembers(cohortUuid)).toEqual({ patients: [], total: 0 });
+    expect(await getCohortMembers(cohortUuid)).toEqual({ patients: [], total: 0, unavailable: 0 });
+  });
+
+  it('refuses a cohort id that is not a uuid before fetching anything', async () => {
+    await expect(getCohortMembers('../../user')).rejects.toThrow('Not a cohort uuid');
+    expect(mockOpenmrsFetch).not.toHaveBeenCalled();
   });
 });
 

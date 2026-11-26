@@ -15,7 +15,12 @@ const formatFilterCombination = (filterText: string, numberOfSearches: number) =
   return filterText.replace(/\d+/g, (filterNumber) => (parseInt(filterNumber) + numberOfSearches).toString());
 };
 
-export const createCompositionQuery = (compositionQuery: string) => {
+/**
+ * Composes the tokens of `compositionQuery`: each number becomes that operand's filters, renumbered past
+ * the filters already in the query and bracketed. `operand` returns a fresh copy on every call, since
+ * the copy's numbering is rewritten.
+ */
+const composeOperands = (compositionQuery: string, operand: (position: number) => Query) => {
   const query: Query = {
     type: 'org.openmrs.module.reporting.dataset.definition.PatientDataSetDefinition',
     columns: addColumnsToDisplay(),
@@ -27,10 +32,7 @@ export const createCompositionQuery = (compositionQuery: string) => {
 
   searchTokens.forEach((eachToken) => {
     if (eachToken.match(/\d/)) {
-      const history = JSON.parse(window.sessionStorage.getItem('openmrsHistory'));
-      const operandQuery = history[parseInt(eachToken) - 1];
-
-      const jsonRequestObject = operandQuery.parameters;
+      const jsonRequestObject = operand(parseInt(eachToken));
       jsonRequestObject.customRowFilterCombination = formatFilterCombination(
         jsonRequestObject.customRowFilterCombination,
         query.rowFilters.length,
@@ -44,3 +46,15 @@ export const createCompositionQuery = (compositionQuery: string) => {
 
   return { query };
 };
+
+export const createCompositionQuery = (compositionQuery: string) =>
+  composeOperands(
+    compositionQuery,
+    (position) => JSON.parse(window.sessionStorage.getItem('openmrsHistory'))[position - 1].parameters,
+  );
+
+/** ANDs queries in hand exactly as the Composition tab ANDs the same searches from the history. */
+export const composeQueries = (queries: Array<Query>) =>
+  composeOperands(queries.map((_, index) => index + 1).join(' AND '), (position) =>
+    JSON.parse(JSON.stringify(queries[position - 1])),
+  );

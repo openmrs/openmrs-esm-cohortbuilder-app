@@ -1,5 +1,6 @@
 import { openmrsFetch, restBaseUrl, useOpenmrsFetchAll, type FetchResponse } from '@openmrs/esm-framework';
 import type { Patient, SearchParams, DropdownValue, Response } from './types';
+import { isUuid } from './url-definition/url-definition';
 import { getPatientName } from './cohort-builder.utils';
 
 /**
@@ -78,6 +79,7 @@ interface CohortMemberDetails {
   identifiers?: Array<{ identifier: string; preferred: boolean }>;
 }
 
+export const MAX_COHORT_MEMBERS_SHOWN = 200;
 const MEMBERSHIP_PAGE_SIZE = 100;
 const MAX_MEMBERSHIP_PAGES = 1000;
 const PATIENT_FETCH_CONCURRENCY = 6;
@@ -92,24 +94,31 @@ export class CohortMembersLoadError extends Error {
 
 /**
  * webservices.rest has no cohort members endpoint, only the paged `cohort/{uuid}/membership`
- * subresource, which gives patient uuids. Each active member is then loaded for the results table.
- * Resolves to the members that could be shown and the total of active members; throws when there are
- * active members but none could be shown.
+ * subresource, which gives patient uuids. The first MAX_COHORT_MEMBERS_SHOWN active members are
+ * then loaded for the results table. `total` counts active members and `unavailable` those of the
+ * loaded ones that could not be shown. Throws when there are active members but none could be shown.
  */
-export const getCohortMembers = async (cohortId: string): Promise<{ patients: Patient[]; total: number }> => {
+export const getCohortMembers = async (
+  cohortId: string,
+): Promise<{ patients: Patient[]; total: number; unavailable: number }> => {
+  if (!isUuid(cohortId)) {
+    throw new Error(`Not a cohort uuid: ${cohortId}`);
+  }
   const memberships = await getAllMemberships(cohortId);
   const now = new Date();
   const activePatientUuids = memberships
     .filter((membership) => isActiveMembership(membership, now))
-    .map((membership) => membership.patientUuid);
+    .map((membership) => membership.patientUuid)
+    .filter(isUuid);
 
-  const patients = (await mapWithConcurrency(activePatientUuids, PATIENT_FETCH_CONCURRENCY, getCohortMember)).filter(
+  const membersToShow = activePatientUuids.slice(0, MAX_COHORT_MEMBERS_SHOWN);
+  const patients = (await mapWithConcurrency(membersToShow, PATIENT_FETCH_CONCURRENCY, getCohortMember)).filter(
     Boolean,
   );
-  if (activePatientUuids.length > 0 && patients.length === 0) {
+  if (membersToShow.length > 0 && patients.length === 0) {
     throw new CohortMembersLoadError();
   }
-  return { patients, total: activePatientUuids.length };
+  return { patients, total: activePatientUuids.length, unavailable: membersToShow.length - patients.length };
 };
 
 async function getAllMemberships(cohortId: string) {

@@ -80,20 +80,22 @@ describe('the search results', () => {
 });
 
 describe('viewing a saved cohort', () => {
+  const memberUuid = (n: number) => `${String(n).padStart(8, '0')}-0000-4000-8000-000000000000`;
+
   /** Opens a cohort of three members, of whom those listed in `failing` fail to load with a 500. */
   async function viewCohort(failing: number[]) {
     mockOpenmrsFetch.mockImplementation(async (url: string) => {
       if (url.includes('/membership?')) {
         const results = [1, 2, 3].map((n) => ({
           uuid: `membership-${n}`,
-          patientUuid: `patient-${n}`,
+          patientUuid: memberUuid(n),
           startDate: '2020-01-01T00:00:00.000+0000',
           endDate: null,
           voided: false,
         }));
         return { data: { results, links: [] } } as never;
       }
-      const n = Number(url.match(/patient\/patient-(\d)/)?.[1]);
+      const n = Number(url.match(/patient\/(\d{8})-/)?.[1]);
       if (failing.includes(n)) {
         throw new Error('Internal Server Error');
       }
