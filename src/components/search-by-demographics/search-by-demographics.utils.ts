@@ -18,7 +18,7 @@ interface Value {
   livingStatus?: string;
 }
 
-interface Demographics {
+export interface Demographics {
   gender: string;
   minAge: number;
   maxAge: number;
@@ -81,6 +81,7 @@ export const getQueryDetails = ({
       searchParameters.upToAgeOnDate = [{ name: 'maxAge', value: maxAge }];
     }
   }
+  // The reporting module leaves out a bound it isn't given, so one birth date searches a range open at the other end.
   if (birthDayStartDate || birthDayEndDate) {
     searchParameters.bornDuringPeriod = [
       ...(birthDayStartDate ? [{ name: 'startDate', dataType: 'date', value: birthDayStartDate }] : []),
