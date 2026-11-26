@@ -1,4 +1,4 @@
-import type { Column, Patient, Query } from './types';
+import type { Column, DropdownValue, Patient, Query } from './types';
 
 export const composeJson = (searchParameters) => {
   const query: Query = {
@@ -122,6 +122,15 @@ export const addToHistory = (description: string, patients: Patient[], parameter
   window.sessionStorage.setItem('openmrsHistory', JSON.stringify(newHistory));
 };
 
+/**
+ * A MultiSelect's items and its selected ones among them, matched by value. A selected value the list
+ * doesn't have, or doesn't have yet, is added as it is, so a pre-filled selection always shows.
+ */
+export const withSelectedItems = (items: DropdownValue[], selected: DropdownValue[] | null) => {
+  const selectedItems = (selected ?? []).map((item) => items.find(({ value }) => value === item.value) ?? item);
+  return { items: [...items, ...selectedItems.filter((item) => !items.includes(item))], selectedItems };
+};
+
 /** A patient's name from the parts they have, so a missing one doesn't show as "null". */
 export const getPatientName = (...parts: Array<string | null | undefined>) => parts.filter(Boolean).join(' ');
 
@@ -131,34 +140,6 @@ export const formatDate = (dateString: string) => {
   const month = date.getMonth() + 1;
   const year = date.getFullYear();
   return `${day}/${month}/${year}`;
-};
-
-const operatorSymbols: Record<string, string> = {
-  LESS_THAN: '<',
-  LESS_EQUAL: '<=',
-  EQUAL: '=',
-  GREATER_EQUAL: '>=',
-  GREATER_THAN: '>',
-};
-
-/**
- * builds a query description based on query input
- * @param {object} state the current state
- * @param {string} conceptName the concept name
- * @returns {string} date in the required format
- */
-export const queryDescriptionBuilder = (state, conceptName: string) => {
-  const { timeModifier, onOrAfter, onOrBefore, operator1, value1 } = state;
-
-  const operatorSymbol = operatorSymbols[operator1];
-  const valueDescription = operatorSymbol && value1 ? `${operatorSymbol} ${value1}` : '';
-
-  const onOrAfterDescription = onOrAfter ? `since ${formatDate(onOrAfter)}` : '';
-  const onOrBeforeDescription = onOrBefore ? `until ${formatDate(onOrBefore)}` : '';
-
-  return ['Patients with', timeModifier, conceptName, valueDescription, onOrAfterDescription, onOrBeforeDescription]
-    .filter(Boolean)
-    .join(' ');
 };
 
 /** Quotes a value for a CSV file. A missing value is left empty, and a quote in the value is doubled. */

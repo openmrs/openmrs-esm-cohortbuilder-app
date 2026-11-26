@@ -6,7 +6,7 @@ import type { DropdownValue, Response } from '../../types';
  * @returns Drugs
  */
 export function useDrugs() {
-  const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/drug`, {
+  const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/drug?v=custom:(uuid,display)`, {
     immutable: true,
     swrInfiniteConfig: { revalidateFirstPage: false },
   });
@@ -31,7 +31,7 @@ export function useDrugs() {
  * @returns CareSettings
  */
 export function useCareSettings() {
-  const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/caresetting`, {
+  const { data, error, isLoading } = useOpenmrsFetchAll<Response>(`${restBaseUrl}/caresetting?v=custom:(uuid,display)`, {
     immutable: true,
     swrInfiniteConfig: { revalidateFirstPage: false },
   });

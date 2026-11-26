@@ -61,14 +61,17 @@ export const getDescription = ({
   return description;
 };
 
-export const getQueryDetails = ({
-  selectedDrugs,
-  selectedCareSetting,
-  activeOnOrBefore,
-  activeOnOrAfter,
-  activatedOnOrBefore,
-  activatedOnOrAfter,
-}: DrugOrderDetails) => {
+export const getQueryDetails = (
+  {
+    selectedDrugs,
+    selectedCareSetting,
+    activeOnOrBefore,
+    activeOnOrAfter,
+    activatedOnOrBefore,
+    activatedOnOrAfter,
+  }: DrugOrderDetails,
+  drugOrderSearchDefinitionKey: string,
+) => {
   const searchParams = { drugOrderSearch: [] };
   if (activeOnOrAfter) {
     searchParams.drugOrderSearch.push({
@@ -112,5 +115,8 @@ export const getQueryDetails = ({
     });
   }
 
-  return composeJson(searchParams);
+  const queryDetails = composeJson(searchParams);
+  // Released reporting modules have no builtIn.drugOrderSearch, so sites can configure their own definition.
+  queryDetails.query.rowFilters[0].key = drugOrderSearchDefinitionKey;
+  return queryDetails;
 };

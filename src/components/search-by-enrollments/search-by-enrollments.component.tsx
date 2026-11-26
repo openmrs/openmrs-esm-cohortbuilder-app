@@ -3,23 +3,31 @@ import { Column, MultiSelect } from '@carbon/react';
 import { showSnackbar } from '@openmrs/esm-framework';
 import { useTranslation } from 'react-i18next';
 import { useLocations } from '../../cohort-builder.resources';
+import { withSelectedItems } from '../../cohort-builder.utils';
 import { type DropdownValue, type SearchByProps } from '../../types';
 import { usePrograms } from './search-by-enrollments.resources';
-import { getQueryDetails, getDescription } from './search-by-enrollments.utils';
+import { type EnrollmentsSearchParams, getQueryDetails, getDescription } from './search-by-enrollments.utils';
 import SearchButtonSet from '../search-button-set/search-button-set';
 import SearchDatePicker from '../search-date-picker/search-date-picker';
 import styles from './search-by-enrollments.style.scss';
 
-const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
+interface SearchByEnrollmentsProps extends SearchByProps {
+  /** The values to start with, such as a definition link's. */
+  initialValues?: EnrollmentsSearchParams;
+}
+
+const SearchByEnrollments: React.FC<SearchByEnrollmentsProps> = ({ onSubmit, initialValues }) => {
   const { t } = useTranslation();
   const { programs, programsError } = usePrograms();
   const { locations, locationsError } = useLocations();
-  const [enrolledOnOrAfter, setEnrolledOnOrAfter] = useState('');
-  const [enrolledOnOrBefore, setEnrolledOnOrBefore] = useState('');
-  const [completedOnOrAfter, setCompletedOnOrAfter] = useState('');
-  const [completedOnOrBefore, setCompletedOnOrBefore] = useState('');
-  const [selectedLocations, setSelectedLocations] = useState<DropdownValue[]>([]);
-  const [selectedPrograms, setSelectedPrograms] = useState<DropdownValue[]>([]);
+  const [enrolledOnOrAfter, setEnrolledOnOrAfter] = useState(initialValues?.enrolledOnOrAfter ?? '');
+  const [enrolledOnOrBefore, setEnrolledOnOrBefore] = useState(initialValues?.enrolledOnOrBefore ?? '');
+  const [completedOnOrAfter, setCompletedOnOrAfter] = useState(initialValues?.completedOnOrAfter ?? '');
+  const [completedOnOrBefore, setCompletedOnOrBefore] = useState(initialValues?.completedOnOrBefore ?? '');
+  const [selectedLocations, setSelectedLocations] = useState<DropdownValue[]>(initialValues?.selectedLocations ?? []);
+  const [selectedPrograms, setSelectedPrograms] = useState<DropdownValue[]>(initialValues?.selectedPrograms ?? []);
+  const programOptions = withSelectedItems(programs, selectedPrograms);
+  const locationOptions = withSelectedItems(locations, selectedLocations);
   const [isLoading, setIsLoading] = useState(false);
 
   const programsErrorMessage = programsError?.message;
@@ -82,8 +90,8 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
             id="programs"
             data-testid="programs"
             onChange={(data) => setSelectedPrograms(data.selectedItems)}
-            selectedItems={selectedPrograms}
-            items={programs}
+            items={programOptions.items}
+            selectedItems={programOptions.selectedItems}
             label={t('selectPrograms', 'Select programs')}
           />
         </div>
@@ -94,8 +102,8 @@ const SearchByEnrollments: React.FC<SearchByProps> = ({ onSubmit }) => {
             id="locations"
             data-testid="locations"
             onChange={(data) => setSelectedLocations(data.selectedItems)}
-            selectedItems={selectedLocations}
-            items={locations}
+            items={locationOptions.items}
+            selectedItems={locationOptions.selectedItems}
             label={t('selectLocations', 'Select locations')}
           />
         </div>

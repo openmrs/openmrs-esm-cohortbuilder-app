@@ -5,6 +5,7 @@ import styles from './search-button-set.scss';
 
 interface SearchButtonSet {
   isLoading: boolean;
+  /** Whether the search is missing something it needs, such as the drug order search's drugs. */
   isSearchDisabled?: boolean;
   onHandleSubmit: () => void;
   onHandleReset: () => void;
